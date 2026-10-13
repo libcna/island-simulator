@@ -767,6 +767,7 @@ try {
               && log.includes("cave connected shell strips share smooth lighting normals while portal breaks stay sharp")
               && log.includes("cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling")))
             && (!focusedTurtleCheck || (log.includes("near turtles use staggered scutes and closed tapered-volume paddles")
+              && log.includes("near turtles use compact integrated heads, narrower hydrodynamic paddles, and restrained shell seams")
               && /turtles [1-5]\/5 visible \(near [1-5], far [0-5]\), 1 draw/.test(log)))
             && (!focusedCrabCheck || (log.includes("near crabs use tapered toes, socketed eyes, and solid pincer fingers")
               && /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))

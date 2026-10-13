@@ -133,7 +133,7 @@ namespace island::sea_turtle
         const float outward = reach * std::cos(sweep) * std::cos(flap);
         const float back = reach * std::sin(sweep);
         const float rise = reach * std::sin(flap) * std::cos(sweep);
-        halfWidth = 0.095f * (0.95f + 0.75f * std::sin(3.14159265f * std::min(1.0f, t * 1.1f + 0.1f)))
+        halfWidth = 0.078f * (0.95f + 0.75f * std::sin(3.14159265f * std::min(1.0f, t * 1.1f + 0.1f)))
             * (1.0f - 0.55f * t * t);
         // Start beneath the marginal scutes instead of leaving a visible gap between the
         // shell and the first paddle section. The distal reach remains long enough for the
@@ -151,7 +151,7 @@ namespace island::sea_turtle
         constexpr float length = 0.30f;
         const float flap = -stroke * 0.18f * t;
         const float reach = length * t;
-        halfWidth = 0.075f * (0.7f + 0.6f * std::sin(3.14159265f * std::min(1.0f, t + 0.15f)));
+        halfWidth = 0.062f * (0.7f + 0.6f * std::sin(3.14159265f * std::min(1.0f, t + 0.15f)));
         return {side * (0.28f + reach * 0.62f), -0.045f + reach * std::sin(flap),
                 -0.40f - reach * 0.78f};
     }

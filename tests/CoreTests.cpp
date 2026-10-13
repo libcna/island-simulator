@@ -2888,6 +2888,7 @@ int main()
               "turtle carapace is a closed teardrop widest ahead of its middle");
         Check(tallest > 0.18f && tallest < 0.26f && std::abs(tallestU) < 0.3f,
               "turtle carapace dome peaks near the centre at a realistic height");
+        float maximumFrontPaddleHalfWidth = 0.0f, maximumRearPaddleHalfWidth = 0.0f;
         for (const float stroke : {-1.0f, -0.5f, 0.0f, 0.5f, 1.0f}) {
             float rootWidth = 0.0f, tipWidth = 0.0f;
             const auto root = FrontFlipper(1.0f, 0.0f, stroke, rootWidth);
@@ -2900,13 +2901,18 @@ int main()
                       && std::hypot(rearTip.x, rearTip.z) < 0.9f,
                   "front paddles are long and rear paddles short");
             for (int i = 0; i <= 10; ++i) {
-                float w = 0.0f;
-                const auto f = FrontFlipper(-1.0f, 0.1f * static_cast<float>(i), stroke, w);
-                const auto r = RearFlipper(1.0f, 0.1f * static_cast<float>(i), stroke, w);
-                reach = std::max({reach, std::hypot(f.x, f.y, std::abs(f.z) + w),
-                                  std::hypot(r.x, r.y, std::abs(r.z) + w)});
+                float frontWidth = 0.0f, rearSampleWidth = 0.0f;
+                const auto f = FrontFlipper(-1.0f, 0.1f * static_cast<float>(i), stroke, frontWidth);
+                const auto r = RearFlipper(1.0f, 0.1f * static_cast<float>(i), stroke, rearSampleWidth);
+                maximumFrontPaddleHalfWidth=std::max(maximumFrontPaddleHalfWidth,frontWidth);
+                maximumRearPaddleHalfWidth=std::max(maximumRearPaddleHalfWidth,rearSampleWidth);
+                reach = std::max({reach, std::hypot(f.x, f.y, std::abs(f.z) + frontWidth),
+                                  std::hypot(r.x, r.y, std::abs(r.z) + rearSampleWidth)});
             }
         }
+        Check(maximumFrontPaddleHalfWidth>0.11f&&maximumFrontPaddleHalfWidth<0.135f
+                  &&maximumRearPaddleHalfWidth>0.07f&&maximumRearPaddleHalfWidth<0.09f,
+              "turtle paddles retain a narrow hydrodynamic planform rather than broad leaves");
         float upWidth = 0.0f, downWidth = 0.0f;
         const auto up = FrontFlipper(1.0f, 1.0f, 1.0f, upWidth);
         const auto down = FrontFlipper(1.0f, 1.0f, -1.0f, downWidth);

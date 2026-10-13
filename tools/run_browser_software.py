@@ -288,6 +288,7 @@ def validate_turtle_report(report):
         or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
         or len(set(frames)) != 2
         or "near turtles use staggered scutes and closed tapered-volume paddles" not in log
+        or "near turtles use compact integrated heads, narrower hydrodynamic paddles, and restrained shell seams" not in log
         or not re.search(r"turtles [1-5]/5 visible \(near [1-5], far [0-5]\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("turtle view lacks current anatomy, frames or clean graphics state")

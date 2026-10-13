@@ -143,3 +143,27 @@ Focused Chrome/SwiftShader evidence `20261013T111627.247231Z-chrome-turtles` als
 inspected frames retain the close turtle in different poses, their SHA-256 identities differ, all
 60 finite intervals complete, `glError` is zero, the context remains live and the kernel delta is
 empty. This closes current Web execution, not continuous all-angle stroke or Android qualification.
+
+## Sixth silhouette-proportion pass (2026-10-13)
+
+A new side/front audit retained the long swimming reach but exposed two proportion problems. The
+front paddle's maximum half-width was about 22% too broad, making it resemble a leaf, while the
+head and neck projected too far beyond the shell and read as a narrow tube from the front quarter.
+The front half-width coefficient is now 0.078 m instead of 0.095 m and the rear coefficient is
+0.062 m instead of 0.075 m. Core regression coverage bounds their sampled maxima to 0.11–0.135 m
+and 0.07–0.09 m respectively while retaining more than 0.6 m of articulated front reach.
+
+The same pass compresses the five head-ring centres and split beak from 0.94 m to 0.835 m local
+forward extent, broadens the neck root into the shell, and refits both eyes, highlights, nostrils
+and mouth creases. Shell seams shrink again and move from 82% to 90% of the shell tone; underlying
+row/costal contrast is also reduced. Geometry remains exactly 2,250 vertices / 750 triangles per
+near turtle, at most 180,000 bytes for five, in the same one draw with no new texture.
+
+The inspected native comparison retains the earlier `20261013T110942.434236Z-turtles` baseline
+and current `20261013T164545.549417Z-turtles` result. The latter passes with 225 colour bins,
+27.79 luminance deviation, 162.00 spatial contrast and an empty kernel delta; the shorter joined
+head, narrower paddle and quieter shell grid are visible. Chrome/SwiftShader
+`20261013T164900.718714Z-chrome-turtles` passes two inspected different animated poses, 60 finite
+intervals, GL error zero, an intact context and no new kernel GPU fault. ARM64 assemble/lint passes
+without launching an emulator. The animal remains deliberately faceted; skin/scute microtexture,
+continuous all-angle stroke review and Android runtime imagery remain open.

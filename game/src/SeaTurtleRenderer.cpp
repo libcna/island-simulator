@@ -45,6 +45,8 @@ namespace island
             "island-simulator: near turtles use subdued scute seams, fuller heads, nostrils and mouth creases";
         constexpr std::string_view TurtleScaleDiagnostic =
             "island-simulator: near turtles use staggered scutes and closed tapered-volume paddles";
+        constexpr std::string_view TurtleSilhouetteDiagnostic =
+            "island-simulator: near turtles use compact integrated heads, narrower hydrodynamic paddles, and restrained shell seams";
 
         struct TurtlePalette
         {
@@ -243,11 +245,11 @@ namespace island
             }
             const auto scuteColor = [&](const float u, const float sMid, const int row, const int column) {
                 const Scute scute = ScuteAt(sMid);
-                const float rowTone = (ScuteRow(u) % 2 == 0) ? 1.0f : 0.93f;
+                const float rowTone = (ScuteRow(u) % 2 == 0) ? 1.0f : 0.96f;
                 if (scute == Scute::Vertebral) return ToneColor(palette.scute, 1.04f * rowTone);
-                if (scute == Scute::Marginal) return ToneColor(palette.underside, 0.84f * rowTone);
+                if (scute == Scute::Marginal) return ToneColor(palette.underside, 0.88f * rowTone);
                 const bool inner = column == 2 || column == 5;
-                return ToneColor(palette.shell, (inner ? 1.14f : 0.90f) * rowTone * (row % 2 ? 1.0f : 0.97f));
+                return ToneColor(palette.shell, (inner ? 1.10f : 0.94f) * rowTone * (row % 2 ? 1.0f : 0.98f));
             };
             for (int row = 0; row < Rows; ++row) {
                 const float u = 0.5f * (stations[static_cast<std::size_t>(row)] + stations[static_cast<std::size_t>(row + 1)]);
@@ -274,12 +276,12 @@ namespace island
             // transverse points and gently waving longitudinal edges avoid the old cage-like
             // rectangular grid while retaining a symmetric, deterministic shell pattern.
             {
-                const Color seam = ToneColor(palette.shell, 0.82f);
+                const Color seam = ToneColor(palette.shell, 0.90f);
                 const auto surface = [&](const float u, const float sPos) {
                     return local(sPos * HalfWidth(u), CarapaceHeight(u, sPos), LengthToZ(u))
                         + axes.up * (0.003f * scale);
                 };
-                constexpr float seamHalfU = 0.0055f, seamHalfS = 0.0075f;
+                constexpr float seamHalfU = 0.0040f, seamHalfS = 0.0060f;
                 for (int boundary = 1; boundary <= NearTurtleBudget::SeamRows; ++boundary) {
                     for (int column = 0; column < Columns; ++column) {
                         const auto c0 = static_cast<std::size_t>(column), c1 = c0 + 1U;
@@ -347,9 +349,9 @@ namespace island
             struct Ring { float y, z, radiusX, radiusY; };
             // Narrow neck, rear skull, full crown, brow and a narrowing beaked snout.
             constexpr std::array<Ring, NearTurtleBudget::HeadRings> rings{{
-                {0.020f, 0.48f, 0.073f, 0.064f}, {0.043f, 0.61f, 0.108f, 0.091f},
-                {0.050f, 0.70f, 0.116f, 0.098f}, {0.035f, 0.79f, 0.094f, 0.077f},
-                {0.004f, 0.88f, 0.064f, 0.048f}}};
+                {0.020f, 0.46f, 0.090f, 0.072f}, {0.043f, 0.56f, 0.115f, 0.094f},
+                {0.050f, 0.64f, 0.120f, 0.100f}, {0.035f, 0.71f, 0.105f, 0.081f},
+                {0.004f, 0.78f, 0.075f, 0.052f}}};
             std::array<std::array<Vector3, HeadSegments>, NearTurtleBudget::HeadRings> head{};
             for (std::size_t r = 0; r < rings.size(); ++r) {
                 for (int segment = 0; segment < HeadSegments; ++segment) {
@@ -374,9 +376,9 @@ namespace island
                     AddOutwardTriangle(vertices, head[r][s0], head[r + 1][s1], head[r][s1], color, inside);
                 }
             }
-            const Vector3 noseUpper = local(0.0f, 0.024f, 0.942f);
-            const Vector3 noseLower = local(0.0f, -0.024f, 0.925f);
-            const Vector3 neckBase = local(0.0f, 0.02f, 0.42f);
+            const Vector3 noseUpper = local(0.0f, 0.024f, 0.835f);
+            const Vector3 noseLower = local(0.0f, -0.025f, 0.820f);
+            const Vector3 neckBase = local(0.0f, 0.02f, 0.39f);
             for (int segment = 0; segment < HeadSegments; ++segment) {
                 const auto s0 = static_cast<std::size_t>(segment);
                 const auto s1 = static_cast<std::size_t>((segment + 1) % HeadSegments);
@@ -391,10 +393,10 @@ namespace island
             const Color eyeShine(119, 137, 127, 255);
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
                 const float side = static_cast<float>(sideIndex);
-                const Vector3 eTop = local(side * 0.118f, 0.094f, 0.704f);
-                const Vector3 eFront = local(side * 0.120f, 0.068f, 0.733f);
-                const Vector3 eBottom = local(side * 0.120f, 0.043f, 0.700f);
-                const Vector3 eRear = local(side * 0.118f, 0.066f, 0.671f);
+                const Vector3 eTop = local(side * 0.122f, 0.095f, 0.644f);
+                const Vector3 eFront = local(side * 0.124f, 0.069f, 0.672f);
+                const Vector3 eBottom = local(side * 0.124f, 0.043f, 0.641f);
+                const Vector3 eRear = local(side * 0.122f, 0.067f, 0.613f);
                 if (side > 0.0f) {
                     AddTriangle(vertices, eTop, eBottom, eFront, eye);
                     AddTriangle(vertices, eTop, eRear, eBottom, eye);
@@ -402,18 +404,18 @@ namespace island
                     AddTriangle(vertices, eTop, eFront, eBottom, eye);
                     AddTriangle(vertices, eTop, eBottom, eRear, eye);
                 }
-                const Vector3 h0 = local(side * 0.122f, 0.083f, 0.704f);
-                const Vector3 h1 = local(side * 0.123f, 0.069f, 0.717f);
-                const Vector3 h2 = local(side * 0.123f, 0.068f, 0.692f);
+                const Vector3 h0 = local(side * 0.126f, 0.084f, 0.644f);
+                const Vector3 h1 = local(side * 0.127f, 0.070f, 0.657f);
+                const Vector3 h2 = local(side * 0.127f, 0.069f, 0.632f);
                 AddTriangle(vertices, h0, side > 0.0f ? h2 : h1, side > 0.0f ? h1 : h2, eyeShine);
-                const Vector3 n0 = local(side * 0.043f, 0.025f, 0.908f);
-                const Vector3 n1 = local(side * 0.058f, 0.010f, 0.890f);
-                const Vector3 n2 = local(side * 0.035f, 0.008f, 0.914f);
+                const Vector3 n0 = local(side * 0.046f, 0.025f, 0.802f);
+                const Vector3 n1 = local(side * 0.061f, 0.010f, 0.784f);
+                const Vector3 n2 = local(side * 0.038f, 0.008f, 0.808f);
                 AddTriangle(vertices, n0, side > 0.0f ? n2 : n1,
                             side > 0.0f ? n1 : n2, eye);
-                const Vector3 m0 = local(side * 0.064f, -0.018f, 0.885f);
-                const Vector3 m1 = local(side * 0.082f, -0.022f, 0.820f);
-                const Vector3 m2 = local(side * 0.060f, -0.030f, 0.873f);
+                const Vector3 m0 = local(side * 0.071f, -0.018f, 0.780f);
+                const Vector3 m1 = local(side * 0.090f, -0.022f, 0.720f);
+                const Vector3 m2 = local(side * 0.067f, -0.030f, 0.768f);
                 AddTriangle(vertices, m0, side > 0.0f ? m2 : m1,
                             side > 0.0f ? m1 : m2, eye);
             }
@@ -552,6 +554,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(TurtleDetailDiagnostic);
         std::cout << TurtleScaleDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(TurtleScaleDiagnostic);
+        std::cout << TurtleSilhouetteDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(TurtleSilhouetteDiagnostic);
     }
 
     SeaTurtleRenderer::~SeaTurtleRenderer() = default;

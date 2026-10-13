@@ -503,7 +503,14 @@ docs/stream-course.md and docs/environment-field-design.md.
   native024158 and Chrome/SwiftShader024326 pass; final Web before/after frames both retain the
   close turtle with different hashes,60intervals,GLerror0/context intact/kernel[]. The earlier
   023833 Web run is technical-only because its static camera lost the turtle in the second image;
-  the QA camera now follows subject translation. Android current model remains unverified.
+  the QA camera now follows subject translation. A fifth pass closes the paddles into tapered
+  volumes. A sixth proportion pass then narrows front/rear paddle half-width coefficients
+  .095→.078m/.075→.062m, compresses the head/beak forward extent.94→.835m, broadens its shell
+  junction and refits face details while lightening the shell grid. Geometry remains2250vertices/
+  750triangles, five agents and one draw. Native164545.549417Z-turtles PASS225bins/std27.79/
+  spatial162.00/kernel[] and inspected comparison shows the shorter head and narrower paddle.
+  Chrome/SwiftShader164900.718714Z-chrome-turtles PASS two inspected different poses/60intervals/
+  GL0/context intact/kernel[]. ARM64 assemble/lint PASS without emulator; Android runtime remains.
   The crab pass replaces the pointed fan shell and single-triangle
   legs with a 594-vertex rounded four-ring carapace, crossed two-segment legs, volumetric palms,
   split claws, shortened eye stalks, mouthparts and lateral shell teeth. The 12-vertex far LOD,
@@ -1458,7 +1465,14 @@ Standing visual-quality rules (apply to every task from now on):
   `20261013T110942.434236Z-turtles` passes217bins/std27.90/spatial161.96/kernel[] and shows the
   shorter, joined shoulder silhouette. Focused Chrome/SwiftShader
   `20261013T111627.247231Z-chrome-turtles` passes two inspected different-hash poses,60finite
-  intervals,GL0/context intact/kernel[]. Current Android qualification remains open.
+  intervals,GL0/context intact/kernel[]. A sixth no-cost proportion pass narrows the formerly
+  leaf-like front/rear paddles, shortens the five-ring head and beak, broadens the neck junction,
+  refits facial cues and further restrains shell seams/colour blocks. Geometry stays2250vertices/
+  750triangles/one draw. Core tests now bound the hydrodynamic paddle widths. Inspected native
+  `20261013T164545.549417Z-turtles` PASS225bins/std27.79/spatial162.00/kernel[];
+  Chrome/SwiftShader `20261013T164900.718714Z-chrome-turtles` PASS two inspected different poses,
+  60intervals/GL0/context intact/kernel[]. ARM64 assemble/lint PASS without emulator. Current
+  Android runtime, microtexture and continuous all-angle stroke review remain open.
   A third crab pass replaces all four zero-thickness triangular pincer fingers with closed,
   tapering triangular prisms. Near geometry is810vertices/270triangles (388800bytes for all30),
   with unchanged far tier/population/one draw. Inspected native
