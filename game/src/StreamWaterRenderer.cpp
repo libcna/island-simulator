@@ -7,46 +7,67 @@
 #include "Microsoft/Xna/Framework/Graphics/GraphicsDevice.hpp"
 #include "Microsoft/Xna/Framework/Graphics/VertexBuffer.hpp"
 #include "Microsoft/Xna/Framework/Graphics/IndexBuffer.hpp"
-#include "Microsoft/Xna/Framework/Graphics/VertexPositionColor.hpp"
+#include "Microsoft/Xna/Framework/Graphics/VertexDeclaration.hpp"
 #include "Microsoft/Xna/Framework/Graphics/ShaderEffect.hpp"
 #include "Microsoft/Xna/Framework/Graphics/BlendState.hpp"
 #include "Microsoft/Xna/Framework/Graphics/DepthStencilState.hpp"
 #include "Microsoft/Xna/Framework/Graphics/RasterizerState.hpp"
+#include <cstddef>
 #include <iostream>
+#include <type_traits>
 using namespace Microsoft::Xna::Framework;
 using namespace Microsoft::Xna::Framework::Graphics;
 namespace island {
 namespace {
+struct StreamGpuVertex {
+    float position[3];
+    float flowDistanceOpacity[4];
+};
+static_assert(std::is_trivially_copyable_v<StreamGpuVertex>);
+static_assert(std::is_standard_layout_v<StreamGpuVertex>&&sizeof(StreamGpuVertex)==28);
+const VertexDeclaration& StreamDeclaration() {
+    static const VertexDeclaration declaration{
+        VertexElement(offsetof(StreamGpuVertex,position),VertexElementFormat::Vector3,
+                      VertexElementUsage::Position,0),
+        VertexElement(offsetof(StreamGpuVertex,flowDistanceOpacity),VertexElementFormat::Vector4,
+                      VertexElementUsage::TextureCoordinate,0)};
+    return declaration;
+}
 constexpr const char* vertex=R"(
 layout(location=0) in vec3 aPosition;
-layout(location=1) in vec4 aColor;
+layout(location=1) in vec4 aFlowDistanceOpacity;
 uniform mat4 uViewProjection;
-out vec3 world;out float opacity;
+out vec3 world;out vec2 flow;out float courseDistance;out float opacity;
 void main(){
-    world=aPosition;opacity=aColor.a;
+    world=aPosition;flow=aFlowDistanceOpacity.xy;
+    courseDistance=aFlowDistanceOpacity.z;opacity=aFlowDistanceOpacity.w;
     gl_Position=uViewProjection*vec4(aPosition,1.0);
     // XNA projection uses [0,1] depth; desktop GL and GLES require [-1,1].
     gl_Position.z=2.0*gl_Position.z-gl_Position.w;
 }
 )";
 constexpr const char* fragment=R"(
-in vec3 world;in float opacity;
+in vec3 world;in vec2 flow;in float courseDistance;in float opacity;
 uniform float uTime;uniform vec3 uCamera;
 out vec4 fragColor;
 void main(){
-    vec2 flow=normalize(vec2(-1.0,.23));
-    float along=dot(world.xz,flow),across=dot(world.xz,vec2(-flow.y,flow.x));
-    float ripple=sin(along*5.0-uTime*1.5+sin(across*3.0))*.045;
-    float crossRipple=sin(across*8.0+along*2.0-uTime*.7)*.018;
-    vec3 n=normalize(vec3(ripple,1.0,crossRipple));
+    vec2 downstream=normalize(flow);
+    vec2 bankNormal=vec2(-downstream.y,downstream.x);
+    float across=dot(world.xz,bankNormal);
+    float primary=sin(courseDistance*5.1-uTime*1.65+sin(across*3.3))*.040;
+    float crossRipple=sin(across*8.7+courseDistance*1.7-uTime*.73)*.017;
+    vec2 slope=downstream*primary+bankNormal*crossRipple;
+    vec3 n=normalize(vec3(slope.x,1.0,slope.y));
     vec3 eye=normalize(uCamera-world);
-    float fresnel=.04+.40*pow(1.0-abs(dot(n,eye)),4.0);
+    float fresnel=.035+.43*pow(1.0-abs(dot(n,eye)),4.0);
     float glint=pow(max(0.0,dot(n,normalize(eye+normalize(vec3(-.4,.8,.3))))),64.0);
-    float dapple=.5+.5*sin(along*.57+sin(across*1.9-uTime*.12));
-    vec3 water=mix(vec3(.16,.36,.30),vec3(.43,.66,.69),fresnel);
-    water*=mix(.94,1.06,dapple);
-    water+=vec3(.35,.36,.29)*glint*.35;
-    float alpha=opacity*(.57+fresnel*.40);
+    float broad=.5+.5*sin(courseDistance*.57+sin(across*1.9-uTime*.12));
+    float streakWave=.5+.5*sin(courseDistance*8.3-uTime*2.45+sin(across*5.2)*.45);
+    float streak=smoothstep(.76,.98,streakWave)*(.45+.55*broad);
+    vec3 water=mix(vec3(.095,.245,.205),vec3(.36,.62,.65),fresnel);
+    water*=mix(.91,1.055,broad);
+    water+=vec3(.20,.28,.25)*streak*.24+vec3(.38,.38,.31)*glint*.38;
+    float alpha=opacity*(.39+fresnel*.42+streak*.055);
     fragColor=vec4(water*alpha,alpha);
 }
 )";
@@ -63,19 +84,20 @@ StreamWaterRenderer::StreamWaterRenderer(GraphicsDevice& device,const IslandTerr
     effect_=std::make_unique<ShaderEffect>(device,package);
     if(!effect_->IsEffectValid())throw std::runtime_error("Stream water shader failed: "+effect_->GetCompileErrorEXT());
     const StreamWaterMesh mesh(StreamCourse(terrain),bed);
-    std::vector<VertexPositionColor> vertices;vertices.reserve(mesh.vertices.size());
+    std::vector<StreamGpuVertex> vertices;vertices.reserve(mesh.vertices.size());
     Vector3 low(1000,1000,1000),high(-1000,-1000,-1000);
     for(const auto p:mesh.vertices) {
         const Vector3 position(p.x,p.y,p.z);low=Vector3::Min(low,position);high=Vector3::Max(high,position);
-        vertices.emplace_back(position,Color(255,255,255,static_cast<int>(p.alpha*255)));
+        vertices.push_back({{p.x,p.y,p.z},{p.flowX,p.flowZ,p.distance,p.alpha}});
     }
     bounds_=BoundingBox(low-Vector3(.05f,.05f,.05f),high+Vector3(.05f,.05f,.05f));
     count_=static_cast<int>(vertices.size());triangles_=static_cast<int>(mesh.indices.size()/3);
-    vertices_=std::make_unique<VertexBuffer>(device,VertexPositionColor::getVertexDeclarationStatic(),count_,BufferUsage::WriteOnly);
+    vertices_=std::make_unique<VertexBuffer>(device,StreamDeclaration(),count_,BufferUsage::WriteOnly);
     vertices_->SetData(vertices.data(),count_);
     indices_=std::make_unique<IndexBuffer>(device,IndexElementSize::SixteenBits,static_cast<int>(mesh.indices.size()),BufferUsage::WriteOnly);
     indices_->SetData(mesh.indices.data(),static_cast<int>(mesh.indices.size()));
-    std::cout<<"island-simulator: stream water "<<count_<<" vertices, "<<triangles_<<" triangles, portable moving-ripple shader\n";
+    std::cout<<"island-simulator: stream water "<<count_<<" vertices, "<<triangles_
+        <<" triangles, route-following downstream ripple and translucent current streaks\n";
 }
 StreamWaterRenderer::~StreamWaterRenderer()=default;
 void StreamWaterRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector3& camera,float seconds) {

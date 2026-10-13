@@ -35,6 +35,18 @@ def validate_campfire_stages(log):
     return rows
 
 
+def validate_stream_stages(log):
+    rows=re.findall(r"stream motion stage=(\d+) frames=(\d+) time=(\S+) draws=(\d+) triangles=(\d+)",log)
+    if len(rows)!=4 or [int(row[0]) for row in rows]!=list(range(4)):
+        raise RuntimeError("stream requires four ordered flow-animation stages")
+    for stage,frames,seconds,draws,triangles in rows:
+        expected=(int(stage)+1)*8
+        if (int(frames)!=expected or not math.isclose(float(seconds),expected*.1,abs_tol=1e-5)
+                or int(draws)!=1 or int(triangles)!=6080):
+            raise RuntimeError("invalid stream animation clock or rendering budget")
+    return rows
+
+
 def validate_resident_stages(text):
     rows=re.findall(r"resident motion stage=(\d+) updates=(\d+) visible=(\d+) position=(\S+) "
                     r"speed=(\S+) mode=(\d+) feet=(\S+) triangles=(\d+)/(\d+)",text)
@@ -568,6 +580,13 @@ def main():
                 for marker in ("campfire first visible animated draw",
                                "1992 solid triangles, 42 flame/smoke/spark triangles"):
                     if marker not in diagnostics:raise RuntimeError(f"campfire integration diagnostic missing: {marker}")
+            if args.viewpoint == "stream":
+                metadata["stream_stages"]=validate_stream_stages(log)
+                for stage in range(4):
+                    if not Path(str(capture)+f".stream-stage-{stage}.ppm").is_file():
+                        raise RuntimeError("missing live stream animation-stage image")
+                if "route-following downstream ripple and translucent current streaks" not in diagnostics:
+                    raise RuntimeError("current stream flow material is missing")
             if args.viewpoint in ("hut", "hut-material") and "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
                 raise RuntimeError("hut fibre texture is missing; check packaged assets")
             if args.viewpoint in ("helicopter", "helicopter-inside"):

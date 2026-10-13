@@ -17,6 +17,26 @@ from gpu_incident_qualification import contained_command
 
 
 class BrowserSoftwareTests(unittest.TestCase):
+    def test_stream_scope_is_focused_and_checks_live_material(self):
+        self.assertIn("stream", gate.SCOPES)
+        source = (ROOT / "tools/run_web_smoke.mjs").read_text()
+        self.assertIn('focusedStreamCheck ? ["stream"]', source)
+        self.assertIn("route-following downstream ripple and translucent current streaks", source)
+        self.assertIn('focusedFlightCheck || focusedStreamCheck || mode === "boars"', source)
+        self.assertIn('["stream", ["--viewpoint", "stream", "--debug-overlay"]]',
+                      (ROOT / "tools/web_smoke.html.in").read_text())
+        good={"passed":True,"views":[{"mode":"stream","passed":True,"glError":0,
+            "contextLost":False,"renderer":"SwiftShader driver",
+            "screenshot":"before.png","afterSimulationScreenshot":"after.png",
+            "result":{"error":"","exited":False,"output":
+                "route-following downstream ripple and translucent current streaks\n"
+                "stream water first visible draw"}}]}
+        self.assertEqual(gate.validate_stream_report(good),("before.png","after.png"))
+        for bad in ({},dict(good,passed=False),
+                    {**good,"views":[{**good["views"][0],"glError":1282}]},
+                    {**good,"views":[{**good["views"][0],"afterSimulationScreenshot":"before.png"}]}):
+            with self.assertRaises(RuntimeError):gate.validate_stream_report(bad)
+
     def test_flight_review_cpu_regressions_and_scope(self):
         self.assertIn("flight", gate.SCOPES)
         node = shutil.which("node")

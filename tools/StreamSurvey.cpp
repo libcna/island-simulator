@@ -22,8 +22,15 @@ int main() {
         ||water.indices.size()%3!=0)return 18;
     for(const auto p:water.vertices)
         if(!std::isfinite(p.x)||!std::isfinite(p.y)||!std::isfinite(p.z)
+            ||!std::isfinite(p.flowX)||!std::isfinite(p.flowZ)||!std::isfinite(p.distance)
             ||!std::isfinite(p.alpha)||p.alpha<0||p.alpha>.65f
+            ||std::abs(std::hypot(p.flowX,p.flowZ)-1.0f)>.0001f
+            ||p.flowX>-.8f||p.distance<0||p.distance>course.Station(course.Count()-1).distance
             ||!patch.Contains(p.x,p.z)||p.y<0)return 19;
+    constexpr int waterAcrossCount=9;
+    for(std::size_t row=1;row<water.vertices.size()/waterAcrossCount;++row)
+        if(water.vertices[row*waterAcrossCount].distance
+            <=water.vertices[(row-1)*waterAcrossCount].distance)return 21;
     for(std::size_t i=0;i<water.indices.size();i+=3) {
         const auto a=water.vertices.at(water.indices[i]),b=water.vertices.at(water.indices[i+1]),c=water.vertices.at(water.indices[i+2]);
         if((b.z-a.z)*(c.x-a.x)-(b.x-a.x)*(c.z-a.z)<=0)return 16;

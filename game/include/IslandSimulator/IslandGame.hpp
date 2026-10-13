@@ -404,6 +404,9 @@ namespace island
         [[nodiscard]] bool UsesCampfireCaptureClock() const noexcept {
             return !capturePath_.empty()&&(viewpoint_==FixedViewpoint::CampfireDetail||viewpoint_==FixedViewpoint::CampfireWide);
         }
+        [[nodiscard]] bool UsesStreamCaptureClock() const noexcept {
+            return !capturePath_.empty()&&viewpoint_==FixedViewpoint::StreamDetail;
+        }
         [[nodiscard]] bool UsesResidentCaptureClock() const noexcept {
             return !capturePath_.empty()&&viewpoint_==FixedViewpoint::ResidentDetail;
         }

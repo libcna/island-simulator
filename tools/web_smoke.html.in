@@ -51,6 +51,7 @@
       ["snakes", ["--viewpoint", "snakes"]],
       ["hut", ["--viewpoint", "hut", "--debug-overlay"]],
       ["hut-material", ["--viewpoint", "hut-material", "--debug-overlay"]],
+      ["stream", ["--viewpoint", "stream", "--debug-overlay"]],
       ["snake-head", ["--viewpoint", "snake-head"]],
       ["interactive", []],
       ["input", ["--debug-overlay", "--input-diagnostics"]],

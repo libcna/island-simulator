@@ -3,7 +3,12 @@
 #include <cstdint>
 #include <vector>
 namespace island {
-struct StreamWaterVertex {float x,y,z,alpha;};
+struct StreamWaterVertex {
+    float x,y,z;
+    float flowX,flowZ;
+    float distance;
+    float alpha;
+};
 // Static shallow-water ribbon inside the actual carved bed. Ripple shading
 // animates without displacing geometry through the banks or changing collision.
 struct StreamWaterMesh {
@@ -19,6 +24,8 @@ struct StreamWaterMesh {
             const float x=std::lerp(a.x,b.x,t),z=std::lerp(a.z,b.z,t),y=std::lerp(a.water,b.water,t);
             const float halfWidth=std::lerp(a.halfWidth,b.halfWidth,t);
             const float segmentLength=std::hypot(b.x-a.x,b.z-a.z);
+            const float flowX=(b.x-a.x)/segmentLength,flowZ=(b.z-a.z)/segmentLength;
+            const float distance=std::lerp(a.distance,b.distance,t);
             const float normalX=(b.z-a.z)/segmentLength,normalZ=-(b.x-a.x)/segmentLength;
             const float phase=static_cast<float>(row);
             const float centreOffset=halfWidth*(.070f*std::sin(phase*.157f)
@@ -34,7 +41,7 @@ struct StreamWaterMesh {
                 const float ends=std::min(std::clamp(static_cast<float>(row-12)/8,0.0f,1.0f),
                     std::clamp(static_cast<float>(last-row)/8,0.0f,1.0f));
                 const float opacity=.58f+.07f*std::sin(phase*.083f+lateral*1.7f);
-                vertices.push_back({px,y,pz,opacity*edge*ends});
+                vertices.push_back({px,y,pz,flowX,flowZ,distance,opacity*edge*ends});
             }
         }
         if(vertices.size()>=65536)throw std::runtime_error("Stream water index capacity");

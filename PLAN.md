@@ -607,12 +607,22 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   201625/201645 captures PASS/inspected/kernel[]; focused6/6 PASS and WorldReport valid
   fingerprint e744bc4e0f3093f6. Portable visuals, route walk and further realism remain,
   so this stays in progress. Details `docs/island-hut.md`.
-- [ ] Add a river or stream. Initial implementation choice: a small inland-to-coast
+- [~] Add a river or stream. Initial implementation choice: a small inland-to-coast
   stream with a continuous downhill channel integrated into terrain, suitable banks,
   coherent water height/flow and a plausible mouth. Verify walking/crossing, collision,
   vegetation/animal placement and native/Web/Android visuals. A painted blue strip is
   not completion. This supersedes the earlier preference against a permanent river;
   the small damp biome can coexist but does not substitute for the requested stream.
+  Current integrated pass has a101.879m downhill meandering route, locally carved and
+  walkable replacement bed, sea-level mouth, shared moisture/drainage habitat, wet-bank
+  plants/logs, one spatial stream loop and a shallow translucent water surface. Water
+  vertices now carry local route tangent and cumulative distance, so two restrained
+  ripple scales/current streaks follow bends downstream while exposing the wet bed;
+  geometry remains3429vertices/6080triangles/one culled draw. Four inspected native
+  0.8--3.2s frames pass with empty kernel delta. Focused Chromium155/SwiftShader WebGL2
+  also passes two separated-time frames with no GL error/context loss/kernel fault.
+  Android runtime, ordinary player crossing, richer banks and final visual/audio review
+  remain, so the stream stays in progress. See `docs/stream-course.md`.
 - [~] Add an accessible cave and adapt the island terrain around it. Choose a rocky
   hillside/headland, model a real entrance, interior floor/walls/ceiling and surrounding
   rock/terrain transition, with player clearance and no terrain sheet sealing the

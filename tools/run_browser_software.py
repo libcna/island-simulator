@@ -18,7 +18,23 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "goats", "spiders")
+SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "stream", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "goats", "spiders")
+
+
+def validate_stream_report(report):
+    views=report.get("views",[])
+    if not report.get("passed") or len(views)!=1 or views[0].get("mode")!="stream":
+        raise RuntimeError("stream report lacks one successful focused view")
+    view=views[0];result=view.get("result",{});log=result.get("output","")
+    frames=(view.get("screenshot"),view.get("afterSimulationScreenshot"))
+    if (not view.get("passed") or view.get("glError")!=0 or view.get("contextLost") is not False
+        or result.get("error") or result.get("exited") or "SwiftShader" not in view.get("renderer","")
+        or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
+        or len(set(frames))!=2
+        or "route-following downstream ripple and translucent current streaks" not in log
+        or "stream water first visible draw" not in log):
+        raise RuntimeError("stream view lacks its live material, frames or clean graphics state")
+    return frames
 
 
 def validate_spider_report(report):
@@ -192,6 +208,16 @@ def main(argv=None):
                 if not all((evidence / frame).is_file() for frame in frames):
                     raise RuntimeError("spider pose image file missing")
                 metadata["spider_pose_images"]=frames
+            if args.scope == "stream":
+                stream_report=json.loads((evidence/"island-browser-stream.json").read_text())
+                frames=validate_stream_report(stream_report)
+                paths=[evidence/frame for frame in frames]
+                if not all(path.is_file() for path in paths):
+                    raise RuntimeError("stream separated-time image file missing")
+                identities=[artifact_identity(path) for path in paths]
+                if identities[0]["sha256"]==identities[1]["sha256"]:
+                    raise RuntimeError("stream separated-time frames are byte-identical")
+                metadata["stream_frames"]=identities
             metadata["result"] = "passed"
         except (OSError, RuntimeError, subprocess.SubprocessError) as error:
             failure = error

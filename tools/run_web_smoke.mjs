@@ -30,6 +30,7 @@ const focusedTerrainCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "terrain";
 const focusedGrassMotionCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "grass-motion";
 const focusedLitterCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "litter";
 const focusedMaterialsCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "materials";
+const focusedStreamCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "stream";
 const focusedMonkeyCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "monkeys";
 const focusedGoatCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "goats";
 const focusedSpiderCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "spiders";
@@ -38,10 +39,10 @@ const focusedFullscreenCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "fullscree
 const focusedFlightCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "flight";
 const focusedSnakeCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "snakes";
 const focusedHutCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "hut";
-const focusedCheck = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedSnakeCheck || focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedMonkeyCheck;
-const focusedArtifactPrefix = focusedSpiderCheck ? "spiders" : focusedGoatCheck ? "goats" : focusedHutCheck ? "hut" : focusedSnakeCheck ? "snakes" : focusedFlightCheck ? "flight" : focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
+const focusedCheck = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedSnakeCheck || focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedStreamCheck || focusedMonkeyCheck;
+const focusedArtifactPrefix = focusedSpiderCheck ? "spiders" : focusedGoatCheck ? "goats" : focusedHutCheck ? "hut" : focusedSnakeCheck ? "snakes" : focusedFlightCheck ? "flight" : focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedStreamCheck ? "stream" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
   : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
-const focusedViews = focusedSpiderCheck ? ["spiders"] : focusedGoatCheck ? ["goats"] : focusedHutCheck ? ["hut", "hut-material"] : focusedSnakeCheck ? ["snakes", "snake-head"] : focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
+const focusedViews = focusedSpiderCheck ? ["spiders"] : focusedGoatCheck ? ["goats"] : focusedHutCheck ? ["hut", "hut-material"] : focusedSnakeCheck ? ["snakes", "snake-head"] : focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedStreamCheck ? ["stream"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
   : focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
   : focusedGrassMotionCheck ? ["grass-motion"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
@@ -49,7 +50,7 @@ const focusedViews = focusedSpiderCheck ? ["spiders"] : focusedGoatCheck ? ["goa
   : ["jungle", "boars", "monkeys", "east"];
 const focusedFrameCount = focusedGrassMotionCheck ? 30 : focusedCoastCheck ? 120 : 60;
 if (process.env.ISLAND_WEB_SMOKE_SCOPE && !focusedCheck) {
-  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/grounding/vegetation/terrain/grass-motion/litter/materials/monkeys");
+  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/grounding/vegetation/terrain/grass-motion/litter/materials/stream/monkeys");
 }
 // The outer Python supervisor monitors the host kernel continuously. A user/PID namespace
 // must not depend on retaining the host's supplementary journal-access group.
@@ -721,7 +722,7 @@ try {
           }, sessionId);
           const state = sampled.result.value;
           if (!state) throw new Error(`${mode} did not return frame evidence`);
-          const afterSimulationScreenshot = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedSnakeCheck || focusedFlightCheck || mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
+          const afterSimulationScreenshot = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedSnakeCheck || focusedFlightCheck || focusedStreamCheck || mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
             ? path.basename(await captureVisualFrame(sessionId,
               `island-browser-${focusedArtifactPrefix}-${mode}-after-simulation.png`, false)) : null;
           const log = state.result?.output ?? "";
@@ -738,6 +739,8 @@ try {
             && (!focusedHutCheck || (log.includes("hut beam-aligned weathered grain and filtered thatch fibres")
               && log.includes("hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes")
               && log.includes(`hut 1 draw, ${mode === "hut" ? 7 : 6} contact patches`)))
+            && (!focusedStreamCheck || (log.includes("route-following downstream ripple and translucent current streaks")
+              && log.includes("stream water first visible draw")))
             && (!focusedSnakeCheck || (snakeMotionFrames.length === 4 && /snakes (?:[1-9]|[1-4][0-9]|50)\/50 visible, 1 draw/.test(log)))
             && (!focusedClimbCheck || log.includes("monkey climb held summit presented after eight cycle stages"))
             && state.glError === 0 && !state.result?.error && !state.result?.exited
@@ -843,7 +846,8 @@ try {
           ? "software WebGL ground-snake body/head and intermediate images; real-time, not deterministic native stages" : focusedFlightCheck
           ? "software WebGL vertical Tab flight, ceiling and safe return; not horizontal route qualification" : focusedClimbCheck
           ? "software WebGL staged climbing diagnostics and held summit; not continuous animation" : focusedMonkeyCheck
-          ? "software WebGL monkey close view only" : focusedMaterialsCheck
+          ? "software WebGL monkey close view only" : focusedStreamCheck
+          ? "software WebGL route-following stream material and separated-time frames" : focusedMaterialsCheck
           ? "software WebGL soil, grass, dry sand and wet sand only" : focusedLitterCheck
           ? "software WebGL litter and shared-height grass only" : focusedTerrainCheck
           ? "software WebGL terrain distance and close views only" : focusedGrassMotionCheck

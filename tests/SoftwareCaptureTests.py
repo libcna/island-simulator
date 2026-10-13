@@ -23,6 +23,7 @@ from run_software_capture import (
     validate_spider_lighting,
     validate_spider_habitat_selection,
     validate_campfire_stages,
+    validate_stream_stages,
     validate_resident_stages,
 )
 from gpu_incident_qualification import MonitorError, contained_command
@@ -56,6 +57,13 @@ class SoftwareCaptureTests(unittest.TestCase):
                     good.replace("updates=8 ","updates=9 "),good.replace("draws=2","draws=0"),
                     good.replace("triangles=42","triangles=420")):
             with self.assertRaises(RuntimeError):validate_campfire_stages(bad)
+    def test_stream_animation_stages(self):
+        good="\n".join(f"stream motion stage={i} frames={(i+1)*8} time={(i+1)*.8:.1f} draws=1 triangles=6080" for i in range(4))
+        self.assertEqual(len(validate_stream_stages(good)),4)
+        for bad in ("",good+"\n"+good,good.replace("stage=1","stage=0"),
+                    good.replace("time=0.8","time=nan"),good.replace("frames=8 ","frames=9 "),
+                    good.replace("draws=1","draws=0"),good.replace("triangles=6080","triangles=6081")):
+            with self.assertRaises(RuntimeError):validate_stream_stages(bad)
     def test_resident_gait_stages_and_corruptions(self):
         rows=[]
         for stage in range(8):

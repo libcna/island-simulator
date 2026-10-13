@@ -1,5 +1,30 @@
 # Western stream course — live bed and first water pass
 
+## Route-following translucent current — 2026-10-13
+
+The water surface no longer evaluates every ripple against one island-wide straight
+flow vector. Each generated vertex now carries the normalized tangent of its actual
+local route segment plus cumulative course distance. A 28-byte portable vertex feeds
+those values directly to the desktop GLSL 330 / GLES 300 shader. Its two small normal
+waves and sparse current highlights therefore advance downstream through bends without
+moving geometry through the bed or banks. The fresnel base and opacity were reduced so
+the dark wet substrate remains visible below the shallow fresh water instead of reading
+as an opaque blue-green ribbon. Geometry, indices, draw count and collision are unchanged:
+3,429 vertices, 6,080 triangles and one frustum-culled transparent draw.
+
+`IslandStreamCourseSurvey` now additionally rejects nonfinite or non-unit flow vectors,
+upstream tangents and non-increasing/out-of-range cumulative distance. The isolated
+native sequence `20261013T001913.275256Z-stream` records four deterministic 0.8--3.2 s
+stages, each with one draw and the exact triangle budget. All four images differ and the
+inspected montage shows a restrained highlight moving along the exposed lower course;
+the final 1280x720 scene passes with 346 colour bins, 49.71 luminance deviation and
+228.96 spatial contrast, with no kernel fault.
+
+The focused Chromium 155 / SwiftShader WebGL 2 run
+`20261013T002850.683872Z-chrome-stream` also passes with two inspected separated-time
+frames, `glError == 0`, no context loss and an empty kernel delta. Android runtime,
+an ordinary interactive crossing walk and richer physical bank relief remain open.
+
 ## Shared meandering route — 2026-10-12
 
 `StreamRoute` now owns the height-independent centreline used by `StreamCourse`,
@@ -172,7 +197,7 @@ Provide local channel/bank geometry and a coherent authoritative carve/collision
 representation; do not cover an uncut coarse heightfield with a blue strip. Avoid
 z-fighting or rendering both the old terrain and a floating bed over it. Stream
 water mesh must meet ocean level at the outlet and remain bounded by banks.
-Source transition, downhill flow shading, wet-bank material, vegetation/prop
-clearance, movement and audio still need implementation and actual image review.
-The shared environment fields must later consume this same course, not a separate
-approximation. No stream is visible in the game yet.
+At this historical prototype point, source transition, downhill flow shading,
+wet-bank material, vegetation/prop clearance, movement and audio still required
+implementation and actual image review. The integrated stages above supersede that
+state and consume the same shared course rather than a separate approximation.

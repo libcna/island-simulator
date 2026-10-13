@@ -2761,7 +2761,8 @@ namespace island
         const std::span<const MonkeyState> renderedMonkeys = treeQaStage < monkeyTreeQaPoses_.size()
             ? std::span<const MonkeyState>(monkeyTreeQaPoses_[treeQaStage]) : monkeyTroop_.Monkeys();
         const auto drawStarted = std::chrono::steady_clock::now();
-        const float timeSeconds = canopyLodInspection_ ? 1.0f : UsesCampfireCaptureClock()
+        const float timeSeconds = canopyLodInspection_ ? 1.0f : UsesStreamCaptureClock()
+            ?static_cast<float>(drawnFrames_+1U)*.1f:UsesCampfireCaptureClock()
             ?static_cast<float>(campfireCaptureUpdates_)*.1f:UsesSnakeCaptureClock()
             ? static_cast<float>(snakeCaptureUpdates_)*0.1f : UsesGoatCaptureClock()
             ? static_cast<float>(goatCaptureUpdates_)*0.1f : UsesSpiderCaptureClock()
@@ -3618,7 +3619,13 @@ namespace island
                 <<" draws="<<campfireRenderer_->DrawCallCount()<<" effect-triangles="
                 <<campfireRenderer_->EffectTriangleCount()<<'\n';
         }
-        const std::uint32_t targetFrames = goatCapture||spiderCapture||boarCapture||residentCapture||bearCapture ? 64U : snakeCapture||UsesCampfireCaptureClock() ? 32U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
+        if(UsesStreamCaptureClock()&&drawnFrames_%8U==0&&drawnFrames_<=32U) {
+            CaptureFrame(capturePath_+".stream-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");
+            std::cout<<"island-simulator: stream motion stage="<<drawnFrames_/8U-1U
+                <<" frames="<<drawnFrames_<<" time="<<timeSeconds
+                <<" draws="<<streamWaterRenderer_->DrawCallCount()<<" triangles=6080\n";
+        }
+        const std::uint32_t targetFrames = goatCapture||spiderCapture||boarCapture||residentCapture||bearCapture ? 64U : snakeCapture||UsesCampfireCaptureClock()||UsesStreamCaptureClock() ? 32U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
                 && (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail || viewpoint_ == FixedViewpoint::MonkeyClimbDetail)
             ? MonkeyCaptureFrames : SmokeTestFrames;
         if (!capturePath_.empty() && drawnFrames_ == targetFrames) {
