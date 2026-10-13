@@ -1383,8 +1383,15 @@ Visual rework explicitly requested by the operator (2026-10-11):
   183 colour bins, 38.36 luminance deviation and 163.64 spatial contrast with an empty kernel delta.
   Eight sparse hull straps with rivets, four cabin hinges and two rudder braces add a separately
   tagged aged-iron material with restrained procedural rust and wet sheen inside the same batch.
-  Further hull/damage geometry, sand/water integration, wide-view comparison
-  and actual Web/Android visual qualification remain open; texture-load markers alone do not close it.
+  A follow-up bends the deck edge and keel with asymmetric 0.64m bow/0.34m transom sheer, carries
+  fittings, rails, openings, masts and cabin supports with it, and makes both exposed break sections
+  longitudinally irregular. The first bright star-like cut was rejected; smaller, darker weathered
+  rim beams produce the inspected native result `20261013T040134.503348Z-shipwreck` with the same
+  4,628 triangles, one draw, twelve coastal contact patches and an empty kernel delta. The focused
+  Web coast suite `20261013T040508.125953Z-chrome-coast` passed shipwreck/water/west/reef with
+  120 finite SwiftShader intervals per view, GL0, intact contexts and no new kernel GPU fault.
+  Further broadside plank/damage geometry, sand/water integration, a dedicated matched wide wreck
+  comparison and Android visual qualification remain open; diagnostics alone do not close it.
 
 Wildlife backlog requested by the operator (all nonhostile ambient life; none may attack, block
 progress or require player interaction; dangerous species keep their distance like the shark):

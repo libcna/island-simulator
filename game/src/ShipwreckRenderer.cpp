@@ -57,6 +57,8 @@ namespace island
             "island-simulator: shipwreck weathered wood follows per-piece board and beam UVs";
         constexpr std::string_view IronFittingDiagnostic =
             "island-simulator: shipwreck restrained rusted iron straps, rivets, hinges and rudder braces";
+        constexpr std::string_view HullShapeDiagnostic =
+            "island-simulator: shipwreck hull uses asymmetric rising sheer, curved keel, and irregular splintered break sections";
         constexpr int AgedWoodMaterial = 48;
         constexpr int InnerWoodMaterial = 80;
         constexpr int FreshBreakMaterial = 176;
@@ -64,7 +66,7 @@ namespace island
         const Color OuterWood(112, 79, 45, AgedWoodMaterial);
         const Color DarkWood(77, 52, 33, AgedWoodMaterial);
         const Color InnerWood(137, 103, 66, InnerWoodMaterial);
-        const Color FreshBreak(154, 121, 78, FreshBreakMaterial);
+        const Color FreshBreak(132, 99, 64, FreshBreakMaterial);
         const Color WetWood(63, 59, 47, AgedWoodMaterial);
         const Color DeepWood(43, 31, 22, AgedWoodMaterial);
         const Color AgedIron(49, 47, 42, AgedIronMaterial);
@@ -446,6 +448,14 @@ void main()
             return ship.beam * 0.5f * (curved * 0.78f + (1.0f - t) * 0.35f);
         }
 
+        [[nodiscard]] float HullSheer(const float z)
+        {
+            const float distance = std::clamp(std::abs(z) / 10.0f, 0.0f, 1.0f);
+            // A sailing hull's deck edge rises toward both ends, more strongly at the bow.
+            // Keeping this in local ship space also curves the keel instead of lifting the wreck.
+            return (z >= 0.0f ? 0.64f : 0.34f) * std::pow(distance, 2.2f);
+        }
+
         [[nodiscard]] float HullWidthAtHeight(const ShipwreckPlacement& ship,
                                               const float z, const float y)
         {
@@ -463,14 +473,28 @@ void main()
             constexpr std::array<float, 5> SideHeights = {
                 1.33f, 0.88f, 0.42f, -0.10f, -0.72f};
             std::array<Vector3, 11> points;
+            const float sheer = HullSheer(z);
             for (std::size_t level = 0; level < SideHeights.size(); ++level) {
                 const float height = SideHeights[level];
                 const float width = HullWidthAtHeight(ship, z, height);
-                points[level] = ShipPoint(ship, axes, -width, height, z);
+                points[level] = ShipPoint(ship, axes, -width, height + sheer, z);
                 points[points.size() - 1U - level] =
-                    ShipPoint(ship, axes, width, height, z);
+                    ShipPoint(ship, axes, width, height + sheer, z);
             }
-            points[SideHeights.size()] = ShipPoint(ship, axes, 0.0f, -1.48f, z);
+            points[SideHeights.size()] = ShipPoint(ship, axes, 0.0f, -1.48f + sheer, z);
+            return points;
+        }
+
+        [[nodiscard]] std::array<Vector3, 11> BrokenHullSection(
+            const ShipwreckPlacement& ship, const Axes& axes, const float z,
+            const float outwardDirection)
+        {
+            auto points = HullSection(ship, axes, z);
+            constexpr std::array<float, 11> SplinterOffset = {
+                0.07f, -0.18f, 0.24f, -0.09f, 0.31f, 0.02f,
+                -0.26f, 0.13f, -0.21f, 0.19f, -0.06f};
+            for (std::size_t point = 0; point < points.size(); ++point)
+                points[point] += axes.forward * (outwardDirection * SplinterOffset[point]);
             return points;
         }
 
@@ -480,9 +504,15 @@ void main()
                              const std::array<float, SectionCount>& sectionZ,
                              const bool capFirst)
         {
+            const auto sectionAt = [&](const std::size_t index) {
+                const bool broken = capFirst ? index + 1U == sectionZ.size() : index == 0U;
+                return broken
+                    ? BrokenHullSection(ship, axes, sectionZ[index], capFirst ? -1.0f : 1.0f)
+                    : HullSection(ship, axes, sectionZ[index]);
+            };
             for (std::size_t section = 0; section + 1U < sectionZ.size(); ++section) {
-                const auto first = HullSection(ship, axes, sectionZ[section]);
-                const auto next = HullSection(ship, axes, sectionZ[section + 1U]);
+                const auto first = sectionAt(section);
+                const auto next = sectionAt(section + 1U);
                 for (std::size_t band = 0; band + 1U < first.size(); ++band) {
                     const bool nearBrokenEnd = capFirst
                         ? section + 2U >= sectionZ.size()
@@ -501,13 +531,13 @@ void main()
                 const float firstWidth = HullHalfWidth(ship, sectionZ[section]) * 0.74f;
                 const float nextWidth = HullHalfWidth(ship, sectionZ[section + 1U]) * 0.74f;
                 const Vector3 deckFirstLeft = ShipPoint(
-                    ship, axes, -firstWidth, 1.16f, sectionZ[section]);
+                    ship, axes, -firstWidth, 1.16f + HullSheer(sectionZ[section]), sectionZ[section]);
                 const Vector3 deckFirstRight = ShipPoint(
-                    ship, axes, firstWidth, 1.16f, sectionZ[section]);
+                    ship, axes, firstWidth, 1.16f + HullSheer(sectionZ[section]), sectionZ[section]);
                 const Vector3 deckNextLeft = ShipPoint(
-                    ship, axes, -nextWidth, 1.16f, sectionZ[section + 1U]);
+                    ship, axes, -nextWidth, 1.16f + HullSheer(sectionZ[section + 1U]), sectionZ[section + 1U]);
                 const Vector3 deckNextRight = ShipPoint(
-                    ship, axes, nextWidth, 1.16f, sectionZ[section + 1U]);
+                    ship, axes, nextWidth, 1.16f + HullSheer(sectionZ[section + 1U]), sectionZ[section + 1U]);
                 AddQuad(vertices, deckFirstLeft, deckFirstRight, deckNextRight,
                         deckNextLeft, section % 2U == 0U ? InnerWood : OuterWood,
                         GrainAxis::AlongAD);
@@ -515,9 +545,9 @@ void main()
                 const float centreZ = (sectionZ[section] + sectionZ[section + 1U]) * 0.5f;
                 const float halfLength = (sectionZ[section + 1U] - sectionZ[section]) * 0.5f;
                 const float centreWidth = HullHalfWidth(ship, centreZ) * 0.92f;
-                AppendBox(vertices, ShipPoint(ship, axes, -centreWidth, 1.38f, centreZ),
+                AppendBox(vertices, ShipPoint(ship, axes, -centreWidth, 1.38f + HullSheer(centreZ), centreZ),
                           axes, 0.10f, 0.10f, halfLength, DarkWood);
-                AppendBox(vertices, ShipPoint(ship, axes, centreWidth, 1.38f, centreZ),
+                AppendBox(vertices, ShipPoint(ship, axes, centreWidth, 1.38f + HullSheer(centreZ), centreZ),
                           axes, 0.10f, 0.10f, halfLength, DarkWood);
 
                 constexpr std::array<float, 4> SeamHeights = {
@@ -529,38 +559,38 @@ void main()
                         ship, sectionZ[section + 1U], seamY) + 0.025f;
                     for (const float side : {-1.0f, 1.0f}) {
                         const Vector3 a = ShipPoint(ship, axes, side * firstSide,
-                                                    seamY - 0.030f, sectionZ[section]);
+                                                    seamY - 0.030f + HullSheer(sectionZ[section]), sectionZ[section]);
                         const Vector3 b = ShipPoint(ship, axes, side * nextSide,
-                                                    seamY - 0.030f,
+                                                    seamY - 0.030f + HullSheer(sectionZ[section + 1U]),
                                                     sectionZ[section + 1U]);
                         const Vector3 c = ShipPoint(ship, axes, side * nextSide,
-                                                    seamY + 0.030f,
+                                                    seamY + 0.030f + HullSheer(sectionZ[section + 1U]),
                                                     sectionZ[section + 1U]);
                         const Vector3 d = ShipPoint(ship, axes, side * firstSide,
-                                                    seamY + 0.030f, sectionZ[section]);
+                                                    seamY + 0.030f + HullSheer(sectionZ[section]), sectionZ[section]);
                         AddQuad(vertices, a, b, c, d, DarkWood);
                     }
                 }
             }
 
-            const auto first = HullSection(ship, axes, sectionZ.front());
-            const auto last = HullSection(ship, axes, sectionZ.back());
+            const auto first = sectionAt(0U);
+            const auto last = sectionAt(sectionZ.size() - 1U);
             if (capFirst) {
                 for (std::size_t band = 0; band + 1U < first.size(); ++band) {
                     AddTriangle(
                         vertices,
-                        ShipPoint(ship, axes, 0.0f, 0.38f, sectionZ.front()),
+                        ShipPoint(ship, axes, 0.0f, 0.38f + HullSheer(sectionZ.front()), sectionZ.front()),
                         first[band + 1U], first[band], DarkWood);
                 }
             } else {
                 for (std::size_t band = 0; band + 1U < first.size(); ++band) {
                     AppendTaperedBeam(vertices, first[band], first[band + 1U],
-                                      0.11f, 0.09f, FreshBreak);
+                                      0.080f, 0.055f, FreshBreak);
                 }
             }
             for (std::size_t band = 0; band + 1U < last.size(); ++band) {
                 AppendTaperedBeam(vertices, last[band], last[band + 1U],
-                                  0.11f, 0.09f, FreshBreak);
+                                  0.080f, 0.055f, FreshBreak);
             }
         }
 
@@ -592,14 +622,15 @@ void main()
                     const Color& iron = (strap + (side > 0.0f ? 1U : 0U)) % 3U == 0U
                         ? RustedIron : AgedIron;
                     AppendBox(vertices,
-                              ShipPoint(ship, axes, side * (width + 0.035f), 0.28f, z),
+                              ShipPoint(ship, axes, side * (width + 0.035f),
+                                        0.28f + HullSheer(z), z),
                               axes, 0.030f, 0.67f, 0.070f, iron);
                     for (const float rivetY : {-0.20f, 0.76f}) {
                         const float innerX = side * (width + 0.060f);
                         const float outerX = side * (width + 0.135f);
                         AppendTaperedBeam(
-                            vertices, ShipPoint(ship, axes, innerX, rivetY, z),
-                            ShipPoint(ship, axes, outerX, rivetY, z),
+                            vertices, ShipPoint(ship, axes, innerX, rivetY + HullSheer(z), z),
+                            ShipPoint(ship, axes, outerX, rivetY + HullSheer(z), z),
                             0.047f, 0.042f, AgedIron);
                     }
                 }
@@ -608,12 +639,14 @@ void main()
             for (const float side : {-1.0f, 1.0f}) {
                 for (const float hingeZ : {-7.30f, -6.55f}) {
                     AppendBox(vertices,
-                              ShipPoint(ship, axes, side * 1.525f, 2.08f, hingeZ),
+                              ShipPoint(ship, axes, side * 1.525f,
+                                        2.08f + HullSheer(hingeZ), hingeZ),
                               axes, 0.030f, 0.045f, 0.19f, RustedIron);
                 }
             }
             for (const float braceY : {-0.84f, 0.06f}) {
-                AppendBox(vertices, ShipPoint(ship, axes, 0.0f, braceY, -10.37f), axes,
+                AppendBox(vertices, ShipPoint(ship, axes, 0.0f,
+                                              braceY + HullSheer(-10.37f), -10.37f), axes,
                           0.50f, 0.055f, 0.030f, AgedIron);
             }
         }
@@ -635,38 +668,48 @@ void main()
             AppendRib(vertices, ship, axes, 1.12f, -0.08f);
 
             AppendTaperedBeam(
-                vertices, ShipPoint(ship, axes, 0.0f, -1.42f, -9.55f),
-                ShipPoint(ship, axes, 0.0f, -1.45f, -1.05f), 0.14f, 0.11f, DarkWood);
+                vertices, ShipPoint(ship, axes, 0.0f, -1.42f + HullSheer(-9.55f), -9.55f),
+                ShipPoint(ship, axes, 0.0f, -1.45f + HullSheer(-1.05f), -1.05f),
+                0.14f, 0.11f, DarkWood);
             AppendTaperedBeam(
-                vertices, ShipPoint(ship, axes, 0.0f, -1.45f, 1.15f),
-                ShipPoint(ship, axes, 0.0f, -1.45f, 9.45f), 0.12f, 0.10f, DarkWood);
+                vertices, ShipPoint(ship, axes, 0.0f, -1.45f + HullSheer(1.15f), 1.15f),
+                ShipPoint(ship, axes, 0.0f, -1.45f + HullSheer(9.45f), 9.45f),
+                0.12f, 0.10f, DarkWood);
             AppendTaperedBeam(
-                vertices, ShipPoint(ship, axes, 0.0f, -1.36f, -9.92f),
-                ShipPoint(ship, axes, 0.0f, 1.26f, -9.92f), 0.15f, 0.11f, DarkWood);
-            AppendBox(vertices, ShipPoint(ship, axes, 0.0f, -0.46f, -10.28f), axes,
+                vertices, ShipPoint(ship, axes, 0.0f, -1.36f + HullSheer(-9.92f), -9.92f),
+                ShipPoint(ship, axes, 0.0f, 1.26f + HullSheer(-9.92f), -9.92f),
+                0.15f, 0.11f, DarkWood);
+            AppendBox(vertices, ShipPoint(ship, axes, 0.0f,
+                                          -0.46f + HullSheer(-10.28f), -10.28f), axes,
                       0.46f, 0.74f, 0.075f, OuterWood);
 
             AppendTaperedBeam(
-                vertices, ShipPoint(ship, axes, 0.0f, 1.18f, -3.25f),
-                ShipPoint(ship, axes, 1.65f, 7.15f, -1.75f), 0.34f, 0.20f, DarkWood);
+                vertices, ShipPoint(ship, axes, 0.0f, 1.18f + HullSheer(-3.25f), -3.25f),
+                ShipPoint(ship, axes, 1.65f, 7.15f + HullSheer(-1.75f), -1.75f),
+                0.34f, 0.20f, DarkWood);
             AppendTaperedBeam(
-                vertices, ShipPoint(ship, axes, -2.1f, 5.45f, -2.15f),
-                ShipPoint(ship, axes, 3.0f, 5.85f, -1.35f), 0.13f, 0.09f, DarkWood);
+                vertices, ShipPoint(ship, axes, -2.1f, 5.45f + HullSheer(-2.15f), -2.15f),
+                ShipPoint(ship, axes, 3.0f, 5.85f + HullSheer(-1.35f), -1.35f),
+                0.13f, 0.09f, DarkWood);
 
             AppendTaperedBeam(
-                vertices, ShipPoint(ship, axes, 0.0f, 1.08f, 9.1f),
-                ShipPoint(ship, axes, 0.0f, 2.12f, 13.2f), 0.18f, 0.10f, DarkWood);
+                vertices, ShipPoint(ship, axes, 0.0f, 1.08f + HullSheer(9.1f), 9.1f),
+                ShipPoint(ship, axes, 0.0f, 2.12f + HullSheer(13.2f), 13.2f),
+                0.18f, 0.10f, DarkWood);
             AppendTaperedBeam(
-                vertices, ShipPoint(ship, axes, 1.65f, 7.15f, -1.75f),
-                ShipPoint(ship, axes, 0.0f, 1.92f, 8.8f), 0.045f, 0.035f, DarkWood);
+                vertices, ShipPoint(ship, axes, 1.65f, 7.15f + HullSheer(-1.75f), -1.75f),
+                ShipPoint(ship, axes, 0.0f, 1.92f + HullSheer(8.8f), 8.8f),
+                0.045f, 0.035f, DarkWood);
             AppendTaperedBeam(
-                vertices, ShipPoint(ship, axes, 1.65f, 7.15f, -1.75f),
-                ShipPoint(ship, axes, -1.05f, 1.75f, -8.4f), 0.045f, 0.035f, DarkWood);
+                vertices, ShipPoint(ship, axes, 1.65f, 7.15f + HullSheer(-1.75f), -1.75f),
+                ShipPoint(ship, axes, -1.05f, 1.75f + HullSheer(-8.4f), -8.4f),
+                0.045f, 0.035f, DarkWood);
 
             for (const float z : {-7.9f, -5.9f, -3.7f, 3.4f, 5.8f, 7.8f}) {
                 const float railX = HullHalfWidth(ship, z) * 0.88f;
                 for (const float side : {-1.0f, 1.0f}) {
-                    AppendBox(vertices, ShipPoint(ship, axes, side * railX, 1.70f, z),
+                    AppendBox(vertices, ShipPoint(ship, axes, side * railX,
+                                                  1.70f + HullSheer(z), z),
                               axes, 0.075f, 0.37f, 0.075f, DarkWood);
                 }
             }
@@ -679,8 +722,10 @@ void main()
                     const float firstX = HullHalfWidth(ship, section[0]) * 0.88f;
                     const float secondX = HullHalfWidth(ship, section[1]) * 0.88f;
                     AppendTaperedBeam(
-                        vertices, ShipPoint(ship, axes, side * firstX, 2.05f, section[0]),
-                        ShipPoint(ship, axes, side * secondX, 2.05f, section[1]),
+                        vertices, ShipPoint(ship, axes, side * firstX,
+                                            2.05f + HullSheer(section[0]), section[0]),
+                        ShipPoint(ship, axes, side * secondX,
+                                  2.05f + HullSheer(section[1]), section[1]),
                         0.065f, 0.055f, DarkWood);
                 }
             }
@@ -690,50 +735,59 @@ void main()
                 const float openingX = HullWidthAtHeight(ship, z, openingY) + 0.022f;
                 for (const float side : {-1.0f, 1.0f}) {
                     AppendBox(vertices,
-                              ShipPoint(ship, axes, side * openingX, openingY, z), axes,
+                              ShipPoint(ship, axes, side * openingX,
+                                        openingY + HullSheer(z), z), axes,
                               0.035f, 0.21f, 0.29f, DeepWood);
                 }
             }
 
-            const Vector3 foremastBreak = ShipPoint(ship, axes, -0.34f, 4.08f, 4.78f);
+            const Vector3 foremastBreak = ShipPoint(
+                ship, axes, -0.34f, 4.08f + HullSheer(4.78f), 4.78f);
             AppendTaperedBeam(
-                vertices, ShipPoint(ship, axes, 0.0f, 1.18f, 4.35f), foremastBreak,
+                vertices, ShipPoint(ship, axes, 0.0f, 1.18f + HullSheer(4.35f), 4.35f),
+                foremastBreak,
                 0.25f, 0.15f, DarkWood);
             AppendTaperedBeam(
-                vertices, ShipPoint(ship, axes, -0.28f, 3.98f, 4.73f),
-                ShipPoint(ship, axes, -0.58f, 4.48f, 4.92f),
+                vertices, ShipPoint(ship, axes, -0.28f, 3.98f + HullSheer(4.73f), 4.73f),
+                ShipPoint(ship, axes, -0.58f, 4.48f + HullSheer(4.92f), 4.92f),
                 0.08f, 0.025f, FreshBreak);
             AppendTaperedBeam(
-                vertices, ShipPoint(ship, axes, -0.25f, 4.02f, 4.74f),
-                ShipPoint(ship, axes, 0.08f, 4.38f, 4.56f),
+                vertices, ShipPoint(ship, axes, -0.25f, 4.02f + HullSheer(4.74f), 4.74f),
+                ShipPoint(ship, axes, 0.08f, 4.38f + HullSheer(4.56f), 4.56f),
                 0.07f, 0.022f, FreshBreak);
 
             for (const float side : {-1.0f, 1.0f}) {
                 AppendTaperedBeam(
-                    vertices, ShipPoint(ship, axes, side * 1.45f, 1.17f, -0.92f),
-                    ShipPoint(ship, axes, side * 1.78f, 2.65f, 0.25f),
+                    vertices, ShipPoint(ship, axes, side * 1.45f,
+                                        1.17f + HullSheer(-0.92f), -0.92f),
+                    ShipPoint(ship, axes, side * 1.78f,
+                              2.65f + HullSheer(0.25f), 0.25f),
                     0.13f, 0.08f, FreshBreak);
                 AppendTaperedBeam(
-                    vertices, ShipPoint(ship, axes, side * 1.50f, 1.08f, 1.12f),
-                    ShipPoint(ship, axes, side * 2.25f, 2.05f, 2.30f),
+                    vertices, ShipPoint(ship, axes, side * 1.50f,
+                                        1.08f + HullSheer(1.12f), 1.12f),
+                    ShipPoint(ship, axes, side * 2.25f,
+                              2.05f + HullSheer(2.30f), 2.30f),
                     0.12f, 0.07f, FreshBreak);
             }
 
             for (int post = 0; post < 4; ++post) {
                 const float x = post < 2 ? -1.35f : 1.35f;
                 const float z = post % 2 == 0 ? -8.1f : -5.8f;
-                AppendBox(vertices, ShipPoint(ship, axes, x, 2.0f, z), axes,
+                AppendBox(vertices, ShipPoint(ship, axes, x,
+                                              2.0f + HullSheer(z), z), axes,
                           0.11f, 0.80f, 0.11f, DarkWood);
             }
-            AppendBox(vertices, ShipPoint(ship, axes, 0.0f, 2.62f, -6.9f), axes,
+            const float cabinSheer = HullSheer(-6.9f);
+            AppendBox(vertices, ShipPoint(ship, axes, 0.0f, 2.62f + cabinSheer, -6.9f), axes,
                       1.55f, 0.09f, 1.35f, OuterWood);
-            AppendBox(vertices, ShipPoint(ship, axes, -1.43f, 2.05f, -6.9f), axes,
+            AppendBox(vertices, ShipPoint(ship, axes, -1.43f, 2.05f + cabinSheer, -6.9f), axes,
                       0.08f, 0.56f, 1.22f, OuterWood);
-            AppendBox(vertices, ShipPoint(ship, axes, 1.43f, 2.05f, -6.9f), axes,
+            AppendBox(vertices, ShipPoint(ship, axes, 1.43f, 2.05f + cabinSheer, -6.9f), axes,
                       0.08f, 0.56f, 1.22f, OuterWood);
-            AppendBox(vertices, ShipPoint(ship, axes, -1.53f, 2.10f, -6.9f), axes,
+            AppendBox(vertices, ShipPoint(ship, axes, -1.53f, 2.10f + cabinSheer, -6.9f), axes,
                       0.025f, 0.23f, 0.34f, DarkWood);
-            AppendBox(vertices, ShipPoint(ship, axes, 1.53f, 2.10f, -6.9f), axes,
+            AppendBox(vertices, ShipPoint(ship, axes, 1.53f, 2.10f + cabinSheer, -6.9f), axes,
                       0.025f, 0.23f, 0.34f, DarkWood);
         }
 
@@ -864,10 +918,12 @@ void main()
         std::cout << "island-simulator: shipwreck broken hull exposes ribs, partial deck, "
                      "and snapped mast\n";
         std::cout << LargeShipDetailDiagnostic << '\n';
+        std::cout << HullShapeDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(
             "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast");
         MirrorRuntimeDiagnosticToPlatformLog(LargeShipDetailDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(HullShapeDiagnostic);
     }
 
     ShipwreckRenderer::~ShipwreckRenderer() = default;

@@ -37,6 +37,17 @@ The earlier procedural long/fine grain, weathering, split marks, wet and submerg
 waterline salt, restrained sheen, fog and distance fade remain. When custom effects are unavailable,
 the existing vertex-colour `BasicEffect` path remains the visual fallback.
 
+## Hull silhouette follow-up
+
+The hull now uses an asymmetric rising sheer instead of a flat top and bottom profile: the bow
+rises by up to 0.64m, the transom by up to 0.34m, and the same longitudinal function bends the
+deck, gunwales, keel, fittings, openings, masts and cabin supports together. The two exposed
+break sections receive deterministic per-band longitudinal offsets, yielding uneven broken plank
+ends without another material, buffer or draw. The weathered cut colour and rim-beam radius were
+reduced after the first screenshot made the exposed cross-sections look like bright starbursts.
+The bow and deck line now read less like a pair of rectangular boxes, although the broadside hull
+planking and transom remain visibly procedural.
+
 ## Evidence and remaining work
 
 The untextured native llvmpipe reference is
@@ -51,9 +62,17 @@ a dedicated material tag. The fragment path excludes these faces from wood sampl
 large-scale rust mottling and a slightly broader fixed-sun sheen, and retains waterline wetness.
 All fittings stay in the existing static batch; this pass adds 680 triangles and no draw call.
 
-This material slice does not complete the broader realism item. Hull damage and plank geometry,
-debris burial/water intersections, matched wide views, plus
-actual WebGL 2 and Android GLES 3 visual inspection remain required.
+The current inspected native geometry result is
+`build-consumer/software-captures/20261013T040134.503348Z-shipwreck`: 1280 by 720,
+187 colour bins, luminance deviation 38.81, spatial contrast 162.24, 4,628 triangles, one wreck
+draw, twelve coastal contact-shadow patches and no kernel fault. The complete focused coast suite
+`build/browser-software/20261013T040508.125953Z-chrome-coast` passed shipwreck, water, west and
+reef scenes with 120 finite intervals each under ANGLE SwiftShader, GL error zero, intact contexts
+and no new kernel GPU fault. Both time-separated Web shipwreck images were inspected.
+
+This material and silhouette slice does not complete the broader realism item. Finer broadside
+plank thickness/damage, debris burial/water intersections, a dedicated matched wide wreck view,
+and Android GLES 3 visual inspection remain required.
 
 The self-contained Linux archive built after the texture and fitting slices contains 14,752,032
 installed bytes and 7,880,492 compressed bytes, with SHA-256
