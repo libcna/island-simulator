@@ -1066,11 +1066,13 @@ shore and seabed fields: the route remains 7--38 m offshore, requires at least 0
 and clamps each animal between seabed clearance and the surface. This keeps turtles out of land,
 the immediate breaking edge, and the player's 42 m offshore-current onset. The shared wildlife
 activation policy reduces or suspends distant updates without changing the five-agent population.
-`SeaTurtleRenderer` selects a 204-vertex near model with a faceted scute shell, head, eyes, tail,
-and four articulated flippers or a 24-vertex far silhouette. Three palettes reuse the aquatic
+`SeaTurtleRenderer` selects a 1,962-vertex near model with a domed staggered-scute shell, rounded
+beaked head, eyes, tail, four articulated flippers and fine paddle joints, or a 36-vertex far
+silhouette. Three palettes reuse the aquatic
 depth/sun-band colour model, and every visible animal streams through one portable
-`DynamicVertexBuffer`/`BasicEffect` batch before the transparent ocean. Dedicated OpenGL 3.3,
-Chrome/Firefox WebGL 2, and KVM/gfxstream GLES 3 captures pass with one near turtle in one draw.
+`DynamicVertexBuffer`/`BasicEffect` batch before the transparent ocean. Current dedicated OpenGL
+3.3 and Chrome/SwiftShader WebGL 2 captures pass with one near turtle in one draw; the latest
+head/scute geometry still needs current Android execution.
 
 Eight deterministic shallow-water schools contain six fish each. Their route centres follow the
 authoritative irregular shoreline instead of a circular approximation; each route searches outward

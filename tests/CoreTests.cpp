@@ -2889,6 +2889,24 @@ int main()
         Check(ScuteAt(0.0f) == Scute::Vertebral && ScuteAt(0.5f) == Scute::Costal
                   && ScuteAt(-0.9f) == Scute::Marginal && ScuteRow(-1.0f) == 0 && ScuteRow(1.0f) == 4,
               "turtle scute bands and rows are assigned as authored");
+        for (int boundary = 1; boundary <= 4; ++boundary) {
+            const float left = ScuteRowBoundaryU(boundary, -0.35f);
+            const float centre = ScuteRowBoundaryU(boundary, 0.0f);
+            const float right = ScuteRowBoundaryU(boundary, 0.35f);
+            CheckNear(left, right, 1.0e-6f,
+                      "turtle transverse scute boundaries remain bilaterally symmetric");
+            Check(std::abs(centre - left) > 0.015f,
+                  "turtle transverse scute boundaries form visible alternating points");
+        }
+        for (const int column : {1, 3, 5, 7}) {
+            const float a = ScuteColumnBoundaryS(column, -0.85f);
+            const float b = ScuteColumnBoundaryS(column, -0.75f);
+            Check(std::abs(a - b) > 0.01f,
+                  "turtle longitudinal scute boundaries visibly interlock between rows");
+            CheckNear(ScuteColumnBoundaryS(column, 0.25f),
+                      -ScuteColumnBoundaryS(8 - column, 0.25f), 1.0e-6f,
+                      "turtle longitudinal scute boundaries remain bilaterally symmetric");
+        }
         for (const float invalid : {1.5f, -1.5f, std::numeric_limits<float>::quiet_NaN()}) {
             bool rejected = 0;
             try { (void)HalfWidth(invalid); } catch (const std::invalid_argument&) { rejected = true; }
@@ -2897,6 +2915,12 @@ int main()
             float w = 0.0f;
             try { (void)FrontFlipper(1.0f, 0.5f, invalid, w); } catch (const std::invalid_argument&) { rejected = true; }
             Check(rejected, "turtle paddle rejects an invalid stroke");
+        }
+        for (const int invalidColumn : {0, 2, 4, 6, 8}) {
+            bool rejected = false;
+            try { (void)ScuteColumnBoundaryS(invalidColumn, 0.0f); }
+            catch (const std::invalid_argument&) { rejected = true; }
+            Check(rejected, "turtle scute profile rejects non-boundary columns");
         }
     }
     Check(observedTurtleCruise && observedTurtleForage && observedTurtleSurface

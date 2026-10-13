@@ -142,6 +142,29 @@ class BrowserSoftwareTests(unittest.TestCase):
         missing=report();missing["views"].pop()
         with self.assertRaises(RuntimeError): gate.validate_hut_report(missing)
 
+    def test_turtle_scope_requires_current_anatomy_two_frames_and_live_context(self):
+        self.assertIn("turtles", gate.SCOPES)
+        self.assertIn('["turtles", ["--viewpoint", "turtles", "--debug-overlay"]]',
+                      (ROOT / "tools/web_smoke.html.in").read_text())
+        marker = "near turtles use staggered interlocking scutes and scaled paddle joints"
+        def report():
+            return {"passed": True, "views": [{"mode": "turtles", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": "turtles.png", "afterSimulationScreenshot": "turtles-after.png",
+                "intervals": [16.7] * 60,
+                "result": {"output": marker + "\nturtles 1/5 visible (near 1, far 0), 1 draw"}}]}
+        self.assertEqual(gate.validate_turtle_report(report()), ("turtles.png", "turtles-after.png"))
+        for mutate in (
+            lambda value: value.update(passed=False),
+            lambda value: value["views"][0].update(glError=1282),
+            lambda value: value["views"][0].update(contextLost=True),
+            lambda value: value["views"][0].update(intervals=[16.7] * 59),
+            lambda value: value["views"][0]["result"].update(output="turtles 1/5 visible (near 1, far 0), 1 draw"),
+            lambda value: value["views"][0]["result"].update(output=marker + "\nturtles 0/5 visible (near 0, far 0), 0 draw"),
+        ):
+            invalid = report(); mutate(invalid)
+            with self.assertRaises(RuntimeError): gate.validate_turtle_report(invalid)
+
     def test_snake_scope_requires_both_views_and_visible_population(self):
         self.assertIn("snakes", gate.SCOPES)
         environment = gate.browser_environment("chrome", "snakes", Path("/evidence"))

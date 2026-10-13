@@ -821,7 +821,7 @@ namespace island
             Vector3 side(-forward.Z, 0.0f, forward.X);
             if (Vector3::Dot(side, radial) < 0.0f) side = -side;
             cameraPosition_ = Vector3(turtle.x, turtle.y, turtle.z)
-                + side * 3.0f - forward * 0.25f + Vector3::Up * 1.4f;
+                + side * 2.1f - forward * 0.15f + Vector3::Up * 0.75f;
             const Vector3 toTurtle = Vector3(turtle.x, turtle.y, turtle.z) - cameraPosition_;
             yaw_ = std::atan2(toTurtle.X, toTurtle.Z);
             pitch_ = std::atan2(toTurtle.Y, std::hypot(toTurtle.X, toTurtle.Z));
@@ -1685,8 +1685,17 @@ namespace island
             cameraPosition_ += snakeCentre()-previousSnakeCentre;
         }
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        const SeaTurtleState previousTurtleSubject = seaTurtleGroup_.Turtles()[2U];
         seaTurtleGroup_.Update(
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        if (viewpoint_ == FixedViewpoint::SeaTurtleDetail) {
+            // Follow translation only. A CPU-rendered 60-frame audit spans enough simulation
+            // time for the close subject to leave an otherwise fixed camera.
+            const SeaTurtleState& subject = seaTurtleGroup_.Turtles()[2U];
+            cameraPosition_ += Vector3(subject.x - previousTurtleSubject.x,
+                                       subject.y - previousTurtleSubject.y,
+                                       subject.z - previousTurtleSubject.z);
+        }
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         dolphinPod_.Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z);
         Vector3 monkeyObserver = cameraPosition_;

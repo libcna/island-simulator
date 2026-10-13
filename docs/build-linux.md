@@ -431,7 +431,9 @@ nonzero visible population.
 nonzero near detail, and exactly one culled wildlife draw.
 `IslandGameSeaTurtleCapture` writes a close near-surface-water view to
 `build/island-turtle-capture.ppm` and requires the five-agent population marker, one visible near
-turtle, and exactly one culled aquatic-wildlife draw.
+turtle, exactly one culled aquatic-wildlife draw, and the current staggered-scute/paddle-detail
+marker. Its closer QA camera follows only subject translation so slow software captures retain the
+same animated animal without freezing its heading or flipper stroke.
 `IslandGameFishCapture` writes a close shallow-water school view to
 `build/island-fish-capture.ppm` and requires the exact 51/12-vertex, single-surface-fin, CPU-faceted
 daylight path plus the shared depth/sun-band lighting diagnostic.

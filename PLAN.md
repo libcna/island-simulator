@@ -421,7 +421,15 @@ docs/stream-course.md and docs/environment-field-design.md.
   four-ring head/beak, surface-fitted the eyes, added nostril/mouth cues and narrowed/lightened the
   cage-like scute seams for +12 near vertices. Inspected contained
   `20261012T211746.659012Z-turtles` shows one near turtle/one draw; see
-  `docs/sea-turtle-form.md`. The crab pass replaces the pointed fan shell and single-triangle
+  `docs/sea-turtle-form.md`. A fourth pass replaces the straight shell cage with symmetric
+  staggered/interlocking scute boundaries, adds fine upper-paddle scale joints, rounds the head
+  through five 12-segment rings, splits the beak and reduces the oversized triangular eyes.
+  Near geometry is1962vertices/654triangles; population/far LOD/one draw unchanged. Current
+  native024158 and Chrome/SwiftShader024326 pass; final Web before/after frames both retain the
+  close turtle with different hashes,60intervals,GLerror0/context intact/kernel[]. The earlier
+  023833 Web run is technical-only because its static camera lost the turtle in the second image;
+  the QA camera now follows subject translation. Android current model remains unverified.
+  The crab pass replaces the pointed fan shell and single-triangle
   legs with a 594-vertex rounded four-ring carapace, crossed two-segment legs, volumetric palms,
   split claws, shortened eye stalks, mouthparts and lateral shell teeth. The 12-vertex far LOD,
   thirty-agent population and one batch remain unchanged. Inspected contained evidence
@@ -1203,6 +1211,16 @@ Standing visual-quality rules (apply to every task from now on):
   SHA-256 103b7bc1...8ae5e870), runtime untested. No owned graphics process remains; latch
   hash unchanged; 358 GiB free; kernel journal since 15:00 CEST has no GPU message.
   Final 33/33 non-display groups pass (27.24 s) on the rebuilt pin.
+  Fourth pass: staggered transverse points and subtly waving longitudinal joins now deform both
+  shell facets and lifted seams. Narrow paddle-joint seams, a five-ring/12-segment rounded head,
+  split beak and smaller two-facet eyes bring the near tier to1962vertices/654triangles
+  (156960bytes maximum for five), still one draw/no texture. Release/Debug CoreTests pass
+  14.33s/60.53s. Native024158 PASS/inspected/kernel[]. New focused Chrome scope requires60finite
+  intervals, current anatomy marker, one visible near turtle/one draw, two different PNG identities
+  and live GL. Final024326 PASS/inspected/GL0/context intact/kernel[]; first023833 is retained as
+  technical-only because the subject left its second image before the translation-follow camera
+  fix. Simplified colours/facets, continuous all-angle stroke review, material depth response and
+  current Android runtime remain open.
 - [ ] A new species or object is not done when it merely exists and animates. It needs believable
   silhouette, proportions, material/colour, motion and ground/water contact in close first-person
   views, and must not ship at the current turtle's quality level.

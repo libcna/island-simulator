@@ -778,6 +778,8 @@ def main():
             if args.viewpoint == "turtles":
                 if "near turtles use subdued scute seams, fuller heads, nostrils and mouth creases" not in diagnostics:
                     raise RuntimeError("current close sea-turtle detail is missing; check for a stale executable")
+                if "near turtles use staggered interlocking scutes and scaled paddle joints" not in diagnostics:
+                    raise RuntimeError("current sea-turtle scute and paddle detail is missing; check for a stale executable")
                 if not re.search(r"turtles [1-5]/5 visible \(near [1-5], far [0-5]\), 1 draw", diagnostics):
                     raise RuntimeError("sea-turtle capture did not submit a near detailed animal")
             if args.viewpoint == "fish":

@@ -82,6 +82,33 @@ namespace island::sea_turtle
         return std::clamp(static_cast<int>((u + 1.0f) * 2.5f), 0, 4);
     }
 
+    /** @brief Staggered transverse boundary for the four joins between five shell scutes. */
+    inline float ScuteRowBoundaryU(const int boundary, const float s)
+    {
+        if (boundary < 1 || boundary > 4) throw std::invalid_argument("Scute row boundary");
+        RequireUnit(s, "Scute row lateral coordinate must be normalized");
+        const float nominal = -1.0f + 0.4f * static_cast<float>(boundary);
+        const float parity = boundary % 2 == 0 ? -1.0f : 1.0f;
+        const float across = std::abs(s);
+        // Central vertebral shields alternate their point; costals meet them on shallow
+        // chevrons which settle back to the nominal row at the marginal rim.
+        const float offset = parity * (0.060f * (1.0f - across)
+            - 0.018f * std::sin(3.14159265f * across));
+        return std::clamp(nominal + offset, -0.94f, 0.94f);
+    }
+
+    /** @brief Slightly interlocking longitudinal edge for a named shell-grid column. */
+    inline float ScuteColumnBoundaryS(const int column, const float u)
+    {
+        if (column != 1 && column != 3 && column != 5 && column != 7)
+            throw std::invalid_argument("Scute column boundary");
+        RequireUnit(u, "Scute column length coordinate must be normalized");
+        const float base = CarapaceColumns[static_cast<std::size_t>(column)];
+        const float side = base < 0.0f ? -1.0f : 1.0f;
+        const float wave = std::sin((u + 1.0f) * 5.0f * 3.14159265f);
+        return base + side * 0.018f * wave * (1.0f - 0.45f * std::abs(base));
+    }
+
     struct FlipperPoint { float x, y, z; };
 
     /**

@@ -77,3 +77,45 @@ are unchanged. Contained llvmpipe evidence
 and kernel-delta checks with one near turtle in one draw. The image was inspected. The seams still
 form a simplified grid rather than fully interlocking natural scutes, and flipper scale pattern,
 portable runtime captures and further material polish remain open.
+
+## Fourth staggered-scute and rounded-head pass (2026-10-13)
+
+A fresh same-binary baseline `20261013T022411.521238Z-turtles` confirmed that the dark lifted
+seams still formed a straight rectangular cage and that the front paddles were broad unmarked
+surfaces. Renderer-independent `ScuteRowBoundaryU` now gives the four transverse joins alternating
+central points which settle back toward the marginal rim. `ScuteColumnBoundaryS` adds a small
+bilaterally symmetric wave to the four longitudinal joins. Both the underlying shell facets and
+the 3 mm lifted seam strips follow those paths, rather than drawing bent lines over the old grid.
+CPU tests require visible offsets, bilateral symmetry, finite bounds and rejection of invalid
+boundary indices.
+
+The first paddle treatment in `20261013T022802.326519Z-turtles` used excessively wide dark bands
+and was rejected after image inspection. The retained version narrows each internal joint from
+18% to 3% of its segment interval. It reads as fine scale separation in
+`20261013T022925.691957Z-turtles` rather than striped fabric. There are five joins on each front
+paddle and three on each rear paddle, adding 32 triangles / 96 vertices.
+
+The closer deterministic QA camera then exposed a blocky head and an oversized triangular eye.
+Five rings now progress from the narrow neck through rear skull, full crown and brow to the snout,
+with 12 facets instead of four ten-facet rings. Separate upper/lower nose points form the beak;
+each eye is a smaller two-facet diamond plus subdued highlight. This adds 42 triangles / 126
+vertices. Final near geometry is 654 triangles / 1,962 vertices per turtle, at most 156,960 bytes
+for all five `VertexPositionColor` models. Far LOD, population, simulation, textures and one-draw
+batching are unchanged.
+
+Release and Debug builds pass; expanded `IslandCoreTests` pass in 14.33 s / 60.53 s. Final native
+llvmpipe `20261013T024158.398858Z-turtles` passes and was inspected: the closer view retains the
+rounded head, smaller eye, split beak, staggered shell and fine paddle joints; kernel delta is
+empty. Earlier tuning captures remain evidence rather than being relabelled as final.
+
+A new focused `turtles` Chrome gate requires 60 finite SwiftShader frame intervals, both current
+detail markers, one visible near turtle from five in one draw, two screenshot files, `glError=0`
+and an intact context. Parent validation also requires different SHA-256 identities for the two
+frames. `20261013T023833.114442Z-chrome-turtles` technically passed those initial checks, but its
+second image was empty because the animal left the static camera during slow CPU rendering; it is
+not accepted as visual evidence. The QA camera now follows subject translation only. Final
+`20261013T024326.120463Z-chrome-turtles` passes: both inspected frames retain the turtle at
+different headings/strokes, hashes differ, all 60 intervals complete, GL error is zero, context is
+live and kernel delta is empty. SwiftShader timing is not a hardware-performance claim. Current
+Android execution, all-angle motion, less faceted materials and richer head/flipper scale detail
+remain open; the emulator/KVM configuration was not touched.
