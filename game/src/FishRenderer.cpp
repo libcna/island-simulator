@@ -1,12 +1,15 @@
 #include "IslandSimulator/FishRenderer.hpp"
 
 #include "IslandSimulator/WildlifeRenderLighting.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <iostream>
 #include <numbers>
 #include <stdexcept>
+#include <string_view>
 
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
 #include "Microsoft/Xna/Framework/BoundingSphere.hpp"
@@ -71,15 +74,18 @@ namespace island
             float halfHeight;
         };
 
-        constexpr std::array<BodySection, 6> BodySections = {{
-            {0.49f, 0.025f, 0.030f},
-            {0.34f, 0.125f, 0.115f},
-            {0.10f, 0.185f, 0.180f},
-            {-0.13f, 0.170f, 0.165f},
+        constexpr std::array<BodySection, 7> BodySections = {{
+            {0.52f, 0.018f, 0.024f},
+            {0.44f, 0.074f, 0.068f},
+            {0.28f, 0.145f, 0.135f},
+            {0.08f, 0.188f, 0.180f},
+            {-0.14f, 0.170f, 0.160f},
             {-0.33f, 0.115f, 0.105f},
             {-0.45f, 0.050f, 0.052f},
         }};
-        constexpr int BodySegments = 8;
+        constexpr int BodySegments = 10;
+        constexpr std::string_view FishDetailDiagnostic =
+            "island-simulator: near fish use rounded seven-station heads, ten-facet bodies, lit fins, and two-facet eyes";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -182,8 +188,8 @@ namespace island
                 centre, axes, tailBend * 1.08f, 0.0f, -0.66f, scale);
             const Vector3 tailBottom = LocalPoint(
                 centre, axes, tailBend, -0.25f, -0.78f, scale);
-            AddTriangle(vertices, rear, tailTop, tailNotch, palette.fin);
-            AddTriangle(vertices, rear, tailNotch, tailBottom, palette.fin);
+            AddLitTriangle(vertices, rear, tailTop, tailNotch, palette.fin, true);
+            AddLitTriangle(vertices, rear, tailNotch, tailBottom, palette.fin, true);
 
             const Vector3 dorsalFront = LocalPoint(
                 centre, axes, 0.0f, 0.13f, 0.12f, scale);
@@ -193,27 +199,42 @@ namespace island
                 centre, axes, bend * 0.45f, 0.12f, -0.27f, scale);
             const Vector3 dorsalKnee = LocalPoint(
                 centre, axes, bend * 0.25f, 0.25f, -0.19f, scale);
-            AddTriangle(vertices, dorsalFront, dorsalTip, dorsalKnee, palette.fin);
-            AddTriangle(vertices, dorsalFront, dorsalKnee, dorsalBack, palette.fin);
+            AddLitTriangle(vertices, dorsalFront, dorsalTip, dorsalKnee, palette.fin, true);
+            AddLitTriangle(vertices, dorsalFront, dorsalKnee, dorsalBack, palette.fin, true);
 
             for (const float side : {-1.0f, 1.0f}) {
-                AddTriangle(vertices,
-                            LocalPoint(centre, axes, side * 0.15f, -0.015f, 0.13f, scale),
-                            LocalPoint(centre, axes, side * 0.37f, -0.09f, -0.12f, scale),
-                            LocalPoint(centre, axes, side * 0.13f, -0.06f, -0.20f, scale),
-                            palette.fin);
+                const Vector3 rootFront = LocalPoint(
+                    centre, axes, side * 0.15f, -0.015f, 0.14f, scale);
+                const Vector3 tip = LocalPoint(
+                    centre, axes, side * 0.37f, -0.09f, -0.10f, scale);
+                const Vector3 elbow = LocalPoint(
+                    centre, axes, side * 0.27f, -0.075f, -0.17f, scale);
+                const Vector3 rootBack = LocalPoint(
+                    centre, axes, side * 0.13f, -0.055f, -0.21f, scale);
+                AddLitTriangle(vertices, rootFront, tip, elbow, palette.fin, true);
+                AddLitTriangle(vertices, rootFront, elbow, rootBack, palette.fin, true);
             }
 
             const Color eye(19, 31, 33, 255);
+            const Color eyeShine(132, 158, 151, 255);
             const Color gill(65, 86, 83, 255);
-            AddTriangle(vertices,
-                        LocalPoint(centre, axes, -0.157f, 0.073f, 0.278f, scale),
-                        LocalPoint(centre, axes, -0.162f, 0.006f, 0.294f, scale),
-                        LocalPoint(centre, axes, -0.164f, 0.010f, 0.205f, scale), eye);
-            AddTriangle(vertices,
-                        LocalPoint(centre, axes, 0.157f, 0.073f, 0.278f, scale),
-                        LocalPoint(centre, axes, 0.164f, 0.010f, 0.205f, scale),
-                        LocalPoint(centre, axes, 0.162f, 0.006f, 0.294f, scale), eye);
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 eyeTop = LocalPoint(centre, axes, side * 0.153f, 0.082f, 0.288f, scale);
+                const Vector3 eyeFront = LocalPoint(centre, axes, side * 0.158f, 0.044f, 0.318f, scale);
+                const Vector3 eyeBottom = LocalPoint(centre, axes, side * 0.160f, 0.008f, 0.282f, scale);
+                const Vector3 eyeRear = LocalPoint(centre, axes, side * 0.157f, 0.044f, 0.247f, scale);
+                if (side > 0.0f) {
+                    AddTriangle(vertices, eyeTop, eyeBottom, eyeFront, eye);
+                    AddTriangle(vertices, eyeTop, eyeRear, eyeBottom, eye);
+                } else {
+                    AddTriangle(vertices, eyeTop, eyeFront, eyeBottom, eye);
+                    AddTriangle(vertices, eyeTop, eyeBottom, eyeRear, eye);
+                }
+                AddTriangle(vertices,
+                    LocalPoint(centre, axes, side * 0.162f, 0.070f, 0.292f, scale),
+                    LocalPoint(centre, axes, side * 0.163f, 0.052f, 0.305f, scale),
+                    LocalPoint(centre, axes, side * 0.163f, 0.051f, 0.279f, scale), eyeShine);
+            }
             AddTriangle(vertices,
                         LocalPoint(centre, axes, -0.190f, 0.070f, 0.145f, scale),
                         LocalPoint(centre, axes, -0.192f, -0.060f, 0.115f, scale),
@@ -285,6 +306,8 @@ namespace island
         effect_->setFogStartProperty(70.0f);
         effect_->setFogEndProperty(220.0f);
         stagingVertices_.reserve(static_cast<std::size_t>(MaximumVertexCount));
+        std::cout << FishDetailDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(FishDetailDiagnostic);
     }
 
     FishRenderer::~FishRenderer() = default;

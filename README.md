@@ -274,8 +274,9 @@ palettes, hinged patterned near wings, a reduced far silhouette, and one culled 
 motion readable without filling every clearing. Eight
 near-shore schools add 48 animated fish constrained between the seabed and water surface, with
 depth-following pitch, banked turns, forked tails, CPU-lit body facets, restrained depth/caustic
-colour response, and six-station volumetric near bodies with rounded heads, caudal peduncles,
-surface-fitted eyes/gills and progressive rear-body motion. See
+colour response, and seven-station/ten-facet volumetric near bodies with rounded heads, caudal
+peduncles, two-facet highlighted eyes, surface-fitted gills, lit shaped fins and progressive
+rear-body motion. See
 [the image-driven fish form review](docs/fish-form.md).
 Five non-hostile sea turtles follow separate bounded near-shore routes between the seabed and
 surface. They alternate slow cruising, seabed foraging, and occasional surfacing, remain outside

@@ -408,16 +408,22 @@ docs/stream-course.md and docs/environment-field-design.md.
   `IslandDolphinPodTests`, WorldReport fingerprint `049597fca36b232e`, and inspected contained
   llvmpipe evidence `20261012T205513.019794Z-dolphins` pass. A second image-driven pass rounded the
   forehead, lowered/swept the dorsal fin, broadened the horizontal flukes and added mouth/blowhole
-  cues. Fish then received an image-driven close-form pass: the 51-vertex diamond body became a
-  276-vertex six-station/eight-facet loft with rounded head, caudal peduncle, progressive rear-body
-  bend, surface-fitted eyes/gills/mouth and better-rooted fins. Inspected contained evidence
-  `20261012T210406.805334Z-fish` shows six close fish in one draw; see `docs/fish-form.md`.
+  cues. Fish then received an image-driven close-form pass: the 51-vertex diamond body first became
+  a 276-vertex six-station/eight-facet loft with rounded head, caudal peduncle, progressive rear-body
+  bend, surface-fitted eyes/gills/mouth and better-rooted fins. A second pass uses seven stations,
+  ten body facets, a smoother forehead, shaped two-triangle pectoral fins, two-sided lit dorsal/tail
+  surfaces and two-facet highlighted eyes. Near geometry is414vertices (at most318KiB for all48),
+  far LOD/population/one draw unchanged. Current native031027 and Chrome/SwiftShader031048 pass;
+  Web retains live fish in two different-hash frames over60positive intervals with
+  GL0/context intact/kernel[]. The closer QA camera follows subject translation without freezing
+  turn/bank/tail motion. Android current model remains pending; see `docs/fish-form.md`.
   Shark then received the corresponding 51-to-375-vertex pass: seven-station/capped body, blunt
   snout, progressive rear bend, caudal peduncle, asymmetric heterocercal tail, paired fins, eyes,
   mouth and three gill slits per side. Inspected contained evidence
   `20261012T211055.205953Z-shark` shows the single near shark in one draw; see
-  `docs/shark-form.md`. All three forms remain visibly faceted and Web/Android/performance review
-  is open. Turtle review retained the existing detailed shell/paddle foundation but enlarged the
+  `docs/shark-form.md`. These procedural forms remain visibly faceted; shark/dolphin focused Web,
+  current Android and sustained performance review remain open. Turtle review retained the
+  existing detailed shell/paddle foundation but enlarged the
   four-ring head/beak, surface-fitted the eyes, added nostril/mouth cues and narrowed/lightened the
   cage-like scute seams for +12 near vertices. Inspected contained
   `20261012T211746.659012Z-turtles` shows one near turtle/one draw; see
@@ -6189,11 +6195,12 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 - [x] Activate/cull schools spatially; never simulate large invisible populations. The fixed
   48-agent budget uses school-level full/reduced/dormant simulation tiers, per-fish frustum/distance
   culling, near/far meshes, and one dynamic-buffer draw submission. Smoothed depth pitch and turn
-  banking now drive the existing portable CPU pose; both LODs have forked tails and the near tier
-  adds restrained eye/gill detail without another draw. CPU face colours give the body fixed-sun
-  faceting plus one depth-dependent tropical-water tint and moving shallow sunlight sample per
-  animal, while the existing cull-none batch lets thin fins use one surface; near/far geometry is
-  reduced from 66/24 to 51/12 vertices per fish.
+  banking drive the portable CPU pose; both LODs have forked tails. The near tier now uses a
+  414-vertex seven-station/ten-facet body, rounded forehead, two-facet highlighted eyes, gill/mouth
+  marks and shaped two-triangle pectoral fins. CPU face colours give the body fixed-sun faceting,
+  fins use two-sided fixed-sun lighting, and one depth-dependent tropical-water tint plus moving
+  shallow sunlight sample is shared per animal. The far tier remains 12 vertices, and the existing
+  cull-none batch keeps all thin fins single-surface without another draw.
 - [x] Add one occasional offshore shark with credible silhouette, patrol variation, swimming
   animation, and no hostile behaviour. A single original procedural model uses near/far geometry,
   CPU body/tail motion plus smoothed dive pitch and turn banking, frustum/distance culling, and one

@@ -188,6 +188,29 @@ class BrowserSoftwareTests(unittest.TestCase):
             invalid = report(); mutate(invalid)
             with self.assertRaises(RuntimeError): gate.validate_crab_report(invalid)
 
+    def test_fish_scope_requires_current_anatomy_two_frames_and_live_context(self):
+        self.assertIn("fish", gate.SCOPES)
+        self.assertIn('["fish", ["--viewpoint", "fish", "--debug-overlay"]]',
+                      (ROOT / "tools/web_smoke.html.in").read_text())
+        marker = "near fish use rounded seven-station heads, ten-facet bodies, lit fins, and two-facet eyes"
+        def report():
+            return {"passed": True, "views": [{"mode": "fish", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": "fish.png", "afterSimulationScreenshot": "fish-after.png",
+                "intervals": [16.7] * 60,
+                "result": {"output": marker + "\nfish 6/48 visible (near 6, far 0), 1 draw"}}]}
+        self.assertEqual(gate.validate_fish_report(report()), ("fish.png", "fish-after.png"))
+        for mutate in (
+            lambda value: value.update(passed=False),
+            lambda value: value["views"][0].update(glError=1282),
+            lambda value: value["views"][0].update(contextLost=True),
+            lambda value: value["views"][0].update(intervals=[16.7] * 59),
+            lambda value: value["views"][0]["result"].update(output="fish 6/48 visible (near 6, far 0), 1 draw"),
+            lambda value: value["views"][0]["result"].update(output=marker + "\nfish 0/48 visible (near 0, far 0), 0 draw"),
+        ):
+            invalid = report(); mutate(invalid)
+            with self.assertRaises(RuntimeError): gate.validate_fish_report(invalid)
+
     def test_snake_scope_requires_both_views_and_visible_population(self):
         self.assertIn("snakes", gate.SCOPES)
         environment = gate.browser_environment("chrome", "snakes", Path("/evidence"))

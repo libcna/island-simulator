@@ -808,7 +808,7 @@ namespace island
                                   std::sin(fish.headingRadians));
             const Vector3 side(-forward.Z, 0.0f, forward.X);
             cameraPosition_ = Vector3(fish.x, fish.y, fish.z)
-                + side * 3.8f - forward * 0.5f + Vector3::Up * 1.0f;
+                + side * 2.55f - forward * 0.35f + Vector3::Up * 0.68f;
             const Vector3 toFish = Vector3(fish.x, fish.y, fish.z) - cameraPosition_;
             yaw_ = std::atan2(toFish.X, toFish.Z);
             pitch_ = std::atan2(toFish.Y, std::hypot(toFish.X, toFish.Z));
@@ -1432,7 +1432,7 @@ namespace island
                   << "island-simulator: fish near/far geometry "
                   << FishRenderer::NearVertexCount << '/' << FishRenderer::FarVertexCount
                   << " vertices, single-surface fins and CPU faceted daylight\n"
-                  << "island-simulator: near fish use six-station volumetric bodies, caudal "
+                  << "island-simulator: near fish use seven-station volumetric bodies, caudal "
                      "peduncles and progressive rear-body bends\n"
                   << "island-simulator: shark near/far geometry "
                   << SharkRenderer::NearVertexCount << '/' << SharkRenderer::FarVertexCount
@@ -1691,7 +1691,16 @@ namespace island
             // Software frames can span many simulation updates; otherwise the close subject exits.
             cameraPosition_ += snakeCentre()-previousSnakeCentre;
         }
+        const FishState previousFishSubject = fishSchools_.Fish().front();
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        if (viewpoint_ == FixedViewpoint::FishDetail) {
+            // Follow translation only so a close CPU-rendered audit retains the subject while
+            // still exposing its live heading, banking, tail bend and school movement.
+            const FishState& subject = fishSchools_.Fish().front();
+            cameraPosition_ += Vector3(subject.x - previousFishSubject.x,
+                                       subject.y - previousFishSubject.y,
+                                       subject.z - previousFishSubject.z);
+        }
         const SeaTurtleState previousTurtleSubject = seaTurtleGroup_.Turtles()[2U];
         seaTurtleGroup_.Update(
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);

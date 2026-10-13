@@ -41,10 +41,11 @@ const focusedSnakeCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "snakes";
 const focusedHutCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "hut";
 const focusedTurtleCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "turtles";
 const focusedCrabCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "crabs";
-const focusedCheck = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedTurtleCheck || focusedCrabCheck || focusedSnakeCheck || focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedStreamCheck || focusedMonkeyCheck;
-const focusedArtifactPrefix = focusedSpiderCheck ? "spiders" : focusedGoatCheck ? "goats" : focusedHutCheck ? "hut" : focusedTurtleCheck ? "turtles" : focusedCrabCheck ? "crabs" : focusedSnakeCheck ? "snakes" : focusedFlightCheck ? "flight" : focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedStreamCheck ? "stream" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
+const focusedFishCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "fish";
+const focusedCheck = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSnakeCheck || focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedStreamCheck || focusedMonkeyCheck;
+const focusedArtifactPrefix = focusedSpiderCheck ? "spiders" : focusedGoatCheck ? "goats" : focusedHutCheck ? "hut" : focusedTurtleCheck ? "turtles" : focusedCrabCheck ? "crabs" : focusedFishCheck ? "fish" : focusedSnakeCheck ? "snakes" : focusedFlightCheck ? "flight" : focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedStreamCheck ? "stream" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
   : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
-const focusedViews = focusedSpiderCheck ? ["spiders", "spider-web"] : focusedGoatCheck ? ["goats"] : focusedHutCheck ? ["hut", "hut-material"] : focusedTurtleCheck ? ["turtles"] : focusedCrabCheck ? ["crabs"] : focusedSnakeCheck ? ["snakes", "snake-head"] : focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedStreamCheck ? ["stream"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
+const focusedViews = focusedSpiderCheck ? ["spiders", "spider-web"] : focusedGoatCheck ? ["goats"] : focusedHutCheck ? ["hut", "hut-material"] : focusedTurtleCheck ? ["turtles"] : focusedCrabCheck ? ["crabs"] : focusedFishCheck ? ["fish"] : focusedSnakeCheck ? ["snakes", "snake-head"] : focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedStreamCheck ? ["stream"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
   : focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
   : focusedGrassMotionCheck ? ["grass-motion"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
@@ -52,7 +53,7 @@ const focusedViews = focusedSpiderCheck ? ["spiders", "spider-web"] : focusedGoa
   : ["jungle", "boars", "monkeys", "east"];
 const focusedFrameCount = focusedGrassMotionCheck ? 30 : focusedCoastCheck ? 120 : 60;
 if (process.env.ISLAND_WEB_SMOKE_SCOPE && !focusedCheck) {
-  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/grounding/vegetation/terrain/grass-motion/litter/materials/stream/monkeys/turtles/crabs");
+  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/grounding/vegetation/terrain/grass-motion/litter/materials/stream/monkeys/turtles/crabs/fish");
 }
 // The outer Python supervisor monitors the host kernel continuously. A user/PID namespace
 // must not depend on retaining the host's supplementary journal-access group.
@@ -724,7 +725,7 @@ try {
           }, sessionId);
           const state = sampled.result.value;
           if (!state) throw new Error(`${mode} did not return frame evidence`);
-          const afterSimulationScreenshot = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedTurtleCheck || focusedCrabCheck || focusedSnakeCheck || focusedFlightCheck || focusedStreamCheck || mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
+          const afterSimulationScreenshot = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSnakeCheck || focusedFlightCheck || focusedStreamCheck || mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
             ? path.basename(await captureVisualFrame(sessionId,
               `island-browser-${focusedArtifactPrefix}-${mode}-after-simulation.png`, false)) : null;
           const log = state.result?.output ?? "";
@@ -747,6 +748,8 @@ try {
               && /turtles [1-5]\/5 visible \(near [1-5], far [0-5]\), 1 draw/.test(log)))
             && (!focusedCrabCheck || (log.includes("near crabs use fixed-sun facets, tapered distal toes, and socketed eyes")
               && /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
+            && (!focusedFishCheck || (log.includes("near fish use rounded seven-station heads, ten-facet bodies, lit fins, and two-facet eyes")
+              && /fish [1-9][0-9]*\/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedStreamCheck || (log.includes("route-following downstream ripple and translucent current streaks")
               && log.includes("stream water first visible draw")))
             && (!focusedSnakeCheck || (snakeMotionFrames.length === 4 && /snakes (?:[1-9]|[1-4][0-9]|50)\/50 visible, 1 draw/.test(log)))
@@ -852,7 +855,8 @@ try {
           ? "software WebGL goat coat and intermediate pose images; not continuous stance qualification" : focusedHutCheck
           ? "software WebGL hut overview and material detail; not temporal aliasing or route qualification" : focusedTurtleCheck
           ? "software WebGL close sea-turtle anatomy and separated-time frames; not continuous stroke qualification" : focusedCrabCheck
-          ? "software WebGL close beach-crab anatomy and separated-time frames; not continuous gait qualification" : focusedSnakeCheck
+          ? "software WebGL close beach-crab anatomy and separated-time frames; not continuous gait qualification" : focusedFishCheck
+          ? "software WebGL close schooling-fish anatomy and separated-time frames; not continuous swim qualification" : focusedSnakeCheck
           ? "software WebGL ground-snake body/head and intermediate images; real-time, not deterministic native stages" : focusedFlightCheck
           ? "software WebGL vertical Tab flight, ceiling and safe return; not horizontal route qualification" : focusedClimbCheck
           ? "software WebGL staged climbing diagnostics and held summit; not continuous animation" : focusedMonkeyCheck
@@ -987,7 +991,7 @@ try {
     && result.output?.includes(
       "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
     && result.output?.includes(
-      "island-simulator: fish near/far geometry 276/12 vertices, single-surface fins and CPU faceted daylight")
+      "island-simulator: fish near/far geometry 414/12 vertices, single-surface fins and CPU faceted daylight")
     && result.output?.includes(
       "island-simulator: shark near/far geometry 375/15 vertices, single-surface fins and CPU faceted daylight")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
@@ -2119,7 +2123,9 @@ try {
     && fishResult.output?.includes(
       "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
     && fishResult.output?.includes(
-      "island-simulator: fish near/far geometry 276/12 vertices, single-surface fins and CPU faceted daylight")
+      "island-simulator: fish near/far geometry 414/12 vertices, single-surface fins and CPU faceted daylight")
+    && fishResult.output?.includes(
+      "island-simulator: near fish use rounded seven-station heads, ten-facet bodies, lit fins, and two-facet eyes")
     && /fish [1-9][0-9]*\/48 visible/.test(fishResult.output ?? "")
     && !fishResult.error;
 

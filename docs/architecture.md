@@ -1082,18 +1082,19 @@ proposed move must remain 3--48 m offshore on submerged terrain, and each vertic
 between a seabed clearance and the surface. Smoothed vertical velocity supplies bounded pitch and
 heading error supplies bounded turn banking, so schools follow depth changes without remaining
 mechanically level. School-level activation uses the same shared wildlife
-tiers, so only nearby water receives full-rate updates. `FishRenderer` selects near articulated
-body/fin geometry or a far silhouette, gives both tiers a forked tail, adds eyes and gill marks only
-to the near tier, and applies fixed-sun CPU face colours to the closed near body plus two-sided
-lighting to the flat far silhouette. One shared CPU sample per visible animal smoothly tints the
+tiers, so only nearby water receives full-rate updates. `FishRenderer` selects a 414-vertex
+seven-station/ten-facet near body or a 12-vertex far silhouette, gives both tiers a forked tail, and
+adds two-facet highlighted eyes and gill marks only to the near tier. The shaped pectoral fins,
+dorsal fin and tail use two-sided fixed-sun lighting while the closed body uses outward-facing CPU
+facet colours. One shared CPU sample per visible animal smoothly tints the
 palette with depth and adds two restrained moving shallow-sun bands before facet lighting. Because
 the batch
 uses `CullNone`, each thin fin/tail surface is emitted once instead of duplicating an exactly
-coincident reverse-winding triangle. Near/far geometry is therefore 51/12 vertices per fish rather
-than 66/24. The renderer frustum/distance-culls agents and streams all visible fish
-in one `DynamicVertexBuffer` draw before the transparent ocean. Native OpenGL 3.3 and actual
-Chromium/WebGL 2 dedicated captures match; the fish-inclusive arm64 GLES 3 APK builds but has not
-run on a stable Android target.
+coincident reverse-winding triangle. Near/far geometry is 414/12 vertices per fish. The renderer
+frustum/distance-culls agents and streams all visible fish in one `DynamicVertexBuffer` draw before
+the transparent ocean. A translation-following close-review camera preserves live heading and tail
+motion across slow audit frames. Native OpenGL 3.3 and focused Chrome/SwiftShader WebGL 2 captures
+match; the fish-inclusive arm64 GLES 3 APK builds but has not run on a stable Android target.
 
 `SharkPatrol` adds one non-hostile offshore animal without turning it into a threat or interaction
 system. A deterministic schedule alternates roughly 42--66 second visible patrols with longer
