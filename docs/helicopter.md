@@ -72,6 +72,29 @@ focused Web run is `build/browser-software/20261013T070806.833263Z-chrome-helico
 images are distinct and both views again pass 60 finite intervals, ANGLE SwiftShader, GL error zero,
 intact contexts and an empty new-kernel-fault delta.
 
-Open work includes textured paint/upholstery, richer body anatomy and small mechanical
-detail, improved interior and exterior lighting, door animation, explicit sitting interaction,
-live free-walk visual review, physical performance measurement, and Android capture qualification.
+## Generated surface-material atlas
+
+The fourth visual pass replaces flat vertex colour as the only surface cue with one original,
+deterministically generated128-square mipmapped grayscale atlas. Four padded quadrants carry
+low-contrast oxidized matte-paint mottling and rare fine scuffs, directional brushed metal,
+unequal warp/weft seat cloth, and fine rubber/interior stipple. Geometry chooses a stable
+normal-dominant local projection; glass and instrument/navigation lights sample a restrained
+constant atlas point so the new texture does not contaminate transparency or lamp colours.
+Vertex colour still supplies material identity and the existing CPU fixed-sun response.
+
+The complete eight-level RGBA8 payload is87,380bytes. Total runtime texture accounting is now
+9,742,120bytes inside a9,762,336-byte quality-profile ceiling. The helicopter remains1,436
+triangles and exactly two draws; there is no new shader, draw, vertex, collision or movement cost.
+Release and Debug core/layout tests pass, including all four door-entry routes.
+
+Inspected native evidence `20261013T123312.897455Z-helicopter` and
+`20261013T123336.026355Z-helicopter-inside` passes with293/258 colour bins,54.66/30.80
+luminance deviation,231.64/134.58 spatial contrast and empty kernel deltas. The exterior retains
+restrained weathering; the cabin visibly separates woven seat stripes, stippled floor/rubber and
+metal. Chrome/SwiftShader `20261013T123738.786800Z-chrome-helicopter` passes exterior and interior
+views,60 finite intervals each, GL0, intact contexts and kernel[]; both Web images were inspected
+and show no atlas bleed through the glazing.
+
+Open work includes richer body anatomy and small mechanical detail, improved interior and
+exterior lighting, door animation, explicit sitting interaction, live free-walk visual review,
+physical performance measurement, and Android capture qualification.

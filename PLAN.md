@@ -855,7 +855,16 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   Release/Debug layout and core tests. Focused Chrome/SwiftShader evidence
   `20261013T070806.833263Z-chrome-helicopter` passes distinct inspected exterior/interior images,
   60 finite intervals per view, GL0, intact contexts and an empty kernel delta, so this is
-  intentionally still in progress. See `docs/helicopter.md`.
+  intentionally still in progress. A fourth pass adds one original generated128-square/eight-mip
+  atlas with separate restrained worn-paint, directional brushed-metal, woven-seat and fine-rubber
+  regions. Stable local projection and padded windows retain glass/light colour. It costs87380bytes
+  (runtime textures9742120/9762336bytes), while geometry remains1436triangles/two draws with
+  unchanged collision. Release/Debug core and four-door layout tests pass. Inspected native
+  `20261013T123312.897455Z-helicopter` exterior and
+  `20261013T123336.026355Z-helicopter-inside` cabin pass with kernel[]; Chrome/SwiftShader
+  `20261013T123738.786800Z-chrome-helicopter` passes both inspected views,60 intervals each,
+  GL0, intact contexts and kernel[]. Richer anatomy/mechanics, interactions, free walking,
+  Android and performance review remain. See `docs/helicopter.md`.
 
 All six items remain incomplete or in progress. Stream/cave/helicopter locations should be coordinated with
 hut access and existing wildlife; do not remove vegetation or relocate animals blindly.

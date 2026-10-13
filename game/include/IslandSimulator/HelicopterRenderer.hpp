@@ -10,6 +10,7 @@
 namespace Microsoft::Xna::Framework::Graphics {
 class BasicEffect;
 class GraphicsDevice;
+class Texture2D;
 class VertexBuffer;
 }
 
@@ -28,6 +29,7 @@ public:
 private:
     Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
     std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> effect_;
+    std::unique_ptr<Microsoft::Xna::Framework::Graphics::Texture2D> materialTexture_;
     std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> vertices_,glassVertices_;
     Microsoft::Xna::Framework::BoundingBox bounds_;
     Microsoft::Xna::Framework::Vector3 centre_;

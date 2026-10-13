@@ -752,6 +752,7 @@ try {
               && log.includes("hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes")
               && log.includes(`hut 1 draw, ${mode === "hut" ? 7 : 6} contact patches`)))
             && (!focusedHelicopterCheck || (log.includes("helicopter uses rounded twenty-sided cockpit glazing, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane")
+              && log.includes("helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber")
               && /helicopter 2 draw/.test(log)))
             && (!focusedTurtleCheck || (log.includes("near turtles use staggered scutes and closed tapered-volume paddles")
               && /turtles [1-5]\/5 visible \(near [1-5], far [0-5]\), 1 draw/.test(log)))
@@ -779,7 +780,7 @@ try {
             && (!focusedClimbCheck || log.includes("monkey climb held summit presented after eight cycle stages"))
             && state.glError === 0 && !state.result?.error && !state.result?.exited
             && log.includes("island-simulator: renderer WEBGL2")
-            && log.includes("ocean 160x160 textures 9654740/9674956 bytes audio 6/6 sources")
+            && log.includes("ocean 160x160 textures 9742120/9762336 bytes audio 6/6 sources")
             && log.includes("forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows")
             && log.includes("leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes")
             && /forest-floor filter (?:anisotropic, requested maximum 4x, device-clamped|trilinear, anisotropy unavailable)/.test(log)
@@ -940,7 +941,7 @@ try {
     && result.exitCode === 0
     && result.output?.includes("island-simulator: renderer WEBGL2")
     && result.output?.includes(
-      "island-simulator: quality profile full grass 135m vegetation 100% shadows 100% wildlife 100% ocean 160x160 textures 9654740/9674956 bytes audio 6/6 sources")
+      "island-simulator: quality profile full grass 135m vegetation 100% shadows 100% wildlife 100% ocean 160x160 textures 9742120/9762336 bytes audio 6/6 sources")
     && result.output?.includes("forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows")
     && result.output?.includes("leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes")
     && result.output?.includes("island-simulator: edge antialiasing requested 4x renderer-applied 4x")

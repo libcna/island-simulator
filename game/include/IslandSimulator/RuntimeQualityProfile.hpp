@@ -33,6 +33,7 @@ namespace island
                     + GeneratedTextureBudget::SpiderSetaeMipBytes
                     + GeneratedTextureBudget::ShipwreckWoodMipBytes
                     + GeneratedTextureBudget::ResidentMaterialMipBytes
+                    + GeneratedTextureBudget::HelicopterMaterialMipBytes
                     + GeneratedTextureBudget::BearFurMipBytes
                     + 160U * 1024U, 6, 4};
         }
@@ -56,6 +57,7 @@ namespace island
                     + GeneratedTextureBudget::SpiderSetaeMipBytes
                     + GeneratedTextureBudget::ShipwreckWoodMipBytes
                     + GeneratedTextureBudget::ResidentMaterialMipBytes
+                    + GeneratedTextureBudget::HelicopterMaterialMipBytes
                     + GeneratedTextureBudget::BearFurMipBytes
                     + 160U * 1024U, 6, 2};
         }
@@ -74,6 +76,7 @@ namespace island
                     + GeneratedTextureBudget::SpiderSetaeMipBytes
                     + GeneratedTextureBudget::ShipwreckWoodMipBytes
                     + GeneratedTextureBudget::ResidentMaterialMipBytes
+                    + GeneratedTextureBudget::HelicopterMaterialMipBytes
                     + GeneratedTextureBudget::BearFurMipBytes
                     + 160U * 1024U, 6, 0};
         }
