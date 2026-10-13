@@ -780,7 +780,9 @@ try {
               && /resident 1\/1 visible, 2 draws, [1-9][0-9]* body triangles/.test(log)))
             && (!focusedStreamCheck || (log.includes("route-following downstream ripple and translucent current streaks")
               && log.includes("stream water first visible draw")))
-            && (!focusedSnakeCheck || (snakeMotionFrames.length === 4 && /snakes (?:[1-9]|[1-4][0-9]|50)\/50 visible, 1 draw/.test(log)))
+            && (!focusedSnakeCheck || (snakeMotionFrames.length === 4
+              && log.includes("snakes use a readable dorsal saddle and active forked-tongue flicks")
+              && /snakes (?:[1-9]|[1-4][0-9]|50)\/50 visible, 1 draw/.test(log)))
             && (!focusedClimbCheck || log.includes("monkey climb held summit presented after eight cycle stages"))
             && state.glError === 0 && !state.result?.error && !state.result?.exited
             && log.includes("island-simulator: renderer WEBGL2")

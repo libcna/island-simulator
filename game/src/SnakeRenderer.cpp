@@ -3,6 +3,7 @@
 #include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/WildlifeRenderLighting.hpp"
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
 #include "Microsoft/Xna/Framework/BoundingSphere.hpp"
@@ -20,6 +21,7 @@
 #include "Microsoft/Xna/Framework/Graphics/SamplerState.hpp"
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <numbers>
 #include <stdexcept>
 using namespace Microsoft::Xna::Framework;
@@ -56,6 +58,8 @@ SnakeRenderer::SnakeRenderer(GraphicsDevice& device, const CanopyLightField& can
     effect_->setFogEnabledProperty(true);
     effect_->setFogColorProperty(Vector3(environment::FogColorRed,environment::FogColorGreen,environment::FogColorBlue));
     effect_->setFogStartProperty(45.0f); effect_->setFogEndProperty(80.0f);
+    const char* anatomy="island-simulator: snakes use a readable dorsal saddle and active forked-tongue flicks";
+    std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
 }
 SnakeRenderer::~SnakeRenderer()=default;
 void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector3& camera,
@@ -99,8 +103,12 @@ void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vecto
                 const float angle=Tau*static_cast<float>(k)/Sides;
                 const auto normal=right*std::cos(angle)+up*std::sin(angle);
                 const float band=0.80f+0.20f*std::cos(static_cast<float>(j)*1.65f);
+                const float dorsalBand=.84f+.16f*std::cos(static_cast<float>(j)*1.65f);
                 const Color color=std::sin(angle)<-0.25f ? Color(177,165,105)
-                    : Color(static_cast<int>(104*band),static_cast<int>(119*band),static_cast<int>(49*band));
+                    : std::sin(angle)>.32f
+                        ? Color(static_cast<int>(126*dorsalBand),static_cast<int>(139*dorsalBand),
+                            static_cast<int>(61*dorsalBand))
+                        : Color(static_cast<int>(104*band),static_cast<int>(119*band),static_cast<int>(49*band));
                 rings[j][static_cast<std::size_t>(k)]=vertex(centre+normal*SnakePopulation::RadiusAt(j),normal,color,
                     Vector2(SnakeSkinU(static_cast<float>(k),Sides),
                         SnakeSkinV(static_cast<float>(j)*SnakePopulation::Spacing,SnakePopulation::Spacing)));
@@ -178,6 +186,25 @@ void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vecto
                 triangle(eyeVertex(a,low),eyeVertex(b,low),eyeVertex(a,high));
                 if(ring<2) triangle(eyeVertex(b,low),eyeVertex(b,high),eyeVertex(a,high));
             }
+        }
+        // A brief split-tongue flick follows the existing locomotion phase. It is absent at
+        // rest and costs only four triangles when active, without a separate draw or texture.
+        const float flick=.5f+.5f*std::sin(snake.phase*5.0f+snake.homeX*.17f+snake.homeZ*.11f);
+        if(snake.behavior!=SnakeBehavior::Rest&&flick>.62f) {
+            const float extension=.019f+.026f*(flick-.62f)/.38f;
+            const Vector3 base=origin+forward*(SnakeNoseForward+.002f)-up*.004f;
+            const Vector3 fork=base+forward*(extension*.68f);
+            const auto tongueVertex=[&](const Vector3& point) {
+                return vertex(point,up,Color(184,43,38),Vector2(0,0));
+            };
+            const Vector3 baseLeft=base-right*.0022f,baseRight=base+right*.0022f;
+            const Vector3 forkLeft=fork-right*.0015f,forkRight=fork+right*.0015f;
+            triangle(tongueVertex(baseLeft),tongueVertex(baseRight),tongueVertex(forkRight));
+            triangle(tongueVertex(baseLeft),tongueVertex(forkRight),tongueVertex(forkLeft));
+            triangle(tongueVertex(forkLeft),tongueVertex(fork),
+                tongueVertex(fork+forward*(extension*.32f)-right*.008f));
+            triangle(tongueVertex(fork),tongueVertex(forkRight),
+                tongueVertex(fork+forward*(extension*.32f)+right*.008f));
         }
         ++visible_;
     }

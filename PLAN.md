@@ -306,9 +306,12 @@ remain, so ecosystem-stage item 11 is `[~]`. See [prevailing-wind.md](docs/preva
   `20261012T143710.846753Z-snakes` and `20261012T143753.699776Z-spiders` each report one
   live subject from totals 50/200 with its contact shadow. Their intentionally dark,
   tightly cropped views still fail generic scene-contrast gates, so they are integration
-  and visual-inspection evidence rather than final appearance acceptance. Long-walk
-  encounter frequency, controlled performance comparison and Web/Android runtime remain
-  open; the exact population target itself is implemented.
+  and visual-inspection evidence rather than final appearance acceptance. Current
+  Chrome/SwiftShader snake evidence `20261013T131009.763722Z-chrome-snakes` now passes
+  both body/head views with the 50-animal population, four motion samples per view,
+  GL0 and an intact context. Long-walk encounter frequency, controlled performance
+  comparison, current spider Web runtime and Android runtime remain open; the exact
+  population target itself is implemented.
 
 - [~] Make every ground snake visibly crawl instead of reading as a static prop. Preserve
   terrain and obstacle contact along the full body while the head advances, the body
@@ -322,7 +325,15 @@ remain, so ecosystem-stage item 11 is `[~]`. See [prevailing-wind.md](docs/preva
   The eight-snake deterministic test exercises rest/explore/retreat, records 10.2246m
   aggregate focused-head travel and 2,337 propagated opposing-wave frames. All four
   inspected stages in `20261012T121151.377464Z-snakes` visibly change position and body
-  curvature. Ordinary walking-distance and portable continuous-motion review remain.
+  curvature. A lighter dorsal saddle and intermittent four-triangle forked tongue now
+  improve the existing scaled model without another draw or texture. Inspected native
+  head evidence `20261013T130651.826608Z-snake-head` passes the generic image gate and
+  visibly captures the extended tongue; the inspected overhead body remains readable
+  but fails the unchanged dark-scene luminance gate. Current Chrome/SwiftShader body and
+  head views pass 60 intervals each with four intermediate images and sampled head
+  displacements of 5.613m/6.274m. The Web samples show changing S-curves but happened to
+  catch the intermittent tongue retracted. Ordinary player-controlled walking-distance,
+  Android-current and genuinely continuous gait review remain before acceptance.
 
 - [~] Give snakes restrained positional hissing. Trigger it chiefly during close player
   awareness and retreat, with randomized timing/pitch, distance attenuation, cooldowns

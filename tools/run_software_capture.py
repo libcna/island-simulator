@@ -620,6 +620,8 @@ def main():
                 if not re.search(r"helicopter 2 draw", diagnostics):
                     raise RuntimeError("helicopter viewpoint did not retain its bounded two-draw model")
             if args.viewpoint in ("snakes", "snake-head"):
+                if "snakes use a readable dorsal saddle and active forked-tongue flicks" not in diagnostics:
+                    raise RuntimeError("current snake anatomy material is missing")
                 validate_snake_motion_stages(log)
                 for stage in range(4):
                     if not Path(str(capture)+f".snake-stage-{stage}.ppm").is_file():
@@ -889,8 +891,9 @@ def main():
                 raise RuntimeError("current leaf material is missing; check for a stale executable")
             if "boars receive bilinear per-vertex canopy light in their existing batch" not in diagnostics:
                 raise RuntimeError("current boar lighting is missing; check for a stale executable")
-            if args.viewpoint in ("snakes","snake-head") and not re.search(r"snakes (?:[1-9]|[1-4][0-9]|50)/50 visible, 1 draw",diagnostics):
-                raise RuntimeError("snake capture did not submit the live population")
+            if args.viewpoint in ("snakes","snake-head"):
+                if not re.search(r"snakes (?:[1-9]|[1-4][0-9]|50)/50 visible, 1 draw",diagnostics):
+                    raise RuntimeError("snake capture did not submit the live population")
             if args.viewpoint == "goats" and not re.search(r"goats [1-6]/6 visible, 2 draw", diagnostics):
                 raise RuntimeError("goat capture did not submit the live population")
             if args.viewpoint in ("spiders", "spiders-bright"):

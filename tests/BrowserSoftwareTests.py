@@ -276,7 +276,8 @@ class BrowserSoftwareTests(unittest.TestCase):
                           (ROOT / "tools/web_smoke.html.in").read_text())
 
     def test_snake_report_rejects_frozen_missing_and_invalid_motion(self):
-        log='\n'.join(f"snake runtime sample frame={i*8} head={i*0.2},2,0 speed=0.5 visible=1" for i in range(1,5))
+        log='snakes use a readable dorsal saddle and active forked-tongue flicks\n'+'\n'.join(
+            f"snake runtime sample frame={i*8} head={i*0.2},2,0 speed=0.5 visible=1" for i in range(1,5))
         def report(text):
             return {"passed":True,"views":[{"mode":mode,"result":{"output":text}}
                                           for mode in ("snakes","snake-head")]}
@@ -287,6 +288,9 @@ class BrowserSoftwareTests(unittest.TestCase):
             with self.assertRaises(RuntimeError): gate.validate_snake_report(report(invalid))
         missing=report(log);missing["views"].pop()
         with self.assertRaises(RuntimeError): gate.validate_snake_report(missing)
+        with self.assertRaises(RuntimeError):
+            gate.validate_snake_report(report(log.replace(
+                "snakes use a readable dorsal saddle and active forked-tongue flicks\n", "")))
 
     def test_monkey_scope_retains_supervision_and_intermediate_visual_samples(self):
         self.assertIn("monkeys", gate.SCOPES)

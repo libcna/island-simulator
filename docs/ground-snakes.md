@@ -1,5 +1,34 @@
 # Ground snake implementation and visual evidence
 
+## Dorsal readability and tongue flick — 2026-10-13
+
+The upper third of the existing olive body now carries a restrained lighter dorsal
+saddle while the pale belly and darker flanks remain distinct. This is vertex colour
+under the existing scale atlas, so all 50 live animals retain the same one bounded
+dynamic draw, texture allocation and 16-nearest render cap. A moving, non-resting snake
+can briefly extend a narrow red tongue with a split tip. The flick follows its staggered
+locomotion phase, adds four triangles only while active and creates no draw or texture.
+
+Actual llvmpipe `20261013T130651.826608Z-snake-head` was inspected: the fine scales,
+near eye and red forked tongue are visible between unmodified grass blades. Its generic
+image gate passes with 264 colour bins, 33.29 luminance deviation and 200.57 spatial
+contrast. The inspected overhead `20261013T130713.549461Z-snakes` shows the complete
+S-curved body more clearly against leaf litter, but still correctly fails the unchanged
+generic luminance gate because the close forest-floor composition is dark. This failure
+was not hidden by weakening the shared threshold.
+
+Current Chrome/SwiftShader WebGL evidence is
+`20261013T131009.763722Z-chrome-snakes`. Both `snakes` and `snake-head` views pass
+60 sampled frame intervals, retain four intermediate images, report GL error zero and
+an intact context, and have no new kernel GPU fault. Their sampled heads displace
+5.613m and 6.274m respectively. The body is visibly in different S-curves and later
+moves underneath natural foliage. The intermittent tongue happened to be retracted in
+the inspected Web samples; this run therefore proves current portable rendering and
+live crawl, not portable tongue visibility or continuous gait quality. The marker for
+the new dorsal/tongue model is required independently by native and browser gates.
+Android current-population runtime, ordinary player-controlled encounter review and
+continuous natural-motion acceptance remain open.
+
 ## Fifty-animal population and bounded rendering — 2026-10-12
 
 The requested live population is now exactly 50 ground snakes. Deterministic habitat

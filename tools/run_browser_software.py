@@ -369,6 +369,8 @@ def validate_snake_report(report):
     result=[]
     for view in views:
         log=view.get("result", {}).get("output", "")
+        if "snakes use a readable dorsal saddle and active forked-tongue flicks" not in log:
+            raise RuntimeError("snake browser report lacks the current anatomy material")
         result.append({"mode":view["mode"], **validate_snake_runtime_samples(log)})
     return result
 
