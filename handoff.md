@@ -4473,3 +4473,22 @@ intact/kernel[]. ARM64 assembleDebug+lintDebug PASS13s without emulator/KVM. Deb
 ResidentTests PASS5.99s; final Python gates88/88 PASS1.137s. No AMD GPU/KVM/emulator/dependency
 change. Skin response, sidestepping, continuous gait, Android runtime/performance and the wider
 plan remain open; do not mark resident or goal complete.
+
+# Latest — boar continuous lower-leg pass
+
+The active goal continues. Near boars no longer use dark spherical knee caps between the
+furred upper limb and lower tube. Each lower leg is now two exactly connected tapering
+sections from knee through cannon to the existing cloven hoof; hoof colour is a slightly
+lighter dark brown. Authoritative foot targets, terrain contact, gait, far geometry, herd,
+material partition, buffers, shadows and two draws are unchanged. Net near cost is
+-32 triangles/-96 streamed vertices per animal.
+
+Release build and herd/coat/pose tests pass; focused Python software gates88/88 pass.
+Native llvmpipe `20261013T222749.259239Z-boars` PASS214bins/std19.18/spatial94.22/kernel[];
+the eight-stage montage and matched old/new stage-two crop were inspected and the former
+black joint ball is gone. WebGL2 build passes max4 cores. Chrome/SwiftShader
+`20261013T223134.897234Z-chrome-boars` PASS60 finite intervals/two distinct frames/GL0/
+context intact/kernel[]; final image inspected. ARM64 assembleDebug+lintDebug PASS3s without
+emulator/KVM. Debug build and herd/coat/pose tests PASS7.22s. This does not complete boar
+realism, subjective speaker listening or the larger plan. No AMD GPU, KVM, emulator or
+dependency change.

@@ -725,6 +725,15 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   the turn. Focused Chrome/SwiftShader093719.934014Z-chrome-boars PASS60intervals/two
   distinct images/GL0/context intact/kernel[] and both frames inspected. Joint/gait
   continuity, subjective speaker listening and Android runtime remain open.
+  Lower-leg follow-up removes each near spherical knee cap and replaces the former single
+  lower tube with connected knee-to-cannon and cannon-to-hoof tapers; slightly lighter dark
+  hooves preserve the cloven silhouette. This saves32 triangles/96 streamed vertices per
+  near animal with no far, behaviour, texture, buffer or draw change. Release herd/coat/pose
+  tests pass. Deterministic llvmpipe222749.259239Z-boars PASS214bins/std19.18/spatial94.22/
+  kernel[]; matched stage-two comparison inspected. Chrome/SwiftShader
+  223134.897234Z-chrome-boars PASS60intervals/two distinct images/GL0/context intact/kernel[];
+  final image inspected. ARM64 assemble+lint and Debug build plus herd/coat/pose tests pass.
+  Broader joint/gait realism and subjective audio acceptance remain open.
 - [ ] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
   tail. Rework head/body proportions and a fur-covered tail together, not just a colour
   change. Inspect actual island images and movement; previous fur/rig implementation

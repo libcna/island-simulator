@@ -436,11 +436,13 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn('boar RGB bristle coat and solid anatomy, two opaque stock BasicEffect draws',
                       source)
         self.assertIn('near boars use broad tapered upper legs with compact split hooves', source)
+        self.assertIn('near boar lower legs use a continuous knee-to-cannon taper without spherical joint caps', source)
         self.assertIn('boars use a lifted shoulder mantle and broad sealed nasal disc', source)
         self.assertIn('/boars [1-6]\\/6 visible, 2 draw/.test(log)', source)
         self.assertNotIn('/boars [1-6]\\/6 visible, 1 draw/.test(log)', source)
         log = ("boar QA camera frames and follows non-hostile inland wildlife\n"
                "near boars use broad tapered upper legs with compact split hooves\n"
+               "near boar lower legs use a continuous knee-to-cannon taper without spherical joint caps\n"
                "boars use a lifted shoulder mantle and broad sealed nasal disc\n"
                "boars 1/6 visible, 2 draw")
         report = {"passed":True,"views":[{"mode":"boars","passed":True,"glError":0,

@@ -1,5 +1,29 @@
 # Boar coat material — live integration, visual refinement open
 
+## Continuous lower-leg taper — 2026-10-13
+
+The near model no longer places a dark spherical ellipsoid over each knee. From the
+existing articulated knee it now uses two exactly connected tapered sections: a thicker
+knee-to-cannon segment and a narrower cannon-to-hoof segment. This preserves the same
+authoritative foot target, terrain contact and gait while replacing the bead-and-stick
+joint silhouette with a continuous lower leg. Hooves are slightly lighter dark brown so
+their existing cloven form separates from the leg without appearing glossy black. Far
+geometry and all behaviour are unchanged.
+
+Removing the 24-triangle joint cap and replacing the old 16-triangle lower segment with
+two 16-triangle segments saves 8 triangles per leg, or 32 triangles / 96 streamed vertices
+per visible near animal. Texture, upload capacity, two-draw material partition, herd size,
+simulation and shadows remain unchanged.
+
+Release and Debug herd/coat/pose tests pass. Deterministic native llvmpipe evidence
+`20261013T222749.259239Z-boars` passes with 214 colour bins, 19.18 luminance deviation,
+94.22 spatial contrast and an empty final kernel delta. The matched stage-two comparison
+was inspected and shows the former black knee ball replaced by the continuous cannon taper.
+Focused Chrome/SwiftShader evidence `20261013T223134.897234Z-chrome-boars` passes 60
+finite intervals, two distinct frames, `glError=0`, intact context and no new kernel fault;
+the final image was inspected. This is a bounded anatomy improvement, not final boar visual
+or subjective audio acceptance.
+
 ## Lifted shoulder mantle and blunt nasal termination — 2026-10-13
 
 A renewed current-binary eight-pose audit `20261013T092653.081104Z-boars` passed its

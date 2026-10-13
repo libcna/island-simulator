@@ -210,15 +210,20 @@ namespace island
                               furTints[boar.colorVariant%furTints.size()],near?8:5,true);
                     mesh.Limb(muscle,knee,.095f,.057f,
                               furTints[boar.colorVariant%furTints.size()],near?8:5,true);
-                    mesh.Limb(knee, hoof, 0.057f, 0.034f, dark, near ? 8 : 5);
                     if (near) {
-                        mesh.Ellipsoid(knee, Vector3(0.059f, 0.059f, 0.059f), dark, 6, 3);
+                        // A continuous cannon taper replaces the old detached spherical
+                        // knee cap. The small radius swell keeps the joint readable while
+                        // both sections meet exactly on the authoritative IK chain.
+                        const Vector3 cannon=knee+(hoof-knee)*.52f;
+                        mesh.Limb(knee,cannon,.061f,.047f,dark,8);
+                        mesh.Limb(cannon,hoof,.047f,.032f,dark,8);
                         for (const float toe : {-1.0f, 1.0f}) {
                             mesh.Ellipsoid(hoof + Vector3(toe * 0.028f, -0.012f, 0.022f),
                                            Vector3(0.024f, BoarLegPose::HoofHeight-.012f, 0.070f),
-                                           Color(41, 36, 30), 6, 3);
+                                           Color(52, 44, 36), 6, 3);
                         }
                     } else {
+                        mesh.Limb(knee,hoof,.057f,.034f,dark,5);
                         mesh.Ellipsoid(hoof + Vector3(0, 0, 0.025f),
                                        Vector3(0.06f, BoarLegPose::HoofHeight, 0.085f),
                                        Color(41, 36, 30), 5, 3);
@@ -355,6 +360,10 @@ namespace island
             "island-simulator: near boars use broad tapered upper legs with compact split hooves";
         std::cout << anatomyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(anatomyDiagnostic);
+        constexpr const char* lowerLegDiagnostic =
+            "island-simulator: near boar lower legs use a continuous knee-to-cannon taper without spherical joint caps";
+        std::cout << lowerLegDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(lowerLegDiagnostic);
         constexpr const char* silhouetteDiagnostic =
             "island-simulator: boars use a lifted shoulder mantle and broad sealed nasal disc";
         std::cout << silhouetteDiagnostic << '\n';

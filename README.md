@@ -265,8 +265,9 @@ continuous body/head profiles, folded ears, near nostrils and bent tusks, smooth
 and terrain-following contact shadows. An original 128x128 opaque directional coat atlas adds
 fine body strands through stock BasicEffect; a padded white region leaves eyes, tusks and hooves
 unpatterned. The three coat tints and juvenile markings remain shared with the mesh colors.
-Legs use connected tapered segments and split near hooves, with a grounded stance and lifted
-return phase; short swept bristles follow the same body profile. This is still approximate
+Legs use connected tapered upper sections plus a continuous knee-to-cannon taper and split
+near hooves, with a grounded stance and lifted return phase; short swept bristles follow the
+same body profile. This is still approximate
 procedural animation: individual soles fit the rendered terrain with fixed-length limbs,
 but world-space foot locking and stride-speed synchronization remain unfinished.
 Use `--viewpoint boars` for their dedicated inspection camera. This original asset still needs
