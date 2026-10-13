@@ -604,11 +604,12 @@ def main():
                                if args.viewpoint=="helicopter-inside" else
                                "helicopter QA camera frames grounded exterior and open doors")
                 for marker in (camera_marker,
-                               "grounded helicopter original procedural shell, open pilot/rear doors, interior and stationary rotors"):
+                               "grounded helicopter original procedural shell, open pilot/rear doors, interior and stationary rotors",
+                               "helicopter uses rounded twenty-sided cockpit glazing in a separate translucent batch and an articulated eight-link rotor hub"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"helicopter integration diagnostic missing: {marker}")
-                if not re.search(r"helicopter 1 draw", diagnostics):
-                    raise RuntimeError("helicopter viewpoint did not retain its one-draw model")
+                if not re.search(r"helicopter 2 draw", diagnostics):
+                    raise RuntimeError("helicopter viewpoint did not retain its bounded two-draw model")
             if args.viewpoint in ("snakes", "snake-head"):
                 validate_snake_motion_stages(log)
                 for stage in range(4):

@@ -29,13 +29,14 @@ using namespace Microsoft::Xna::Framework::Graphics;
 
 namespace island {
 namespace {
-constexpr int FuselageSides=14;
+constexpr int FuselageSides=20;
 struct FuselageStation{float z,centreY,radiusX,radiusY;};
-constexpr std::array<FuselageStation,8> Fuselage{{
+constexpr std::array<FuselageStation,9> Fuselage{{
     {-2.10f,1.35f,.68f,.64f},{-1.78f,1.38f,.94f,.82f},
     {-.30f,1.43f,1.07f,.98f},{.18f,1.44f,1.08f,.99f},
     {1.48f,1.42f,.98f,.93f},{1.92f,1.35f,.82f,.78f},
-    {2.42f,1.25f,.51f,.57f},{2.70f,1.18f,.13f,.22f}}};
+    {2.42f,1.25f,.51f,.57f},{2.63f,1.21f,.34f,.43f},
+    {2.78f,1.18f,.16f,.27f}}};
 
 bool OpenDoorBand(const float z) {
     return (z>=.18f&&z<=1.48f)||(z>=-1.70f&&z<=-.30f);
@@ -44,15 +45,16 @@ bool OpenDoorBand(const float z) {
 Color ScaleColor(const Color& color,const float scale) {
     return Color(static_cast<int>(std::clamp(color.getRProperty()*scale,0.0f,255.0f)),
                  static_cast<int>(std::clamp(color.getGProperty()*scale,0.0f,255.0f)),
-                 static_cast<int>(std::clamp(color.getBProperty()*scale,0.0f,255.0f)),255);
+                 static_cast<int>(std::clamp(color.getBProperty()*scale,0.0f,255.0f)),
+                 static_cast<int>(color.getAProperty()));
 }
 }
 
 HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPlacement& placement)
     :device_(device),effect_(std::make_unique<BasicEffect>(device)),
      centre_(placement.x,placement.groundY+1.5f,placement.z) {
-    std::vector<VertexPositionColor> mesh;
-    mesh.reserve(12000);
+    std::vector<VertexPositionColor> mesh,glassMesh;
+    mesh.reserve(12000);glassMesh.reserve(2400);
     const float c=std::cos(placement.yawRadians),s=std::sin(placement.yawRadians);
     const auto world=[&](const Vector3& p){return Vector3(placement.x+c*p.X+s*p.Z,
         placement.groundY+p.Y,placement.z-s*p.X+c*p.Z);};
@@ -65,7 +67,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         normal.Normalize();
         const float light=.48f+.52f*std::max(0.0f,Vector3::Dot(normal,sun));
         const Color color=ScaleColor(pigment,light);
-        mesh.emplace_back(a,color);mesh.emplace_back(b,color);mesh.emplace_back(d,color);
+        auto& target=pigment.getAProperty()<255?glassMesh:mesh;
+        target.emplace_back(a,color);target.emplace_back(b,color);target.emplace_back(d,color);
     };
     const auto quad=[&](const Vector3& a,const Vector3& b,const Vector3& d,const Vector3& e,
                         const Color& color) {
@@ -92,7 +95,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         quad(p[2],p[3],p[7],p[6],color);quad(p[3],p[0],p[4],p[7],color);
     };
     const Color olive(101,116,80),oliveLight(136,147,102),oliveDark(61,73,56);
-    const Color glass(54,96,111),glassLight(82,130,145),metal(82,85,81);
+    const Color glass(42,78,91,132),glassLight(94,145,159,150),metal(82,85,81);
     const Color interior(49,54,50),seat(45,49,43),rubber(30,32,30);
     constexpr float tau=2.0f*std::numbers::pi_v<float>;
 
@@ -121,7 +124,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         return Vector3(std::cos(angle)*station.radiusX,
             station.centreY+std::sin(angle)*station.radiusY,station.z);
     };
-    const Vector3 noseTip(0,1.17f,2.84f);
+    const Vector3 noseTip(0,1.17f,2.88f);
     for(int slice=0;slice<FuselageSides;++slice) {
         const float a=tau*slice/FuselageSides;
         const float b=tau*((slice+1)%FuselageSides)/FuselageSides;
@@ -133,6 +136,9 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     // A narrow centre mullion makes the faceted windshield read as glazing rather
     // than an open hole when the player stands in the rear cabin.
     beam({0,1.11f,2.67f},{0,2.12f,1.70f},.075f,oliveDark);
+    for(const float side:{-1.0f,1.0f})
+        beam({side*.57f,1.08f,2.45f},{side*.30f,2.08f,2.06f},.052f,oliveDark);
+    beam({-.31f,2.08f,2.06f},{.31f,2.08f,2.06f},.050f,oliveDark);
 
     // Flat walkable floor, two-stage door sills and visible frames match collision support.
     box({-.78f,.405f,-1.78f},{.78f,.455f,1.48f},interior);
@@ -207,6 +213,15 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     // Stationary mast, hub and four broad blades; there is deliberately no flight state.
     beam({0,2.22f,-.12f},{0,2.98f,-.12f},.17f,metal);
     box({-.25f,2.91f,-.37f},{.25f,3.08f,.13f},oliveDark);
+    constexpr int hubSegments=8;
+    for(int segment=0;segment<hubSegments;++segment) {
+        const float first=tau*segment/hubSegments,next=tau*(segment+1)/hubSegments;
+        const Vector3 a(std::cos(first)*.34f,2.90f,std::sin(first)*.34f-.12f);
+        const Vector3 b(std::cos(next)*.34f,2.90f,std::sin(next)*.34f-.12f);
+        beam(a,b,.065f,metal);
+        if(segment%2==0)
+            beam(a,{a.X*.74f,3.02f,(a.Z+.12f)*.74f-.12f},.045f,oliveDark);
+    }
     for(int blade=0;blade<4;++blade) {
         const float angle=.18f+blade*std::numbers::pi_v<float>*.5f;
         const Vector3 radial(std::cos(angle),0,std::sin(angle));
@@ -225,14 +240,21 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     box({ 1.04f,1.50f,-.20f},{ 1.10f,1.61f,-.08f},Color(55,162,91));
     box({-.08f,.30f,.92f},{.08f,.39f,1.08f},Color(221,211,161));
 
-    if(mesh.empty()||mesh.size()>18000)throw std::runtime_error("Helicopter mesh exceeds budget");
+    if(mesh.empty()||glassMesh.empty()||mesh.size()+glassMesh.size()>18000)
+        throw std::runtime_error("Helicopter mesh exceeds budget");
     Vector3 low(std::numeric_limits<float>::max()),high(std::numeric_limits<float>::lowest());
     for(const auto& vertex:mesh){low=Vector3::Min(low,vertex.Position);high=Vector3::Max(high,vertex.Position);}
+    for(const auto& vertex:glassMesh){low=Vector3::Min(low,vertex.Position);high=Vector3::Max(high,vertex.Position);}
     bounds_=BoundingBox(low,high);triangles_=static_cast<int>(mesh.size()/3);
+    glassTriangles_=static_cast<int>(glassMesh.size()/3);triangles_+=glassTriangles_;
     vertices_=std::make_unique<VertexBuffer>(device,
         VertexPositionColor::getVertexDeclarationStatic(),static_cast<int>(mesh.size()),
         BufferUsage::WriteOnly);
     vertices_->SetData(mesh.data(),static_cast<int>(mesh.size()));
+    glassVertices_=std::make_unique<VertexBuffer>(device,
+        VertexPositionColor::getVertexDeclarationStatic(),static_cast<int>(glassMesh.size()),
+        BufferUsage::WriteOnly);
+    glassVertices_->SetData(glassMesh.data(),static_cast<int>(glassMesh.size()));
     effect_->setVertexColorEnabledProperty(true);effect_->setLightingEnabledProperty(false);
     effect_->setFogEnabledProperty(true);
     effect_->setFogColorProperty(Vector3(environment::FogColorRed,environment::FogColorGreen,
@@ -241,6 +263,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     const std::string message="island-simulator: grounded helicopter original procedural shell, open pilot/rear doors, interior and stationary rotors; triangles="
         +std::to_string(triangles_);
     std::cout<<message<<'\n';MirrorRuntimeDiagnosticToPlatformLog(message);
+    const std::string detail="island-simulator: helicopter uses rounded twenty-sided cockpit glazing in a separate translucent batch and an articulated eight-link rotor hub";
+    std::cout<<detail<<'\n';MirrorRuntimeDiagnosticToPlatformLog(detail);
 }
 
 HelicopterRenderer::~HelicopterRenderer()=default;
@@ -255,6 +279,10 @@ void HelicopterRenderer::Draw(const Matrix& view,const Matrix& projection,const 
     device_.SetVertexBuffer(vertices_.get());device_.setIndicesProperty(nullptr);
     effect_->setWorldProperty(Matrix::getIdentityProperty());effect_->setViewProperty(view);
     effect_->setProjectionProperty(projection);effect_->Apply();
-    device_.DrawPrimitives(PrimitiveType::TriangleList,0,triangles_);drawCalls_=1;
+    device_.DrawPrimitives(PrimitiveType::TriangleList,0,triangles_-glassTriangles_);
+    device_.setBlendStateProperty(BlendState::AlphaBlend);
+    device_.setDepthStencilStateProperty(DepthStencilState::DepthRead);
+    device_.SetVertexBuffer(glassVertices_.get());effect_->Apply();
+    device_.DrawPrimitives(PrimitiveType::TriangleList,0,glassTriangles_);drawCalls_=2;
 }
 }

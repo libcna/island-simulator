@@ -90,6 +90,8 @@
       ["shark", ["--viewpoint", "shark", "--debug-overlay"]],
       ["dolphins", ["--viewpoint", "dolphins", "--debug-overlay"]],
       ["bear", ["--viewpoint", "bear", "--debug-overlay"]],
+      ["helicopter", ["--viewpoint", "helicopter", "--debug-overlay"]],
+      ["helicopter-inside", ["--viewpoint", "helicopter-inside", "--debug-overlay"]],
       ["monkeys", ["--viewpoint", "monkeys"]],
       ["goats", ["--viewpoint", "goats"]],
       ["spiders", ["--viewpoint", "spiders"]],

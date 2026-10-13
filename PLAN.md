@@ -732,9 +732,16 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   shell/seat collision permits entry from either side; a CPU controller regression walks all
   four door paths. Wildlife receives a separate broad avoidance proxy without blocking player
   access. WorldReport records the placement and has fingerprint `76af8e15925526d1`.
-  Native exterior/interior software captures pass and are inspected; textured materials,
-  door/seat interaction, portable Web/Android qualification and further realism remain, so this
-  is intentionally still in progress. See `docs/helicopter.md`.
+  A second visual pass raises the cockpit from fourteen to twenty sides, adds two rounded nose
+  stations, moves glass to a real depth-read translucent pass, adds sloping windshield frames and
+  an eight-link rotor head. It remains bounded at 1,316 triangles/two draws. Inspected native
+  exterior/interior evidence `20261013T042032.089144Z-helicopter` and
+  `20261013T042051.967138Z-helicopter-inside` shows both the interior through the glass and a real
+  forward view from inside; Release/Debug four-door traversal tests pass. Focused Chrome/SwiftShader
+  evidence `20261013T042639.045892Z-chrome-helicopter` passes distinct exterior/interior images,
+  60 finite intervals per view, GL0, intact contexts and an empty kernel delta. Textured paint and
+  upholstery, finer tail/body anatomy, door/seat interaction, free-walk review and Android remain,
+  so this is intentionally still in progress. See `docs/helicopter.md`.
 
 All six items remain incomplete or in progress. Stream/cave/helicopter locations should be coordinated with
 hut access and existing wildlife; do not remove vegetation or relocate animals blindly.

@@ -14,7 +14,7 @@ class VertexBuffer;
 }
 
 namespace island {
-/** One-batch original procedural grounded utility helicopter, including accessible interior. */
+/** Original procedural grounded utility helicopter with opaque and glazed batches. */
 class HelicopterRenderer final {
 public:
     HelicopterRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice&,
@@ -28,9 +28,9 @@ public:
 private:
     Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
     std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> effect_;
-    std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> vertices_;
+    std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> vertices_,glassVertices_;
     Microsoft::Xna::Framework::BoundingBox bounds_;
     Microsoft::Xna::Framework::Vector3 centre_;
-    int triangles_=0,drawCalls_=0;
+    int triangles_=0,glassTriangles_=0,drawCalls_=0;
 };
 }

@@ -1,6 +1,6 @@
 # Grounded helicopter
 
-## Native first pass
+## Native second visual pass
 
 The island now places one deterministic grounded utility helicopter at
 `(-50.2571, 48.7260)`, near the centre of the island and well inland. The site owns a
@@ -9,8 +9,8 @@ steep or high-relief ground, the stream and every existing solid obstacle. Four 
 sample `RenderedTerrainSurface`; the body is not allowed to float or use one guessed centre
 height.
 
-The model is original project procedural geometry, not a downloaded asset. One static
-vertex-colour batch contains 1,006 triangles: a multi-ring fuselage, sealed glazed nose,
+The model is original project procedural geometry, not a downloaded asset. An opaque batch plus
+a depth-read translucent-glass batch contain 1,316 triangles: a multi-ring fuselage, sealed glazed nose,
 windshield mullion, tail boom and empennage, stationary main and tail rotors, terrain-following
 skids, four open doorways, two threshold/ramp levels, a supported cabin floor, two pilot seats,
 paired cyclics, instrument lamps and a rear bench. Provenance is recorded in
@@ -38,16 +38,27 @@ placement, entry flags and skid contacts; current fingerprint is `76af8e15925526
 The fixed cameras are `--viewpoint helicopter` and `--viewpoint helicopter-inside`. Native
 llvmpipe/pixman exterior and rear-cabin captures pass the image-diversity, diagnostic and kernel
 fault gates. They establish a recognizable grounded silhouette, open side access, cockpit seats,
-panel, glazing, skids and stationary rotors. This is a reduced-detail first pass for the 100-hour
+panel, glazing, skids and stationary rotors. This is a reduced-detail pass for the 100-hour
 plan, not a photorealism claim.
 
-The inspected final evidence is
-`build-consumer/software-captures/20261012T215230.210248Z-helicopter` (275 colour bins,
-54.49 luminance deviation, 230.02 spatial contrast) and
-`build-consumer/software-captures/20261012T215239.544205Z-helicopter-inside` (216 bins,
-32.48 deviation, 132.84 contrast). Both report one helicopter draw, the 1,006-triangle marker
-and an empty new-kernel-fault delta.
+The second visual pass raises the cockpit cross-section from fourteen to twenty sides, adds two
+rounding stations to remove the pointed windshield cone, separates genuinely translucent glazing,
+adds paired sloping windshield frames and builds an eight-link rotor hub around the mast. Through
+the glass, the panel and seats are now visible from outside; from the rear cabin the player has a
+real forward view instead of facing an opaque blue shell.
 
-Open work includes textured paint/glass/upholstery, richer curved anatomy and small mechanical
+The inspected current native evidence is
+`build-consumer/software-captures/20261013T042032.089144Z-helicopter` (296 colour bins,
+54.31 luminance deviation, 230.01 spatial contrast) and
+`build-consumer/software-captures/20261013T042051.967138Z-helicopter-inside` (255 bins,
+30.87 deviation, 131.98 contrast). Both report two helicopter draws, the 1,316-triangle marker
+and an empty new-kernel-fault delta. Release and Debug `IslandHelicopterLayoutTests` still pass all
+four door routes, floor support, skid contacts and collision boundaries.
+
+Focused Web evidence `build/browser-software/20261013T042639.045892Z-chrome-helicopter` contains
+inspected exterior and interior images with different hashes, 60 finite intervals per view,
+ANGLE SwiftShader, GL error zero, intact contexts and no new kernel GPU fault.
+
+Open work includes textured paint/upholstery, richer tail/body anatomy and small mechanical
 detail, improved interior and exterior lighting, door animation, explicit sitting interaction,
-live free-walk visual review, performance measurement, and Web/Android capture qualification.
+live free-walk visual review, physical performance measurement, and Android capture qualification.
