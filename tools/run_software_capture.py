@@ -879,6 +879,8 @@ def main():
                 raise RuntimeError("boar coat/solid anatomy draw split missing")
             if "boars use connected limb poses, stance contact and body-rooted bristles" not in diagnostics:
                 raise RuntimeError("current boar pose is missing; check for a stale executable")
+            if args.viewpoint=="boars" and "near boars use broad tapered upper legs with compact split hooves" not in diagnostics:
+                raise RuntimeError("current boar limb anatomy is missing; check for a stale executable")
             if "monkeys receive footprint-averaged canopy light through 14-bone skinning" not in diagnostics:
                 raise RuntimeError("current monkey lighting is missing; check for a stale executable")
             if args.viewpoint in {"monkeys", "monkey-tree", "monkey-climb"}:

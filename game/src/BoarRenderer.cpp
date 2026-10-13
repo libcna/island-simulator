@@ -202,13 +202,20 @@ namespace island
                     const Vector3 root(pose.root.x, pose.root.y, pose.root.z);
                     const Vector3 knee(pose.knee.x, pose.knee.y, pose.knee.z);
                     const Vector3 hoof(pose.hoof.x, pose.hoof.y, pose.hoof.z);
-                    mesh.Limb(root, knee, 0.105f, 0.057f, furTints[boar.colorVariant%furTints.size()], near ? 8 : 5,true);
+                    // The upper leg tapers in two continuous sections from a broad
+                    // body-rooted muscle into the articulated knee; a single thin
+                    // cylinder made the limbs look attached after the fact.
+                    const Vector3 muscle=root+(knee-root)*.42f;
+                    mesh.Limb(root,muscle,.135f,.095f,
+                              furTints[boar.colorVariant%furTints.size()],near?8:5,true);
+                    mesh.Limb(muscle,knee,.095f,.057f,
+                              furTints[boar.colorVariant%furTints.size()],near?8:5,true);
                     mesh.Limb(knee, hoof, 0.057f, 0.034f, dark, near ? 8 : 5);
                     if (near) {
                         mesh.Ellipsoid(knee, Vector3(0.059f, 0.059f, 0.059f), dark, 6, 3);
                         for (const float toe : {-1.0f, 1.0f}) {
-                            mesh.Ellipsoid(hoof + Vector3(toe * 0.032f, 0, 0.025f),
-                                           Vector3(0.028f, BoarLegPose::HoofHeight, 0.085f),
+                            mesh.Ellipsoid(hoof + Vector3(toe * 0.028f, -0.012f, 0.022f),
+                                           Vector3(0.024f, BoarLegPose::HoofHeight-.012f, 0.070f),
                                            Color(41, 36, 30), 6, 3);
                         }
                     } else {
@@ -344,6 +351,10 @@ namespace island
             "island-simulator: boars use connected limb poses, stance contact and body-rooted bristles";
         std::cout << poseDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(poseDiagnostic);
+        constexpr const char* anatomyDiagnostic =
+            "island-simulator: near boars use broad tapered upper legs with compact split hooves";
+        std::cout << anatomyDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(anatomyDiagnostic);
         constexpr const char* contactDiagnostic =
             "island-simulator: boar soles fit rendered terrain independently with fixed-length limbs";
         std::cout << contactDiagnostic << '\n';

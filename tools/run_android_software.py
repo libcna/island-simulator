@@ -240,6 +240,11 @@ def validate_game_logs(directory, lifecycle, viewpoint=None):
                 raise RuntimeError("application did not confirm the goat coat texture")
             if not re.search(r"goat render proof: goats [1-6]/6 visible, 2 draw;", log):
                 raise RuntimeError("application did not confirm visible goats and both material draws")
+        if viewpoint == "boars":
+            if "near boars use broad tapered upper legs with compact split hooves" not in log:
+                raise RuntimeError("application did not confirm current boar limb anatomy")
+            if not re.search(r"boars [1-6]/6 visible, 2 draw", log):
+                raise RuntimeError("application did not confirm visible boars and both material draws")
         if viewpoint in ("hut", "hut-material") and "hut beam-aligned weathered grain and filtered thatch fibres" not in log:
             raise RuntimeError("application did not confirm the hut material")
         if viewpoint in ("hut", "hut-material") and "hut four-pane muted glazing and braced plank door" not in log:

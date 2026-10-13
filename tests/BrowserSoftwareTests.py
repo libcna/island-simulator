@@ -305,10 +305,31 @@ class BrowserSoftwareTests(unittest.TestCase):
 
     def test_wildlife_foliage_boar_gate_matches_split_material_draws(self):
         source = (ROOT / "tools/run_web_smoke.mjs").read_text()
+        self.assertIn("boars", gate.SCOPES)
+        self.assertIn('focusedBoarCheck ? ["boars"]', source)
         self.assertIn('boar RGB bristle coat and solid anatomy, two opaque stock BasicEffect draws',
                       source)
+        self.assertIn('near boars use broad tapered upper legs with compact split hooves', source)
         self.assertIn('/boars [1-6]\\/6 visible, 2 draw/.test(log)', source)
         self.assertNotIn('/boars [1-6]\\/6 visible, 1 draw/.test(log)', source)
+        log = ("boar QA camera frames and follows non-hostile inland wildlife\n"
+               "near boars use broad tapered upper legs with compact split hooves\n"
+               "boars 1/6 visible, 2 draw")
+        report = {"passed":True,"views":[{"mode":"boars","passed":True,"glError":0,
+            "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,
+            "screenshot":"before.png","afterSimulationScreenshot":"after.png",
+            "result":{"output":log,"error":"","exited":False}}]}
+        self.assertEqual(gate.validate_boar_report(report), ("before.png", "after.png"))
+        for mutate in (lambda r:r["views"][0].update({"contextLost":True}),
+                       lambda r:r["views"][0].update({"intervals":[1.0]*59}),
+                       lambda r:r["views"][0]["result"].update({"output":"boars 1/6 visible, 2 draw"}),
+                       lambda r:r["views"][0].update({"afterSimulationScreenshot":"before.png"})):
+            bad = {"passed":True,"views":[{"mode":"boars","passed":True,"glError":0,
+                "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,
+                "screenshot":"before.png","afterSimulationScreenshot":"after.png",
+                "result":{"output":log,"error":"","exited":False}}]}
+            mutate(bad)
+            with self.assertRaises(RuntimeError): gate.validate_boar_report(bad)
 
     def test_goat_scope_requires_coat_population_images_and_live_context(self):
         self.assertIn("goats", gate.SCOPES)

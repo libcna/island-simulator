@@ -282,6 +282,13 @@ LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
                              ("9 mips, 349524", "1 mips, 262144"), ("goat render proof: ", "")):
                 log.write_text(goats.replace(old, new))
                 with self.assertRaises(RuntimeError): gate.validate_game_logs(directory, False, "goats")
+            boars = good + ("near boars use broad tapered upper legs with compact split hooves\n"
+                "boars 2/6 visible, 2 draw\n")
+            log.write_text(boars)
+            gate.validate_game_logs(directory, False, "boars")
+            for old, new in (("broad tapered", "missing"), ("2/6", "0/6"), ("2 draw", "1 draw")):
+                log.write_text(boars.replace(old, new))
+                with self.assertRaises(RuntimeError): gate.validate_game_logs(directory, False, "boars")
             log.write_text(good)
             for view in ("hut", "hut-material"):
                 with self.assertRaisesRegex(RuntimeError, "hut material"):

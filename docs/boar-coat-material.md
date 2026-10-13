@@ -1,5 +1,37 @@
 # Boar coat material — live integration, visual refinement open
 
+## Tapered upper limbs, compact hooves and tracking audit — 2026-10-13
+
+The close side view still exposed each leg as a narrow uniform tube attached to the
+large torso. Each upper limb now uses two connected fur-textured sections, tapering
+from a 0.135 m body-rooted radius through 0.095 m to the existing 0.057 m knee. This
+retains the fixed-length articulated pose and per-foot terrain fit while giving the
+shoulder/haunch junction more mass. The two near cloven-hoof lobes are narrower,
+12 mm lower and 15 mm shorter, so they no longer read as oversized black balls.
+
+The accepted change adds 192 vertices / 64 triangles per near animal and 120 vertices /
+40 triangles per far animal, within the existing bounded upload and unchanged two opaque
+draws. An earlier attempted pair of separate furred shoulder/haunch ellipsoids was
+visually rejected: their closed oval boundaries and rotated hair mapping produced obvious
+side patches. That implementation was removed before this checkpoint.
+
+Release and Debug `IslandBoarHerdTests`, `IslandBoarCoatTextureTests` and
+`IslandBoarPoseTests` pass. The final deterministic contained llvmpipe audit
+`20261013T050251.961664Z-boars` passes at 1280×720 with 211 colour bins, 18.69
+luminance deviation, 89.32 spatial contrast and an empty kernel delta. All eight staged
+poses keep the subject visible and were inspected; the side view shows continuous tapered
+upper limbs and smaller split hoof silhouettes.
+
+A new focused browser `boars` scope runs only this viewpoint, requires the current limb
+diagnostic, two live material draws, 60 finite intervals, an intact SwiftShader context
+and two distinct images. Its first run correctly exposed that the fixed camera lost the
+moving animal. The QA camera now follows the first live boar and continuously retargets
+it. Final Chrome/SwiftShader evidence `20261013T050501.611529Z-chrome-boars` passes with
+`glError=0`, `contextLost=false`, two different image hashes and an empty final kernel
+delta. Both images were inspected: the animal remains centred while turning from a side
+pose toward the camera. Android runtime and further continuous joint/gait realism remain
+open, so visual acceptance is not claimed.
+
 ## Broader head and profile-readable tail — 2026-10-13
 
 The bridge-to-nose scale is now 0.55 instead of 0.70, moving the authored tip

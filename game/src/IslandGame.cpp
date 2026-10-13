@@ -1065,7 +1065,7 @@ namespace island
             const Vector3 direction = Vector3(boar.x, boar.y + 0.5f, boar.z) - cameraPosition_;
             yaw_ = std::atan2(direction.X, direction.Z);
             pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
-            std::cout << "island-simulator: boar QA camera views non-hostile inland wildlife\n";
+            std::cout << "island-simulator: boar QA camera frames and follows non-hostile inland wildlife\n";
         } else if (viewpoint_ == FixedViewpoint::CrabDetail
                    && crabColony_.Crabs().size() > 2U) {
             const CrabState& crab = crabColony_.Crabs()[2U];
@@ -1660,9 +1660,13 @@ namespace island
         }
         const auto previousBoar=boarHerd_.Boars().front();
         boarHerd_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
-        if(boarCaptureClock) {
+        if(viewpoint_==FixedViewpoint::BoarDetail) {
             const auto& current=boarHerd_.Boars().front();
             cameraPosition_+=Vector3(current.x-previousBoar.x,current.y-previousBoar.y,current.z-previousBoar.z);
+            const Vector3 target(current.x,current.y+.5f,current.z);
+            const auto direction=target-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         }
         const auto previousGoat=goats_->Goats().front();
         const auto previousSpider=spiders_->Spiders()[spiderViewSubject_];

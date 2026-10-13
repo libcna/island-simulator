@@ -613,6 +613,18 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   audio013459.905512Z observes2 calls before mute +1 after, 1015808 exact-zero muted
   bytes and40960 nonzero resumed bytes, ≤5/6 sources, kernel[]. Coarse limb junctions,
   subjective speaker/headphone listening and Android runtime remain; task stays open.
+  Limb follow-up replaces each single uniform upper-leg tube with two connected furred
+  sections tapering0.135→0.095→0.057m from a broader body-rooted base, while compact
+  split hooves reduce the previous black bulb silhouette. Near/far cost is +64/+40
+  triangles per animal with the same two draws and buffers. The rejected first attempt
+  using separate shoulder/haunch ellipsoids was visibly patch-like and was removed.
+  Release+Debug herd/coat/pose tests pass. Final deterministic llvmpipe
+  050251.961664Z-boars PASS211bins/std18.69/spatial89.32/kernel[] with all eight stages
+  visible and inspected. A new focused `boars` Web scope replaces the expensive four-view
+  requirement for this subject; its camera now follows the same live animal. Actual
+  Chrome/SwiftShader050501.611529Z-chrome-boars PASS60 intervals/two distinct images/
+  GL0/context intact/kernel[], both images inspected with the boar centred in side and
+  near-front poses. Android and further joint/gait realism remain open.
 - [ ] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
   tail. Rework head/body proportions and a fur-covered tail together, not just a colour
   change. Inspect actual island images and movement; previous fur/rig implementation
