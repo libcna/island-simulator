@@ -337,6 +337,13 @@ int main()
               && island::CoastalWaterOptics::BodyOpacity(0.1f) < 0.04f
               && island::CoastalWaterOptics::BodyOpacity(10) > 0.9f,
           "thin water reveals sand while deep water attenuates the bottom");
+    Check(island::ReefMacroAppearance::LagoonWeight(20, 1.5f) > .98f
+              && island::ReefMacroAppearance::LagoonWeight(55, 1.5f) == 0
+              && island::ReefMacroAppearance::CrestWeight(74, 3) > .98f
+              && island::ReefMacroAppearance::CrestWeight(40, 3) == 0
+              && island::ReefMacroAppearance::DropoffWeight(110, 9) == 1
+              && island::ReefMacroAppearance::DropoffWeight(60, 9) == 0,
+          "reef macro zones separate lagoon, crest, and deep shelf drop-off");
     for (float invalid : {std::numeric_limits<float>::quiet_NaN(),
                            std::numeric_limits<float>::infinity()}) {
         Check(island::CoastalSurfaceAppearance::ReflectionModulation(invalid)==0
@@ -349,6 +356,10 @@ int main()
               "invalid optical inputs produce bounded conservative values");
         Check(island::CoastalSandColor(invalid) == island::CoastalSandColor(-22),
               "invalid coastal height uses the finite deep palette");
+        Check(island::ReefMacroAppearance::LagoonWeight(invalid, 1) == 0
+                  && island::ReefMacroAppearance::CrestWeight(72, invalid) == 0
+                  && island::ReefMacroAppearance::DropoffWeight(invalid, invalid) == 0,
+              "invalid reef macro inputs contribute no seabed contrast");
     }
     const island::UserSettings defaultSettings;
     Check(defaultSettings.IsValid(), "default user settings are valid");

@@ -80,3 +80,29 @@ The inspected frame contains branching, rounded and plate silhouettes; runtime r
 
 This is not final reef photorealism or portable acceptance. Native performance
 comparison, near/far motion review and Web/Android runtime qualification remain.
+
+## Macro-zone follow-up — 2026-10-13
+
+The fixed `reef` camera no longer places the largest emergent outcrop across almost the entire
+frame. It now uses an elevated, wider beach-side composition that exposes the near lagoon, the
+mid-shelf habitat field and the outer shelf in one view. This makes it possible to inspect the
+reef as a coastal system rather than merely qualifying one rock.
+
+The existing one-draw terrain shader now gives that composition four bounded macro cues. A pale
+6–48m inner-lagoon envelope retains the existing radial sand channels; the original noise patches
+are modulated by the same five/eleven-lobe angular habitat field used by CPU coral and fauna
+placement; a broken 62–86m ochre crest separates the inner shelf; and deep 78m+ seabed receives a
+restrained blue-green drop-off darkening. These remain substrate colours below the independently
+transparent ocean, not a second water layer. No mesh, texture, uniform or draw call was added.
+
+`ReefMacroAppearance` mirrors the broad lagoon/crest/drop-off envelopes on the CPU. Core tests pin
+their separated peak regions and conservative non-finite handling. Inspected native llvmpipe
+evidence `20261013T074352.699582Z-reef` passes at 1280x720 with 209 colour bins, 23.55 luminance
+deviation and 123.17 spatial contrast. The companion underwater habitat view
+`20261013T074428.276690Z-reef-habitat` passes with 96 bins, 26.05 deviation and 128.36 contrast;
+the stronger macro field does not introduce an underwater seam or colour discontinuity.
+
+Focused Chrome/SwiftShader evidence `20261013T074740.113865Z-chrome-coast` passes shipwreck,
+water, west and reef with 120 finite intervals per view, GL error zero, intact contexts and an
+empty new-kernel-fault delta. Both time-separated elevated reef images were inspected. Android,
+physical performance, crest foam coupling and a higher-detail coral material remain open.

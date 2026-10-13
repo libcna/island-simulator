@@ -725,15 +725,15 @@ namespace island
             if (reef != naturalPropLayout_.Rocks().end() && reef->offshore) {
                 const Vector3 radial = Vector3::Normalize(Vector3(reef->x, 0.0f, reef->z));
                 const Vector3 tangent(-radial.Z, 0.0f, radial.X);
-                const float cameraX = reef->x - radial.X * 7.5f + tangent.X * 1.4f;
-                const float cameraZ = reef->z - radial.Z * 7.5f + tangent.Z * 1.4f;
-                cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
-                                                       + PlayerMotion::EyeHeight,
-                                          cameraZ);
-                const Vector3 toReef = Vector3(reef->x, reef->y + reef->scaleY * 0.56f,
+                const float cameraX = reef->x - radial.X * 18.0f + tangent.X * 4.2f;
+                const float cameraZ = reef->z - radial.Z * 18.0f + tangent.Z * 4.2f;
+                cameraPosition_ = Vector3(cameraX,
+                    std::max(4.8f, terrain_.Height(cameraX, cameraZ) + 6.4f), cameraZ);
+                const Vector3 toReef = Vector3(reef->x, reef->y + reef->scaleY * 0.24f,
                                                reef->z) - cameraPosition_;
                 yaw_ = std::atan2(toReef.X, toReef.Z);
                 pitch_ = std::atan2(toReef.Y, std::hypot(toReef.X, toReef.Z));
+                std::cout << "island-simulator: reef QA camera uses an elevated wide substrate view\n";
             }
         } else if (viewpoint_ == FixedViewpoint::ReefHabitatDetail) {
             const ReefHabitatPlacement* selected = nullptr;

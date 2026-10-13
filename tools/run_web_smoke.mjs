@@ -804,6 +804,7 @@ try {
             && log.includes("ocean shared nine-wave spectrum uses filtered short-wave normals")
             && log.includes("ocean shallow attenuation uses interpolated bed depth and contact fade")
             && log.includes("coastal sand stays continuous below water with filtered seabed ripples")
+            && log.includes("reef substrate separates pale lagoon, shared habitat patches, crest, sand channels, and deep drop-off")
             && log.includes("coastal contact patches follow rendered seabed triangles in the existing batch")
             && log.includes("land prop shadows match model yaw and rendered terrain triangles")
             && log.includes("wood uses outward shared normals and scale-correct fixed-sun lighting")
@@ -987,6 +988,8 @@ try {
       "island-simulator: ocean shallow attenuation uses interpolated bed depth and contact fade")
     && result.output?.includes(
       "island-simulator: coastal sand stays continuous below water with filtered seabed ripples")
+    && result.output?.includes(
+      "island-simulator: reef substrate separates pale lagoon, shared habitat patches, crest, sand channels, and deep drop-off")
     && result.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && result.output?.includes(

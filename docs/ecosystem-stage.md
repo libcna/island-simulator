@@ -57,7 +57,11 @@ existing features, not a broad redesign.
    anchors eight fish schools and five turtle home ranges, including long-route
    regression coverage. Two early captures were visually rejected and iterated;
    inspected `20261012T101426.680059Z-reef-habitat` submits 51 habitat instances,
-   three fish and one turtle. Performance and Web/Android review remain.
+   three fish and one turtle. A later macro-material pass adds an explicitly pale
+   inner lagoon, habitat-field-aligned reef patches, a broken 62–86m crest and a
+   restrained deep-shelf drop-off without new geometry or draws. The elevated reef
+   camera plus inspected native and Chrome/SwiftShader coast evidence now establish
+   distant readability. Android, measured performance and crest-foam coupling remain.
 6. [~] **Ecological placement of existing wildlife first.** Crabs on sand/wrack;
    butterflies in sunny clearings; snakes on dense-understory margins; spiders in
    forest/shrubs; boars in wetter interior; goats on dry open slopes; monkeys under

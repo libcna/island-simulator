@@ -717,6 +717,11 @@ def main():
                     raise RuntimeError("reef-habitat camera did not select a populated patch")
                 if not re.search(r"[1-9][0-9]*/[1-9][0-9]* reef habitat", diagnostics):
                     raise RuntimeError("reef-habitat capture did not submit enough instances")
+            if args.viewpoint == "reef":
+                for marker in ("reef QA camera uses an elevated wide substrate view",
+                               "reef substrate separates pale lagoon, shared habitat patches, crest, sand channels, and deep drop-off"):
+                    if marker not in diagnostics:
+                        raise RuntimeError("reef camera or macro substrate is stale")
             if "terrain substrate persists at distance with footprint-filtered noise" not in diagnostics:
                 raise RuntimeError("current terrain distance policy is missing; check for a stale executable")
             if "terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices" not in diagnostics:

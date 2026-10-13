@@ -56,6 +56,37 @@ namespace island
         }
     };
 
+    /** @brief Broad seabed zones used to keep lagoon, crest and drop-off readable. */
+    struct ReefMacroAppearance final
+    {
+        [[nodiscard]] static float LagoonWeight(float offshore, float depth) noexcept
+        {
+            if (!std::isfinite(offshore) || !std::isfinite(depth)) return 0;
+            return Smooth(6, 14, offshore) * (1 - Smooth(34, 48, offshore))
+                * (1 - Smooth(3, 5, depth));
+        }
+
+        [[nodiscard]] static float CrestWeight(float offshore, float depth) noexcept
+        {
+            if (!std::isfinite(offshore) || !std::isfinite(depth)) return 0;
+            return Smooth(62, 69, offshore) * (1 - Smooth(79, 86, offshore))
+                * Smooth(.5f, 1.4f, depth) * (1 - Smooth(6, 8, depth));
+        }
+
+        [[nodiscard]] static float DropoffWeight(float offshore, float depth) noexcept
+        {
+            if (!std::isfinite(offshore) || !std::isfinite(depth)) return 0;
+            return Smooth(78, 104, offshore) * Smooth(4, 8, depth);
+        }
+
+    private:
+        [[nodiscard]] static float Smooth(float low, float high, float value) noexcept
+        {
+            const float t = std::clamp((value - low) / (high - low), 0.0f, 1.0f);
+            return t * t * (3 - 2 * t);
+        }
+    };
+
     /** @brief Unlit RGB byte-space sand palette, continuous at the mean waterline and depth knots.
      * Water tint belongs to the ocean, not a second turquoise layer baked into the seabed.
      */

@@ -65,6 +65,8 @@ namespace island
             "island-simulator: forest soil separates humus and moss with footprint-filtered fallen leaves";
         constexpr std::string_view CoastalSandDiagnostic =
             "island-simulator: coastal sand stays continuous below water with filtered seabed ripples";
+        constexpr std::string_view ReefMacroDiagnostic =
+            "island-simulator: reef substrate separates pale lagoon, shared habitat patches, crest, sand channels, and deep drop-off";
         constexpr std::string_view SubstrateDistanceDiagnostic =
             "island-simulator: terrain substrate persists at distance with footprint-filtered noise";
         constexpr std::string_view SlopeLightDiagnostic =
@@ -359,6 +361,9 @@ void main()
         float channelField = valueNoise(coastArc * 0.065 + vec2(5.1, 19.3)
             + vec2(broad * 0.65));
         float sandChannel = smoothstep(0.10, 0.28, channelField);
+        float lagoonZone = smoothstep(6.0, 14.0, offshore)
+            * (1.0 - smoothstep(34.0, 48.0, offshore))
+            * (1.0 - smoothstep(3.0, 5.0, bedDepth));
         float meadow = smoothstep(-0.16, 0.17, meadowField + medium * 0.22)
             * smoothstep(0.45, 0.85, bedDepth)
             * (1.0 - smoothstep(1.8, 2.6, bedDepth));
@@ -366,16 +371,40 @@ void main()
             * (1.0 - smoothstep(72.0, 88.0, offshore));
         float reefCrest = smoothstep(66.0, 73.0, offshore + meadowField * 12.0)
             * (1.0 - smoothstep(78.0, 86.0, offshore + meadowField * 12.0));
+        float coastAngle = atan(p.y, p.x);
+        float sharedPatch = 0.50 + 0.28 * sin(coastAngle * 5.0 + 0.7)
+            + 0.22 * sin(coastAngle * 11.0 - 1.1);
+        float sharedReef = smoothstep(13.0, 25.0, offshore)
+            * (1.0 - smoothstep(82.0, 96.0, offshore))
+            * smoothstep(0.35, 0.90, bedDepth)
+            * (1.0 - smoothstep(5.2, 7.5, bedDepth))
+            * smoothstep(0.20, 0.74, sharedPatch);
         float reefCover = smoothstep(-0.10, 0.19, reefField + meadowField * 0.38)
-            * max(reefZone * 0.88, reefCrest);
+            * max(reefZone * 0.88, reefCrest)
+            * mix(0.62, 1.15, sharedReef);
         float habitatCoverage = submergedHabitat * (1.0 - sandChannel);
+        vec3 lagoonBed = vec3(0.70, 0.675, 0.425) * vGroundLight;
         vec3 grassBed = vec3(0.22, 0.265, 0.105)
             * (1.0 + meadowField * 0.28 + medium * 0.20) * vGroundLight;
         vec3 reefBed = mix(vec3(0.29, 0.255, 0.145), vec3(0.49, 0.405, 0.24),
                            clamp(0.5 + reefField + medium * 0.65, 0.0, 1.0))
             * vGroundLight;
+        color = mix(color, lagoonBed, lagoonZone
+            * (0.20 + sandChannel * 0.20) * (1.0 - meadow * 0.45));
         color = mix(color, grassBed, meadow * habitatCoverage * 0.86);
         color = mix(color, reefBed, reefCover * habitatCoverage);
+        float macroCrest = smoothstep(62.0, 69.0, offshore)
+            * (1.0 - smoothstep(79.0, 86.0, offshore))
+            * smoothstep(0.5, 1.4, bedDepth)
+            * (1.0 - smoothstep(6.0, 8.0, bedDepth));
+        float crestMark = max(reefCrest * mix(0.45, 1.0, sharedReef),
+                              macroCrest * mix(0.58, 1.0, sharedReef))
+            * (1.0 - sandChannel * 0.68) * submergedHabitat;
+        color = mix(color, vec3(0.335, 0.275, 0.145) * vGroundLight,
+                    crestMark * 0.58);
+        float dropoff = smoothstep(78.0, 104.0, offshore)
+            * smoothstep(4.0, 8.0, bedDepth) * submergedHabitat;
+        color = mix(color, vec3(0.095, 0.145, 0.145) * vGroundLight, dropoff * 0.58);
     }
 
     float groundVariation = (broad * 0.185 + medium * 0.120 + fine * 0.024)
@@ -752,6 +781,8 @@ void main()
                     MirrorRuntimeDiagnosticToPlatformLog(FallenLeafDiagnostic);
                     std::cout << CoastalSandDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(CoastalSandDiagnostic);
+                    std::cout << ReefMacroDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(ReefMacroDiagnostic);
                     std::cout << SubstrateDistanceDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(SubstrateDistanceDiagnostic);
                     std::cout << SlopeLightDiagnostic << '\n';

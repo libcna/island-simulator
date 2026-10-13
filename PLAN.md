@@ -201,7 +201,11 @@ all five turtle home ranges; long deterministic route tests keep them inside val
 habitat. The first two real images were rejected as sparse/over-simple; final isolated
 llvmpipe `101426.680059Z-reef-habitat` passes and was inspected, with 51/314 habitat
 instances, three fish and one turtle submitted. Native performance comparison and
-Web/Android qualification remain. See [reef-seabed.md](docs/reef-seabed.md).
+Web/Android qualification remain. The shared terrain material now also separates a pale
+inner lagoon, habitat-aligned reef patches, a broken outer crest and deep-shelf drop-off;
+an elevated wide QA camera replaces the formerly rock-obscured view. Inspected native and
+Chrome/SwiftShader coast evidence passes, while Android, performance and crest-foam coupling
+remain open. See [reef-seabed.md](docs/reef-seabed.md).
 
 Ecological-placement progress: existing crab, butterfly and spider habitat rules were
 audited; fish already share reef/seagrass suitability. Boars now remain on moist,
@@ -2136,9 +2140,17 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   shared east trade wind, coastal windward exposure, palms lean up to ten degrees; tested;
   native palms/beach/overview captures inspected. Driftwood and cloud/wisp direction now
   consume the shared wind; ocean, foam, crowns and audio remain.
-- [ ] 5. Make the reef readable from a distance: seabed macro structure with a pale lagoon, sand
+- [~] 5. Make the reef readable from a distance: seabed macro structure with a pale lagoon, sand
   channels, dark reef patches and seagrass, a reef crest and a deep blue drop-off, before any
-  detailed coral models.
+  detailed coral models. The existing terrain material now uses four explicit broad cues: a pale
+  6–48m lagoon retaining radial sand channels, reef patches modulated by the same angular field as
+  CPU coral/fauna placement, a broken 62–86m crest and restrained 78m+ blue-green drop-off. The
+  former rock-obscured QA camera is now an elevated wide shelf composition. Inspected native
+  `20261013T074352.699582Z-reef` and underwater `20261013T074428.276690Z-reef-habitat` pass;
+  Release/Debug Core tests pin separated bounded zones. Chrome/SwiftShader coast evidence
+  `20261013T074740.113865Z-chrome-coast` passes four scenes, 120 finite intervals per view, GL0,
+  intact contexts and an empty kernel delta. Android, performance, crest-foam coupling and richer
+  coral material keep this in progress. See `docs/reef-seabed.md`.
 - [~] 6. Make the central route a natural 1.5-3 m footpath that fades, forks and winds around roots
   and stones instead of a ~12 m corridor that visibly halves the island from above.
   2026-10-11: 2.8 m vegetation reserve, narrower irregular dirt shading, complete solid
