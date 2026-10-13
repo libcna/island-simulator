@@ -56,6 +56,8 @@ namespace island
             "island-simulator: ocean short waves use phased wind packets with analytic envelope gradients";
         constexpr const char* CoastalWindDiagnostic =
             "island-simulator: windward ocean waves and foam strengthen east and calm in the west bay";
+        constexpr const char* ReefBreakerDiagnostic =
+            "island-simulator: broken reef-crest foam follows the shared 62-86m habitat field without new draws";
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
@@ -230,6 +232,26 @@ void main()
     float foamContinuity = 0.5 + 0.5 * sin(continuityPhase) * continuityWeight;
     foam *= 0.16 + 0.84 * foamContinuity * foamContinuity;
     foam *= mix(.75,1.25,windExposure);
+
+    // Reuse the substrate's broad crest and angular habitat field. The animated carrier and
+    // slope gate keep this a set of intermittent breakers rather than a static white ring.
+    float offshore = max(-vShoreDistance, 0.0);
+    float reefCrest = smoothstep(62.0, 69.0, offshore)
+        * (1.0 - smoothstep(79.0, 86.0, offshore))
+        * smoothstep(0.5, 1.4, waterDepth)
+        * (1.0 - smoothstep(6.0, 8.0, waterDepth));
+    float coastAngle = atan(vWorld.z, vWorld.x);
+    float reefPatch = 0.50 + 0.28 * sin(coastAngle * 5.0 + 0.7)
+        + 0.22 * sin(coastAngle * 11.0 - 1.1);
+    float breakerPhase = offshore * 0.46 + coastAngle * 7.0 - uTime * 0.31;
+    float breakerFilter = oceanWaveFilter(max(abs(dFdx(breakerPhase)),
+                                                abs(dFdy(breakerPhase))));
+    float brokenBreaker = 0.5 + 0.5 * sin(breakerPhase) * breakerFilter;
+    float breakerSlope = smoothstep(0.006, 0.022, length(surfaceSlope));
+    float reefFoam = reefCrest * smoothstep(0.20, 0.74, reefPatch)
+        * (0.12 + 0.38 * brokenBreaker * brokenBreaker)
+        * mix(0.58, 1.0, breakerSlope) * mix(0.46, 1.0, windExposure);
+    foam = max(foam, reefFoam);
     if (uPlayerRippleIntensity > 0.001) {
         vec2 playerOffset = vWorld.xz - uPlayerWaterPosition;
         float distanceToPlayer = length(playerOffset);
@@ -361,6 +383,7 @@ void main()
                       << SurfaceContrastDiagnostic << '\n'
                       << WindPacketDiagnostic << '\n'
                       << CoastalWindDiagnostic << '\n'
+                      << ReefBreakerDiagnostic << '\n'
                       << "island-simulator: ocean shoreline foam uses broken continuity mask\n";
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: ocean sunward ripple crests reuse analytic slope field");
@@ -370,6 +393,7 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(SurfaceContrastDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(WindPacketDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(CoastalWindDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(ReefBreakerDiagnostic);
         } else {
             std::cerr << "island-simulator: ocean stock-effect fallback: " << fallbackReason_
                       << '\n';

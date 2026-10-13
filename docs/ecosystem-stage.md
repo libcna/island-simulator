@@ -65,7 +65,12 @@ existing features, not a broad redesign.
    bulb-capped silhouette with eleven thin golden-angle staghorn stems, offset side forks
    and small growth tips without changing population or draws; a repeated four-view
    Chrome/SwiftShader coast audit passes with intact contexts and GL error zero. Android,
-   measured performance and crest-foam coupling remain.
+   measured performance and coral-specific surface detail remain. The existing ocean
+   draw now also couples restrained broken foam to the shared 62–86m crest and angular
+   habitat field. An inspected outer-shelf native view targets a measured weight-1
+   segment at 69m offshore. A repeated Chrome/SwiftShader coast audit passes four views
+   with 120 intervals each, GL error zero and moving time-separated breaker patterns.
+   Android and physical performance review remain.
 6. [~] **Ecological placement of existing wildlife first.** Crabs on sand/wrack;
    butterflies in sunny clearings; snakes on dense-understory margins; spiders in
    forest/shrubs; boars in wetter interior; goats on dry open slopes; monkeys under

@@ -123,3 +123,26 @@ as an upright terracotta staghorn colony rather than a trunk and crown. Focused 
 evidence `20261013T080800.279649Z-chrome-coast` then passes all four coast views with 120 finite
 intervals each, the new form diagnostic present, GL error zero, intact contexts and no new kernel
 fault. Android qualification and a coral-specific surface material remain open.
+
+## Crest-breaker coupling — 2026-10-13
+
+The existing ocean draw now evaluates the same 62–86m offshore crest envelope and five/eleven-
+lobe angular habitat field as the seabed. A derivative-filtered, slowly moving breaker carrier,
+the existing analytic surface slope and coastal wind exposure modulate restrained foam inside
+that intersection. This creates separated transient patches rather than a static white ring;
+shore foam, player ripples and transition splashes retain their existing paths. No vertex,
+texture, uniform or draw call was added.
+
+The reef QA camera now scans the actual terrain for the strongest valid crest sample instead of
+inheriting an arbitrary offshore-rock direction. The first revised camera attempt exposed a real
+zero-weight sector and was rejected. The accepted camera targets weight 1 at 69m offshore from an
+elevated outer-shelf position, looking inward across habitat, lagoon and coast. Inspected native
+llvmpipe evidence `20261013T082913.130348Z-reef` passes at 1280x720 with 282 colour bins, 39.72
+luminance deviation and 173.63 spatial contrast; 33/314 habitat instances and two reef outcrops
+remain in view. The image shows a broken pale breaker zone without obscuring the seabed.
+
+Focused Chrome/SwiftShader evidence `20261013T084825.683384Z-chrome-coast` passes shipwreck,
+water, west and the new outer-shelf reef composition with 120 finite intervals each, GL error
+zero, intact contexts and an empty kernel-fault delta. Both time-separated reef frames were
+inspected: the breaker carrier and fish positions move while the substrate field remains fixed.
+Android qualification and physical performance remain open.

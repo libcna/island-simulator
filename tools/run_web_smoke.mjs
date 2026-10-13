@@ -812,7 +812,7 @@ try {
             && log.includes("ocean short waves use phased wind packets with analytic envelope gradients")
             && (!focusedGroundingCheck || /contact shadows [1-9][0-9]*, [1-9][0-9]* triangles, 1 draw/.test(log))
             && log.includes("rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering")
-            && (!["reef", "shipwreck"].includes(mode) || /coastal contact shadows [1-9][0-9]*/.test(log))
+            && (mode !== "shipwreck" || /coastal contact shadows [1-9][0-9]*/.test(log))
             && log.includes("near understory uses curved five-column blades with raised midribs")
             && log.includes("terrain close soil uses footprint-filtered clods and analytic relief")
             && log.includes("forest soil separates humus and moss with footprint-filtered fallen leaves")
@@ -1836,6 +1836,10 @@ try {
       "island-simulator: rock per-instance tint reuses existing transforms")
     && reefResult.output?.includes(
       "island-simulator: branching reef form uses dense upright staghorn stems, offset side forks, and small growing tips")
+    && reefResult.output?.includes(
+      "island-simulator: broken reef-crest foam follows the shared 62-86m habitat field without new draws")
+    && reefResult.output?.includes(
+      "island-simulator: reef QA camera targets peak broken crest weight")
     && /[1-9][0-9]*\/14 reef outcrops/.test(reefResult.output ?? "")
     && !reefResult.error;
 

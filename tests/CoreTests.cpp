@@ -344,6 +344,21 @@ int main()
               && island::ReefMacroAppearance::DropoffWeight(110, 9) == 1
               && island::ReefMacroAppearance::DropoffWeight(60, 9) == 0,
           "reef macro zones separate lagoon, crest, and deep shelf drop-off");
+    float maximumReefBreaker = 0;
+    float minimumReefBreaker = 1;
+    for (int sample = 0; sample < 360; ++sample) {
+        const float angle = static_cast<float>(sample)
+            * std::numbers::pi_v<float> / 180.0f;
+        const float breaker = island::ReefMacroAppearance::BreakerWeight(
+            std::cos(angle) * 320.0f, std::sin(angle) * 320.0f, 74.0f, 3.0f);
+        maximumReefBreaker = std::max(maximumReefBreaker, breaker);
+        minimumReefBreaker = std::min(minimumReefBreaker, breaker);
+    }
+    Check(maximumReefBreaker > .98f && minimumReefBreaker == 0,
+          "reef breaker envelope forms separated angular patches instead of a white ring");
+    Check(island::ReefMacroAppearance::BreakerWeight(320, 0, 40, 3) == 0
+              && island::ReefMacroAppearance::BreakerWeight(320, 0, 95, 3) == 0,
+          "reef breakers remain confined to the shared 62-86 metre crest");
     for (float invalid : {std::numeric_limits<float>::quiet_NaN(),
                            std::numeric_limits<float>::infinity()}) {
         Check(island::CoastalSurfaceAppearance::ReflectionModulation(invalid)==0
@@ -358,7 +373,8 @@ int main()
               "invalid coastal height uses the finite deep palette");
         Check(island::ReefMacroAppearance::LagoonWeight(invalid, 1) == 0
                   && island::ReefMacroAppearance::CrestWeight(72, invalid) == 0
-                  && island::ReefMacroAppearance::DropoffWeight(invalid, invalid) == 0,
+                  && island::ReefMacroAppearance::DropoffWeight(invalid, invalid) == 0
+                  && island::ReefMacroAppearance::BreakerWeight(invalid, 0, 74, 3) == 0,
               "invalid reef macro inputs contribute no seabed contrast");
     }
     const island::UserSettings defaultSettings;

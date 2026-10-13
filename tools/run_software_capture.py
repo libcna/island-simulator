@@ -721,9 +721,14 @@ def main():
                     raise RuntimeError("reef-habitat capture did not submit enough instances")
             if args.viewpoint == "reef":
                 for marker in ("reef QA camera uses an elevated wide substrate view",
-                               "reef substrate separates pale lagoon, shared habitat patches, crest, sand channels, and deep drop-off"):
+                               "reef substrate separates pale lagoon, shared habitat patches, crest, sand channels, and deep drop-off",
+                               "broken reef-crest foam follows the shared 62-86m habitat field without new draws"):
                     if marker not in diagnostics:
                         raise RuntimeError("reef camera or macro substrate is stale")
+                if not re.search(r"reef QA camera targets peak broken crest weight (?:0\.[0-9]*[1-9]|1(?:\.0*)?) at", diagnostics):
+                    raise RuntimeError("reef camera did not target a nonzero breaker segment")
+                if not re.search(r"[1-9][0-9]*/[1-9][0-9]* reef outcrops", diagnostics):
+                    raise RuntimeError("reef camera did not retain spatial outcrop context")
             if "terrain substrate persists at distance with footprint-filtered noise" not in diagnostics:
                 raise RuntimeError("current terrain distance policy is missing; check for a stale executable")
             if "terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices" not in diagnostics:
@@ -857,7 +862,7 @@ def main():
                 raise RuntimeError("current stone surface is missing; check for a stale executable")
             if "coastal contact patches follow rendered seabed triangles in the existing batch" not in diagnostics:
                 raise RuntimeError("current coastal shadows are missing; check for a stale executable")
-            if args.viewpoint in ("reef", "shipwreck") and not re.search(
+            if args.viewpoint == "shipwreck" and not re.search(
                     r"coastal contact shadows [1-9][0-9]*", diagnostics):
                 raise RuntimeError("coastal viewpoint did not draw any grounding patches")
             if "ocean shallow attenuation uses interpolated bed depth and contact fade" not in diagnostics \

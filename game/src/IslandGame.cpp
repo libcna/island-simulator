@@ -1,5 +1,6 @@
 #include "IslandSimulator/IslandGame.hpp"
 #include "IslandSimulator/CanopyLighting.hpp"
+#include "IslandSimulator/CoastalMaterial.hpp"
 #include "IslandSimulator/CoastalWindResponse.hpp"
 
 #include "IslandSimulator/FirstPersonInput.hpp"
@@ -716,24 +717,41 @@ namespace island
             pitch_ = std::atan2(targetY - cameraPosition_.Y,
                                 std::hypot(targetX - cameraX, targetZ - cameraZ));
         } else if (viewpoint_ == FixedViewpoint::ReefDetail) {
-            const auto reef = std::max_element(
-                naturalPropLayout_.Rocks().begin(), naturalPropLayout_.Rocks().end(),
-                [](const RockPlacement& first, const RockPlacement& second) {
-                    if (first.offshore != second.offshore) return !first.offshore;
-                    return first.scaleY < second.scaleY;
-                });
-            if (reef != naturalPropLayout_.Rocks().end() && reef->offshore) {
-                const Vector3 radial = Vector3::Normalize(Vector3(reef->x, 0.0f, reef->z));
+            float targetAngle = 0.0f;
+            float targetOffshore = 74.0f;
+            float targetWeight = -1.0f;
+            for (int angleSample = 0; angleSample < 360; ++angleSample) {
+                const float angle = static_cast<float>(angleSample)
+                    * std::numbers::pi_v<float> / 180.0f;
+                const float shoreRadius = terrain_.ShoreRadius(angle);
+                for (float offshore = 62.0f; offshore <= 86.0f; offshore += 1.0f) {
+                    const float x = std::cos(angle) * (shoreRadius + offshore);
+                    const float z = std::sin(angle) * (shoreRadius + offshore);
+                    const float weight = ReefMacroAppearance::BreakerWeight(
+                        x, z, offshore, -terrain_.Height(x, z));
+                    if (weight > targetWeight) {
+                        targetWeight = weight;
+                        targetAngle = angle;
+                        targetOffshore = offshore;
+                    }
+                }
+            }
+            if (targetWeight >= 0.0f) {
+                const Vector3 radial(std::cos(targetAngle), 0.0f, std::sin(targetAngle));
                 const Vector3 tangent(-radial.Z, 0.0f, radial.X);
-                const float cameraX = reef->x - radial.X * 18.0f + tangent.X * 4.2f;
-                const float cameraZ = reef->z - radial.Z * 18.0f + tangent.Z * 4.2f;
-                cameraPosition_ = Vector3(cameraX,
-                    std::max(4.8f, terrain_.Height(cameraX, cameraZ) + 6.4f), cameraZ);
-                const Vector3 toReef = Vector3(reef->x, reef->y + reef->scaleY * 0.24f,
-                                               reef->z) - cameraPosition_;
+                const float shoreRadius = terrain_.ShoreRadius(targetAngle);
+                const Vector3 target(radial.X * (shoreRadius + targetOffshore), 0.15f,
+                                     radial.Z * (shoreRadius + targetOffshore));
+                const float cameraRadius = shoreRadius + targetOffshore + 31.0f;
+                const float cameraX = radial.X * cameraRadius + tangent.X * 6.0f;
+                const float cameraZ = radial.Z * cameraRadius + tangent.Z * 6.0f;
+                cameraPosition_ = Vector3(cameraX, 8.5f, cameraZ);
+                const Vector3 toReef = target - cameraPosition_;
                 yaw_ = std::atan2(toReef.X, toReef.Z);
                 pitch_ = std::atan2(toReef.Y, std::hypot(toReef.X, toReef.Z));
                 std::cout << "island-simulator: reef QA camera uses an elevated wide substrate view\n";
+                std::cout << "island-simulator: reef QA camera targets peak broken crest weight "
+                          << targetWeight << " at " << targetOffshore << "m offshore\n";
             }
         } else if (viewpoint_ == FixedViewpoint::ReefHabitatDetail) {
             const ReefHabitatPlacement* selected = nullptr;

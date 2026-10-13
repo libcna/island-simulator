@@ -79,6 +79,18 @@ namespace island
             return Smooth(78, 104, offshore) * Smooth(4, 8, depth);
         }
 
+        /** @brief Broken crest potential shared by CPU tests and the ocean foam shader. */
+        [[nodiscard]] static float BreakerWeight(float x, float z, float offshore,
+                                                 float depth) noexcept
+        {
+            if (!std::isfinite(x) || !std::isfinite(z)
+                || !std::isfinite(offshore) || !std::isfinite(depth)) return 0;
+            const float angle = std::atan2(z, x);
+            const float patch = 0.50f + 0.28f * std::sin(angle * 5.0f + 0.7f)
+                + 0.22f * std::sin(angle * 11.0f - 1.1f);
+            return CrestWeight(offshore, depth) * Smooth(0.20f, 0.74f, patch);
+        }
+
     private:
         [[nodiscard]] static float Smooth(float low, float high, float value) noexcept
         {
