@@ -49,10 +49,11 @@ const focusedBearCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "bear";
 const focusedResidentCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "resident";
 const focusedHelicopterCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "helicopter";
 const focusedCampfireCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "campfire";
-const focusedCheck = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedHelicopterCheck || focusedCampfireCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSharkCheck || focusedDolphinCheck || focusedBearCheck || focusedResidentCheck || focusedBoarCheck || focusedSnakeCheck || focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedStreamCheck || focusedMonkeyCheck;
-const focusedArtifactPrefix = focusedSpiderCheck ? "spiders" : focusedGoatCheck ? "goats" : focusedHutCheck ? "hut" : focusedHelicopterCheck ? "helicopter" : focusedCampfireCheck ? "campfire" : focusedTurtleCheck ? "turtles" : focusedCrabCheck ? "crabs" : focusedFishCheck ? "fish" : focusedSharkCheck ? "shark" : focusedDolphinCheck ? "dolphins" : focusedBearCheck ? "bear" : focusedResidentCheck ? "resident" : focusedBoarCheck ? "boars" : focusedSnakeCheck ? "snakes" : focusedFlightCheck ? "flight" : focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedStreamCheck ? "stream" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
+const focusedCaveCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "cave";
+const focusedCheck = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedHelicopterCheck || focusedCampfireCheck || focusedCaveCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSharkCheck || focusedDolphinCheck || focusedBearCheck || focusedResidentCheck || focusedBoarCheck || focusedSnakeCheck || focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedStreamCheck || focusedMonkeyCheck;
+const focusedArtifactPrefix = focusedSpiderCheck ? "spiders" : focusedGoatCheck ? "goats" : focusedHutCheck ? "hut" : focusedHelicopterCheck ? "helicopter" : focusedCampfireCheck ? "campfire" : focusedCaveCheck ? "cave" : focusedTurtleCheck ? "turtles" : focusedCrabCheck ? "crabs" : focusedFishCheck ? "fish" : focusedSharkCheck ? "shark" : focusedDolphinCheck ? "dolphins" : focusedBearCheck ? "bear" : focusedResidentCheck ? "resident" : focusedBoarCheck ? "boars" : focusedSnakeCheck ? "snakes" : focusedFlightCheck ? "flight" : focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedStreamCheck ? "stream" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
   : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
-const focusedViews = focusedSpiderCheck ? ["spiders", "spider-web"] : focusedGoatCheck ? ["goats"] : focusedHutCheck ? ["hut", "hut-material"] : focusedHelicopterCheck ? ["helicopter", "helicopter-inside"] : focusedCampfireCheck ? ["campfire"] : focusedTurtleCheck ? ["turtles"] : focusedCrabCheck ? ["crabs"] : focusedFishCheck ? ["fish"] : focusedSharkCheck ? ["shark"] : focusedDolphinCheck ? ["dolphins"] : focusedBearCheck ? ["bear"] : focusedResidentCheck ? ["resident"] : focusedBoarCheck ? ["boars"] : focusedSnakeCheck ? ["snakes", "snake-head"] : focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedStreamCheck ? ["stream"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
+const focusedViews = focusedSpiderCheck ? ["spiders", "spider-web"] : focusedGoatCheck ? ["goats"] : focusedHutCheck ? ["hut", "hut-material"] : focusedHelicopterCheck ? ["helicopter", "helicopter-inside"] : focusedCampfireCheck ? ["campfire"] : focusedCaveCheck ? ["cave", "cave-inside"] : focusedTurtleCheck ? ["turtles"] : focusedCrabCheck ? ["crabs"] : focusedFishCheck ? ["fish"] : focusedSharkCheck ? ["shark"] : focusedDolphinCheck ? ["dolphins"] : focusedBearCheck ? ["bear"] : focusedResidentCheck ? ["resident"] : focusedBoarCheck ? ["boars"] : focusedSnakeCheck ? ["snakes", "snake-head"] : focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedStreamCheck ? ["stream"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
   : focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
   : focusedGrassMotionCheck ? ["grass-motion"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
@@ -60,7 +61,7 @@ const focusedViews = focusedSpiderCheck ? ["spiders", "spider-web"] : focusedGoa
   : ["jungle", "boars", "monkeys", "east"];
 const focusedFrameCount = focusedGrassMotionCheck ? 30 : focusedCoastCheck ? 120 : 60;
 if (process.env.ISLAND_WEB_SMOKE_SCOPE && !focusedCheck) {
-  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/grounding/vegetation/terrain/grass-motion/litter/materials/stream/monkeys/boars/turtles/crabs/fish/shark/dolphins/bear/resident/helicopter/campfire");
+  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/grounding/vegetation/terrain/grass-motion/litter/materials/stream/monkeys/boars/turtles/crabs/fish/shark/dolphins/bear/resident/helicopter/campfire/cave");
 }
 // The outer Python supervisor monitors the host kernel continuously. A user/PID namespace
 // must not depend on retaining the host's supplementary journal-access group.
@@ -732,7 +733,7 @@ try {
           }, sessionId);
           const state = sampled.result.value;
           if (!state) throw new Error(`${mode} did not return frame evidence`);
-          const afterSimulationScreenshot = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedHelicopterCheck || focusedCampfireCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSharkCheck || focusedDolphinCheck || focusedBearCheck || focusedResidentCheck || focusedSnakeCheck || focusedFlightCheck || focusedStreamCheck || mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
+          const afterSimulationScreenshot = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedHelicopterCheck || focusedCampfireCheck || focusedCaveCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSharkCheck || focusedDolphinCheck || focusedBearCheck || focusedResidentCheck || focusedSnakeCheck || focusedFlightCheck || focusedStreamCheck || mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
             ? path.basename(await captureVisualFrame(sessionId,
               `island-browser-${focusedArtifactPrefix}-${mode}-after-simulation.png`, false)) : null;
           const log = state.result?.output ?? "";
@@ -758,6 +759,11 @@ try {
             && (!focusedCampfireCheck || (log.includes("campfire first visible animated draw")
               && log.includes("campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke")
               && log.includes("campfire 1992 solid triangles, 42 flame/smoke/spark triangles in two culled draws")))
+            && (!focusedCaveCheck || (log.includes(`cave QA camera ${mode === "cave-inside" ? "inside" : "outside"}`)
+              && log.includes("cave rock first visible draw")
+              && log.includes("cave terrain shoulders use an irregular rock apron around the open corridor")
+              && log.includes("cave connected shell strips share smooth lighting normals while portal breaks stay sharp")
+              && log.includes("cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling")))
             && (!focusedTurtleCheck || (log.includes("near turtles use staggered scutes and closed tapered-volume paddles")
               && /turtles [1-5]\/5 visible \(near [1-5], far [0-5]\), 1 draw/.test(log)))
             && (!focusedCrabCheck || (log.includes("near crabs use tapered toes, socketed eyes, and solid pincer fingers")
@@ -786,7 +792,7 @@ try {
             && (!focusedClimbCheck || log.includes("monkey climb held summit presented after eight cycle stages"))
             && state.glError === 0 && !state.result?.error && !state.result?.exited
             && log.includes("island-simulator: renderer WEBGL2")
-            && log.includes("ocean 160x160 textures 9742120/9762336 bytes audio 6/6 sources")
+            && log.includes("ocean 160x160 textures 10091644/10111860 bytes audio 6/6 sources")
             && log.includes("forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows")
             && log.includes("leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes")
             && /forest-floor filter (?:anisotropic, requested maximum 4x, device-clamped|trilinear, anisotropy unavailable)/.test(log)
@@ -888,7 +894,8 @@ try {
           ? "software WebGL goat coat and intermediate pose images; not continuous stance qualification" : focusedHutCheck
           ? "software WebGL hut overview and material detail; not temporal aliasing or route qualification" : focusedHelicopterCheck
           ? "software WebGL helicopter exterior and interior glazing; not free-walk traversal qualification" : focusedCampfireCheck
-          ? "software WebGL campfire flame material and separated-time frames; not speaker or continuous-motion qualification" : focusedTurtleCheck
+          ? "software WebGL campfire flame material and separated-time frames; not speaker or continuous-motion qualification" : focusedCaveCheck
+          ? "software WebGL cave exterior/interior material views; not free-walk traversal or final artistic acceptance" : focusedTurtleCheck
           ? "software WebGL close sea-turtle anatomy and separated-time frames; not continuous stroke qualification" : focusedCrabCheck
           ? "software WebGL close beach-crab anatomy and separated-time frames; not continuous gait qualification" : focusedFishCheck
           ? "software WebGL close schooling-fish anatomy and separated-time frames; not continuous swim qualification" : focusedSharkCheck
@@ -948,7 +955,7 @@ try {
     && result.exitCode === 0
     && result.output?.includes("island-simulator: renderer WEBGL2")
     && result.output?.includes(
-      "island-simulator: quality profile full grass 135m vegetation 100% shadows 100% wildlife 100% ocean 160x160 textures 9742120/9762336 bytes audio 6/6 sources")
+      "island-simulator: quality profile full grass 135m vegetation 100% shadows 100% wildlife 100% ocean 160x160 textures 10091644/10111860 bytes audio 6/6 sources")
     && result.output?.includes("forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows")
     && result.output?.includes("leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes")
     && result.output?.includes("island-simulator: edge antialiasing requested 4x renderer-applied 4x")

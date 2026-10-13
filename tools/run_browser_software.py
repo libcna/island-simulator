@@ -18,7 +18,36 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "stream", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "goats", "boars", "spiders", "turtles", "crabs", "fish", "shark", "dolphins", "bear", "resident")
+SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "stream", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "goats", "boars", "spiders", "turtles", "crabs", "fish", "shark", "dolphins", "bear", "resident")
+
+
+def validate_cave_report(report):
+    views = report.get("views", [])
+    if (report.get("passed") is not True
+        or [view.get("mode") for view in views] != ["cave", "cave-inside"]):
+        raise RuntimeError("cave report lacks successful exterior and interior views")
+    frames = []
+    for view in views:
+        result = view.get("result", {})
+        log = result.get("output", "")
+        intervals = view.get("intervals", [])
+        frame = view.get("screenshot")
+        side = "inside" if view.get("mode") == "cave-inside" else "outside"
+        if (view.get("passed") is not True or view.get("glError") != 0
+            or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+            or "SwiftShader" not in view.get("renderer", "") or len(intervals) != 60
+            or not all(isinstance(value, (int, float)) and not isinstance(value, bool)
+                       and math.isfinite(value) and value > 0 for value in intervals)
+            or not isinstance(frame, str) or not frame.endswith(".png")
+            or f"cave QA camera {side}" not in log
+            or "cave rock first visible draw" not in log
+            or "cave terrain shoulders use an irregular rock apron around the open corridor" not in log
+            or "cave connected shell strips share smooth lighting normals while portal breaks stay sharp" not in log
+            or "cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling" not in log
+            or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
+            raise RuntimeError("cave view lacks current material, terrain blend or clean graphics state")
+        frames.append(frame)
+    return frames
 
 
 def validate_helicopter_report(report):
@@ -466,6 +495,16 @@ def main(argv=None):
                 if identities[0]["sha256"] == identities[1]["sha256"]:
                     raise RuntimeError("helicopter exterior and interior frames are byte-identical")
                 metadata["helicopter_frames"]=identities
+            if args.scope == "cave":
+                cave_report=json.loads((evidence / "island-browser-cave.json").read_text())
+                frames=validate_cave_report(cave_report)
+                paths=[evidence / frame for frame in frames]
+                if not all(path.is_file() for path in paths):
+                    raise RuntimeError("cave image file missing")
+                identities=[artifact_identity(path) for path in paths]
+                if identities[0]["sha256"] == identities[1]["sha256"]:
+                    raise RuntimeError("cave exterior and interior frames are byte-identical")
+                metadata["cave_frames"]=identities
             if args.scope == "campfire":
                 campfire_report=json.loads((evidence / "island-browser-campfire.json").read_text())
                 frames=validate_campfire_report(campfire_report)

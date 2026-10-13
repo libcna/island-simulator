@@ -1,5 +1,7 @@
 #include "IslandSimulator/CaveRenderer.hpp"
 #include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/OpaqueImageLoader.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "CNA/Graphics/ShaderCodeEXT.hpp"
 #include "CNA/Graphics/ShaderPackageEXT.hpp"
 #include "CNA/ShaderLanguageEXT.hpp"
@@ -11,8 +13,14 @@
 #include "Microsoft/Xna/Framework/Graphics/BlendState.hpp"
 #include "Microsoft/Xna/Framework/Graphics/DepthStencilState.hpp"
 #include "Microsoft/Xna/Framework/Graphics/RasterizerState.hpp"
+#include "Microsoft/Xna/Framework/Graphics/SamplerState.hpp"
+#include "Microsoft/Xna/Framework/Graphics/SurfaceFormat.hpp"
+#include "Microsoft/Xna/Framework/Graphics/Texture2D.hpp"
+#include <array>
 #include <cstddef>
+#include <cstdint>
 #include <iostream>
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -53,6 +61,8 @@ void main(){
 constexpr const char* fragment=R"(
 in vec3 world;in vec3 normal;in vec4 localMaterial;
 uniform vec3 uToSun;
+uniform sampler2D uRockTexture;
+uniform vec3 uRockMean;
 out vec4 fragColor;
 float hash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
 float noise(vec3 p){
@@ -61,6 +71,10 @@ float noise(vec3 p){
                    mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),
                mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),
                    mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);
+}
+vec2 mirrored(vec2 p){
+    vec2 f=fract(p*.5);
+    return 1.0-abs(f*2.0-1.0);
 }
 void main(){
     vec3 local=localMaterial.xyz;
@@ -73,6 +87,13 @@ void main(){
     vec3 stone=mix(vec3(.27,.285,.29),vec3(.52,.47,.38),broad);
     stone*=.87+.18*grain;
     stone*=1.0-.105*fracture;
+    vec3 weights=pow(abs(normalize(normal)),vec3(4.0));
+    weights/=max(weights.x+weights.y+weights.z,.0001);
+    vec3 rockSample=texture(uRockTexture,mirrored(local.yz*.72+vec2(.17,.31))).rgb*weights.x
+        +texture(uRockTexture,mirrored(local.xz*.72+vec2(.43,.11))).rgb*weights.y
+        +texture(uRockTexture,mirrored(local.xy*.72+vec2(.29,.57))).rgb*weights.z;
+    vec3 rockDetail=clamp(rockSample/max(uRockMean,vec3(.05)),vec3(.55),vec3(1.55));
+    stone*=mix(vec3(1.0),rockDetail,.62);
     float upward=clamp(normal.y*.72+.28,0.0,1.0);
     float mossMask=smoothstep(.56,.78,noise(local*.29+vec3(11.2,4.0,1.8)))
         *upward*exterior;
@@ -88,6 +109,16 @@ void main(){
 )";
 }
 CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device_(device) {
+    constexpr int TextureSize=256;
+    const auto levels=LoadOpaqueImageMips(device_,"Content/structures/cave-rock.png",TextureSize);
+    const auto& mean=levels.back().pixels[0];
+    rockMean_[0]=mean[0]/255.0f;rockMean_[1]=mean[1]/255.0f;rockMean_[2]=mean[2]/255.0f;
+    rockTexture_=std::make_unique<Texture2D>(device_,TextureSize,TextureSize,true,SurfaceFormat::Color);
+    for(std::size_t level=0;level<levels.size();++level) {
+        const auto& pixels=levels[level].pixels;
+        rockTexture_->SetData(static_cast<int>(level),nullptr,
+            reinterpret_cast<const std::uint8_t*>(pixels.data()),0,static_cast<int>(pixels.size()*4));
+    }
     using CNA::Graphics::ShaderCodeEXT;
     const auto source=[](bool es,const char* body){return std::string(es?"#version 300 es\nprecision highp float;\n":"#version 330 core\n")+body;};
     const CNA::Graphics::ShaderPackageEXT package({
@@ -99,6 +130,15 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
     effect_=std::make_unique<ShaderEffect>(device,package);
     if(!effect_->IsEffectValid())throw std::runtime_error("Cave shader failed: "+effect_->GetCompileErrorEXT());
     std::vector<CaveGpuVertex> vertices;
+    // Share lighting normals across the connected arch strips while retaining the
+    // eroded entrance rim and back wall as intentionally hard geological breaks.
+    std::map<std::array<float,4>,Vector3> normalSums;
+    for(const auto& triangle:cave.Triangles()) {
+        if(triangle.surface!=CaveSurface::Exterior&&triangle.surface!=CaveSurface::Interior)continue;
+        for(const auto p:triangle.points)
+            normalSums[{static_cast<float>(triangle.surface),p.x,p.y,p.z}]
+                +=Vector3(triangle.normal.x,triangle.normal.y,triangle.normal.z);
+    }
     for(const auto& triangle:cave.Triangles()) {
         // The matching terrain replacement provides the visible floor, once only.
         if(triangle.surface==CaveSurface::Floor)continue;
@@ -106,8 +146,12 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
             const auto local=cave.Local(p);
             const float material=triangle.surface==CaveSurface::Exterior?1.0f:
                 triangle.surface==CaveSurface::Entrance?.62f:0.0f;
+            Vector3 normal(triangle.normal.x,triangle.normal.y,triangle.normal.z);
+            if(triangle.surface==CaveSurface::Exterior||triangle.surface==CaveSurface::Interior)
+                normal=Vector3::Normalize(normalSums.at(
+                    {static_cast<float>(triangle.surface),p.x,p.y,p.z}));
             vertices.push_back({{p.x,p.y,p.z},
-                {triangle.normal.x,triangle.normal.y,triangle.normal.z},
+                {normal.X,normal.Y,normal.Z},
                 {local.x,local.y,local.z,material}});
         }
     }
@@ -119,6 +163,9 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
     std::cout<<"island-simulator: cave rock "<<count_/3<<" triangles in one culled draw; 20m walkable interior\n";
     std::cout<<"island-simulator: cave compact asymmetric mouth uses normal-lit fractured stone and restrained moss\n";
     std::cout<<"island-simulator: cave narrow eroded lip grows into an irregular closed rock mantle\n";
+    std::cout<<"island-simulator: cave connected shell strips share smooth lighting normals while portal breaks stay sharp\n";
+    const char* material="island-simulator: cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling";
+    std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
 }
 CaveRenderer::~CaveRenderer()=default;
 void CaveRenderer::Draw(const Matrix& view,const Matrix& projection) {
@@ -129,6 +176,9 @@ void CaveRenderer::Draw(const Matrix& view,const Matrix& projection) {
     effect_->Apply();effect_->SetUniformMat4("uViewProjection",matrix);
     effect_->SetUniformVec3("uToSun",environment::SunDirectionX,environment::SunDirectionY,
                             environment::SunDirectionZ);
+    device_.getSamplerStatesProperty()[0]=SamplerState::LinearClamp;
+    effect_->SetTexture(0,*rockTexture_);effect_->SetUniformInt("uRockTexture",0);
+    effect_->SetUniformVec3("uRockMean",rockMean_[0],rockMean_[1],rockMean_[2]);
     device_.setBlendStateProperty(BlendState::Opaque);
     device_.setDepthStencilStateProperty(DepthStencilState::Default);
     device_.setRasterizerStateProperty(RasterizerState::CullNone);

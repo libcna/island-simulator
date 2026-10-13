@@ -643,6 +643,17 @@ void main()
     float caveGrain=valueNoise(vWorld.xz*4.0)*.65+valueNoise(vWorld.xz*17.0)*.35;
     vec3 caveStone=mix(vec3(.24,.25,.24),vec3(.34,.32,.28),caveGrain);
     caveStone*=mix(.85,.24,smoothstep(0.0,14.0,caveDepth));
+    // Weathered stone continues onto the real replacement terrain around the portal,
+    // avoiding a hard grey-shell/green-soil seam without adding a decal or draw.
+    float caveAxis=abs(caveAcross-.22*sin(caveDepth*.31));
+    float apronNoise=broad*.72+medium*.35;
+    float caveApron=smoothstep(-5.5,-2.0,caveDepth)
+        *(1.0-smoothstep(8.0,15.0,caveDepth))
+        *smoothstep(caveWidth-.30+apronNoise*.22,caveWidth+.72+apronNoise*.22,caveAxis)
+        *(1.0-smoothstep(6.1+apronNoise*.55,7.45+apronNoise*.55,caveAxis));
+    vec3 apronStone=mix(vec3(.265,.27,.245),vec3(.405,.37,.30),
+        clamp(caveGrain*.72+.18+medium*.18,0.0,1.0))*vGroundLight;
+    color=mix(color,apronStone,caveApron*.86);
     color=mix(color,caveStone,caveFloor);
     color=applyCampfireLight(color,vWorld);
     float fog = smoothstep(260.0, 720.0, distanceToCamera);
@@ -945,6 +956,8 @@ void main()
         caveIndices_->SetData(caveIndices.data(),static_cast<int>(caveIndices.size()));
         std::cout<<"island-simulator: cave ground replacement "<<caveVertexCount_<<" vertices, "
             <<cavePrimitiveCount_<<" triangles; original covered terrain removed\n";
+        const char* caveApron="island-simulator: cave terrain shoulders use an irregular rock apron around the open corridor";
+        std::cout<<caveApron<<'\n';MirrorRuntimeDiagnosticToPlatformLog(caveApron);
     }
 
     void TerrainRenderer::DrawGeometry(const int firstIndex, const int primitiveCount)

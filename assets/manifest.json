@@ -39,6 +39,18 @@
       "licenseRecord": "AI-generated shipwreck weathered wood"
     },
     {
+      "name": "cave-rock-albedo-v1",
+      "path": "assets/art-studies/cave-rock-albedo-v1.png",
+      "sha256": "85b94460ad9e3d972f9281661883645fda26661667193c62358ab87f552ee8fd",
+      "licenseRecord": "AI-generated cave rock"
+    },
+    {
+      "name": "cave-rock-prompt-v1",
+      "path": "assets/art-studies/cave-rock-albedo-v1-prompt.txt",
+      "sha256": "1d6d2ffdcaef1441b9f9d7ecc0791768bd3a9692eb38f106c2567187341d67c7",
+      "licenseRecord": "AI-generated cave rock"
+    },
+    {
       "name": "boar-bristle-albedo-v2",
       "path": "assets/art-studies/boar-bristle-albedo-v2.png",
       "sha256": "79490e2046ba87f0e5260e39981f0e2e29909a2b2ed32326a4b2462b5cd50c15",
@@ -246,6 +258,16 @@
       "sources": [
         "game/src/ShipwreckLayout.cpp",
         "game/src/ShipwreckRenderer.cpp"
+      ]
+    },
+    {
+      "name": "headland-cave",
+      "licenseRecord": "Procedural headland cave",
+      "sources": [
+        "game/include/IslandSimulator/CaveSite.hpp",
+        "game/src/CaveLayout.cpp",
+        "game/src/CaveGroundPatch.cpp",
+        "game/src/CaveRenderer.cpp"
       ]
     },
     {

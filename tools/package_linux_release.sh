@@ -42,6 +42,7 @@ readonly packaged_files=(
     Content/terrain/forest-floor.png
     Content/vegetation/leaf-lamina.png
     Content/structures/shipwreck-weathered-wood.png
+    Content/structures/cave-rock.png
     share/island-simulator/README.md
     share/island-simulator/ASSET_LICENSES.md
     share/island-simulator/dependencies.lock

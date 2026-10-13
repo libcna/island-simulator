@@ -836,7 +836,15 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   mantle is still visibly procedural, so the item deliberately stays in progress. Current
   Chrome/SwiftShader evidence `20261013T061512.375165Z-chrome-fullscreen` adds60 finite intervals,
   zero GL error, intact context and empty kernel delta for the rebuilt mesh, but is not a cave-view
-  artistic acceptance. Android remains open.
+  artistic acceptance. A further material pass adds an original prepared 256-square volcanic-rock
+  albedo with nine mips, mirrored triplanar sampling, shared shell-strip lighting normals and an
+  irregular stone apron on the actual replacement terrain, without changing the one-draw 1384-
+  triangle shell or collision. Inspected native `20261013T134635.899208Z-cave` and
+  `20261013T134710.416889Z-cave-inside` pass. The new focused Chrome/SwiftShader
+  `20261013T135551.626255Z-chrome-cave` passes both inspected views with60 finite intervals each,
+  GL0, intact contexts and kernel[]. The silhouette is improved but still visibly procedural;
+  ARM64 assemble/lint and exact APK asset verification pass without an emulator, but GLES runtime,
+  moving-view polish and further weathering remain open. See `docs/cave.md`.
 
 - [~] Add a realistic grounded helicopter near the centre of the island. It cannot
   fly, but the player must be able to enter both the pilot cockpit and rear cabin.
@@ -877,7 +885,7 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   intentionally still in progress. A fourth pass adds one original generated128-square/eight-mip
   atlas with separate restrained worn-paint, directional brushed-metal, woven-seat and fine-rubber
   regions. Stable local projection and padded windows retain glass/light colour. It costs87380bytes
-  (runtime textures9742120/9762336bytes), while geometry remains1436triangles/two draws with
+  (then-current runtime textures9742120/9762336bytes), while geometry remains1436triangles/two draws with
   unchanged collision. Release/Debug core and four-door layout tests pass. Inspected native
   `20261013T123312.897455Z-helicopter` exterior and
   `20261013T123336.026355Z-helicopter-inside` cabin pass with kernel[]; Chrome/SwiftShader

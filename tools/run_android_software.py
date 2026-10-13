@@ -163,7 +163,8 @@ MATERIAL_PATHS = ("Content/terrain/forest-floor.png", "Content/vegetation/leaf-l
                   "Content/wildlife/monkey-fur.png", "Content/structures/hut-palm-fibre.png",
                   "Content/wildlife/goat-fur.png", "Content/wildlife/spider-setae.png",
                   "Content/wildlife/boar-bristle.png", "Content/wildlife/bear-fur.png",
-                  "Content/structures/shipwreck-weathered-wood.png")
+                  "Content/structures/shipwreck-weathered-wood.png",
+                  "Content/structures/cave-rock.png")
 
 
 def validate_apk(apk, prepared_root=None):

@@ -4,7 +4,7 @@
 #include "Microsoft/Xna/Framework/BoundingBox.hpp"
 #include <memory>
 namespace Microsoft::Xna::Framework::Graphics {
-class GraphicsDevice;class VertexBuffer;class ShaderEffect;
+class GraphicsDevice;class VertexBuffer;class ShaderEffect;class Texture2D;
 }
 namespace island {
 class CaveRenderer final {
@@ -17,7 +17,9 @@ private:
     Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
     std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> effect_;
     std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> vertices_;
+    std::unique_ptr<Microsoft::Xna::Framework::Graphics::Texture2D> rockTexture_;
     Microsoft::Xna::Framework::BoundingBox bounds_;
+    float rockMean_[3]={1,1,1};
     int count_=0,draws_=0;
 };
 }

@@ -667,6 +667,9 @@ if(ISLAND_BUILD_GAME)
     set(_island_shipwreck_source "${CMAKE_CURRENT_SOURCE_DIR}/assets/art-studies/shipwreck-weathered-wood-albedo-v1.png")
     set(_island_shipwreck_path "Content/structures/shipwreck-weathered-wood.png")
     set(_island_shipwreck_prepared "${CMAKE_BINARY_DIR}/${_island_shipwreck_path}")
+    set(_island_cave_source "${CMAKE_CURRENT_SOURCE_DIR}/assets/art-studies/cave-rock-albedo-v1.png")
+    set(_island_cave_path "Content/structures/cave-rock.png")
+    set(_island_cave_prepared "${CMAKE_BINARY_DIR}/${_island_cave_path}")
     set(_island_thatch_prepared "${CMAKE_BINARY_DIR}/${_island_thatch_path}")
     set(_island_fur_prepared "${CMAKE_BINARY_DIR}/${_island_fur_path}")
     set(_island_floor_prepared "${CMAKE_BINARY_DIR}/${_island_floor_path}")
@@ -715,7 +718,11 @@ if(ISLAND_BUILD_GAME)
             COMMAND "${Python3_EXECUTABLE}" "${_island_material_tool}"
                 "${_island_shipwreck_source}" "${_island_shipwreck_prepared}" --size 256
             DEPENDS "${_island_shipwreck_source}" "${_island_material_tool}" VERBATIM)
-        add_custom_target(island_material_assets DEPENDS "${_island_floor_prepared}" "${_island_leaf_prepared}" "${_island_fur_prepared}" "${_island_thatch_prepared}" "${_island_goat_prepared}" "${_island_spider_prepared}" "${_island_boar_prepared}" "${_island_bear_prepared}" "${_island_shipwreck_prepared}")
+        add_custom_command(OUTPUT "${_island_cave_prepared}"
+            COMMAND "${Python3_EXECUTABLE}" "${_island_material_tool}"
+                "${_island_cave_source}" "${_island_cave_prepared}" --size 256
+            DEPENDS "${_island_cave_source}" "${_island_material_tool}" VERBATIM)
+        add_custom_target(island_material_assets DEPENDS "${_island_floor_prepared}" "${_island_leaf_prepared}" "${_island_fur_prepared}" "${_island_thatch_prepared}" "${_island_goat_prepared}" "${_island_spider_prepared}" "${_island_boar_prepared}" "${_island_bear_prepared}" "${_island_shipwreck_prepared}" "${_island_cave_prepared}")
         add_dependencies(island-simulator island_material_assets)
     endif()
 
@@ -756,7 +763,7 @@ if(ISLAND_BUILD_GAME)
         endif()
         set_property(TARGET island-simulator APPEND PROPERTY LINK_DEPENDS
             "${CMAKE_CURRENT_SOURCE_DIR}/tools/browser_fullscreen.js"
-            "${CMAKE_CURRENT_SOURCE_DIR}/tools/web_shell.html" "${_island_floor_prepared}" "${_island_leaf_prepared}" "${_island_fur_prepared}" "${_island_thatch_prepared}" "${_island_goat_prepared}" "${_island_spider_prepared}" "${_island_boar_prepared}" "${_island_bear_prepared}" "${_island_shipwreck_prepared}")
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/web_shell.html" "${_island_floor_prepared}" "${_island_leaf_prepared}" "${_island_fur_prepared}" "${_island_thatch_prepared}" "${_island_goat_prepared}" "${_island_spider_prepared}" "${_island_boar_prepared}" "${_island_bear_prepared}" "${_island_shipwreck_prepared}" "${_island_cave_prepared}")
         set_target_properties(island-simulator PROPERTIES SUFFIX ".html")
         target_link_options(island-simulator PRIVATE
             --shell-file "${CMAKE_CURRENT_SOURCE_DIR}/tools/web_shell.html"
@@ -770,6 +777,7 @@ if(ISLAND_BUILD_GAME)
             "SHELL:--preload-file '${_island_boar_prepared}@/${_island_boar_path}'"
             "SHELL:--preload-file '${_island_bear_prepared}@/${_island_bear_path}'"
             "SHELL:--preload-file '${_island_shipwreck_prepared}@/${_island_shipwreck_path}'"
+            "SHELL:--preload-file '${_island_cave_prepared}@/${_island_cave_path}'"
             -sALLOW_MEMORY_GROWTH=1
             -sSTACK_SIZE=1048576
             -sINITIAL_MEMORY=134217728
@@ -806,6 +814,8 @@ if(ISLAND_BUILD_GAME)
             RENAME bear-fur.png COMPONENT Runtime)
         install(FILES "${_island_shipwreck_prepared}" DESTINATION Content/structures
             RENAME shipwreck-weathered-wood.png COMPONENT Runtime)
+        install(FILES "${_island_cave_prepared}" DESTINATION Content/structures
+            RENAME cave-rock.png COMPONENT Runtime)
         if(TARGET cna_shared)
             install(TARGETS cna_shared
                 LIBRARY DESTINATION lib

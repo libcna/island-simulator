@@ -144,6 +144,35 @@ class BrowserSoftwareTests(unittest.TestCase):
         missing=report();missing["views"].pop()
         with self.assertRaises(RuntimeError): gate.validate_hut_report(missing)
 
+    def test_cave_scope_requires_current_exterior_interior_material(self):
+        self.assertIn("cave", gate.SCOPES)
+        page = (ROOT / "tools/web_smoke.html.in").read_text()
+        for mode in ("cave", "cave-inside"):
+            self.assertIn(f'["{mode}", ["--viewpoint", "{mode}", "--debug-overlay"]]', page)
+        markers = (
+            "cave rock first visible draw",
+            "cave terrain shoulders use an irregular rock apron around the open corridor",
+            "cave connected shell strips share smooth lighting normals while portal breaks stay sharp",
+            "cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling")
+        def report():
+            return {"passed": True, "views": [{"mode": mode, "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": mode + ".png", "intervals": [16.0] * 60,
+                "result": {"error": "", "exited": False, "output":
+                    f"cave QA camera {'inside' if mode == 'cave-inside' else 'outside'}\n"
+                    + "\n".join(markers)}} for mode in ("cave", "cave-inside")]}
+        self.assertEqual(gate.validate_cave_report(report()), ["cave.png", "cave-inside.png"])
+        for index in range(len(markers)):
+            bad = report()
+            bad["views"][0]["result"]["output"] = bad["views"][0]["result"]["output"].replace(markers[index], "")
+            with self.subTest(marker=markers[index]), self.assertRaises(RuntimeError):
+                gate.validate_cave_report(bad)
+        for key, value in (("glError", 1282), ("contextLost", True),
+                           ("intervals", [16.0] * 59), ("renderer", "hardware")):
+            bad = report(); bad["views"][1][key] = value
+            with self.subTest(key=key), self.assertRaises(RuntimeError):
+                gate.validate_cave_report(bad)
+
     def test_turtle_scope_requires_current_anatomy_two_frames_and_live_context(self):
         self.assertIn("turtles", gate.SCOPES)
         self.assertIn('["turtles", ["--viewpoint", "turtles", "--debug-overlay"]]',

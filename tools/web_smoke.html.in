@@ -51,6 +51,8 @@
       ["snakes", ["--viewpoint", "snakes"]],
       ["hut", ["--viewpoint", "hut", "--debug-overlay"]],
       ["hut-material", ["--viewpoint", "hut-material", "--debug-overlay"]],
+      ["cave", ["--viewpoint", "cave", "--debug-overlay"]],
+      ["cave-inside", ["--viewpoint", "cave-inside", "--debug-overlay"]],
       ["stream", ["--viewpoint", "stream", "--debug-overlay"]],
       ["campfire", ["--viewpoint", "campfire", "--debug-overlay"]],
       ["snake-head", ["--viewpoint", "snake-head"]],

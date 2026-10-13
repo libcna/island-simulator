@@ -2,7 +2,45 @@
 
 This is a project-owned procedural mesh, without imported assets or licence dependencies.
 The native game now constructs and renders the cave and terrain replacement.
-Do not mark the PLAN entry complete: wildlife/visual polish and portable runtime gates remain.
+Do not mark the PLAN entry complete: moving visual polish and Android runtime remain.
+
+## Mirrored triplanar rock material and current WebGL views — 2026-10-13
+
+The shell now uses an original ImageGen volcanic-rock albedo study preserved with its
+exact prompt at `assets/art-studies/cave-rock-albedo-v1*`. A repeated-edge audit found
+that the requested source was not truly seamless, so it is not described or sampled as
+such. The build area-reduces the unchanged 1254-square source to a 256-square runtime
+base; nine opaque mip levels total 349,524 RGBA8 bytes. Mirrored triplanar sampling
+projects it across walls and ceiling without an edge wrap, while normalized mean colour
+retains the existing large-scale mineral, fracture, moss, dampness and depth-lighting
+model. Connected exterior/interior strip vertices share lighting normals; the eroded
+portal and rear break remain sharp. Geometry remains 1,384 rendered rock triangles in
+one draw and collision still uses the unchanged closed shell.
+
+The actual replacement terrain now extends an irregular procedural stone apron beside
+the open corridor. This softens the former hard grey-shell/green-ground join without a
+decal, prop, additional texture binding or draw. It does not hide or narrow the entrance.
+
+Final inspected native llvmpipe evidence is `20261013T134635.899208Z-cave` outside
+(279 colour bins, 49.00 luminance deviation, 226.27 spatial contrast) and
+`20261013T134710.416889Z-cave-inside` inside (65 bins, 24.76 deviation, 119.65
+contrast); both pass with empty kernel-fault deltas. The new focused
+Chrome/SwiftShader run `20261013T135551.626255Z-chrome-cave` contains independently
+inspected outside and inside images, 60 finite intervals per view, GL error zero, intact
+contexts and no new kernel GPU fault. It validates the packaged texture and shader on
+WebGL2, not free walking or final artistic realism. The exterior is smoother and better
+grounded than the previous large flat-panel shell, but its overall outcrop silhouette is
+still visibly procedural. Android runtime, moving exterior review and further silhouette
+weathering remain open.
+
+The current ARM64 `assembleDebug`/`lintDebug` build passes without launching an
+emulator. Its APK contains exactly one 155,369-byte prepared cave PNG; SHA-256
+`8533c4d9e044dce0c5f3a1f3dbeeaa3539f9a8a3e920029b96624a40b9ef4b21` matches
+the Gradle-owned prepared source byte for byte. This is packaging evidence only, not
+GLES execution. The native release package includes the same material (15,088,798-byte
+installed payload), and the rebuilt Web package is 13,091,260 bytes raw / 5,412,965
+bytes gzip. Runtime texture inventory is now 10,091,644 bytes inside a 10,111,860-byte
+quality budget.
 
 ## Geometry and siting
 
@@ -29,7 +67,8 @@ Flight tracing includes the rounded patch grid edges and triangle diagonals, not
 endpoint heights. TerrainRenderer removes the covered coarse quads, adds the replacement
 in one separately culled draw, and shades the floor with depth-dependent subdued stone.
 CaveRenderer skips the40 coplanar floor triangles:1384 rock triangles in one culled draw.
-Both use portable desktopGL/GLES shaders without a texture download or extra image asset.
+Both use portable desktopGL/GLES shaders; the shell now samples the prepared rock image
+described above while the replacement floor and apron stay procedural.
 
 ## Controller checks
 

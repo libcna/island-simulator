@@ -32,6 +32,7 @@ namespace island
                     + GeneratedTextureBudget::GoatFurMipBytes
                     + GeneratedTextureBudget::SpiderSetaeMipBytes
                     + GeneratedTextureBudget::ShipwreckWoodMipBytes
+                    + GeneratedTextureBudget::CaveRockMipBytes
                     + GeneratedTextureBudget::ResidentMaterialMipBytes
                     + GeneratedTextureBudget::HelicopterMaterialMipBytes
                     + GeneratedTextureBudget::BearFurMipBytes
@@ -56,6 +57,7 @@ namespace island
                     + GeneratedTextureBudget::GoatFurMipBytes
                     + GeneratedTextureBudget::SpiderSetaeMipBytes
                     + GeneratedTextureBudget::ShipwreckWoodMipBytes
+                    + GeneratedTextureBudget::CaveRockMipBytes
                     + GeneratedTextureBudget::ResidentMaterialMipBytes
                     + GeneratedTextureBudget::HelicopterMaterialMipBytes
                     + GeneratedTextureBudget::BearFurMipBytes
@@ -75,6 +77,7 @@ namespace island
                     + GeneratedTextureBudget::GoatFurMipBytes
                     + GeneratedTextureBudget::SpiderSetaeMipBytes
                     + GeneratedTextureBudget::ShipwreckWoodMipBytes
+                    + GeneratedTextureBudget::CaveRockMipBytes
                     + GeneratedTextureBudget::ResidentMaterialMipBytes
                     + GeneratedTextureBudget::HelicopterMaterialMipBytes
                     + GeneratedTextureBudget::BearFurMipBytes

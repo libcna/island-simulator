@@ -46,8 +46,10 @@ preserving the authored paths and clearing palettes. It is packaged on all targe
 logs a diagnostic and retains procedural soil. See [material review](docs/forest-floor-material-review.md)
 for provenance, software-only runtime evidence and remaining visual limitations.
 A first-pass20m headland cave now has a real interior, replacement terrain, capsule collision
-and flight roof containment. Native software exterior/interior captures and a live keyboard
-entry/flight/exit test pass; natural-shape polish and portable qualification remain;
+and flight roof containment. Its original mipmapped rock material uses mirrored triplanar
+sampling, smooth connected-shell lighting and a stone apron on the replacement terrain.
+Native and Chrome/SwiftShader exterior/interior captures plus a native live keyboard
+entry/flight/exit test pass; natural-shape polish and Android qualification remain;
 see [cave status](docs/cave.md).
 A stone-ringed campfire burns in the eastern clearing, with animated flames, embers,
 subtle smoke/sparks, nearby flickering light and positional wood crackling. A separate

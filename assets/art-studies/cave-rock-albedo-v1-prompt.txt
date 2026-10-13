@@ -1,0 +1,10 @@
+Use case: photorealistic-natural
+Asset type: seamless square albedo texture for a real-time 3D tropical island cave and weathered coastal headland
+Primary request: a perfectly tileable orthographic surface texture of dark warm-gray volcanic rock, naturally weathered and eroded
+Style/medium: photorealistic PBR-style diffuse albedo only, fine-scale rock detail suitable for a game material
+Composition/framing: straight-on flat surface sample filling the entire square; no perspective, no horizon, no central object; opposing edges must tile seamlessly
+Lighting/mood: neutral flat diffuse illumination with no baked directional shadows or highlights
+Color palette: charcoal gray, muted warm brown mineral variation, very sparse subdued olive moss traces
+Materials/textures: irregular fine cracks, mineral speckles, shallow erosion, varied stone grain; detail at several scales but no large repeated bands
+Constraints: albedo/color map only; seamless on all four edges; no normal-map colors, no height-map grayscale, no ambient occlusion, no text, no watermark
+Avoid: bricks, masonry, cut blocks, repeating strata, caves seen from outside, dramatic lighting, deep black crevices, vegetation leaves, obvious repetition

@@ -214,7 +214,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         AUDIO_QUALIFIED=0
     fi
     if grep -q "island-simulator: renderer OPENGLES3" "$LOG_FILE" \
-        && grep -q "island-simulator: quality profile mobile grass 112m vegetation 78% shadows 72% wildlife 82% ocean 128x128 textures 9742120/9762336 bytes audio 6/6 sources" \
+        && grep -q "island-simulator: quality profile mobile grass 112m vegetation 78% shadows 72% wildlife 82% ocean 128x128 textures 10091644/10111860 bytes audio 6/6 sources" \
             "$LOG_FILE" \
         && grep -q "island-simulator: viewport 1280x720 logical backbuffer" \
             "$LOG_FILE" \
