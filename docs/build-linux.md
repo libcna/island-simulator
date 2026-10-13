@@ -440,7 +440,9 @@ CPU-faceted daylight path, the seven-station/ten-facet anatomy marker, and the s
 depth/sun-band lighting diagnostic. Its closer camera follows subject translation only, preserving
 live heading, banking and tail movement across slow software frames.
 `IslandGameSharkCapture` writes a close offshore patrol view to
-`build/island-shark-capture.ppm` and requires the same water-column lighting diagnostic.
+`build/island-shark-capture.ppm` and requires the exact 594/15-vertex inventory, current
+eight-station/ten-facet anatomy marker and the same water-column lighting diagnostic. Its closer
+camera follows subject translation only, preserving live heading, pitch, bank and tail motion.
 `IslandGameMonkeyCapture` writes a close GPU-skinned jungle wildlife view to
 `build/island-monkey-capture.ppm`; it waits 24 frames so startup crossfades settle before capture.
 They are reproducible QA outputs and are ignored by Git. Convert or inspect them only during a

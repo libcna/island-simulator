@@ -713,8 +713,10 @@ requires the exact 414/12-vertex, single-surface-fin, CPU-faceted daylight diagn
 seven-station/ten-facet anatomy marker, and the shared depth/sun-band lighting diagnostic. A
 focused `--scope fish` run additionally requires two different-hash separated-time frames, 60
 positive intervals, SwiftShader, an intact context and GL error zero. The shark view must report
-the active offshore patrol and the
-same lighting diagnostic, and the monkey view must report a visible member of the
+the active offshore patrol, exact 594/15-vertex inventory, eight-station/ten-facet anatomy marker
+and the same lighting diagnostic. A focused `--scope shark` run additionally requires two
+different-hash separated-time frames, 60 positive intervals, SwiftShader, an intact context and GL
+error zero. The monkey view must report a visible member of the
 seven-agent GPU-skinned troop. The shipwreck view requires the exact 20 m hull, twelve-piece debris
 trail, portable aged-wood/waterline shader, and one visible draw; the crab view requires a nonzero population from all thirty agents in
 one draw. The butterfly view requires a nonzero population from all eighteen agents, nonzero near

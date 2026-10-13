@@ -1,12 +1,15 @@
 #include "IslandSimulator/SharkRenderer.hpp"
 
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/WildlifeRenderLighting.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <iostream>
 #include <numbers>
 #include <stdexcept>
+#include <string_view>
 
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
 #include "Microsoft/Xna/Framework/BoundingSphere.hpp"
@@ -46,16 +49,19 @@ namespace island
             float halfHeight;
         };
 
-        constexpr std::array<BodySection, 7> BodySections = {{
-            {0.68f, 0.140f, 0.110f},
-            {0.53f, 0.230f, 0.170f},
-            {0.28f, 0.300f, 0.240f},
-            {0.00f, 0.320f, 0.260f},
-            {-0.28f, 0.260f, 0.210f},
-            {-0.50f, 0.150f, 0.130f},
-            {-0.66f, 0.060f, 0.060f},
+        constexpr std::array<BodySection, 8> BodySections = {{
+            {0.72f, 0.100f, 0.080f},
+            {0.62f, 0.200f, 0.145f},
+            {0.45f, 0.270f, 0.205f},
+            {0.18f, 0.320f, 0.250f},
+            {-0.10f, 0.310f, 0.250f},
+            {-0.34f, 0.230f, 0.190f},
+            {-0.54f, 0.130f, 0.110f},
+            {-0.68f, 0.055f, 0.055f},
         }};
-        constexpr int BodySegments = 8;
+        constexpr int BodySegments = 10;
+        constexpr std::string_view SharkDetailDiagnostic =
+            "island-simulator: near shark uses a rounded eight-station head, ten-facet body, lit shaped fins, five paired gill slits, and faceted eyes";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -146,7 +152,7 @@ namespace island
                         section.halfHeight * std::sin(angle), section.z, scale);
                 }
             }
-            const Vector3 nose = LocalPoint(centre, axes, 0.0f, -0.012f, 0.78f, scale);
+            const Vector3 nose = LocalPoint(centre, axes, 0.0f, -0.010f, 0.79f, scale);
             for (int segment = 0; segment < BodySegments; ++segment) {
                 AddLitTriangle(vertices, nose, rings.front()[segment],
                                rings.front()[(segment + 1) % BodySegments], body);
@@ -167,7 +173,7 @@ namespace island
             }
 
             const float bend = shark.bodyWave * 0.125f;
-            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.66f, scale);
+            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.68f, scale);
 
             const float tailBend = shark.bodyWave * 0.21f;
             const Vector3 upperKnee = LocalPoint(
@@ -180,10 +186,10 @@ namespace island
                 centre, axes, tailBend, -0.20f, -0.87f, scale);
             const Vector3 lowerTip = LocalPoint(
                 centre, axes, tailBend, -0.34f, -1.04f, scale);
-            AddTriangle(vertices, rear, upperKnee, tailNotch, fin);
-            AddTriangle(vertices, upperKnee, upperTip, tailNotch, fin);
-            AddTriangle(vertices, rear, tailNotch, lowerKnee, fin);
-            AddTriangle(vertices, lowerKnee, tailNotch, lowerTip, fin);
+            AddLitTriangle(vertices, rear, upperKnee, tailNotch, fin, true);
+            AddLitTriangle(vertices, upperKnee, upperTip, tailNotch, fin, true);
+            AddLitTriangle(vertices, rear, tailNotch, lowerKnee, fin, true);
+            AddLitTriangle(vertices, lowerKnee, tailNotch, lowerTip, fin, true);
 
             const Vector3 dorsalFront = LocalPoint(
                 centre, axes, 0.0f, 0.14f, 0.23f, scale);
@@ -193,48 +199,99 @@ namespace island
                 centre, axes, bend * 0.35f, 0.12f, -0.34f, scale);
             const Vector3 dorsalKnee = LocalPoint(
                 centre, axes, bend * 0.17f, 0.38f, -0.18f, scale);
-            AddTriangle(vertices, dorsalFront, dorsalTip, dorsalKnee, fin);
-            AddTriangle(vertices, dorsalFront, dorsalKnee, dorsalBack, fin);
+            AddLitTriangle(vertices, dorsalFront, dorsalTip, dorsalKnee, fin, true);
+            AddLitTriangle(vertices, dorsalFront, dorsalKnee, dorsalBack, fin, true);
 
             for (const float side : {-1.0f, 1.0f}) {
-                AddTriangle(vertices,
-                            LocalPoint(centre, axes, side * 0.27f, -0.015f, 0.19f, scale),
-                            LocalPoint(centre, axes, side * 0.76f, -0.17f, -0.10f, scale),
-                            LocalPoint(centre, axes, side * 0.23f, -0.10f, -0.20f, scale), fin);
-                AddTriangle(vertices,
-                            LocalPoint(centre, axes, side * 0.17f, -0.08f, -0.33f, scale),
-                            LocalPoint(centre, axes, side * 0.36f, -0.13f, -0.53f, scale),
-                            LocalPoint(centre, axes, side * 0.12f, -0.09f, -0.55f, scale), fin);
+                const Vector3 pectoralFront = LocalPoint(
+                    centre, axes, side * 0.27f, -0.015f, 0.20f, scale);
+                const Vector3 pectoralTip = LocalPoint(
+                    centre, axes, side * 0.77f, -0.17f, -0.10f, scale);
+                const Vector3 pectoralElbow = LocalPoint(
+                    centre, axes, side * 0.55f, -0.16f, -0.19f, scale);
+                const Vector3 pectoralBack = LocalPoint(
+                    centre, axes, side * 0.23f, -0.10f, -0.23f, scale);
+                AddLitTriangle(vertices, pectoralFront, pectoralTip, pectoralElbow, fin, true);
+                AddLitTriangle(vertices, pectoralFront, pectoralElbow, pectoralBack, fin, true);
+
+                const Vector3 pelvicFront = LocalPoint(
+                    centre, axes, side * 0.17f, -0.08f, -0.32f, scale);
+                const Vector3 pelvicTip = LocalPoint(
+                    centre, axes, side * 0.37f, -0.13f, -0.52f, scale);
+                const Vector3 pelvicElbow = LocalPoint(
+                    centre, axes, side * 0.28f, -0.13f, -0.57f, scale);
+                const Vector3 pelvicBack = LocalPoint(
+                    centre, axes, side * 0.12f, -0.09f, -0.56f, scale);
+                AddLitTriangle(vertices, pelvicFront, pelvicTip, pelvicElbow, fin, true);
+                AddLitTriangle(vertices, pelvicFront, pelvicElbow, pelvicBack, fin, true);
             }
-            AddTriangle(vertices,
-                        LocalPoint(centre, axes, 0.0f, 0.13f, -0.31f, scale),
-                        LocalPoint(centre, axes, bend * 0.45f, 0.27f, -0.46f, scale),
-                        LocalPoint(centre, axes, bend * 0.72f, 0.09f, -0.57f, scale), fin);
+            const Vector3 secondaryFront = LocalPoint(
+                centre, axes, 0.0f, 0.13f, -0.31f, scale);
+            const Vector3 secondaryTip = LocalPoint(
+                centre, axes, bend * 0.45f, 0.27f, -0.46f, scale);
+            const Vector3 secondaryKnee = LocalPoint(
+                centre, axes, bend * 0.60f, 0.18f, -0.52f, scale);
+            const Vector3 secondaryBack = LocalPoint(
+                centre, axes, bend * 0.72f, 0.09f, -0.57f, scale);
+            AddLitTriangle(vertices, secondaryFront, secondaryTip, secondaryKnee, fin, true);
+            AddLitTriangle(vertices, secondaryFront, secondaryKnee, secondaryBack, fin, true);
 
             const Color eye = ActivityColor(Color(15, 24, 27, 255), shark.activity);
+            const Color eyeShine = ActivityColor(Color(116, 137, 139, 255), shark.activity);
             const Color gill = ActivityColor(Color(43, 59, 64, 255), shark.activity);
-            AddTriangle(vertices,
-                        LocalPoint(centre, axes, -0.236f, 0.082f, 0.505f, scale),
-                        LocalPoint(centre, axes, -0.244f, 0.018f, 0.527f, scale),
-                        LocalPoint(centre, axes, -0.246f, 0.020f, 0.442f, scale), eye);
-            AddTriangle(vertices,
-                        LocalPoint(centre, axes, 0.236f, 0.082f, 0.505f, scale),
-                        LocalPoint(centre, axes, 0.246f, 0.020f, 0.442f, scale),
-                        LocalPoint(centre, axes, 0.244f, 0.018f, 0.527f, scale), eye);
             for (const float side : {-1.0f, 1.0f}) {
-                for (int slit = 0; slit < 3; ++slit) {
-                    const float z = 0.30f - static_cast<float>(slit) * 0.085f;
-                    AddTriangle(vertices,
-                                LocalPoint(centre, axes, side * 0.307f, 0.075f, z, scale),
-                                LocalPoint(centre, axes, side * 0.312f, -0.075f,
-                                           z - 0.025f, scale),
-                                LocalPoint(centre, axes, side * 0.314f, -0.045f,
-                                           z + 0.010f, scale), gill);
+                const Vector3 eyeTop = LocalPoint(
+                    centre, axes, side * 0.245f, 0.084f, 0.535f, scale);
+                const Vector3 eyeFront = LocalPoint(
+                    centre, axes, side * 0.250f, 0.050f, 0.564f, scale);
+                const Vector3 eyeBottom = LocalPoint(
+                    centre, axes, side * 0.253f, 0.017f, 0.530f, scale);
+                const Vector3 eyeRear = LocalPoint(
+                    centre, axes, side * 0.249f, 0.050f, 0.495f, scale);
+                if (side > 0.0f) {
+                    AddTriangle(vertices, eyeTop, eyeBottom, eyeFront, eye);
+                    AddTriangle(vertices, eyeTop, eyeRear, eyeBottom, eye);
+                } else {
+                    AddTriangle(vertices, eyeTop, eyeFront, eyeBottom, eye);
+                    AddTriangle(vertices, eyeTop, eyeBottom, eyeRear, eye);
                 }
                 AddTriangle(vertices,
-                            LocalPoint(centre, axes, side * 0.075f, -0.075f, 0.755f, scale),
-                            LocalPoint(centre, axes, side * 0.175f, -0.090f, 0.625f, scale),
-                            LocalPoint(centre, axes, side * 0.080f, -0.100f, 0.720f, scale), gill);
+                    LocalPoint(centre, axes, side * 0.256f, 0.072f, 0.539f, scale),
+                    LocalPoint(centre, axes, side * 0.257f, 0.057f, 0.551f, scale),
+                    LocalPoint(centre, axes, side * 0.257f, 0.056f, 0.527f, scale), eyeShine);
+
+                for (int slit = 0; slit < 5; ++slit) {
+                    const float z = 0.335f - static_cast<float>(slit) * 0.057f;
+                    const Vector3 topFront = LocalPoint(
+                        centre, axes, side * 0.316f, 0.064f, z + 0.010f, scale);
+                    const Vector3 topBack = LocalPoint(
+                        centre, axes, side * 0.319f, 0.057f, z - 0.010f, scale);
+                    const Vector3 bottomFront = LocalPoint(
+                        centre, axes, side * 0.319f, -0.030f, z - 0.020f, scale);
+                    const Vector3 bottomBack = LocalPoint(
+                        centre, axes, side * 0.321f, -0.037f, z - 0.040f, scale);
+                    if (side > 0.0f) {
+                        AddTriangle(vertices, topFront, bottomFront, topBack, gill);
+                        AddTriangle(vertices, topBack, bottomFront, bottomBack, gill);
+                    } else {
+                        AddTriangle(vertices, topFront, topBack, bottomFront, gill);
+                        AddTriangle(vertices, topBack, bottomBack, bottomFront, gill);
+                    }
+                }
+                const Vector3 mouthFront = LocalPoint(
+                    centre, axes, side * 0.055f, -0.072f, 0.754f, scale);
+                const Vector3 mouthOuter = LocalPoint(
+                    centre, axes, side * 0.180f, -0.102f, 0.625f, scale);
+                const Vector3 mouthKnee = LocalPoint(
+                    centre, axes, side * 0.125f, -0.105f, 0.682f, scale);
+                const Vector3 mouthInner = LocalPoint(
+                    centre, axes, side * 0.065f, -0.094f, 0.724f, scale);
+                AddTriangle(vertices, mouthFront, mouthOuter, mouthKnee, gill);
+                AddTriangle(vertices, mouthFront, mouthKnee, mouthInner, gill);
+                AddTriangle(vertices,
+                    LocalPoint(centre, axes, side * 0.072f, -0.052f, 0.770f, scale),
+                    LocalPoint(centre, axes, side * 0.104f, -0.061f, 0.744f, scale),
+                    LocalPoint(centre, axes, side * 0.076f, -0.068f, 0.746f, scale), eye);
             }
             if (vertices.size() - startingVertexCount != SharkRenderer::NearVertexCount) {
                 throw std::runtime_error("Shark near mesh does not match its fixed vertex budget");
@@ -294,6 +351,8 @@ namespace island
         effect_->setFogStartProperty(260.0f);
         effect_->setFogEndProperty(700.0f);
         stagingVertices_.reserve(MaximumVertexCount);
+        std::cout << SharkDetailDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(SharkDetailDiagnostic);
     }
 
     SharkRenderer::~SharkRenderer() = default;

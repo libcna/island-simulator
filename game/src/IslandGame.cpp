@@ -831,7 +831,7 @@ namespace island
             const Vector3 radial = Vector3::Normalize(Vector3(shark.x, 0.0f, shark.z));
             const Vector3 tangent(-radial.Z, 0.0f, radial.X);
             cameraPosition_ = Vector3(shark.x, shark.y, shark.z)
-                + radial * 10.5f + tangent * 2.0f + Vector3::Up * 4.5f;
+                + radial * 7.2f + tangent * 1.4f + Vector3::Up * 2.7f;
             const Vector3 toShark = Vector3(shark.x, shark.y, shark.z) - cameraPosition_;
             yaw_ = std::atan2(toShark.X, toShark.Z);
             pitch_ = std::atan2(toShark.Y, std::hypot(toShark.X, toShark.Z));
@@ -1437,7 +1437,7 @@ namespace island
                   << "island-simulator: shark near/far geometry "
                   << SharkRenderer::NearVertexCount << '/' << SharkRenderer::FarVertexCount
                   << " vertices, single-surface fins and CPU faceted daylight\n"
-                  << "island-simulator: near shark uses a seven-station body, blunt snout, "
+                  << "island-simulator: near shark uses an eight-station body, blunt snout, "
                      "caudal peduncle and heterocercal tail\n"
                   << "island-simulator: monkeys " << monkeyTroop_.Monkeys().size()
                   << " agents with portable GPU skeletal animation, "
@@ -1712,7 +1712,15 @@ namespace island
                                        subject.y - previousTurtleSubject.y,
                                        subject.z - previousTurtleSubject.z);
         }
+        const SharkState previousSharkSubject = sharkPatrol_.State();
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        if (viewpoint_ == FixedViewpoint::SharkDetail) {
+            // Keep the occasional close subject framed without freezing its live patrol pose.
+            const SharkState& subject = sharkPatrol_.State();
+            cameraPosition_ += Vector3(subject.x - previousSharkSubject.x,
+                                       subject.y - previousSharkSubject.y,
+                                       subject.z - previousSharkSubject.z);
+        }
         dolphinPod_.Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z);
         Vector3 monkeyObserver = cameraPosition_;
         if (viewpoint_ == FixedViewpoint::MonkeyDetail) {

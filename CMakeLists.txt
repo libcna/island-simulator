@@ -1017,7 +1017,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "shark near/far geometry 375/15 vertices, single-surface fins and CPU faceted daylight")
+                "shark near/far geometry 594/15 vertices, single-surface fins and CPU faceted daylight")
         add_test(NAME IslandGameMonkeyCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-monkey-capture.ppm"
                     --viewpoint monkeys)

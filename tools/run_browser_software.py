@@ -18,7 +18,30 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "stream", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "goats", "spiders", "turtles", "crabs", "fish")
+SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "stream", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "goats", "spiders", "turtles", "crabs", "fish", "shark")
+
+
+def validate_shark_report(report):
+    views = report.get("views", [])
+    if report.get("passed") is not True or len(views) != 1 or views[0].get("mode") != "shark":
+        raise RuntimeError("shark report lacks one successful focused view")
+    view = views[0]
+    result = view.get("result", {})
+    log = result.get("output", "")
+    frames = (view.get("screenshot"), view.get("afterSimulationScreenshot"))
+    intervals = view.get("intervals", [])
+    if (view.get("passed") is not True or view.get("glError") != 0
+        or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+        or "SwiftShader" not in view.get("renderer", "") or len(intervals) != 60
+        or not all(isinstance(value, (int, float)) and not isinstance(value, bool)
+                   and math.isfinite(value) and value > 0 for value in intervals)
+        or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
+        or len(set(frames)) != 2
+        or "near shark uses a rounded eight-station head, ten-facet body, lit shaped fins, five paired gill slits, and faceted eyes" not in log
+        or not re.search(r"shark visible activity \S+, 1 draw", log)
+        or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
+        raise RuntimeError("shark view lacks current anatomy, frames or clean graphics state")
+    return frames
 
 
 def validate_fish_report(report):
@@ -309,6 +332,16 @@ def main(argv=None):
                 if identities[0]["sha256"] == identities[1]["sha256"]:
                     raise RuntimeError("fish separated-time frames are byte-identical")
                 metadata["fish_frames"]=identities
+            if args.scope == "shark":
+                shark_report=json.loads((evidence / "island-browser-shark.json").read_text())
+                frames=validate_shark_report(shark_report)
+                paths=[evidence / frame for frame in frames]
+                if not all(path.is_file() for path in paths):
+                    raise RuntimeError("shark image file missing")
+                identities=[artifact_identity(path) for path in paths]
+                if identities[0]["sha256"] == identities[1]["sha256"]:
+                    raise RuntimeError("shark separated-time frames are byte-identical")
+                metadata["shark_frames"]=identities
             if args.scope == "goats":
                 goat_report=json.loads((evidence / "island-browser-goats.json").read_text())
                 metadata["goat_pose_images"]=validate_goat_report(goat_report)

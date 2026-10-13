@@ -1102,14 +1102,17 @@ system. A deterministic schedule alternates roughly 42--66 second visible patrol
 34--88 m offshore and searches for seabed no shallower than -3.5 m; a slow depth cycle, body wave,
 tail stroke, vertical-velocity pitch, and heading-error bank prevent rigid motion. The shared
 observer-distance policy reduces or suspends
-updates when appropriate. `SharkRenderer` uses a recognizable original low-poly silhouette,
-forked tail in both LODs, near eye/gill accents, fixed-sun CPU face colours, the same depth/sun-band
-profile as the fish, individual
+updates when appropriate. `SharkRenderer` uses a recognizable original low-poly silhouette, a
+594-vertex eight-station/ten-facet near body and a 15-vertex far body. Both LODs retain a forked
+tail; the near model adds two-facet highlighted eyes, five swept gill slits per side, nostril/mouth
+marks and shaped pectoral/pelvic fins. Fixed-sun CPU face colours and two-sided fin lighting share
+the same depth/sun-band profile as the fish. Individual
 frustum/distance rejection, and one portable `BasicEffect` dynamic
 batch. The shared `WildlifeRenderLighting` helper keeps fish and shark facet treatment identical.
 Because culling is disabled for the thin fins, they are emitted once rather than as coincident
-reverse-winding copies; near/far geometry is 51/15 rather than 66/30 vertices. The batch renders
-before the ocean. Native OpenGL 3.3 and actual Chromium/WebGL 2 dedicated captures match;
+reverse-winding copies; near/far geometry is 594/15 vertices. The batch renders before the ocean.
+A translation-following close-review camera retains live patrol pose across slow audit frames.
+Native OpenGL 3.3 and focused Chrome/SwiftShader WebGL 2 captures match;
 the shark-inclusive arm64 GLES 3 APK builds but awaits stable-device runtime validation.
 
 Seven original procedural monkeys exercise CNA's actual skeletal-animation path without an

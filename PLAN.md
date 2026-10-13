@@ -417,12 +417,17 @@ docs/stream-course.md and docs/environment-field-design.md.
   Web retains live fish in two different-hash frames over60positive intervals with
   GL0/context intact/kernel[]. The closer QA camera follows subject translation without freezing
   turn/bank/tail motion. Android current model remains pending; see `docs/fish-form.md`.
-  Shark then received the corresponding 51-to-375-vertex pass: seven-station/capped body, blunt
-  snout, progressive rear bend, caudal peduncle, asymmetric heterocercal tail, paired fins, eyes,
-  mouth and three gill slits per side. Inspected contained evidence
-  `20261012T211055.205953Z-shark` shows the single near shark in one draw; see
-  `docs/shark-form.md`. These procedural forms remain visibly faceted; shark/dolphin focused Web,
-  current Android and sustained performance review remain open. Turtle review retained the
+  Shark then received the corresponding 51-to-375-vertex first pass: seven-station/capped body,
+  blunt snout, progressive rear bend, caudal peduncle, asymmetric heterocercal tail, paired fins,
+  eyes, mouth and three gill slits per side. A second pass uses an eight-station/ten-facet rounded
+  head/body, lit shaped pectoral/pelvic/dorsal/tail surfaces, two-facet highlighted eyes, nostril
+  marks and five narrow swept gill slits per side. Near geometry is594vertices/9504bytes; the
+  15-vertex far LOD, one animal and one draw remain. Current native031641 and focused
+  Chrome/SwiftShader031750 pass; Web retains the live patrol in two different-hash frames over
+  60positive intervals with GL0/context intact/kernel[]. Its closer QA camera follows subject
+  translation without freezing patrol pose. Current Android remains pending; see
+  `docs/shark-form.md`. These procedural forms remain visibly faceted; dolphin focused Web, current
+  Android and sustained performance review remain open. Turtle review retained the
   existing detailed shell/paddle foundation but enlarged the
   four-ring head/beak, surface-fitted the eyes, added nostril/mouth cues and narrowed/lightened the
   cage-like scute seams for +12 near vertices. Inspected contained
@@ -6204,9 +6209,11 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 - [x] Add one occasional offshore shark with credible silhouette, patrol variation, swimming
   animation, and no hostile behaviour. A single original procedural model uses near/far geometry,
   CPU body/tail motion plus smoothed dive pitch and turn banking, frustum/distance culling, and one
-  portable dynamic-buffer draw. Both LODs have a forked tail and the near tier adds eye/gill detail.
-  Shared fixed-sun CPU facet lighting, restrained depth tint/moving shallow sunlight, and cull-none
-  single-surface fins reduce near/far geometry from 66/30 to 51/15 vertices without another draw.
+  portable dynamic-buffer draw. Both LODs have a forked tail; the 594-vertex near tier uses an
+  eight-station/ten-facet rounded body, heterocercal tail, lit shaped fins, two-facet highlighted
+  eyes, nostril/mouth marks and five swept gill slits per side. Shared fixed-sun CPU facet lighting,
+  restrained depth tint/moving shallow sunlight and cull-none single-surface fins remain within one
+  draw; the distant silhouette remains 15 vertices.
 - [x] Keep the shark out of immediate beach shallows and tune rarity for atmosphere, not tension.
   It patrols 34--88 m offshore for roughly 42--66 seconds, then remains below the presentation
   layer for roughly 92--160 seconds before the next appearance.
