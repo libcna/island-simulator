@@ -815,7 +815,7 @@ def main():
             if args.viewpoint == "fish":
                 if "near fish use seven-station volumetric bodies, caudal peduncles and progressive rear-body bends" not in diagnostics:
                     raise RuntimeError("current close fish form is missing; check for a stale executable")
-                if "near fish use rounded seven-station heads, ten-facet bodies, lit fins, and two-facet eyes" not in diagnostics:
+                if "near fish use rounded ten-facet bodies, closed-volume fins, and two-facet eyes" not in diagnostics:
                     raise RuntimeError("current close fish anatomy is missing; check for a stale executable")
                 if not re.search(r"fish [1-9][0-9]*/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):
                     raise RuntimeError("fish capture did not submit a near detailed school")

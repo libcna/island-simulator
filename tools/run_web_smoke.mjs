@@ -757,7 +757,7 @@ try {
               && /turtles [1-5]\/5 visible \(near [1-5], far [0-5]\), 1 draw/.test(log)))
             && (!focusedCrabCheck || (log.includes("near crabs use tapered toes, socketed eyes, and solid pincer fingers")
               && /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
-            && (!focusedFishCheck || (log.includes("near fish use rounded seven-station heads, ten-facet bodies, lit fins, and two-facet eyes")
+            && (!focusedFishCheck || (log.includes("near fish use rounded ten-facet bodies, closed-volume fins, and two-facet eyes")
               && /fish [1-9][0-9]*\/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedSharkCheck || (log.includes("near shark uses a rounded ten-facet body, closed-volume fins, five paired gill slits, and faceted eyes")
               && /shark visible activity \S+, 1 draw/.test(log)))
@@ -1026,7 +1026,7 @@ try {
     && result.output?.includes(
       "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
     && result.output?.includes(
-      "island-simulator: fish near/far geometry 414/12 vertices, single-surface fins and CPU faceted daylight")
+      "island-simulator: fish near/far geometry 546/12 vertices, closed fins and CPU faceted daylight")
     && result.output?.includes(
       "island-simulator: shark near/far geometry 834/15 vertices, closed fins and CPU faceted daylight")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
@@ -2172,9 +2172,9 @@ try {
     && fishResult.output?.includes(
       "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
     && fishResult.output?.includes(
-      "island-simulator: fish near/far geometry 414/12 vertices, single-surface fins and CPU faceted daylight")
+      "island-simulator: fish near/far geometry 546/12 vertices, closed fins and CPU faceted daylight")
     && fishResult.output?.includes(
-      "island-simulator: near fish use rounded seven-station heads, ten-facet bodies, lit fins, and two-facet eyes")
+      "island-simulator: near fish use rounded ten-facet bodies, closed-volume fins, and two-facet eyes")
     && /fish [1-9][0-9]*\/48 visible/.test(fishResult.output ?? "")
     && !fishResult.error;
 

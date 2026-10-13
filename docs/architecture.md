@@ -1093,8 +1093,8 @@ dorsal fin and tail use two-sided fixed-sun lighting while the closed body uses 
 facet colours. One shared CPU sample per visible animal smoothly tints the
 palette with depth and adds two restrained moving shallow-sun bands before facet lighting. Because
 the batch
-uses `CullNone`, each thin fin/tail surface is emitted once instead of duplicating an exactly
-coincident reverse-winding triangle. Near/far geometry is 414/12 vertices per fish. The renderer
+uses `CullNone`; the close dorsal, pectorals and both tail lobes are thin closed volumes instead of
+coincident sheets. Near/far geometry is 546/12 vertices per fish. The renderer
 frustum/distance-culls agents and streams all visible fish in one `DynamicVertexBuffer` draw before
 the transparent ocean. A translation-following close-review camera preserves live heading and tail
 motion across slow audit frames. Native OpenGL 3.3 and focused Chrome/SwiftShader WebGL 2 captures

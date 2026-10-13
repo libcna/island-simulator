@@ -184,7 +184,7 @@ def validate_fish_report(report):
                    and math.isfinite(value) and value > 0 for value in intervals)
         or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
         or len(set(frames)) != 2
-        or "near fish use rounded seven-station heads, ten-facet bodies, lit fins, and two-facet eyes" not in log
+        or "near fish use rounded ten-facet bodies, closed-volume fins, and two-facet eyes" not in log
         or not re.search(r"fish [1-9][0-9]*/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("fish view lacks current anatomy, frames or clean graphics state")

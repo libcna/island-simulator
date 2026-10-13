@@ -456,7 +456,13 @@ docs/stream-course.md and docs/environment-field-design.md.
   far LOD/population/one draw unchanged. Current native031027 and Chrome/SwiftShader031048 pass;
   Web retains live fish in two different-hash frames over60positive intervals with
   GL0/context intact/kernel[]. The closer QA camera follows subject translation without freezing
-  turn/bank/tail motion. Android current model remains pending; see `docs/fish-form.md`.
+  turn/bank/tail motion. A third pass closes both forked-tail lobes, the dorsal and both pectoral
+  sheets into five thin volumes. Near/far geometry is546/12vertices; worst-case capacity is
+  26208vertices/419328bytes for all48, with unchanged schools, far tier and one draw. Inspected
+  native `20261013T114848.142975Z-fish` passes119bins/std20.76/spatial122.64/kernel[]. Focused
+  Chrome/SwiftShader `20261013T115244.372229Z-chrome-fish` passes two inspected different-hash
+  school poses,60finite intervals,GL0/context intact/kernel[]. Current Android qualification
+  remains pending; see `docs/fish-form.md`.
   Shark then received the corresponding 51-to-375-vertex first pass: seven-station/capped body,
   blunt snout, progressive rear bend, caudal peduncle, asymmetric heterocercal tail, paired fins,
   eyes, mouth and three gill slits per side. A second pass uses an eight-station/ten-facet rounded

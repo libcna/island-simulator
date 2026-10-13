@@ -85,7 +85,7 @@ namespace island
         }};
         constexpr int BodySegments = 10;
         constexpr std::string_view FishDetailDiagnostic =
-            "island-simulator: near fish use rounded seven-station heads, ten-facet bodies, lit fins, and two-facet eyes";
+            "island-simulator: near fish use rounded ten-facet bodies, closed-volume fins, and two-facet eyes";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -102,6 +102,48 @@ namespace island
         {
             AddTriangle(vertices, a, b, c,
                         wildlife_render::FacetColor(a, b, c, color, twoSided));
+        }
+
+        void AddLitQuad(std::vector<VertexPositionColor>& vertices,
+                        const Vector3& a, const Vector3& b,
+                        const Vector3& c, const Vector3& d, const Color& color)
+        {
+            AddLitTriangle(vertices, a, b, c, color);
+            AddLitTriangle(vertices, a, c, d, color);
+        }
+
+        void AppendClosedTriangle(std::vector<VertexPositionColor>& vertices,
+                                  const Vector3& a, const Vector3& b, const Vector3& c,
+                                  const Vector3& halfThickness,
+                                  const Color& face, const Color& edge)
+        {
+            const Vector3 ap = a + halfThickness, bp = b + halfThickness;
+            const Vector3 cp = c + halfThickness;
+            const Vector3 am = a - halfThickness, bm = b - halfThickness;
+            const Vector3 cm = c - halfThickness;
+            AddLitTriangle(vertices, ap, bp, cp, face);
+            AddLitTriangle(vertices, am, cm, bm, face);
+            AddLitQuad(vertices, ap, am, bm, bp, edge);
+            AddLitQuad(vertices, bp, bm, cm, cp, edge);
+            AddLitQuad(vertices, cp, cm, am, ap, edge);
+        }
+
+        void AppendClosedQuad(std::vector<VertexPositionColor>& vertices,
+                              const Vector3& a, const Vector3& b,
+                              const Vector3& c, const Vector3& d,
+                              const Vector3& halfThickness,
+                              const Color& face, const Color& edge)
+        {
+            const Vector3 ap = a + halfThickness, bp = b + halfThickness;
+            const Vector3 cp = c + halfThickness, dp = d + halfThickness;
+            const Vector3 am = a - halfThickness, bm = b - halfThickness;
+            const Vector3 cm = c - halfThickness, dm = d - halfThickness;
+            AddLitQuad(vertices, ap, bp, cp, dp, face);
+            AddLitQuad(vertices, am, dm, cm, bm, face);
+            AddLitQuad(vertices, ap, am, bm, bp, edge);
+            AddLitQuad(vertices, bp, bm, cm, cp, edge);
+            AddLitQuad(vertices, cp, cm, dm, dp, edge);
+            AddLitQuad(vertices, dp, dm, am, ap, edge);
         }
 
         [[nodiscard]] PoseAxes MakePoseAxes(const FishState& fish)
@@ -188,8 +230,12 @@ namespace island
                 centre, axes, tailBend * 1.08f, 0.0f, -0.66f, scale);
             const Vector3 tailBottom = LocalPoint(
                 centre, axes, tailBend, -0.25f, -0.78f, scale);
-            AddLitTriangle(vertices, rear, tailTop, tailNotch, palette.fin, true);
-            AddLitTriangle(vertices, rear, tailNotch, tailBottom, palette.fin, true);
+            AppendClosedTriangle(vertices, rear, tailTop, tailNotch,
+                                 axes.right * (0.004f * scale),
+                                 palette.fin, palette.back);
+            AppendClosedTriangle(vertices, rear, tailNotch, tailBottom,
+                                 axes.right * (0.004f * scale),
+                                 palette.fin, palette.back);
 
             const Vector3 dorsalFront = LocalPoint(
                 centre, axes, 0.0f, 0.13f, 0.12f, scale);
@@ -199,8 +245,9 @@ namespace island
                 centre, axes, bend * 0.45f, 0.12f, -0.27f, scale);
             const Vector3 dorsalKnee = LocalPoint(
                 centre, axes, bend * 0.25f, 0.25f, -0.19f, scale);
-            AddLitTriangle(vertices, dorsalFront, dorsalTip, dorsalKnee, palette.fin, true);
-            AddLitTriangle(vertices, dorsalFront, dorsalKnee, dorsalBack, palette.fin, true);
+            AppendClosedQuad(vertices, dorsalFront, dorsalTip, dorsalKnee, dorsalBack,
+                             axes.right * (0.006f * scale),
+                             palette.fin, palette.back);
 
             for (const float side : {-1.0f, 1.0f}) {
                 const Vector3 rootFront = LocalPoint(
@@ -211,8 +258,9 @@ namespace island
                     centre, axes, side * 0.27f, -0.075f, -0.17f, scale);
                 const Vector3 rootBack = LocalPoint(
                     centre, axes, side * 0.13f, -0.055f, -0.21f, scale);
-                AddLitTriangle(vertices, rootFront, tip, elbow, palette.fin, true);
-                AddLitTriangle(vertices, rootFront, elbow, rootBack, palette.fin, true);
+                AppendClosedQuad(vertices, rootFront, tip, elbow, rootBack,
+                                 axes.up * (0.004f * scale),
+                                 palette.fin, palette.back);
             }
 
             const Color eye(19, 31, 33, 255);

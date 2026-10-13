@@ -37,3 +37,23 @@ The renderer checks every generated close fish against the compile-time 414-vert
 native/Web gates pin both that inventory and the current anatomy marker. Actual Android execution,
 sustained performance, scale/colour variety, fin articulation and further texture/material polish
 remain.
+
+## Closed-fin pass (2026-10-13)
+
+The current visual audit retained the rounded body, eye/gill cues and school readability, but the
+forked tail, dorsal and paired pectorals were still coincident sheets. Both triangular tail lobes
+are now closed triangular prisms; the dorsal and both pectorals are thin closed four-sided forms.
+They preserve their authored outlines and palette colours while adding separately lit faces and
+darker perimeter edges with only 4--6 mm local half-thickness. Simulation, progressive body bend,
+schools, 72 m near threshold, far silhouette and one-draw batching are unchanged.
+
+The five replacements add 132 vertices, bringing the near tier to 546 vertices / 182 triangles.
+The conservative 48-near capacity is 26,208 vertices / 419,328 bytes, about 101 KiB above the
+previous capacity; ordinary culling/LOD submits fewer. Inspected llvmpipe evidence
+`build-consumer/software-captures/20261013T114848.142975Z-fish` passes with 119 colour bins, 20.76
+luminance deviation, 122.64 spatial contrast and an empty kernel delta. Focused
+Chrome/SwiftShader evidence `20261013T115244.372229Z-chrome-fish` also passes: both inspected
+frames retain the school in distinct poses, their SHA-256 identities differ, all 60 intervals are
+finite, `glError` is zero, the context remains live and the kernel delta is empty. Android
+execution, sustained hardware performance, articulated fin strokes and texture/material polish
+remain open.

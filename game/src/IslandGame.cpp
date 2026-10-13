@@ -1453,7 +1453,7 @@ namespace island
                      "sunlight bands in CPU vertex colours\n"
                   << "island-simulator: fish near/far geometry "
                   << FishRenderer::NearVertexCount << '/' << FishRenderer::FarVertexCount
-                  << " vertices, single-surface fins and CPU faceted daylight\n"
+                  << " vertices, closed fins and CPU faceted daylight\n"
                   << "island-simulator: near fish use seven-station volumetric bodies, caudal "
                      "peduncles and progressive rear-body bends\n"
                   << "island-simulator: shark near/far geometry "
