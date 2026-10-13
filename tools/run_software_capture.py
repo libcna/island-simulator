@@ -652,7 +652,8 @@ def main():
                     if not Path(str(capture)+f".resident-stage-{stage}.ppm").is_file():
                         raise RuntimeError("missing resident gait-stage image")
                 for marker in ("one adult resident uses original articulated human geometry",
-                               "resident uses a shoulder-sloped sleeveless woven tunic and anatomically tapered calves",
+                               "resident uses a shoulder-sloped woven tunic with open cap sleeves and anatomically tapered calves",
+                               "resident uses buried deltoid shoulders, split hands, and layered facial anatomy",
                                "resident QA camera frames and follows one peaceful adult",
                                "resident capture visible 1; draws 2"):
                     if marker not in diagnostics:

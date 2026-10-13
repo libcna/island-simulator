@@ -1,4 +1,4 @@
-# Island resident — native first pass in progress
+# Island resident — native and Web visual pass in progress
 
 The operator requested exactly one dark-skinned adult fictional resident with believable
 human proportions, textured skin/hair and practical woven-cloth/plant-fibre tropical
@@ -8,15 +8,14 @@ avoidance are required. No combat, quests, trading or compulsory interaction is 
 Exactly one resident is now simulated and visible in IslandGame. The native first pass has
 an original procedural human mesh driven directly by the grounded pose below. It includes
 an articulated torso, neck/head, facial features, close-cropped hair, hands, jointed limbs,
-woven sleeveless clothes, belt and plant-fibre sandals. A generated128x128 mipmapped atlas
+woven clothes with short open cap sleeves, belt and plant-fibre sandals. A generated128x128 mipmapped atlas
 adds separate restrained skin grain, hair curl, cloth weave and fibre patterns. No downloaded
 human model, cultural costume or third-party character art is used.
 
-The captured model is deliberately recorded as a first pass rather than final realism: its
-silhouette and face now read as an adult human, but the clothing remains angular, skin shading
-is coarse and the procedural facial anatomy needs more refinement. Native evidence does not
-satisfy Web/Android appearance or representative hardware performance requirements. Keep the
-resident PLAN entry in progress.
+The captured model remains a bounded procedural pass rather than final realism: its silhouette
+and face read as an adult human, but the clothing remains angular and skin shading is coarse.
+Native and Web close views are now inspected; Android appearance and representative hardware
+performance are not qualified. Keep the resident PLAN entry in progress.
 
 ## Deterministic tour
 
@@ -80,12 +79,11 @@ bulk and hand/arm thickness. This is software-renderer evidence, not AMD hardwar
 Texture accounting now includes the complete87,380-byte resident atlas mip chain. Runtime
 generation is deterministic and the material source is the project-owned algorithm in
 `ResidentRenderer.cpp`. The static mesh budget is40,000 streamed vertices; the current model
-uses10,914 vertices per frame in one body upload/draw, plus72 shadow vertices.
+uses15,270 vertices per frame in one body upload/draw, plus72 shadow vertices.
 
 ## Required next work
 
-- Refine the procedural face, shoulders, cloth drape, hands and skin response beyond the
-  visibly angular native first pass.
+- Refine cloth drape and skin response beyond the visibly angular procedural pass.
 - Add real player sidestepping/separation and review gait/turn transitions and performance.
 - Perform consolidated native/Web/Android model, motion and lifecycle qualification.
 
@@ -117,3 +115,26 @@ The retained camera now follows and re-aims at the same live resident. Chrome/Sw
 GL0, an intact context and an empty kernel delta. This is a bounded silhouette and portability
 improvement, not final human realism; face, cloth drape, hands, sidestepping, continuous gait,
 Android runtime and representative performance remain open.
+
+## Layered face, split hands and covered shoulder joint
+
+The next inspected pass addresses three close-view failures without changing movement or adding
+a draw. Eyes are smaller; the nose has separate bridge, tip and paired nostrils; two shaped lip
+halves and a chin replace the single line mouth. Each hand now has a smaller palm, four distinct
+fingers and a thumb. The upper torso uses an eighth transition ring, animated shoulder joints sit
+under the cloth shoulder line, and short open woven cap sleeves cover the unavoidable procedural
+arm-root seam. A first attempt that left the brown deltoid root exposed above the tunic was visible
+in WebGL and rejected before this pass was accepted.
+
+The body is now5,090 triangles /15,270 streamed vertices, still below the40,000-vertex allocation
+and still one body draw plus the existing24-triangle fitted sole-shadow draw. The generated87,380-
+byte atlas and deterministic route are unchanged. Release and Debug `IslandResidentTests` pass;
+the final native llvmpipe evidence `20261013T121822.689255Z-resident` passes all eight ordered gait
+stages, measures1.978805m actor displacement and1.979076m foot motion, and has an empty kernel
+delta. Both the final image and gait stages were inspected.
+
+Chrome/SwiftShader evidence `20261013T122110.669273Z-chrome-resident` passes60 finite intervals,
+GL0, an intact context and an empty kernel delta. Its two distinct close images were inspected and
+show the same covered shoulder transition, separated fingers and layered face. This qualifies the
+bounded native/Web visual change, not photorealism, continuous gait, Android runtime or hardware
+performance.

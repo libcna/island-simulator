@@ -217,14 +217,14 @@ void BuildHuman(std::vector<VertexPositionColorTexture>& vertices,const Resident
     const Vector3 forward(std::sin(pose.heading),0,std::cos(pose.heading));
     const Vector3 root(state.x,pose.pelvisY,state.z);
 
-    // Shape the sleeveless tunic around waist, ribcage and shoulders instead of
+    // Shape the tunic around waist, ribcage and shoulders instead of
     // extruding one nearly rectangular cloth block.  The narrow collar ring makes
     // the last two loft bands slope over the shoulders and meet the neck cleanly.
     const std::array torsoCentres{root+up*-.035f,root+up*.045f,root+up*.145f,
         root+up*.255f+forward*.008f,root+up*.360f+forward*.012f,
-        root+up*.430f+forward*.006f,root+up*.500f};
-    const std::array torsoRx{.170f,.150f,.148f,.170f,.205f,.225f,.105f};
-    const std::array torsoRz{.114f,.105f,.103f,.115f,.136f,.126f,.077f};
+        root+up*.430f+forward*.006f,root+up*.468f+forward*.003f,root+up*.500f};
+    const std::array torsoRx{.170f,.150f,.148f,.170f,.205f,.225f,.170f,.105f};
+    const std::array torsoRz{.114f,.105f,.103f,.115f,.136f,.126f,.101f,.077f};
     mesh.Loft(torsoCentres,torsoRx,torsoRz,right,forward,Material::Cloth,18);
     mesh.Tube(root+up*.045f,root+up*.092f,.178f,.17f,Material::Fibre,14);
 
@@ -243,25 +243,47 @@ void BuildHuman(std::vector<VertexPositionColorTexture>& vertices,const Resident
     mesh.Ellipsoid(head-right*.108f-up*.004f,right,up,forward,.015f,.031f,.012f,Material::Skin,9,6);
     for(int side=-1;side<=1;side+=2) {
         const Vector3 eye=head+right*(side*.038f)+up*.031f+forward*.094f;
-        mesh.Ellipsoid(eye,right,up,forward,.017f,.008f,.006f,Material::Eye,10,5);
-        mesh.Ellipsoid(eye+forward*.006f,right,up,forward,.0055f,.0055f,.003f,Material::Hair,8,5);
+        mesh.Ellipsoid(eye,right,up,forward,.014f,.007f,.0055f,Material::Eye,10,5);
+        mesh.Ellipsoid(eye+forward*.0055f,right,up,forward,.0048f,.0048f,.0028f,Material::Hair,8,5);
         const Vector3 browA=head+right*(side*.018f)+up*.054f+forward*.095f;
         const Vector3 browB=head+right*(side*.058f)+up*.051f+forward*.091f;
         mesh.Tube(browA,browB,.0035f,.003f,Material::Hair,7);
     }
-    mesh.Ellipsoid(head-up*.005f+forward*.100f,right,up,forward,.020f,.035f,.025f,Material::Skin,11,7);
-    const Vector3 mouth=head-up*.055f+forward*.096f;
-    mesh.Tube(mouth-right*.026f,mouth+right*.026f,.0055f,.005f,Material::Lip,8);
+    // A separate bridge, tip and nostrils make the face read in profile as well as head-on.
+    mesh.Ellipsoid(head+up*.010f+forward*.091f,right,up,forward,.014f,.036f,.017f,Material::Skin,10,7);
+    const Vector3 noseTip=head-up*.018f+forward*.105f;
+    mesh.Ellipsoid(noseTip,right,up,forward,.024f,.020f,.026f,Material::Skin,11,7);
+    for(int side=-1;side<=1;side+=2)
+        mesh.Ellipsoid(noseTip+right*(side*.009f)-up*.006f+forward*.024f,
+            right,up,forward,.0042f,.0032f,.003f,Material::Hair,7,4);
+    const Vector3 mouth=head-up*.058f+forward*.097f;
+    const Vector3 lipPeak=mouth+up*.0035f+forward*.002f;
+    mesh.Tube(mouth-right*.027f,lipPeak,.0045f,.0040f,Material::Lip,8);
+    mesh.Tube(lipPeak,mouth+right*.027f,.0040f,.0045f,Material::Lip,8);
+    mesh.Ellipsoid(head-up*.102f+forward*.061f,right,up,forward,.038f,.022f,.025f,Material::Skin,10,6);
 
     for(std::size_t side=0;side<2;++side) {
         const Vector3 shoulder=Point(pose.shoulders[side]),elbow=Point(pose.elbows[side]),wrist=Point(pose.wrists[side]);
-        const Vector3 upperMid=Lerp(shoulder,elbow,.44f);
-        mesh.Tube(shoulder,upperMid,.062f,.052f,Material::Skin,11);
+        const float sideSign=side==0?-1.0f:1.0f;
+        const Vector3 armRoot=shoulder-right*(sideSign*.018f)+up*.004f;
+        const Vector3 sleeveEnd=Lerp(shoulder,elbow,.18f);
+        const Vector3 upperMid=Lerp(shoulder,elbow,.46f);
+        // An open cap sleeve bridges the animated arm root and the sloping torso cloth.
+        // It hides the unavoidable procedural joint seam without adding a separate draw.
+        mesh.Tube(armRoot,sleeveEnd,.071f,.064f,Material::Cloth,12);
+        mesh.Tube(sleeveEnd,upperMid,.057f,.052f,Material::Skin,12);
         mesh.Tube(upperMid,elbow,.052f,.045f,Material::Skin,11);
         mesh.Ellipsoid(elbow,right,up,forward,.047f,.048f,.047f,Material::Skin,10,6);
         mesh.Tube(elbow,wrist,.044f,.033f,Material::Skin,11);
-        const Vector3 hand=wrist+up*-.055f+forward*.006f;
-        mesh.Ellipsoid(hand,right,up,forward,.038f,.076f,.030f,Material::Skin,10,7);
+        const Vector3 hand=wrist-up*.040f+forward*.006f;
+        mesh.Ellipsoid(hand,right,up,forward,.037f,.050f,.028f,Material::Skin,11,7);
+        for(int finger=0;finger<4;++finger) {
+            const float offset=(static_cast<float>(finger)-1.5f)*.015f;
+            mesh.Ellipsoid(hand+right*offset-up*.047f+forward*.002f,
+                right,up,forward,.0085f,.031f,.009f,Material::Skin,8,5);
+        }
+        mesh.Ellipsoid(hand+right*(sideSign*.036f)-up*.010f+forward*.009f,
+            right,up,forward,.014f,.030f,.013f,Material::Skin,8,5);
 
         const auto& leg=pose.legs[side];const Vector3 hip=Point(leg.hip),knee=Point(leg.knee),ankle=Point(leg.ankle);
         const Vector3 shortEnd=Lerp(hip,knee,.53f);
@@ -306,8 +328,10 @@ ResidentRenderer::ResidentRenderer(GraphicsDevice& device,const CanopyLightField
     effect_->setFogStartProperty(maximumDistance*.65f);effect_->setFogEndProperty(maximumDistance);
     const char* diagnostic="island-simulator: one adult resident uses original articulated human geometry and a 128x128 skin, hair, cloth and plant-fibre material atlas";
     std::cout<<diagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
-    const char* silhouette="island-simulator: resident uses a shoulder-sloped sleeveless woven tunic and anatomically tapered calves";
+    const char* silhouette="island-simulator: resident uses a shoulder-sloped woven tunic with open cap sleeves and anatomically tapered calves";
     std::cout<<silhouette<<'\n';MirrorRuntimeDiagnosticToPlatformLog(silhouette);
+    const char* anatomy="island-simulator: resident uses buried deltoid shoulders, split hands, and layered facial anatomy";
+    std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
 }
 ResidentRenderer::~ResidentRenderer()=default;
 

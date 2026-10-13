@@ -340,8 +340,9 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn('["resident", ["--viewpoint", "resident", "--debug-overlay"]]',
                       (ROOT / "tools/web_smoke.html.in").read_text())
         log = ("resident QA camera frames and follows one peaceful adult\n"
-               "resident uses a shoulder-sloped sleeveless woven tunic and anatomically tapered calves\n"
-               "resident 1/1 visible, 2 draws, 3786 body triangles")
+               "resident uses a shoulder-sloped woven tunic with open cap sleeves and anatomically tapered calves\n"
+               "resident uses buried deltoid shoulders, split hands, and layered facial anatomy\n"
+               "resident 1/1 visible, 2 draws, 5090 body triangles")
         report = {"passed":True,"views":[{"mode":"resident","passed":True,"glError":0,
             "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,
             "screenshot":"before.png","afterSimulationScreenshot":"after.png",

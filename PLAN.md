@@ -2049,7 +2049,16 @@ Human character backlog requested by the operator:
   A new focused Web scope exposed and fixed a non-following camera; actual Chrome/SwiftShader
   `20261013T065137.967386Z-chrome-resident` passes two distinct inspected images,60 intervals,
   GL0, intact context and kernel[]. Face/hands/drape, sidestepping, continuous gait, Android and
-  representative performance remain; this is not final visual completion.
+  representative performance remain; this is not final visual completion. A subsequent close-view
+  pass reduces the eyes, layers bridge/tip/nostrils/lips/chin, separates each hand into palm, four
+  fingers and thumb, and buries the animated shoulder under an eight-ring cloth profile. The first
+  exposed deltoid-root result was rejected from actual Web imagery; short open woven cap sleeves now
+  cover that seam. Cost is5090 body triangles /15270 streamed vertices in the same one body draw,
+  same87380-byte atlas and24-triangle shadow draw. Release/Debug resident tests pass. Final inspected
+  native `20261013T121822.689255Z-resident` passes eight gait stages with1.978805m body and1.979076m
+  foot motion and kernel[]; Chrome/SwiftShader `20261013T122110.669273Z-chrome-resident` passes two
+  distinct inspected images,60 intervals, GL0, intact context and kernel[]. Angular cloth/skin,
+  sidestepping, continuous gait, Android runtime and representative performance remain open.
 
 Landmark backlog requested by the operator:
 

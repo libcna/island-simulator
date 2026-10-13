@@ -75,7 +75,9 @@ bool ResidentMotion::FitPose(float x,float z,float heading,float speed,ResidentP
         pose.legs[leg]=SolveResidentLeg(hip,feet_[leg].current,forward,!feet_[leg].swinging);
         if(pose.legs[leg].reachLimited)return false;
         const float sign=leg==0?-1.0f:1.0f;
-        pose.shoulders[leg]=Add(ResidentPoint{x,pose.pelvisY+.47f,z},Mul(right,sign*.215f));
+        // Keep the anatomical shoulder joint just inside the cloth shoulder line so
+        // the animated upper arm blends into the torso instead of hanging from its rim.
+        pose.shoulders[leg]=Add(ResidentPoint{x,pose.pelvisY+.43f,z},Mul(right,sign*.205f));
         const float swing=std::sin(state_.phase+(leg==0?std::numbers::pi_v<float>:0))*.24f
             *std::min(1.0f,speed/WalkingSpeed);
         const auto upper=Unit(Add(Mul(right,sign*.018f),Add(ResidentPoint{0,-std::cos(swing),0},Mul(forward,std::sin(swing)))));
