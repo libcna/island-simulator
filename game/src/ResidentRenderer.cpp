@@ -217,10 +217,15 @@ void BuildHuman(std::vector<VertexPositionColorTexture>& vertices,const Resident
     const Vector3 forward(std::sin(pose.heading),0,std::cos(pose.heading));
     const Vector3 root(state.x,pose.pelvisY,state.z);
 
-    const std::array torsoCentres{root+up*-.02f,root+up*.08f,root+up*.20f,root+up*.35f,root+up*.47f};
-    const std::array torsoRx{.155f,.17f,.15f,.18f,.202f};
-    const std::array torsoRz{.105f,.115f,.105f,.13f,.115f};
-    mesh.Loft(torsoCentres,torsoRx,torsoRz,right,forward,Material::Cloth);
+    // Shape the sleeveless tunic around waist, ribcage and shoulders instead of
+    // extruding one nearly rectangular cloth block.  The narrow collar ring makes
+    // the last two loft bands slope over the shoulders and meet the neck cleanly.
+    const std::array torsoCentres{root+up*-.035f,root+up*.045f,root+up*.145f,
+        root+up*.255f+forward*.008f,root+up*.360f+forward*.012f,
+        root+up*.430f+forward*.006f,root+up*.500f};
+    const std::array torsoRx{.170f,.150f,.148f,.170f,.205f,.225f,.105f};
+    const std::array torsoRz{.114f,.105f,.103f,.115f,.136f,.126f,.077f};
+    mesh.Loft(torsoCentres,torsoRx,torsoRz,right,forward,Material::Cloth,18);
     mesh.Tube(root+up*.045f,root+up*.092f,.178f,.17f,Material::Fibre,14);
 
     const Vector3 neckBase=root+up*.48f,neckTop=root+up*.565f;
@@ -250,9 +255,9 @@ void BuildHuman(std::vector<VertexPositionColorTexture>& vertices,const Resident
 
     for(std::size_t side=0;side<2;++side) {
         const Vector3 shoulder=Point(pose.shoulders[side]),elbow=Point(pose.elbows[side]),wrist=Point(pose.wrists[side]);
-        const Vector3 sleeveEnd=Lerp(shoulder,elbow,.22f);
-        mesh.Tube(shoulder,sleeveEnd,.058f,.055f,Material::Cloth,11);
-        mesh.Tube(sleeveEnd,elbow,.050f,.045f,Material::Skin,11);
+        const Vector3 upperMid=Lerp(shoulder,elbow,.44f);
+        mesh.Tube(shoulder,upperMid,.062f,.052f,Material::Skin,11);
+        mesh.Tube(upperMid,elbow,.052f,.045f,Material::Skin,11);
         mesh.Ellipsoid(elbow,right,up,forward,.047f,.048f,.047f,Material::Skin,10,6);
         mesh.Tube(elbow,wrist,.044f,.033f,Material::Skin,11);
         const Vector3 hand=wrist+up*-.055f+forward*.006f;
@@ -263,7 +268,9 @@ void BuildHuman(std::vector<VertexPositionColorTexture>& vertices,const Resident
         mesh.Tube(hip,shortEnd,.105f,.092f,Material::Cloth,12);
         mesh.Tube(shortEnd,knee,.080f,.070f,Material::Skin,11);
         mesh.Ellipsoid(knee,right,up,forward,.071f,.072f,.068f,Material::Skin,10,6);
-        mesh.Tube(knee,ankle,.067f,.044f,Material::Skin,11);
+        const Vector3 calf=Lerp(knee,ankle,.38f);
+        mesh.Tube(knee,calf,.067f,.077f,Material::Skin,11);
+        mesh.Tube(calf,ankle,.077f,.044f,Material::Skin,11);
         const Vector3 footRight=Point(leg.foot.right),footUp=Point(leg.foot.up),footForward=Point(leg.foot.forward);
         const Vector3 foot=Point(leg.foot.centre)+footUp*.038f+footForward*.025f;
         mesh.Ellipsoid(foot,footRight,footUp,footForward,.068f,.043f,.145f,Material::Skin,12,7);
@@ -299,6 +306,8 @@ ResidentRenderer::ResidentRenderer(GraphicsDevice& device,const CanopyLightField
     effect_->setFogStartProperty(maximumDistance*.65f);effect_->setFogEndProperty(maximumDistance);
     const char* diagnostic="island-simulator: one adult resident uses original articulated human geometry and a 128x128 skin, hair, cloth and plant-fibre material atlas";
     std::cout<<diagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+    const char* silhouette="island-simulator: resident uses a shoulder-sloped sleeveless woven tunic and anatomically tapered calves";
+    std::cout<<silhouette<<'\n';MirrorRuntimeDiagnosticToPlatformLog(silhouette);
 }
 ResidentRenderer::~ResidentRenderer()=default;
 

@@ -270,7 +270,7 @@ namespace island
             const auto direction=target-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
-            std::cout<<"island-simulator: resident QA camera frames one peaceful adult at tour start\n";
+            std::cout<<"island-simulator: resident QA camera frames and follows one peaceful adult\n";
         } else if(viewpoint_==FixedViewpoint::BearDetail) {
             const auto& subject=bear_->State();
             const Vector3 forward(std::sin(subject.heading),0,std::cos(subject.heading));
@@ -1632,10 +1632,14 @@ namespace island
         const auto previousResident=resident_->State();
         const auto& observer=playerMotion_.Position();
         resident_->Update(deltaSeconds,{observer.x,observer.y,observer.z});
-        if(residentCaptureClock) {
+        if(viewpoint_==FixedViewpoint::ResidentDetail) {
             const auto& current=resident_->State();
             cameraPosition_+=Vector3(current.x-previousResident.x,current.y-previousResident.y,
                 current.z-previousResident.z);
+            const Vector3 target(current.x,current.y+1.02f,current.z);
+            const auto direction=target-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         }
         const auto previousBear=bear_->State();
         bear_->Update(deltaSeconds,bearCaptureClock?BearPoint{NAN,NAN,NAN}

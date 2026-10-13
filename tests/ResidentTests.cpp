@@ -41,6 +41,13 @@ void CheckPose(const island::ResidentMotion& actor,const island::WorldCollisionG
         if(leg.stance)Check(smallest<.004f,"planted resident sole floats above the terrain");
         Check(std::abs(Distance(pose.shoulders[side],pose.elbows[side])-.29f)<.00003f
             &&std::abs(Distance(pose.elbows[side],pose.wrists[side])-.26f)<.00003f,"resident arm length changes");
+        const island::ResidentPoint upper{pose.elbows[side].x-pose.shoulders[side].x,
+            pose.elbows[side].y-pose.shoulders[side].y,pose.elbows[side].z-pose.shoulders[side].z};
+        const island::ResidentPoint lower{pose.wrists[side].x-pose.elbows[side].x,
+            pose.wrists[side].y-pose.elbows[side].y,pose.wrists[side].z-pose.elbows[side].z};
+        const float elbowCosine=Dot(upper,lower)/(.29f*.26f);
+        Check(elbowCosine>.85f&&elbowCosine<.97f,
+              "resident arm lost its relaxed bounded elbow bend");
     }
 }
 }

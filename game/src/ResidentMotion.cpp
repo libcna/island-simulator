@@ -80,8 +80,10 @@ bool ResidentMotion::FitPose(float x,float z,float heading,float speed,ResidentP
             *std::min(1.0f,speed/WalkingSpeed);
         const auto upper=Unit(Add(Mul(right,sign*.018f),Add(ResidentPoint{0,-std::cos(swing),0},Mul(forward,std::sin(swing)))));
         pose.elbows[leg]=Add(pose.shoulders[leg],Mul(upper,.29f));
-        pose.wrists[leg]=Add(pose.elbows[leg],Add(ResidentPoint{0,-std::cos(swing+.15f)*.26f,0},
-            Mul(forward,std::sin(swing+.15f)*.26f)));
+        // Keep a relaxed visible elbow bend through idle and walking instead of
+        // aligning the upper and lower arm into one mannequin-straight rod.
+        pose.wrists[leg]=Add(pose.elbows[leg],Add(ResidentPoint{0,-std::cos(swing+.32f)*.26f,0},
+            Mul(forward,std::sin(swing+.32f)*.26f)));
     }
     return true;
 }

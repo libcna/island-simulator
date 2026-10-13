@@ -95,3 +95,25 @@ Final artistic quality and portable runtime acceptance are not claimed.
 The Emscripten Release target also compiles and links the new renderer without native-only
 branches. That is only a portability build result; no browser frame, WebGL lifecycle or motion
 quality claim is based on it.
+
+## Torso, limb and portable close-view pass
+
+A new image-driven pass addresses the most obvious mannequin silhouette without changing the
+safe route, foot planting or cultural presentation. The woven upper garment now uses seven
+body-profile rings and18 facets: a narrower waist expands through the ribcage and chest, slopes
+from the shoulders into a compact collar, and remains genuinely sleeveless. Lower legs split at
+the calf maximum instead of tapering as one straight rod. Forearms retain their exact0.26m length
+but now keep a bounded relaxed elbow bend (cosine.85–.97) throughout idle and walking. The body
+mesh grows only3638→3786 triangles, retains one opaque body draw plus the existing24-triangle
+sole shadows, and uses the same87,380-byte generated atlas.
+
+Two intermediate shoulder experiments were rejected after actual images: separate ellipsoids
+looked like attached balls and an inward-rooted tube produced pointed shoulder wedges. Neither
+remains. Final native llvmpipe evidence `20261013T065442.376759Z-resident` passes the eight ordered
+stages, keeps the actor framed across1.979m body/foot motion and has an empty kernel delta. The
+new focused Web harness initially exposed a fixed-camera error: the actor left the second frame.
+The retained camera now follows and re-aims at the same live resident. Chrome/SwiftShader evidence
+`20261013T065137.967386Z-chrome-resident` passes two distinct inspected images,60 finite intervals,
+GL0, an intact context and an empty kernel delta. This is a bounded silhouette and portability
+improvement, not final human realism; face, cloth drape, hands, sidestepping, continuous gait,
+Android runtime and representative performance remain open.

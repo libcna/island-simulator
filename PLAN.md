@@ -1941,7 +1941,16 @@ Human character backlog requested by the operator:
   body/foot motion is1.979m. The second pass corrected oversized eyes, lumpy side hair and
   bulky sleeves, but face, cloth drape and skin response remain visibly procedural/angular.
   Sidestepping, representative performance and actual Web/Android visual/lifecycle QA remain;
-  see `docs/resident.md`. This is not final visual completion.
+  see `docs/resident.md`. A further close-view pass replaces the nearly rectangular torso with
+  a seven-ring/18-facet waist-ribcage-chest-shoulder-collar profile, keeps the woven garment
+  visibly sleeveless, splits each lower leg around a calf maximum and gives exact-length arms
+  a bounded relaxed elbow bend. Body cost is3786 triangles in the same one draw plus24 shadow
+  triangles. Ball-like and pointed shoulder experiments were inspected and removed. Final native
+  eight-stage `20261013T065442.376759Z-resident` passes with1.979m body/foot motion and kernel[].
+  A new focused Web scope exposed and fixed a non-following camera; actual Chrome/SwiftShader
+  `20261013T065137.967386Z-chrome-resident` passes two distinct inspected images,60 intervals,
+  GL0, intact context and kernel[]. Face/hands/drape, sidestepping, continuous gait, Android and
+  representative performance remain; this is not final visual completion.
 
 Landmark backlog requested by the operator:
 

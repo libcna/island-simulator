@@ -331,6 +331,31 @@ class BrowserSoftwareTests(unittest.TestCase):
             mutate(bad)
             with self.assertRaises(RuntimeError): gate.validate_boar_report(bad)
 
+    def test_resident_scope_requires_current_silhouette_two_frames_and_live_context(self):
+        self.assertIn("resident", gate.SCOPES)
+        source = (ROOT / "tools/run_web_smoke.mjs").read_text()
+        self.assertIn('focusedResidentCheck ? ["resident"]', source)
+        self.assertIn('["resident", ["--viewpoint", "resident", "--debug-overlay"]]',
+                      (ROOT / "tools/web_smoke.html.in").read_text())
+        log = ("resident QA camera frames and follows one peaceful adult\n"
+               "resident uses a shoulder-sloped sleeveless woven tunic and anatomically tapered calves\n"
+               "resident 1/1 visible, 2 draws, 3786 body triangles")
+        report = {"passed":True,"views":[{"mode":"resident","passed":True,"glError":0,
+            "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,
+            "screenshot":"before.png","afterSimulationScreenshot":"after.png",
+            "result":{"output":log,"error":"","exited":False}}]}
+        self.assertEqual(gate.validate_resident_report(report), ("before.png", "after.png"))
+        for mutate in (lambda r:r["views"][0].update({"contextLost":True}),
+                       lambda r:r["views"][0].update({"intervals":[1.0]*59}),
+                       lambda r:r["views"][0]["result"].update({"output":"resident 1/1 visible"}),
+                       lambda r:r["views"][0].update({"afterSimulationScreenshot":"before.png"})):
+            bad = {"passed":True,"views":[{"mode":"resident","passed":True,"glError":0,
+                "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,
+                "screenshot":"before.png","afterSimulationScreenshot":"after.png",
+                "result":{"output":log,"error":"","exited":False}}]}
+            mutate(bad)
+            with self.assertRaises(RuntimeError): gate.validate_resident_report(bad)
+
     def test_goat_scope_requires_coat_population_images_and_live_context(self):
         self.assertIn("goats", gate.SCOPES)
         self.assertEqual(gate.browser_environment("chrome", "goats", Path("/evidence"))
