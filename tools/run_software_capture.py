@@ -822,7 +822,7 @@ def main():
             if args.viewpoint == "shark":
                 if "near shark uses an eight-station body, blunt snout, caudal peduncle and heterocercal tail" not in diagnostics:
                     raise RuntimeError("current close shark form is missing; check for a stale executable")
-                if "near shark uses a rounded eight-station head, ten-facet body, lit shaped fins, five paired gill slits, and faceted eyes" not in diagnostics:
+                if "near shark uses a rounded ten-facet body, closed-volume fins, five paired gill slits, and faceted eyes" not in diagnostics:
                     raise RuntimeError("current close shark anatomy is missing; check for a stale executable")
                 if not re.search(r"shark visible activity \S+, 1 draw", diagnostics):
                     raise RuntimeError("shark capture did not submit the near detailed animal")

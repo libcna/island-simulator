@@ -61,7 +61,7 @@ namespace island
         }};
         constexpr int BodySegments = 10;
         constexpr std::string_view SharkDetailDiagnostic =
-            "island-simulator: near shark uses a rounded eight-station head, ten-facet body, lit shaped fins, five paired gill slits, and faceted eyes";
+            "island-simulator: near shark uses a rounded ten-facet body, closed-volume fins, five paired gill slits, and faceted eyes";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -78,6 +78,32 @@ namespace island
         {
             AddTriangle(vertices, a, b, c,
                         wildlife_render::FacetColor(a, b, c, color, twoSided));
+        }
+
+        void AddLitQuad(std::vector<VertexPositionColor>& vertices,
+                        const Vector3& a, const Vector3& b,
+                        const Vector3& c, const Vector3& d, const Color& color)
+        {
+            AddLitTriangle(vertices, a, b, c, color);
+            AddLitTriangle(vertices, a, c, d, color);
+        }
+
+        void AppendClosedFin(std::vector<VertexPositionColor>& vertices,
+                             const Vector3& a, const Vector3& b,
+                             const Vector3& c, const Vector3& d,
+                             const Vector3& halfThickness,
+                             const Color& face, const Color& edge)
+        {
+            const Vector3 ap = a + halfThickness, bp = b + halfThickness;
+            const Vector3 cp = c + halfThickness, dp = d + halfThickness;
+            const Vector3 am = a - halfThickness, bm = b - halfThickness;
+            const Vector3 cm = c - halfThickness, dm = d - halfThickness;
+            AddLitQuad(vertices, ap, bp, cp, dp, face);
+            AddLitQuad(vertices, am, dm, cm, bm, face);
+            AddLitQuad(vertices, ap, am, bm, bp, edge);
+            AddLitQuad(vertices, bp, bm, cm, cp, edge);
+            AddLitQuad(vertices, cp, cm, dm, dp, edge);
+            AddLitQuad(vertices, dp, dm, am, ap, edge);
         }
 
         [[nodiscard]] Color ActivityColor(const Color& color, const float activity)
@@ -186,10 +212,10 @@ namespace island
                 centre, axes, tailBend, -0.20f, -0.87f, scale);
             const Vector3 lowerTip = LocalPoint(
                 centre, axes, tailBend, -0.34f, -1.04f, scale);
-            AddLitTriangle(vertices, rear, upperKnee, tailNotch, fin, true);
-            AddLitTriangle(vertices, upperKnee, upperTip, tailNotch, fin, true);
-            AddLitTriangle(vertices, rear, tailNotch, lowerKnee, fin, true);
-            AddLitTriangle(vertices, lowerKnee, tailNotch, lowerTip, fin, true);
+            AppendClosedFin(vertices, rear, upperKnee, upperTip, tailNotch,
+                            axes.right * (0.007f * scale), body, fin);
+            AppendClosedFin(vertices, rear, tailNotch, lowerTip, lowerKnee,
+                            axes.right * (0.006f * scale), body, fin);
 
             const Vector3 dorsalFront = LocalPoint(
                 centre, axes, 0.0f, 0.14f, 0.23f, scale);
@@ -199,8 +225,8 @@ namespace island
                 centre, axes, bend * 0.35f, 0.12f, -0.34f, scale);
             const Vector3 dorsalKnee = LocalPoint(
                 centre, axes, bend * 0.17f, 0.38f, -0.18f, scale);
-            AddLitTriangle(vertices, dorsalFront, dorsalTip, dorsalKnee, fin, true);
-            AddLitTriangle(vertices, dorsalFront, dorsalKnee, dorsalBack, fin, true);
+            AppendClosedFin(vertices, dorsalFront, dorsalTip, dorsalKnee, dorsalBack,
+                            axes.right * (0.012f * scale), body, fin);
 
             for (const float side : {-1.0f, 1.0f}) {
                 const Vector3 pectoralFront = LocalPoint(
@@ -211,8 +237,9 @@ namespace island
                     centre, axes, side * 0.55f, -0.16f, -0.19f, scale);
                 const Vector3 pectoralBack = LocalPoint(
                     centre, axes, side * 0.23f, -0.10f, -0.23f, scale);
-                AddLitTriangle(vertices, pectoralFront, pectoralTip, pectoralElbow, fin, true);
-                AddLitTriangle(vertices, pectoralFront, pectoralElbow, pectoralBack, fin, true);
+                AppendClosedFin(vertices, pectoralFront, pectoralTip,
+                                pectoralElbow, pectoralBack,
+                                axes.up * (0.010f * scale), body, fin);
 
                 const Vector3 pelvicFront = LocalPoint(
                     centre, axes, side * 0.17f, -0.08f, -0.32f, scale);
@@ -222,8 +249,9 @@ namespace island
                     centre, axes, side * 0.28f, -0.13f, -0.57f, scale);
                 const Vector3 pelvicBack = LocalPoint(
                     centre, axes, side * 0.12f, -0.09f, -0.56f, scale);
-                AddLitTriangle(vertices, pelvicFront, pelvicTip, pelvicElbow, fin, true);
-                AddLitTriangle(vertices, pelvicFront, pelvicElbow, pelvicBack, fin, true);
+                AppendClosedFin(vertices, pelvicFront, pelvicTip,
+                                pelvicElbow, pelvicBack,
+                                axes.up * (0.007f * scale), body, fin);
             }
             const Vector3 secondaryFront = LocalPoint(
                 centre, axes, 0.0f, 0.13f, -0.31f, scale);
@@ -233,8 +261,9 @@ namespace island
                 centre, axes, bend * 0.60f, 0.18f, -0.52f, scale);
             const Vector3 secondaryBack = LocalPoint(
                 centre, axes, bend * 0.72f, 0.09f, -0.57f, scale);
-            AddLitTriangle(vertices, secondaryFront, secondaryTip, secondaryKnee, fin, true);
-            AddLitTriangle(vertices, secondaryFront, secondaryKnee, secondaryBack, fin, true);
+            AppendClosedFin(vertices, secondaryFront, secondaryTip,
+                            secondaryKnee, secondaryBack,
+                            axes.right * (0.006f * scale), body, fin);
 
             const Color eye = ActivityColor(Color(15, 24, 27, 255), shark.activity);
             const Color eyeShine = ActivityColor(Color(116, 137, 139, 255), shark.activity);

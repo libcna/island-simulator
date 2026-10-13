@@ -1458,7 +1458,7 @@ namespace island
                      "peduncles and progressive rear-body bends\n"
                   << "island-simulator: shark near/far geometry "
                   << SharkRenderer::NearVertexCount << '/' << SharkRenderer::FarVertexCount
-                  << " vertices, single-surface fins and CPU faceted daylight\n"
+                  << " vertices, closed fins and CPU faceted daylight\n"
                   << "island-simulator: near shark uses an eight-station body, blunt snout, "
                      "caudal peduncle and heterocercal tail\n"
                   << "island-simulator: monkeys " << monkeyTroop_.Monkeys().size()

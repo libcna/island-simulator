@@ -465,7 +465,14 @@ docs/stream-course.md and docs/environment-field-design.md.
   15-vertex far LOD, one animal and one draw remain. Current native031641 and focused
   Chrome/SwiftShader031750 pass; Web retains the live patrol in two different-hash frames over
   60positive intervals with GL0/context intact/kernel[]. Its closer QA camera follows subject
-  translation without freezing patrol pose. Current Android remains pending; see
+  translation without freezing patrol pose. A third pass closes the primary/secondary dorsal,
+  paired pectoral/pelvic and both asymmetric caudal-lobe sheets into eight restrained volumes with
+  lit faces and darker perimeter edges. Near/far geometry is834/15vertices (13344bytes for the one
+  shark), with unchanged patrol, far tier and one draw. Inspected native
+  `20261013T113920.218101Z-shark` passes266bins/std31.43/spatial133.04/kernel[]. Focused
+  Chrome/SwiftShader `20261013T114307.083425Z-chrome-shark` passes two inspected different-hash
+  patrol poses,60finite intervals,GL0/context intact/kernel[]. Current Android qualification
+  remains pending; see
   `docs/shark-form.md`. These procedural forms remain visibly faceted; current Android and sustained
   performance review remain open. Turtle review retained the
   existing detailed shell/paddle foundation but enlarged the

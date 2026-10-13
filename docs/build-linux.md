@@ -440,7 +440,7 @@ CPU-faceted daylight path, the seven-station/ten-facet anatomy marker, and the s
 depth/sun-band lighting diagnostic. Its closer camera follows subject translation only, preserving
 live heading, banking and tail movement across slow software frames.
 `IslandGameSharkCapture` writes a close offshore patrol view to
-`build/island-shark-capture.ppm` and requires the exact 594/15-vertex inventory, current
+`build/island-shark-capture.ppm` and requires the exact 834/15-vertex inventory, current
 eight-station/ten-facet anatomy marker and the same water-column lighting diagnostic. Its closer
 camera follows subject translation only, preserving live heading, pitch, bank and tail motion.
 `IslandGameDolphinCapture` writes a close offshore pod view to

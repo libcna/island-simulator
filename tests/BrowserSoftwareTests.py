@@ -217,7 +217,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn("shark", gate.SCOPES)
         self.assertIn('["shark", ["--viewpoint", "shark", "--debug-overlay"]]',
                       (ROOT / "tools/web_smoke.html.in").read_text())
-        marker = "near shark uses a rounded eight-station head, ten-facet body, lit shaped fins, five paired gill slits, and faceted eyes"
+        marker = "near shark uses a rounded ten-facet body, closed-volume fins, five paired gill slits, and faceted eyes"
         def report():
             return {"passed": True, "views": [{"mode": "shark", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",

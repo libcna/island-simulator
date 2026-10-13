@@ -1114,7 +1114,7 @@ the same depth/sun-band profile as the fish. Individual
 frustum/distance rejection, and one portable `BasicEffect` dynamic
 batch. The shared `WildlifeRenderLighting` helper keeps fish and shark facet treatment identical.
 Because culling is disabled for the thin fins, they are emitted once rather than as coincident
-reverse-winding copies; near/far geometry is 594/15 vertices. The batch renders before the ocean.
+closed near-fin volumes; near/far geometry is 834/15 vertices. The batch renders before the ocean.
 A translation-following close-review camera retains live patrol pose across slow audit frames.
 Native OpenGL 3.3 and focused Chrome/SwiftShader WebGL 2 captures match;
 the shark-inclusive arm64 GLES 3 APK builds but awaits stable-device runtime validation.

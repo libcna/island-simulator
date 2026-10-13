@@ -37,3 +37,23 @@ context and an empty kernel delta.
 The model remains deliberately low-poly. Teeth, gums, nostril recesses, curved fin thickness,
 skin texture/scars, current Android execution and integrated performance measurement remain open
 under the broader aquatic visual-polish task.
+
+## Closed-fin pass (2026-10-13)
+
+The current visual audit confirmed that the body and shark-specific cues remained readable, while
+all eight near fin/lobe surfaces were still coincident sheets. The primary and secondary dorsals,
+paired pectorals, paired pelvics and asymmetric upper/lower caudal lobes are now thin closed
+volumes. Each keeps its authored outline, adds separate broad faces plus four darker perimeter
+edges, and uses restrained 6--12 mm local half-thickness. Patrol motion, body wave, habitat,
+activity tint, far silhouette and one-draw batching are unchanged.
+
+The eight replacements add 240 vertices, bringing the exact near budget to 834 vertices / 278
+triangles and 13,344 bytes for the single shark. Inspected llvmpipe evidence
+`build-consumer/software-captures/20261013T113920.218101Z-shark` passes with 266 colour bins, 31.43
+luminance deviation, 133.04 spatial contrast and an empty kernel delta. The side view preserves the
+blunt head, gill row and asymmetric tail while retaining fin edges through the live bank/tail pose.
+Focused Chrome/SwiftShader evidence `20261013T114307.083425Z-chrome-shark` passes; both inspected
+frames retain the close patrol in different body/tail poses and their SHA-256 identities differ.
+All 60 intervals are finite, `glError` is zero, the context remains live and the kernel delta is
+empty. Android execution, continuous interactive observation, curved skin transitions and
+texture/scars remain open.
