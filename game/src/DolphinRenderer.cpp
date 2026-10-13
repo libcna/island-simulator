@@ -34,17 +34,22 @@ struct Axes {
   Vector3 right, up, forward;
 };
 struct Section {
-  float z, rx, ry;
+  float z, rx, ry, centreY;
 };
-constexpr std::array<Section, 8> Body{{{-.72f, .055f, .055f},
-                                       {-.54f, .12f, .11f},
-                                       {-.28f, .21f, .18f},
-                                       {.06f, .27f, .225f},
-                                       {.40f, .245f, .215f},
-                                       {.65f, .225f, .205f},
-                                       {.82f, .17f, .16f},
-                                       {.93f, .09f, .10f}}};
-constexpr int Segments = 10;
+constexpr std::array<Section, 13> Body{{{-.76f, .052f, .052f, 0},
+                                        {-.66f, .078f, .071f, 0},
+                                        {-.54f, .115f, .103f, 0},
+                                        {-.38f, .158f, .138f, 0},
+                                        {-.18f, .203f, .171f, 0},
+                                        {.04f, .240f, .195f, 0},
+                                        {.24f, .245f, .198f, 0},
+                                        {.43f, .235f, .194f, .002f},
+                                        {.59f, .220f, .188f, .006f},
+                                        {.71f, .200f, .178f, .014f},
+                                        {.81f, .172f, .165f, .026f},
+                                        {.89f, .136f, .150f, .040f},
+                                        {.945f, .091f, .116f, .044f}}};
+constexpr int Segments = 16;
 
 void Triangle(std::vector<VertexPositionColor> &out, const Vector3 &a,
               const Vector3 &b, const Vector3 &c, const Color &color,
@@ -78,6 +83,27 @@ void ClosedQuad(std::vector<VertexPositionColor> &out, const Vector3 &a,
   Quad(out, dp, dm, am, ap, edge);
 }
 
+template <std::size_t Count>
+void ClosedPolygon(std::vector<VertexPositionColor> &out,
+                   const std::array<Vector3, Count> &outline,
+                   const Vector3 &halfThickness, const Color &face,
+                   const Color &edge) {
+  static_assert(Count >= 3);
+  std::array<Vector3, Count> positive{}, negative{};
+  for (std::size_t i = 0; i < Count; ++i) {
+    positive[i] = outline[i] + halfThickness;
+    negative[i] = outline[i] - halfThickness;
+  }
+  for (std::size_t i = 1; i + 1 < Count; ++i) {
+    Triangle(out, positive[0], positive[i], positive[i + 1], face);
+    Triangle(out, negative[0], negative[i + 1], negative[i], face);
+  }
+  for (std::size_t i = 0; i < Count; ++i) {
+    const std::size_t next = (i + 1) % Count;
+    Quad(out, positive[i], negative[i], negative[next], positive[next], edge);
+  }
+}
+
 Axes Pose(const DolphinState &dolphin) {
   const Vector3 flat(std::cos(dolphin.headingRadians), 0,
                      std::sin(dolphin.headingRadians));
@@ -99,12 +125,12 @@ Vector3 Point(const Vector3 &centre, const Axes &axes, float x, float y,
 
 std::array<Color, 4> Palette(const DolphinState &dolphin, float time) {
   const std::array<std::array<Color, 4>, 3> colors{
-      {std::array{Color(77, 104, 119, 255), Color(55, 77, 91, 255),
-                  Color(173, 184, 181, 255), Color(20, 28, 33, 255)},
-       std::array{Color(88, 108, 116, 255), Color(60, 79, 88, 255),
-                  Color(181, 187, 177, 255), Color(18, 27, 31, 255)},
-       std::array{Color(67, 94, 111, 255), Color(47, 69, 84, 255),
-                  Color(158, 178, 181, 255), Color(17, 25, 30, 255)}}};
+      {std::array{Color(86, 108, 118, 255), Color(69, 91, 102, 255),
+                  Color(139, 154, 155, 255), Color(20, 28, 33, 255)},
+       std::array{Color(94, 112, 118, 255), Color(75, 94, 102, 255),
+                  Color(146, 157, 151, 255), Color(18, 27, 31, 255)},
+       std::array{Color(77, 101, 115, 255), Color(61, 83, 97, 255),
+                  Color(130, 150, 154, 255), Color(17, 25, 30, 255)}}};
   auto result = colors[dolphin.colorVariant % colors.size()];
   const auto light = AquaticLightAt(dolphin.x, dolphin.y, dolphin.z, time);
   for (auto &color : result)
@@ -127,18 +153,19 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
     for (int segment = 0; segment < Segments; ++segment) {
       const float angle = 2 * std::numbers::pi_v<float> * segment / Segments;
       rings[row][segment] =
-          Point(centre, axes, bend + section.rx * std::cos(angle),
-                section.ry * std::sin(angle), section.z, scale);
+          Point(centre, axes, section.rx * std::cos(angle),
+                section.centreY + section.ry * std::sin(angle) + bend,
+                section.z, scale);
     }
   }
   for (std::size_t row = 0; row + 1 < Body.size(); ++row)
     for (int s = 0; s < Segments; ++s) {
       const int n = (s + 1) % Segments;
       const float angle = 2 * std::numbers::pi_v<float> * (s + .5f) / Segments;
-      const Color color =
-          std::sin(angle) < -.18f
-              ? colors[2]
-              : (std::cos(angle) < -.1f ? colors[1] : colors[0]);
+      const float vertical = std::sin(angle);
+      const Color color = vertical < -.24f
+                              ? colors[2]
+                              : (vertical > .42f ? colors[1] : colors[0]);
       Triangle(out, rings[row][s], rings[row + 1][s], rings[row + 1][n], color);
       Triangle(out, rings[row][s], rings[row + 1][n], rings[row][n], color);
     }
@@ -149,12 +176,12 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
   for (int segment = 0; segment < RostrumSegments; ++segment) {
     const float angle = 2.0f * std::numbers::pi_v<float>
         * static_cast<float>(segment) / static_cast<float>(RostrumSegments);
-    rostrumBase[segment] = Point(centre, axes, .102f * std::cos(angle),
-        -.040f + .066f * std::sin(angle), .90f, scale);
-    rostrumTip[segment] = Point(centre, axes, .052f * std::cos(angle),
-        -.043f + .044f * std::sin(angle), 1.075f, scale);
+    rostrumBase[segment] = Point(centre, axes, .090f * std::cos(angle),
+        -.042f + .055f * std::sin(angle), .905f, scale);
+    rostrumTip[segment] = Point(centre, axes, .045f * std::cos(angle),
+        -.047f + .034f * std::sin(angle), 1.035f, scale);
   }
-  const auto rostrumCap = Point(centre, axes, 0, -.043f, 1.105f, scale);
+  const auto rostrumCap = Point(centre, axes, 0, -.047f, 1.065f, scale);
   for (int segment = 0; segment < RostrumSegments; ++segment) {
     const int next = (segment + 1) % RostrumSegments;
     const float angle = 2.0f * std::numbers::pi_v<float>
@@ -166,29 +193,31 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
   }
   // A thin closed swept-back dorsal retains the falcate profile without vanishing
   // edge-on like the former coincident sheet.
-  const auto dorsalFront = Point(centre, axes, 0, .205f, .18f, scale);
-  const auto dorsalTip = Point(centre, axes, 0, .405f, -.10f, scale);
-  const auto dorsalKnee = Point(centre, axes, 0, .285f, -.22f, scale);
-  const auto dorsalRear = Point(centre, axes, 0, .15f, -.38f, scale);
-  ClosedQuad(out, dorsalFront, dorsalTip, dorsalKnee, dorsalRear,
-             axes.right * (.010f * scale), colors[0], colors[1]);
+  const std::array dorsal{
+      Point(centre, axes, 0, .225f, .13f, scale),
+      Point(centre, axes, 0, .305f, .025f, scale),
+      Point(centre, axes, 0, .355f, -.070f, scale),
+      Point(centre, axes, 0, .272f, -.18f, scale),
+      Point(centre, axes, 0, .183f, -.31f, scale)};
+  ClosedPolygon(out, dorsal, axes.right * (.010f * scale), colors[0], colors[1]);
   for (float side : {-1.0f, 1.0f}) {
-    const auto finFront = Point(centre, axes, side * .18f, -.04f, .35f, scale);
-    const auto finTip = Point(centre, axes, side * .54f, -.14f, .02f, scale);
-    const auto finElbow = Point(centre, axes, side * .38f, -.145f, -.10f, scale);
-    const auto finRear = Point(centre, axes, side * .13f, -.11f, -.22f, scale);
-    ClosedQuad(out, finFront, finTip, finElbow, finRear,
-               axes.up * (.009f * scale), colors[0], colors[1]);
+    const std::array fin{
+        Point(centre, axes, side * .19f, -.055f, .30f, scale),
+        Point(centre, axes, side * .34f, -.105f, .13f, scale),
+        Point(centre, axes, side * .44f, -.13f, .015f, scale),
+        Point(centre, axes, side * .34f, -.14f, -.095f, scale),
+        Point(centre, axes, side * .14f, -.105f, -.18f, scale)};
+    ClosedPolygon(out, fin, axes.up * (.009f * scale), colors[0], colors[1]);
   }
   const float tail = dolphin.tailBeat * .12f;
   for (float side : {-1.0f, 1.0f}) {
-    const auto root = Point(centre, axes, tail, 0, -.68f, scale);
+    const auto root = Point(centre, axes, 0, tail, -.68f, scale);
     const auto leading =
-        Point(centre, axes, tail + side * .30f, .02f, -.80f, scale);
+        Point(centre, axes, side * .30f, tail + .02f, -.80f, scale);
     const auto outer =
-        Point(centre, axes, tail + side * .50f, .018f, -.91f, scale);
+        Point(centre, axes, side * .50f, tail + .018f, -.91f, scale);
     const auto rear =
-        Point(centre, axes, tail + side * .12f, -.012f, -1.05f, scale);
+        Point(centre, axes, side * .12f, tail - .012f, -1.05f, scale);
     ClosedQuad(out, root, leading, outer, rear,
                axes.up * (.007f * scale), colors[0], colors[1]);
   }
@@ -238,14 +267,14 @@ void Far(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
   const auto nose = Point(c, a, 0, 0, .95f, s),
              top = Point(c, a, 0, .21f, .15f, s),
              bottom = Point(c, a, 0, -.18f, .10f, s),
-             rear = Point(c, a, tail, 0, -.70f, s);
+             rear = Point(c, a, 0, tail, -.70f, s);
   Triangle(out, nose, top, rear, colors[0], true);
   Triangle(out, nose, rear, bottom, colors[2], true);
   Triangle(out, top, Point(c, a, 0, .43f, -.08f, s), rear, colors[1], true);
-  Triangle(out, rear, Point(c, a, -.38f, .02f, -.92f, s),
-           Point(c, a, 0, 0, -1.0f, s), colors[1], true);
-  Triangle(out, rear, Point(c, a, 0, 0, -1.0f, s),
-           Point(c, a, .38f, .02f, -.92f, s), colors[1], true);
+  Triangle(out, rear, Point(c, a, -.38f, tail + .02f, -.92f, s),
+           Point(c, a, 0, tail, -1.0f, s), colors[1], true);
+  Triangle(out, rear, Point(c, a, 0, tail, -1.0f, s),
+           Point(c, a, .38f, tail + .02f, -.92f, s), colors[1], true);
   if (out.size() - start != DolphinRenderer::MaximumFarVertexCount)
     throw std::runtime_error("Dolphin far mesh does not match fixed budget");
 }
@@ -277,6 +306,14 @@ DolphinRenderer::DolphinRenderer(GraphicsDevice &device,
       "island-simulator: near dolphins use closed-volume fins and flukes, short beaks, faceted eyes, mouth creases, and a blowhole";
   std::cout << detail << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(detail);
+  const char *silhouette =
+      "island-simulator: near dolphins use a thirteen-station melon-to-peduncle profile, natural countershading, a compact falcate dorsal, and swept pectoral fins";
+  std::cout << silhouette << '\n';
+  MirrorRuntimeDiagnosticToPlatformLog(silhouette);
+  const char *stroke =
+      "island-simulator: dolphin tail stock bends vertically through horizontal fluke strokes";
+  std::cout << stroke << '\n';
+  MirrorRuntimeDiagnosticToPlatformLog(stroke);
 }
 DolphinRenderer::~DolphinRenderer() = default;
 

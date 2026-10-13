@@ -19,12 +19,12 @@ two-facet highlighted eyes, shaped swept pectoral fins, a rear-curved dorsal fin
 horizontal flukes. The dorsal, both pectorals and both flukes are thin closed volumes with separate
 faces and darker perimeter edges rather than coincident zero-thickness sheets. A two-part mouth
 crease and two-facet blowhole retain cetacean head cues. The
-body follows smoothed dive pitch and turn bank, while the tail stock and flukes oscillate laterally. Three
+body follows smoothed dive pitch and turn bank, while the tail stock bends vertically through the
+horizontal flukes' up/down stroke. Three
 restrained grey-blue palettes share the existing CPU depth tint and moving shallow-sun response.
 
-The fixed budgets are 708 vertices for a close animal and 15 vertices for a distant silhouette.
-The five closed fins add 150 near vertices while retaining `CullNone`, the same buffer and the same
-single batch. Four animals still produce at most one draw call. There
+The fixed budgets are 1,476 vertices for a close animal and 15 vertices for a distant silhouette.
+Four animals still produce at most one draw call. There
 is no dolphin texture, separate shadow, collision proxy or audio voice.
 
 ## Verification
@@ -58,10 +58,46 @@ all 60 intervals are finite, `glError` is zero, the context remains live and the
 empty. This qualifies current Web execution; Android, continuous interactive observation and
 hardware performance remain open.
 
+## Smoother cetacean silhouette and countershading — 2026-10-13
+
+A fresh current-binary baseline `20261013T175140.727008Z-dolphins` made the remaining visual
+weaknesses unambiguous: eight ten-sided body rings left a long flat dorsal slab, the melon-to-beak
+transition was abrupt, and oversized triangular pectorals reinforced a fish-like silhouette. The
+close body now uses thirteen longitudinal stations and sixteen radial sides. A modest upward shift
+through the final head stations forms a separate rounded melon above the short closed rostrum,
+while a narrower maximum girth and five additional peduncle/body transitions produce a smoother,
+more slender cetacean profile.
+
+The dorsal and both pectorals are now five-point closed volumes rather than four-point wedges. The
+dorsal is lower and swept, and the pectorals are shorter, narrower and pulled rearward. Dorsal,
+flank and ventral colour selection now follows vertical surface position rather than an asymmetric
+side test; the three palettes use a smaller dark/light contrast and a restrained grey-blue belly.
+Existing pitch, bank, tail-beat timing, depth tint, moving sunlight, 175 m LOD threshold and one
+dynamic draw remain unchanged. The renderer also corrects the old fish-like lateral tail bend:
+both near and far tiers now use a vertical tail-stock bend and up/down horizontal-fluke stroke.
+
+The near budget rises from 708 vertices / 236 triangles to 1,476 / 492. Even the deliberately
+conservative all-four-near allocation is only 5,904 `VertexPositionColor` vertices, or 94,464
+bytes. There is no new texture, shader, draw, simulation step, state, asset or world placement;
+the current world fingerprint remains `301ea795731c0732`.
+
+Final inspected native llvmpipe evidence `20261013T181811.002065Z-dolphins` passes at 1280x720
+with 235 colour bins, 28.33 luminance deviation, 146.81 spatial contrast and an empty kernel
+delta. Compared with the baseline, the live subject has a smoother arched back, a distinct
+forehead above its beak, a narrower trunk, smaller swept pectorals and less banded pigmentation.
+
+Final Chrome/SwiftShader evidence `20261013T182032.131304Z-chrome-dolphins` passes with two
+inspected different-hash swimming poses, 60 finite intervals, `glError=0`, an intact context and
+no new kernel GPU fault. ARM64 debug packaging and lint pass without launching or modifying the
+emulator; Release and Debug 600-second pod regressions pass. Current Android runtime appearance,
+continuous interactive observation, skin microtexture and physical-device performance remain
+open.
+
 ## Known limitations
 
-The close animal remains visibly faceted; its melon, mouth crease, blowhole and fin curvature are
-economical procedural cues rather than sculpted anatomy and can receive further art refinement.
+The close animal remains a deliberately economical procedural model; its mouth crease, blowhole
+and skin surface are geometric/vertex-colour cues rather than a filtered skin material and can
+receive further art refinement.
 There is no breach, leap, wake, exhalation plume, social pod interaction or dolphin sound. Actual
 Android execution, continuous interactive observation, and measured integrated frame cost remain
 open. These limits keep both the explicit aquatic-animal visual-polish item and the dolphin backlog

@@ -312,9 +312,11 @@ depth-integrated colour, and an eight-station/ten-facet near body with rounded b
 peduncle, heterocercal tail, lit shaped paired fins, faceted eyes and five gill slits per side. See
 [the image-driven shark form review](docs/shark-form.md).
 Four peaceful dolphins cruise beyond the western reef in bounded home ranges, alternate cruising,
-surfacing and diving, and use pitch, banking and animated horizontal flukes in one culled batch.
-Their 558-vertex close form adds a short closed beak beneath the melon, shaped lit fins, faceted
-eyes, mouth/blowhole cues and single-surface horizontal flukes. The fixed `--viewpoint dolphins`
+surfacing and diving, and use pitch, banking plus a vertical tail-stock stroke through animated
+horizontal flukes in one culled batch.
+Their 1,476-vertex close form uses a thirteen-station, sixteen-sided slender body, a rounded melon
+above a short closed beak, restrained countershading, shaped closed-volume fins, faceted eyes,
+mouth/blowhole cues and horizontal flukes. The fixed `--viewpoint dolphins`
 camera follows a live subject for review; see
 [the dolphin implementation and validation notes](docs/dolphins.md).
 Seven original procedural monkeys roam the interior using a compact, obstacle-aware state machine,

@@ -458,6 +458,17 @@ docs/stream-course.md and docs/environment-field-design.md.
   Android qualification remain pending. Focused Chrome/SwiftShader
   `20261013T113206.342870Z-chrome-dolphins` passes two inspected different-hash animated poses,
   60finite intervals,GL0/context intact/kernel[]. Current Android qualification remains pending.
+  A fifth image-driven pass replaces the flat eight-ring/ten-side trunk with a slender thirteen-
+  station/sixteen-side melon-to-peduncle profile, raises the forehead above the beak, reduces body
+  girth, and replaces dorsal/pectoral four-point wedges with compact swept five-point closed
+  volumes. Symmetric vertical countershading and lower-contrast grey-blue palettes replace the
+  fish-like asymmetric dark cape. The formerly lateral fish-like tail-stock bend is now vertical,
+  driving the horizontal flukes up/down in both LODs. Near/far geometry is1476/15vertices (maximum all-near94,464
+  bytes), still four agents/one draw/no texture or simulation change. Final inspected native
+  `20261013T181811.002065Z-dolphins` PASS235bins/std28.33/spatial146.81/kernel[]. Final
+  Chrome/SwiftShader `20261013T182032.131304Z-chrome-dolphins` PASS60intervals/two distinct
+  inspected poses/GL0/context intact/kernel[]. ARM64 assemble/lint and Release+Debug pod tests
+  pass; Android runtime, skin microtexture and measured physical performance remain open.
   Fish then received an image-driven close-form pass: the 51-vertex
   diamond body first became
   a 276-vertex six-station/eight-facet loft with rounded head, caudal peduncle, progressive rear-body
@@ -2130,13 +2141,14 @@ progress or require player interaction; dangerous species keep their distance li
 - [ ] Stingrays (shallow sandy water)
 - [~] Dolphins (offshore pod surfacing beyond the reef). Four original procedural agents now use
   bounded authoritative-water homes and cruise/surface/dive cycles with depth pitch, turn bank and
-  animated horizontal flukes. One culled dynamic batch uses 708/15 near/far vertices per visible
-  animal: the close form has a short closed eight-facet beak below the melon, shaped lit pectoral
-  fins, faceted highlighted eyes, mouth/blowhole cues and thin closed-volume dorsal, pectoral and
-  fluke surfaces rather than zero-thickness sheets.
+  a vertical tail-stock stroke through animated horizontal flukes. One culled dynamic batch uses
+  1476/15 near/far vertices per visible
+  animal: the close form has a slender thirteen-station/sixteen-side body, rounded melon above a
+  short closed beak, restrained countershading, compact swept closed-volume fins, faceted
+  highlighted eyes and mouth/blowhole cues.
   Deterministic 600-second CPU coverage, WorldReport integration, inspected native capture and a
-  focused current closed-fin Chrome/SwiftShader two-frame gate pass. Breaching/wakes/social motion, further art
-  polish, current Android execution and integrated performance measurement remain open; see
+  focused current Chrome/SwiftShader two-frame gate pass. Breaching/wakes/social motion, skin
+  material polish, current Android execution and integrated performance measurement remain open; see
   `docs/dolphins.md`.
 - [ ] Octopuses (reef/rock shallows)
 

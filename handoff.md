@@ -1,5 +1,23 @@
 # island-simulator handoff
 
+## Current work — dolphin silhouette and countershading pass inspected
+
+Goal remains active; continue the whole plan. Fresh current baseline
+`20261013T175140.727008Z-dolphins` exposed a flat dorsal slab, bulky trunk, abrupt melon/beak and
+oversized wedge fins. The close dolphin now uses13 longitudinal stations ×16 sides, a raised
+forehead over the short rostrum, narrower girth, compact five-point closed dorsal/pectorals and
+symmetric lower-contrast grey-blue countershading. The old fish-like lateral tail bend is corrected
+to a vertical tail-stock/up-down horizontal-fluke stroke in both LODs. Other motion, LOD,
+population and one draw stay unchanged. Budget rises708→1476 near vertices (492 triangles), at most94,464 bytes for all four;
+far remains15 vertices. No texture/shader/world/simulation change.
+
+Final inspected native `20261013T181811.002065Z-dolphins` PASS235bins/std28.33/
+spatial146.81/kernel[]. Final Chrome/SwiftShader
+`20261013T182032.131304Z-chrome-dolphins` PASS60intervals/two distinct inspected poses/GL0/
+context intact/kernel[]. ARM64 assemble/lint and Release+Debug pod tests pass; no emulator/KVM or
+AMD GPU. Android runtime, skin microtexture and physical cost remain. Max4 build cores. Next
+continue highest-value plan work; do not stop or complete the goal.
+
 ## Current work — monkey trunk and grasping-extremity pass inspected
 
 Goal remains active. Image review of the latest monkey still showed a barrel torso and
