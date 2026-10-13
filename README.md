@@ -47,7 +47,9 @@ logs a diagnostic and retains procedural soil. See [material review](docs/forest
 for provenance, software-only runtime evidence and remaining visual limitations.
 A first-pass20m headland cave now has a real interior, replacement terrain, capsule collision
 and flight roof containment. Its original mipmapped rock material uses mirrored triplanar
-sampling, smooth connected-shell lighting and a stone apron on the replacement terrain.
+sampling, smooth connected-shell lighting and a stone apron on the replacement terrain. Six
+small irregular high-clearance rock pendants break up the otherwise continuous interior arch
+without narrowing the playable corridor.
 Native and Chrome/SwiftShader exterior/interior captures plus a native live keyboard
 entry/flight/exit test pass; natural-shape polish and Android qualification remain;
 see [cave status](docs/cave.md).

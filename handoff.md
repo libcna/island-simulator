@@ -1,5 +1,18 @@
 # island-simulator handoff
 
+## Current work — cave ceiling breakup inspected
+
+Goal remains active; continue the whole plan. Six small ceiling pendants now break the smooth cave
+arch. A first single-ring version passed but was rejected as cone-like; final forms use irregular
+seven-sided roots, narrower rotated middle rings and offset tips. Every tip remains above 2.3m, so
+the existing playable corridor/collision/layout are unchanged. The cave rises 1,384→1,510 rendered
+triangles in the same draw. Strict native `20261013T212901.927564Z-cave` PASS273bins/std48.99/
+spatial226.19 and `20261013T212749.826507Z-cave-inside` PASS65/std24.57/spatial116.01, both
+inspected/kernel[]. Chrome/SwiftShader `20261013T211636.896127Z-chrome-cave` PASS both views/
+60 intervals each/four inspected frames/GL0/contexts intact/kernel[]. Release+Debug cave/asset,
+33 browser-runner tests and ARM64 assemble/lint pass. Free-walk moving review, broader exterior
+geology and Android runtime remain; PLAN stays `[~]`. No emulator/KVM or AMD GPU. Max four cores.
+
 ## Current work — broken stern deckhouse inspected
 
 Goal remains active; continue the whole plan. The shipwreck stern no longer carries one roof slab

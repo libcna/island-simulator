@@ -231,8 +231,10 @@ class BrowserSoftwareTests(unittest.TestCase):
             self.assertIn(f'["{mode}", ["--viewpoint", "{mode}", "--debug-overlay"]]', page)
         markers = (
             "cave rock first visible draw",
+            "cave rock 1510 triangles in one culled draw; 20m walkable interior",
             "cave terrain shoulders use an irregular rock apron around the open corridor",
             "cave connected shell strips share smooth lighting normals while portal breaks stay sharp",
+            "cave adds six high-clearance eroded ceiling pendants in the existing draw",
             "cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling")
         def report():
             return {"passed": True, "views": [{"mode": mode, "passed": True,

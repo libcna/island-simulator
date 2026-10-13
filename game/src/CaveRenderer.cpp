@@ -17,10 +17,12 @@
 #include "Microsoft/Xna/Framework/Graphics/SurfaceFormat.hpp"
 #include "Microsoft/Xna/Framework/Graphics/Texture2D.hpp"
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <map>
+#include <numbers>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -155,6 +157,66 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
                 {local.x,local.y,local.z,material}});
         }
     }
+    // Shallow eroded ceiling pendants break the otherwise continuous tunnel arch.
+    // Their tips remain above 2.3m local height, clear of the walking capsule, so
+    // they need no extra collision proxy and cannot narrow the traversable corridor.
+    struct Pendant {float across,rootHeight,depth,radius,length,tipAcross;};
+    constexpr std::array<Pendant,6> pendants{{
+        {-.95f,2.88f,2.40f,.20f,.46f,.035f},
+        { .65f,3.10f,4.10f,.17f,.42f,-.028f},
+        {-1.25f,2.75f,5.80f,.22f,.38f,.042f},
+        {1.05f,2.90f,7.50f,.18f,.56f,-.030f},
+        {-.45f,3.15f,9.30f,.20f,.49f,.025f},
+        { .70f,3.05f,11.0f,.14f,.35f,-.020f},
+    }};
+    constexpr int pendantSides=7;
+    constexpr float tau=2.0f*std::numbers::pi_v<float>;
+    const auto appendPendantTriangle=[&](CavePoint a,CavePoint b,CavePoint c,
+                                         CavePoint centre) {
+        Vector3 pa(a.x,a.y,a.z),pb(b.x,b.y,b.z),pc(c.x,c.y,c.z);
+        Vector3 normal=Vector3::Cross(pb-pa,pc-pa);
+        const Vector3 radial=(pa+pb)*.5f-Vector3(centre.x,centre.y,centre.z);
+        if(Vector3::Dot(normal,radial)<0) {std::swap(b,c);std::swap(pb,pc);normal*=-1.0f;}
+        normal.Normalize();
+        for(const auto p:{a,b,c}) {
+            const auto local=cave.Local(p);
+            vertices.push_back({{p.x,p.y,p.z},{normal.X,normal.Y,normal.Z},
+                {local.x,local.y,local.z,0.0f}});
+        }
+    };
+    for(std::size_t pendantIndex=0;pendantIndex<pendants.size();++pendantIndex) {
+        const auto& pendant=pendants[pendantIndex];
+        const CavePoint centre=cave.World(pendant.across,pendant.rootHeight,pendant.depth);
+        const CavePoint middleCentre=cave.World(pendant.across+pendant.tipAcross*.55f,
+            pendant.rootHeight-pendant.length*.55f,pendant.depth+.020f);
+        const CavePoint tip=cave.World(pendant.across+pendant.tipAcross,
+            pendant.rootHeight-pendant.length,pendant.depth+.035f);
+        for(int side=0;side<pendantSides;++side) {
+            const float a=tau*static_cast<float>(side)/pendantSides;
+            const float b=tau*static_cast<float>(side+1)/pendantSides;
+            const auto radius=[&](const float angle,const float scale) {
+                return pendant.radius*scale*(1.0f+.16f*std::sin(angle*3.0f
+                    +static_cast<float>(pendantIndex)*1.7f));
+            };
+            const float rootA=radius(a,1.0f),rootB=radius(b,1.0f);
+            const float middleA=radius(a+.12f,.48f),middleB=radius(b+.12f,.48f);
+            const CavePoint first=cave.World(pendant.across+std::cos(a)*rootA,
+                pendant.rootHeight,pendant.depth+std::sin(a)*rootA*.72f);
+            const CavePoint second=cave.World(pendant.across+std::cos(b)*rootB,
+                pendant.rootHeight,pendant.depth+std::sin(b)*rootB*.72f);
+            const CavePoint middleFirst=cave.World(
+                pendant.across+pendant.tipAcross*.55f+std::cos(a+.12f)*middleA,
+                pendant.rootHeight-pendant.length*.55f,
+                pendant.depth+.020f+std::sin(a+.12f)*middleA*.72f);
+            const CavePoint middleSecond=cave.World(
+                pendant.across+pendant.tipAcross*.55f+std::cos(b+.12f)*middleB,
+                pendant.rootHeight-pendant.length*.55f,
+                pendant.depth+.020f+std::sin(b+.12f)*middleB*.72f);
+            appendPendantTriangle(first,middleFirst,middleSecond,centre);
+            appendPendantTriangle(first,middleSecond,second,centre);
+            appendPendantTriangle(middleFirst,tip,middleSecond,middleCentre);
+        }
+    }
     const auto bounds=cave.Bounds();
     bounds_=BoundingBox(Vector3(bounds[0].x,bounds[0].y,bounds[0].z),Vector3(bounds[1].x,bounds[1].y,bounds[1].z));
     count_=static_cast<int>(vertices.size());
@@ -164,6 +226,7 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
     std::cout<<"island-simulator: cave compact asymmetric mouth uses normal-lit fractured stone and restrained moss\n";
     std::cout<<"island-simulator: cave narrow eroded lip grows into an irregular closed rock mantle\n";
     std::cout<<"island-simulator: cave connected shell strips share smooth lighting normals while portal breaks stay sharp\n";
+    std::cout<<"island-simulator: cave adds six high-clearance eroded ceiling pendants in the existing draw\n";
     const char* material="island-simulator: cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling";
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
 }

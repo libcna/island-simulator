@@ -933,7 +933,17 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   `20261013T135551.626255Z-chrome-cave` passes both inspected views with60 finite intervals each,
   GL0, intact contexts and kernel[]. The silhouette is improved but still visibly procedural;
   ARM64 assemble/lint and exact APK asset verification pass without an emulator, but GLES runtime,
-  moving-view polish and further weathering remain open. See `docs/cave.md`.
+  moving-view polish and further weathering remain open. A bounded interior follow-up adds six
+  high-clearance eroded ceiling pendants between2.4m and11m depth. The first regular single-ring
+  attempt210440.655985Z passed but was visually rejected as cone-like; final forms use irregular
+  seven-sided roots, rotated narrower middle rings and offset tips. All tips stay above2.3m, so
+  collision/traversal/layout are unchanged. Render cost rises1384→1510 triangles in the same draw.
+  Strict native212901.927564Z-cave PASS273bins/std48.99/spatial226.19 and
+  212749.826507Z-cave-inside PASS65/std24.57/spatial116.01, both inspected/kernel[]. Focused
+  Chrome/SwiftShader211636.896127Z-chrome-cave PASS both views/60intervals each/four inspected
+  images/GL0/contexts intact/kernel[]. Release+Debug cave/asset,33 browser-runner tests and ARM64
+  assemble/lint pass. Android runtime, free-walk moving review and broader geology remain open.
+  See `docs/cave.md`.
 
 - [~] Add a realistic grounded helicopter near the centre of the island. It cannot
   fly, but the player must be able to enter both the pilot cockpit and rear cabin.

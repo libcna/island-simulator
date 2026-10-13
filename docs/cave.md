@@ -4,6 +4,32 @@ This is a project-owned procedural mesh, without imported assets or licence depe
 The native game now constructs and renders the cave and terrain replacement.
 Do not mark the PLAN entry complete: moving visual polish and Android runtime remain.
 
+## High-clearance eroded ceiling detail — 2026-10-13
+
+The accepted rock material still left the twenty-metre interior as one visually continuous smooth
+arch. Six small project-owned ceiling pendants now break that repetition between 2.4m and 11m
+depth. Each uses a seven-sided irregular root, a narrower rotated middle ring and an offset tip,
+rather than a single regular cone. The lowest tip remains above 2.3m local height, safely above the
+walking capsule, so the change neither narrows the corridor nor invents collision the player can
+reach. It adds 126 triangles to the existing rock buffer/draw: the rendered cave is now 1,510
+triangles, while the unchanged closed 1,424-triangle `CaveLayout` still owns collision and the
+forty coplanar floor triangles remain omitted from the rock renderer.
+
+The first single-ring attempt `20261013T210440.655985Z-cave-inside` passed technically but was
+visually rejected because the pieces read as regular geometric cones. Final strict native
+llvmpipe evidence is `20261013T212901.927564Z-cave` outside (273 colour bins, 48.99 luminance
+deviation, 226.19 spatial contrast) and `20261013T212749.826507Z-cave-inside` inside (65 bins,
+24.57 deviation, 116.01 contrast); both pass the exact 1,510-triangle/detail marker gate with
+empty kernel deltas and were inspected. The exterior portal stays clean, while the interior gains
+small attached overhead silhouettes without blocking its view to the sea.
+
+Focused Chrome/SwiftShader `20261013T211636.896127Z-chrome-cave` passes both views with 60 finite
+intervals each, `glError=0`, intact contexts and an empty final kernel delta. All four images were
+inspected. Release and Debug cave-layout/asset tests, 33 browser-runner tests and Android ARM64
+assemble/lint pass without an emulator or KVM. This is a bounded interior-detail improvement, not
+final geological realism; free-walk moving review, broader exterior integration and Android-device
+rendering remain open.
+
 ## Mirrored triplanar rock material and current WebGL views — 2026-10-13
 
 The shell now uses an original ImageGen volcanic-rock albedo study preserved with its
@@ -66,7 +92,8 @@ planar cave floor. Queries barycentrically sample the actual replacement triangl
 Flight tracing includes the rounded patch grid edges and triangle diagonals, not just
 endpoint heights. TerrainRenderer removes the covered coarse quads, adds the replacement
 in one separately culled draw, and shades the floor with depth-dependent subdued stone.
-CaveRenderer skips the40 coplanar floor triangles:1384 rock triangles in one culled draw.
+CaveRenderer skips the40 coplanar floor triangles and adds126 high-clearance decorative ceiling
+triangles:1510 rock triangles in one culled draw.
 Both use portable desktopGL/GLES shaders; the shell now samples the prepared rock image
 described above while the replacement floor and apron stay procedural.
 
