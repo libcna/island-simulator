@@ -606,6 +606,7 @@ def main():
                     raise RuntimeError("current stream flow material is missing")
             if args.viewpoint in ("hut", "hut-material"):
                 for marker in ("hut raised veranda uses full-height outer posts, split rails, fascia, and three steps",
+                               "hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports",
                                "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"hut integration diagnostic missing: {marker}")

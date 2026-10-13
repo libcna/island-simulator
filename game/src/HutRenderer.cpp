@@ -147,11 +147,38 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
     beam({-.76f,-.16f,2.28f},{.76f,-.16f,2.28f},.34f,.14f,timber);
     beam({-.76f,-.31f,2.56f},{.76f,-.31f,2.56f},.34f,.14f,timber);
     beam({-.76f,-.46f,2.84f},{.76f,-.46f,2.84f},.34f,.14f,timber);
+    // Close the front gable with individually varied vertical boards. The structural
+    // frame remains slightly forward, so this reads as a timber house rather than an
+    // unfinished open shelter while preserving the broad reference-house gable.
+    for(int i=0;i<16;++i) {
+        const float x=-1.76f+static_cast<float>(i)*3.52f/15;
+        const float top=3.45f-.60f*std::abs(x);
+        beam({x,2.23f,1.70f},{x,top,1.70f},.19f,.055f,
+             timber+Vector3(static_cast<float>(i%4)*4));
+    }
     // The front gable exposes the load-bearing frame seen in the reference house.
-    beam({-2.08f,2.20f,1.74f},{0,3.52f,1.74f},.10f,.10f,dark);
-    beam({ 2.08f,2.20f,1.74f},{0,3.52f,1.74f},.10f,.10f,dark);
+    beam({-2.08f,2.20f,1.74f},{0,3.52f,1.74f},.10f,.10f,timber);
+    beam({ 2.08f,2.20f,1.74f},{0,3.52f,1.74f},.10f,.10f,timber);
     beam({-2.06f,2.20f,1.74f},{2.06f,2.20f,1.74f},.10f,.10f,dark);
     beam({0,2.20f,1.74f},{0,3.48f,1.74f},.09f,.09f,timber);
+    // A small recessed attic light is present in the supplied reference. Muted glass
+    // and a projecting timber frame break the broad gable without implying an interior.
+    grainOrigin={-.28f,2.68f,1.79f}; grainAcross={1,0,0}; grainAlong={0,1,0}; materialTag=176;
+    quad({-.28f,2.68f,1.79f},{.28f,2.68f,1.79f},{.28f,3.08f,1.79f},{-.28f,3.08f,1.79f},
+         {48,67,67});
+    const Vector3 paleTimber(176,139,91);
+    beam({-.33f,2.63f,1.82f},{-.33f,3.13f,1.82f},.075f,.075f,paleTimber);
+    beam({ .33f,2.63f,1.82f},{ .33f,3.13f,1.82f},.075f,.075f,paleTimber);
+    beam({-.36f,2.63f,1.82f},{ .36f,2.63f,1.82f},.075f,.075f,paleTimber);
+    beam({-.36f,3.13f,1.82f},{ .36f,3.13f,1.82f},.075f,.075f,paleTimber);
+    beam({0,2.68f,1.825f},{0,3.08f,1.825f},.045f,.045f,paleTimber);
+    beam({-.28f,2.88f,1.825f},{.28f,2.88f,1.825f},.045f,.045f,paleTimber);
+    // Four short knee braces tie the veranda posts into the front header instead of
+    // leaving two visually unsupported vertical poles below the roof.
+    beam({-2.04f,1.72f,2.24f},{-1.48f,2.18f,1.78f},.075f,.075f,timber);
+    beam({ 2.04f,1.72f,2.24f},{ 1.48f,2.18f,1.78f},.075f,.075f,timber);
+    beam({-2.04f,1.72f,2.24f},{-2.04f,2.18f,1.78f},.075f,.075f,dark);
+    beam({ 2.04f,1.72f,2.24f},{ 2.04f,2.18f,1.78f},.075f,.075f,dark);
     // Exposed rafters and overlapping narrow thatch bundles, not a single roof pyramid.
     beam({0,3.55f,-2.3f},{0,3.55f,2.3f},0.16f,0.16f,dark);
     for(float side:{-1.0f,1.0f}) {
@@ -178,7 +205,7 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
             }
         }
     }
-    if(mesh.empty()||mesh.size()>30500) throw std::runtime_error("Hut mesh exceeds budget");
+    if(mesh.empty()||mesh.size()>31800) throw std::runtime_error("Hut mesh exceeds budget");
     Vector3 low(std::numeric_limits<float>::max()),high(std::numeric_limits<float>::lowest());
     for(const auto& vertex:mesh) {
         if(!std::isfinite(vertex.TextureCoordinate.X)||!std::isfinite(vertex.TextureCoordinate.Y))
@@ -229,6 +256,8 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
         std::cout<<facadeMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(facadeMessage);
         const char* verandaMessage="island-simulator: hut raised veranda uses full-height outer posts, split rails, fascia, and three steps";
         std::cout<<verandaMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(verandaMessage);
+        const char* structureMessage="island-simulator: hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports";
+        std::cout<<structureMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(structureMessage);
     } catch(const std::exception& error) {
         material_.reset();
         const std::string message=std::string("island-simulator: hut material fallback: ")+error.what();

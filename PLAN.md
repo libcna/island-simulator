@@ -797,6 +797,16 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   Chrome/SwiftShader043834.330912Z-chrome-hut PASS both views/60intervals/GL0/context
   intact/kernel[], all final images inspected. Native/Web/Android gates now require the
   veranda contract; current-source Android imagery remains open.
+  A third facade pass closes the previously transparent triangular front gable with16
+  individually shaded timber boards, adds a recessed four-pane framed attic light seen
+  in the supplied reference, and ties both outer veranda posts to the facade header with
+  four knee braces. The existing ridge/rafter/tie frame stays visible in front. Geometry
+  is31374vertices/10458triangles in the same one draw; placement,3.25m collision, six
+  primary footings, contact patches, texture and route are unchanged. Final native
+  144416.299388Z-hut and144448.506243Z-hut-material PASS/inspected/kernel has no GPU
+  fault. Chrome/SwiftShader144700.369686Z-chrome-hut PASS both views/60intervals each/
+  GL0/contexts intact/no new GPU kernel fault; all4 images inspected. Android ARM64
+  assemble/lint PASS without emulator. Android runtime and full-route visual review remain.
   Android current-source visuals, route walk and further realism remain,
   so this stays in progress. Details `docs/island-hut.md`.
 - [~] Add a river or stream. Initial implementation choice: a small inland-to-coast

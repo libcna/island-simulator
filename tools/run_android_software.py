@@ -254,6 +254,8 @@ def validate_game_logs(directory, lifecycle, viewpoint=None):
             raise RuntimeError("application did not confirm the hut facade details")
         if viewpoint in ("hut", "hut-material") and "hut raised veranda uses full-height outer posts, split rails, fascia, and three steps" not in log:
             raise RuntimeError("application did not confirm the raised hut veranda")
+        if viewpoint in ("hut", "hut-material") and "hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports" not in log:
+            raise RuntimeError("application did not confirm the enclosed hut gable")
         if viewpoint in ("hut", "hut-material") and "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in log:
             raise RuntimeError("application did not confirm the hut material texture")
         if viewpoint == "shipwreck" and "shipwreck wood loaded Content/structures/shipwreck-weathered-wood.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored interior atlas" not in log:

@@ -364,6 +364,37 @@ visible contact patches and an empty final kernel delta. Both final images were 
 and agree with native. Current-source Android visual qualification remains open; the
 emulator/KVM configuration was not changed.
 
+## Enclosed reference-like front gable — 2026-10-13
+
+A new current-binary review of `20261013T143436.114723Z-hut` and
+`20261013T143501.297665Z-hut-material` confirmed that the relocated hut was grounded and
+the veranda readable, but its completely open triangular front gable still made the
+building look like an unfinished shelter. The retained user reference instead shows an
+enclosed timber gable with a small central attic light and visible structural framing.
+
+Sixteen individually shaded vertical boards now close the gable behind the existing
+ridge, rafters, tie beam and centre post. A recessed muted-glass attic light has a pale
+projecting four-pane timber frame, and four short knee braces connect the outside veranda
+posts to the facade header. These are real volumetric beam/glass surfaces in the existing
+one-draw opaque hut mesh, not a painted facade. Geometry rises from 30,432 vertices /
+10,144 triangles to 31,374 vertices / 10,458 triangles. Placement, the 3.25 m collision
+proxy, six terrain-fitted primary footings, seven contact patches, material texture and
+walking route are unchanged.
+
+Final contained llvmpipe evidence `20261013T144416.299388Z-hut` and
+`20261013T144448.506243Z-hut-material` passes at 1280x720 with 247/240 colour bins,
+41.89/44.67 luminance deviation and 216.11/238.22 spatial contrast. Both images were
+inspected: the front is closed, the small window remains clearly framed at overview and
+detail distances, roof framing stays in front of the boards, and neither lower window nor
+the central door is obstructed. Kernel deltas contain no GPU fault.
+
+Current Chrome/SwiftShader `20261013T144700.369686Z-chrome-hut` passes both views with
+60 finite intervals each, `glError=0`, intact contexts, exact seven/six visible contact
+patches and no new GPU kernel fault. All four initial/final PNGs were inspected and agree
+with native. Android ARM64 assemble/lint passes without launching or changing the
+emulator. Android runtime imagery, a visual audit of the full spawn route and the
+remaining procedural roof/self-shadow limitations stay open.
+
 ## Remaining acceptance work
 
 1. Finish weathered wood and natural irregular thatch materials/geometry; the existing

@@ -300,6 +300,9 @@ LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
                 with self.assertRaisesRegex(RuntimeError, "raised hut veranda"):
                     gate.validate_game_logs(directory, False, view)
                 log.write_text(log.read_text()+"hut raised veranda uses full-height outer posts, split rails, fascia, and three steps\n")
+                with self.assertRaisesRegex(RuntimeError, "enclosed hut gable"):
+                    gate.validate_game_logs(directory, False, view)
+                log.write_text(log.read_text()+"hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports\n")
                 with self.assertRaisesRegex(RuntimeError, "hut material texture"):
                     gate.validate_game_logs(directory, False, view)
                 log.write_text(log.read_text()+"hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes\n")

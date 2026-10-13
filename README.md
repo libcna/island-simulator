@@ -51,6 +51,11 @@ sampling, smooth connected-shell lighting and a stone apron on the replacement t
 Native and Chrome/SwiftShader exterior/interior captures plus a native live keyboard
 entry/flight/exit test pass; natural-shape polish and Android qualification remain;
 see [cave status](docs/cave.md).
+A raised timber hut stands in a reserved western-interior jungle clearing, safely inland
+and about57m from the stream. It has a layered palm-fibre roof, plank walls, framed windows
+and door, a railed three-step veranda, an enclosed slatted gable with a four-pane attic light,
+visible rafters and knee-braced posts. Its supports and contact patches follow rendered terrain;
+see [hut evidence](docs/island-hut.md) for exact placement and remaining route/Android review.
 A stone-ringed campfire burns in the eastern clearing, with animated flames, embers,
 subtle smoke/sparks, nearby flickering light and positional wood crackling. A separate
 stack of gathered firewood sits about6m away. See [campfire evidence](docs/campfire.md)
