@@ -43,6 +43,8 @@ namespace island
             "island-simulator: beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch";
         constexpr std::string_view CrabDetailDiagnostic =
             "island-simulator: near crabs use tapered toes, socketed eyes, and solid pincer fingers";
+        constexpr std::string_view CrabSilhouetteDiagnostic =
+            "island-simulator: near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms";
 
         struct CrabPalette
         {
@@ -168,7 +170,7 @@ namespace island
             const Vector3 up = Vector3::Up;
             const float scale = crab.scale;
             const Vector3 top = LocalPoint(
-                centre, right, up, forward, 0.0f, 0.245f, -0.01f, scale);
+                centre, right, up, forward, 0.0f, 0.210f, -0.01f, scale);
             std::array<Vector3, 10> crown{};
             std::array<Vector3, 10> shoulder{};
             std::array<Vector3, 10> rim{};
@@ -180,15 +182,15 @@ namespace island
                 const float sine = std::sin(angle);
                 const float frontTaper = sine > 0.0f ? 0.94f : 1.0f;
                 crown[index] = LocalPoint(centre, right, up, forward,
-                    cosine * 0.105f, 0.232f, sine * 0.071f - 0.01f, scale);
+                    cosine * 0.120f, 0.202f, sine * 0.065f - 0.01f, scale);
                 shoulder[index] = LocalPoint(centre, right, up, forward,
-                    cosine * 0.255f, 0.192f,
-                    sine * 0.168f * frontTaper - 0.005f, scale);
+                    cosine * 0.285f, 0.160f,
+                    sine * 0.150f * frontTaper - 0.005f, scale);
                 rim[index] = LocalPoint(centre, right, up, forward,
-                    cosine * 0.36f, 0.105f, sine * 0.245f * frontTaper, scale);
+                    cosine * 0.39f, 0.090f, sine * 0.215f * frontTaper, scale);
                 lower[index] = LocalPoint(
-                    centre, right, up, forward, cosine * 0.33f, 0.035f,
-                    sine * 0.22f * frontTaper, scale);
+                    centre, right, up, forward, cosine * 0.36f, 0.030f,
+                    sine * 0.19f * frontTaper, scale);
             }
             for (std::size_t index = 0; index < crown.size(); ++index) {
                 const std::size_t next = (index + 1U) % crown.size();
@@ -211,22 +213,22 @@ namespace island
                     const float bend = (leg < 2 ? -0.045f : 0.045f)
                         + (leg % 2 == 0 ? 0.018f : -0.018f);
                     const Vector3 root = LocalPoint(
-                        centre, right, up, forward, side * 0.25f, 0.08f, z, scale);
+                        centre, right, up, forward, side * 0.28f, 0.075f, z, scale);
                     const Vector3 knee = LocalPoint(
                         centre, right, up, forward, side * 0.43f, 0.035f,
                         z + bend + stride, scale);
                     const Vector3 foot = LocalPoint(
-                        centre, right, up, forward, side * 0.58f, -0.015f,
+                        centre, right, up, forward, side * 0.56f, -0.015f,
                         z + bend * 1.35f + stride * 1.55f, scale);
                     const Vector3 toe = LocalPoint(
-                        centre, right, up, forward, side * 0.68f, -0.020f,
+                        centre, right, up, forward, side * 0.63f, -0.020f,
                         z + bend * 1.55f + stride * 1.72f
                             + (leg % 2 == 0 ? -0.018f : 0.018f), scale);
-                    AppendCrossedSegment(vertices, root, knee, 0.018f * scale,
+                    AppendCrossedSegment(vertices, root, knee, 0.024f * scale,
                                          palette.limb);
-                    AppendCrossedSegment(vertices, knee, foot, 0.012f * scale,
+                    AppendCrossedSegment(vertices, knee, foot, 0.016f * scale,
                                          palette.joint);
-                    AppendCrossedSegment(vertices, foot, toe, 0.007f * scale,
+                    AppendCrossedSegment(vertices, foot, toe, 0.009f * scale,
                                          palette.limb);
                 }
 
@@ -238,9 +240,9 @@ namespace island
                 AppendCrossedSegment(vertices, clawRoot, clawJoint, 0.027f * scale,
                                      palette.limb);
                 const Vector3 palm = LocalPoint(
-                    centre, right, up, forward, side * 0.47f, 0.15f, 0.345f, scale);
+                    centre, right, up, forward, side * 0.49f, 0.15f, 0.350f, scale);
                 AppendOctahedron(vertices, palm, right, up, forward,
-                                 0.075f * scale, 0.052f * scale, 0.082f * scale,
+                                 0.090f * scale, 0.060f * scale, 0.095f * scale,
                                  palette.claw, palette.shellSide);
                 const Vector3 outerTip = LocalPoint(
                     centre, right, up, forward, side * (0.46f + clawSpread),
@@ -349,6 +351,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(CrabDiagnostic);
         std::cout << CrabDetailDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CrabDetailDiagnostic);
+        std::cout << CrabSilhouetteDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(CrabSilhouetteDiagnostic);
     }
 
     CrabRenderer::~CrabRenderer() = default;

@@ -104,3 +104,30 @@ inspected frames retain separated solid claws on the moving colony and have diff
 identities; all 60 finite intervals complete with `glError=0`, a live context and an empty kernel
 delta. Current Web execution is therefore qualified; Android, continuous gait, smoother curvature,
 shell microtexture and physical-device cost remain open.
+
+## Lower lateral silhouette and stronger limbs (2026-10-13)
+
+The retained close view still made the animals resemble round-bodied spiders: the shell rose too
+high above narrow legs and the claw palms were too small to dominate the front silhouette. A
+fourth, no-cost proportion pass lowers every carapace ring, widens the lateral shell extent and
+slightly reduces its front-to-back depth. All eight walking legs now start farther out, end closer
+to the body and use thicker crossed sections. Both octahedral claw palms are larger while the
+existing separated solid fingers remain unchanged.
+
+This is a coordinate-only change. Exact near geometry remains 810 vertices / 270 triangles, the
+far tier remains 12 / 4, and the conservative all-near capacity remains 24,300 vertices / 388,800
+bytes. The thirty-agent population, habitat, behaviour, culling, 38 m LOD threshold and one
+dynamic draw are unchanged. Native and browser capture gates now require a dedicated silhouette
+diagnostic in addition to the prior anatomy marker, preventing a stale executable from qualifying.
+
+Inspected llvmpipe evidence
+`build-consumer/software-captures/20261013T170649.755712Z-crabs` passes with 192 colour bins,
+30.24 luminance deviation, 184.04 spatial contrast and an empty kernel delta. Compared with
+`20261013T111127.629747Z-crabs`, the colony has visibly lower, wider shells, sturdier shorter legs
+and more readable claw palms.
+
+Focused Chrome/SwiftShader evidence `20261013T170831.603758Z-chrome-crabs` passes with two
+inspected different-hash moving poses, 60 finite intervals, `glError=0`, a live context and an
+empty kernel delta. ARM64 debug packaging and lint also pass without starting or changing the
+Android emulator. Current Android runtime rendering, continuous gait review, smoother shell
+curvature, filtered shell microtexture and physical-device performance remain open.

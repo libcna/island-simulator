@@ -265,6 +265,7 @@ def validate_crab_report(report):
         or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
         or len(set(frames)) != 2
         or "near crabs use tapered toes, socketed eyes, and solid pincer fingers" not in log
+        or "near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms" not in log
         or not re.search(r"crabs [1-9][0-9]*/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("crab view lacks current anatomy, frames or clean graphics state")

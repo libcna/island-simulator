@@ -770,6 +770,7 @@ try {
               && log.includes("near turtles use compact integrated heads, narrower hydrodynamic paddles, and restrained shell seams")
               && /turtles [1-5]\/5 visible \(near [1-5], far [0-5]\), 1 draw/.test(log)))
             && (!focusedCrabCheck || (log.includes("near crabs use tapered toes, socketed eyes, and solid pincer fingers")
+              && log.includes("near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms")
               && /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedFishCheck || (log.includes("near fish use rounded ten-facet bodies, closed-volume fins, and two-facet eyes")
               && /fish [1-9][0-9]*\/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))

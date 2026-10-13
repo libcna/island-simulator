@@ -279,8 +279,9 @@ Near rosette litter also follows slopes through the shared terrain height map;
 Thirty small beach crabs occupy six dry/wet-sand colonies and
 alternate asynchronous
 pause, forage, and lateral scuttle states. They stay inside terrain-validated home ranges, retreat
-briefly from a nearby player, and use rounded panelled carapaces, volumetric two-segment legs,
-short eye stalks and palm-backed split claws in one culled near/far batch. See the
+briefly from a nearby player, and use low, laterally broad panelled carapaces, sturdy volumetric
+three-segment legs, short eye stalks and enlarged palm-backed solid split claws in one culled
+near/far batch. See the
 [close-form audit](docs/crab-form.md).
 Eighteen butterflies occupy three sunny clearing-edge habitats, alternate rest, flutter, and
 nectar-hover behaviour, and stay inside low terrain-relative altitude and home-range bounds. Five

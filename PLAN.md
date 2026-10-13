@@ -520,7 +520,14 @@ docs/stream-course.md and docs/environment-field-design.md.
   legs and replaces each black diamond eye with a coloured socket plus smaller dark globe. Near
   geometry is738vertices/246triangles, at most354240bytes for all30, still one draw. Actual native
   025356 and Chrome/SwiftShader025538 pass; Web retains the moving colony in two different-hash
-  frames over60intervals with GL0/context intact/kernel[]. Android current model remains pending.
+  frames over60intervals with GL0/context intact/kernel[]. A third pass closes the four pincer
+  fingers; a fourth no-cost silhouette pass lowers and laterally broadens all four carapace rings,
+  shortens/thickens the eight legs and enlarges both claw palms. Geometry remains810vertices/
+  270triangles per near crab, with the same30 agents and one draw. Inspected native
+  `20261013T170649.755712Z-crabs` passes192bins/std30.24/spatial184.04/kernel[]; focused
+  Chrome/SwiftShader `20261013T170831.603758Z-chrome-crabs` passes two inspected different-hash
+  animated frames,60finite intervals/GL0/context intact/kernel[]. ARM64 assemble/lint passes
+  without starting the emulator. Android runtime remains pending.
   See `docs/crab-form.md`. All five requested species now have a first native visual pass, but
   the umbrella item is intentionally not complete because they remain visibly procedural and
   Web/Android/performance review is open. See `docs/dolphins.md`.
@@ -1480,7 +1487,13 @@ Standing visual-quality rules (apply to every task from now on):
   retains separated claws with visibly solid edges. Focused Chrome/SwiftShader
   `20261013T111847.667938Z-chrome-crabs` passes two inspected different-hash colony frames,60finite
   intervals,GL0/context intact/kernel[]. Current Android qualification and shell microtexture
-  remain open.
+  remain open. A fourth silhouette pass changes no vertex count or draw: the shell is lower and
+  laterally broader, eight walking legs are shorter/thicker and both claw palms are larger. The
+  inspected native `20261013T170649.755712Z-crabs` frame passes192bins/std30.24/spatial184.04/
+  kernel[] and reads less like a spider; focused Chrome/SwiftShader
+  `20261013T170831.603758Z-chrome-crabs` passes two distinct inspected poses,60finite intervals,
+  GL0/context intact/kernel[]. ARM64 assemble/lint passes without emulator; current Android
+  runtime and shell microtexture remain open.
 - [ ] A new species or object is not done when it merely exists and animates. It needs believable
   silhouette, proportions, material/colour, motion and ground/water contact in close first-person
   views, and must not ship at the current turtle's quality level.
