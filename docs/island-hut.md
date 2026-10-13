@@ -337,6 +337,33 @@ inspected; glazing, mullions and door brace agree with native. This CPU SwiftSha
 is functional portability evidence, not a hardware frame-rate claim. Current Android
 runtime imagery remains pending and the emulator/KVM configuration was not touched.
 
+## Raised veranda silhouette follow-up — 2026-10-13
+
+The existing 0.60 m deck was physically present but read as a set of detached dark
+steps in the near and wide cameras. The facade now has two full-height outer veranda
+posts under the roof, a dark structural fascia along the deck edge, higher split
+handrails, lower horizontal rails and one additional side baluster per end. The central
+1.44 m stair opening stays unobstructed, and the geometry remains inside the existing
+3.25 m collision proxy and contact-shadow footprint.
+
+Seven additional beams add 252 vertices / 84 triangles. The hut is now 30,432 vertices /
+10,144 triangles and remains one static draw with the same generated fibre texture and
+shader. The native, Web and Android audit validators require the new veranda diagnostic,
+so a future model that silently loses these pieces is rejected.
+
+Release and Debug builds and `IslandHutLayoutTests` pass. Actual contained llvmpipe
+captures `20261013T043517.152488Z-hut` and
+`20261013T043528.570660Z-hut-material` pass with 246/241 colour bins, 41.97/44.85
+luminance deviation, 216.10/238.21 spatial contrast and empty kernel deltas. Both images
+were inspected: the outside posts sit clear of both windows, the front stair stays open,
+and the wide view retains a grounded inland silhouette.
+
+Actual Chrome/SwiftShader evidence `20261013T043834.330912Z-chrome-hut` passes both
+views for 60 intervals each with `glError=0`, `contextLost=false`, exact seven/six
+visible contact patches and an empty final kernel delta. Both final images were inspected
+and agree with native. Current-source Android visual qualification remains open; the
+emulator/KVM configuration was not changed.
+
 ## Remaining acceptance work
 
 1. Finish weathered wood and natural irregular thatch materials/geometry; the existing

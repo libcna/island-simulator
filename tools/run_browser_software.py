@@ -266,6 +266,7 @@ def validate_hut_report(report):
         if (not view.get("passed") or view.get("glError") != 0 or view.get("contextLost") is not False
             or "hut beam-aligned weathered grain and filtered thatch fibres" not in log
             or "hut four-pane muted glazing and braced plank door" not in log
+            or "hut raised veranda uses full-height outer posts, split rails, fascia, and three steps" not in log
             or "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in log
             or f"hut 1 draw, {7 if view['mode'] == 'hut' else 6} contact patches" not in log
             or "material fallback:" in log):

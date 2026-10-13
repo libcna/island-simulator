@@ -128,13 +128,22 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
     beam({-.59f,1.78f,1.76f},{.59f,1.78f,1.76f},.11f,.11f,dark);
     beam({-.39f,.30f,1.80f},{.39f,1.48f,1.80f},.065f,.055f,timber);
     beam({.31f,.82f,1.81f},{.31f,.82f,1.94f},.045f,.045f,Vector3(65,52,38));
-    // Covered front veranda, split railing and three broad steps.
-    for(const auto& span:{std::pair{-2.04f,-.72f},std::pair{.72f,2.04f}})
-        beam({span.first,.72f,2.24f},{span.second,.72f,2.24f},.08f,.08f,dark);
-    for(float x:{-1.86f,-1.46f,-1.06f,1.06f,1.46f,1.86f})
-        beam({x,.02f,2.24f},{x,.76f,2.24f},.07f,.07f,timber);
+    // Covered front veranda.  Tall outer posts and a shadowed fascia make the
+    // platform read as part of the raised structure rather than three isolated
+    // steps stuck onto the facade.
+    beam({-2.10f,-.14f,2.25f},{2.10f,-.14f,2.25f},.12f,.16f,dark);
     for(float x:{-2.04f,2.04f})
-        beam({x,.72f,1.76f},{x,.72f,2.24f},.08f,.08f,dark);
+        beam({x,-.10f,2.24f},{x,2.16f,2.24f},.14f,.14f,dark);
+    for(const auto& span:{std::pair{-2.04f,-.72f},std::pair{.72f,2.04f}})
+        beam({span.first,.86f,2.24f},{span.second,.86f,2.24f},.09f,.09f,dark);
+    for(const auto& span:{std::pair{-2.00f,-.76f},std::pair{.76f,2.00f}})
+        beam({span.first,.31f,2.24f},{span.second,.31f,2.24f},.065f,.065f,timber);
+    for(float x:{-1.86f,-1.46f,-1.06f,1.06f,1.46f,1.86f})
+        beam({x,.02f,2.24f},{x,.90f,2.24f},.07f,.07f,timber);
+    for(float x:{-2.04f,2.04f}) {
+        beam({x,.86f,1.76f},{x,.86f,2.24f},.09f,.09f,dark);
+        beam({x,.02f,2.00f},{x,.90f,2.00f},.07f,.07f,timber);
+    }
     beam({-.76f,-.16f,2.28f},{.76f,-.16f,2.28f},.34f,.14f,timber);
     beam({-.76f,-.31f,2.56f},{.76f,-.31f,2.56f},.34f,.14f,timber);
     beam({-.76f,-.46f,2.84f},{.76f,-.46f,2.84f},.34f,.14f,timber);
@@ -218,6 +227,8 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
         std::cout<<message<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(message);
         const char* facadeMessage="island-simulator: hut four-pane muted glazing and braced plank door";
         std::cout<<facadeMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(facadeMessage);
+        const char* verandaMessage="island-simulator: hut raised veranda uses full-height outer posts, split rails, fascia, and three steps";
+        std::cout<<verandaMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(verandaMessage);
     } catch(const std::exception& error) {
         material_.reset();
         const std::string message=std::string("island-simulator: hut material fallback: ")+error.what();

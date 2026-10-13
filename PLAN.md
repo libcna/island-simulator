@@ -669,6 +669,15 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   020930/021005 captures PASS/inspected/kernel[]; focused hut placement PASS and WorldReport valid
   fingerprint e744bc4e0f3093f6. Current Chrome/SwiftShader 021704 hut audit passes both
   views (60 intervals each, GLerror0/context intact/kernel[]); all four images inspected.
+  A second facade pass makes the shallow deck legible as a structurally raised veranda:
+  two full-height outside posts, a dark front fascia, higher split handrails, lower rails
+  and two side balusters retain the open central stair and existing 0.60m footprint. It
+  remains one draw at10144triangles/30432vertices with unchanged collision and seven/six
+  visible contact patches. Release+Debug focused tests pass. Actual llvmpipe
+  043517.152488Z-hut and043528.570660Z-hut-material PASS/inspected/kernel[]; current
+  Chrome/SwiftShader043834.330912Z-chrome-hut PASS both views/60intervals/GL0/context
+  intact/kernel[], all final images inspected. Native/Web/Android gates now require the
+  veranda contract; current-source Android imagery remains open.
   Android current-source visuals, route walk and further realism remain,
   so this stays in progress. Details `docs/island-hut.md`.
 - [~] Add a river or stream. Initial implementation choice: a small inland-to-coast

@@ -746,6 +746,7 @@ try {
               && log.includes("goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes")))
             && (!focusedHutCheck || (log.includes("hut beam-aligned weathered grain and filtered thatch fibres")
               && log.includes("hut four-pane muted glazing and braced plank door")
+              && log.includes("hut raised veranda uses full-height outer posts, split rails, fascia, and three steps")
               && log.includes("hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes")
               && log.includes(`hut 1 draw, ${mode === "hut" ? 7 : 6} contact patches`)))
             && (!focusedHelicopterCheck || (log.includes("helicopter uses rounded twenty-sided cockpit glazing in a separate translucent batch and an articulated eight-link rotor hub")

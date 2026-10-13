@@ -597,8 +597,11 @@ def main():
                         raise RuntimeError("missing live stream animation-stage image")
                 if "route-following downstream ripple and translucent current streaks" not in diagnostics:
                     raise RuntimeError("current stream flow material is missing")
-            if args.viewpoint in ("hut", "hut-material") and "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
-                raise RuntimeError("hut fibre texture is missing; check packaged assets")
+            if args.viewpoint in ("hut", "hut-material"):
+                for marker in ("hut raised veranda uses full-height outer posts, split rails, fascia, and three steps",
+                               "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes"):
+                    if marker not in diagnostics:
+                        raise RuntimeError(f"hut integration diagnostic missing: {marker}")
             if args.viewpoint in ("helicopter", "helicopter-inside"):
                 camera_marker=("helicopter QA camera frames rear cabin toward accessible cockpit"
                                if args.viewpoint=="helicopter-inside" else
