@@ -112,11 +112,15 @@ now persist. Corrected native executables are rebuilt and the operator confirms 
 problem is fixed. Web/Android runtime qualification remains pending. Both reported native
 FPS and complete-audio-dropout incidents are closed; cave integration is in progress.
 
-Separate QA finding: native private Xwayland/Openbox F11 restores window size but not position
-(561,326→2,36) on two2026-10-12 runs (`software-flight/173501` and `173646`), the second
-with35s allowed for asynchronous completion. No crash/new kernel GPU fault. Cause is not yet
-attributed to game/CNA/SDL/window manager; keep the exact restoration gate and investigate.
-The focused cave keyboard gate deliberately does not exercise F11, so cannot close this finding.
+Resolved QA follow-up: native private Xwayland/Openbox F11 had restored window size but not
+position (561,326→2,36) on two2026-10-12 runs (`software-flight/173501` and `173646`). The
+strict gate continued to require exact asynchronous geometry rather than weakening acceptance.
+Two fresh independent current-Release runs, `software-fullscreen/20261013T112246.066590Z` and
+`20261013T112334.213663Z`, now both pass two on/off cycles: every return restores exactly
+(561,326,1280x720), fullscreen covers the private1280x720 display, windowed mode returns to
+1920x1080, held-key/background-focus/mouse-capture checks pass and kernel deltas are empty. The
+screenshots were inspected. This closes the observed Openbox regression; other desktop/window
+manager combinations and physical-monitor mode switching remain unqualified.
 
 ## Latest implementation — turtle nesting traces
 
@@ -1408,6 +1412,10 @@ Player controls explicitly requested by the operator (2026-10-11):
   capture/release. Fullscreen/windowed screenshots inspected; empty kernel delta.
   33 capture/supervisor CPU regressions pass. Web Escape/pointer-lock interactions,
   focus loss while a key is held, and other desktop environments remain unverified.
+  Current-Release repeat runs `20261013T112246.066590Z` and `112334.213663Z` each pass the same
+  strict two-cycle exact-position gate after the intervening 2026-10-12 failures; both restore
+  (561,326,1280x720), retain rendered output and report empty kernel deltas. The observed private
+  Openbox position regression is closed without weakening the gate.
 - [~] Space toggles fly mode on/off, allowing exploration above the island. Prevent
   entry into the terrain throughout movement (including fast movement and slopes),
   cap flight at 100 metres above the local terrain surface (working interpretation),

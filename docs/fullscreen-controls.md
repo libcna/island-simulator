@@ -79,3 +79,16 @@ delta empty; stop latch unchanged. Actual physical monitor mode switching is unt
 
 Remaining: Web Escape/pointer-lock/focus interaction and held-key focus-loss cases.
 Space flight and the visual island/wildlife backlog are separate unfinished tasks.
+
+## Current exact-position requalification (2026-10-13)
+
+Two intervening 2026-10-12 private-Openbox runs had restored the 1280x720 size but moved the
+window from `(561,326)` to `(2,36)`. The harness deliberately retained its exact four-value
+geometry comparison and asynchronous wait. Fresh independent current-Release runs
+`build-consumer/software-fullscreen/20261013T112246.066590Z` and
+`20261013T112334.213663Z` both pass the complete gate: two F11 on/off cycles per run, fullscreen
+at `(0,0,1280x720)`, every windowed return at `(561,326,1280x720)`, private display restoration
+from 1280x720 to 1920x1080, held-key suppression, owned-background focus isolation and subsequent
+mouse capture/release. Final windowed/fullscreen images were inspected and both kernel deltas are
+empty. This closes the observed regression in the owned Openbox environment without claiming
+other desktop environments or physical-monitor mode switching.
