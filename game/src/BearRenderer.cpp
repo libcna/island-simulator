@@ -38,15 +38,17 @@ namespace island {
 namespace {
 constexpr int VertexCapacity=36000,ShadowCapacity=180;
 constexpr float Pi=std::numbers::pi_v<float>;
-enum class Material:std::uint8_t {Fur,DarkFur,Muzzle,Bare};
+enum class Material:std::uint8_t {Fur,DarkFur,Muzzle,Nose,Bare,EyeHighlight};
 struct Texel {std::uint8_t r=255,g=255,b=255,a=255;};
 
 Vector3 Point(BearPoint p){return {p.x,p.y,p.z};}
 BearPoint Point(Vector3 p){return {p.X,p.Y,p.Z};}
 Vector3 SafeUnit(Vector3 p) {if(p.LengthSquared()<1e-10f)return Vector3::Up;p.Normalize();return p;}
 Vector2 AtlasUv(Material material,float u,float v) {
-    const int column=(material==Material::DarkFur||material==Material::Bare)?1:0;
-    const int row=(material==Material::Muzzle||material==Material::Bare)?1:0;
+    const int column=(material==Material::DarkFur||material==Material::Nose
+        ||material==Material::Bare||material==Material::EyeHighlight)?1:0;
+    const int row=(material==Material::Muzzle||material==Material::Nose
+        ||material==Material::Bare||material==Material::EyeHighlight)?1:0;
     return {column*.5f+.012f+std::clamp(u,0.0f,1.0f)*.476f,
             row*.5f+.012f+std::clamp(v,0.0f,1.0f)*.476f};
 }
@@ -54,8 +56,10 @@ Color BaseColor(Material material) {
     switch(material) {
     case Material::Fur:return Color(92,68,45);
     case Material::DarkFur:return Color(67,50,36);
-    case Material::Muzzle:return Color(116,96,74);
-    case Material::Bare:return Color(31,27,24);
+    case Material::Muzzle:return Color(101,82,63);
+    case Material::Nose:return Color(39,34,30);
+    case Material::Bare:return Color(15,13,12);
+    case Material::EyeHighlight:return Color(184,168,142);
     }
     return Color::White;
 }
@@ -180,19 +184,28 @@ void BuildBear(std::vector<VertexPositionColorTexture>& vertices,const BearState
     mesh.Ellipsoid({0,1.18f-forage*.18f,.70f+forage*.08f},right,up,forward,.45f,.43f,.52f,
         Material::Fur,lon,lat);
     const Vector3 head{0,1.28f-forage*.48f,1.12f+forage*.18f};
-    mesh.Ellipsoid(head,right,up,forward,.36f,.34f,.39f,Material::Fur,lon,lat);
-    const Vector3 muzzle=head+forward*.37f-up*.10f;
-    mesh.Ellipsoid(muzzle,right,up,forward,.25f,.18f,.27f,Material::Muzzle,near?16:9,near?9:6);
-    mesh.Ellipsoid(muzzle+forward*.245f+up*.035f,right,up,forward,.12f,.075f,.06f,
-        Material::Bare,near?14:8,near?8:5);
+    mesh.Ellipsoid(head,right,up,forward,.38f,.35f,.39f,Material::Fur,lon,lat);
+    // Two overlapping, successively narrower volumes make a short tapered brown-bear muzzle.
+    // The former single pale cylinder read as a toy snout from every oblique capture angle.
+    const Vector3 muzzleRoot=head+forward*.315f-up*.105f;
+    const Vector3 muzzle=muzzleRoot+forward*.155f-up*.008f;
+    mesh.Ellipsoid(muzzleRoot,right,up,forward,.245f,.175f,.245f,
+        Material::Muzzle,near?18:9,near?10:6);
+    mesh.Ellipsoid(muzzle,right,up,forward,.195f,.137f,.170f,
+        Material::Muzzle,near?16:9,near?9:6);
+    const Vector3 nose=muzzle+forward*.158f+up*.035f;
+    mesh.Ellipsoid(nose,right,up,forward,.105f,.066f,.047f,
+        Material::Nose,near?14:8,near?8:5);
     mesh.Ellipsoid({0,1.10f,-1.08f},right,up,forward,.13f,.13f,.14f,Material::Fur,near?12:8,near?7:5);
     for(int side=-1;side<=1;side+=2) {
         const Vector3 ear=head+right*(side*.23f)+up*.285f-forward*.04f;
         mesh.Ellipsoid(ear,right,up,forward,.11f,.115f,.075f,Material::Fur,near?12:8,near?8:5);
         if(near) {
             mesh.Ellipsoid(ear+forward*.052f,right,up,forward,.068f,.075f,.018f,Material::DarkFur,10,7);
-            const Vector3 eye=head+right*(side*.225f)+up*.045f+forward*.335f;
-            mesh.Ellipsoid(eye,right,up,forward,.019f,.015f,.010f,Material::Bare,10,6);
+            const Vector3 eye=head+right*(side*.226f)+up*.050f+forward*.337f;
+            mesh.Ellipsoid(eye,right,up,forward,.024f,.020f,.012f,Material::Bare,10,6);
+            mesh.Ellipsoid(eye-right*(side*.005f)+up*.006f+forward*.011f,right,up,forward,
+                .006f,.005f,.003f,Material::EyeHighlight,7,5);
         }
     }
     for(std::size_t leg=0;leg<4;++leg) {
@@ -213,9 +226,21 @@ void BuildBear(std::vector<VertexPositionColorTexture>& vertices,const BearState
         }
     }
     if(near) {
-        // Split lower lip and short mouth corners keep the muzzle readable without cartoon outlines.
-        const Vector3 lip=muzzle+forward*.257f-up*.07f;
-        mesh.Tube(lip-right*.12f,lip+right*.12f,.011f,.009f,Material::Bare,8);
+        // Paired nostrils, a short philtrum and divided mouth crease remain shallow facial marks,
+        // rather than the previous thick horizontal rod projecting beyond the muzzle.
+        for(int side=-1;side<=1;side+=2) {
+            const Vector3 nostril=nose+right*(side*.045f)+up*.004f+forward*.044f;
+            mesh.Ellipsoid(nostril,right,up,forward,.018f,.010f,.006f,Material::Bare,8,5);
+        }
+        const Vector3 philtrumTop=nose+forward*.045f-up*.030f;
+        const Vector3 mouth=muzzle+forward*.166f-up*.058f;
+        mesh.Tube(philtrumTop,mouth,.0045f,.0035f,Material::Bare,7);
+        mesh.Tube(mouth,mouth-right*.088f-up*.004f-forward*.010f,
+            .0040f,.0025f,Material::Bare,7);
+        mesh.Tube(mouth,mouth+right*.088f-up*.004f-forward*.010f,
+            .0040f,.0025f,Material::Bare,7);
+        mesh.Ellipsoid(mouth-up*.038f-forward*.025f,right,up,forward,
+            .105f,.033f,.050f,Material::Muzzle,12,6);
     }
 }
 bool IsVisible(const Matrix& view,const Matrix& projection,const Vector3& camera,
@@ -239,6 +264,8 @@ BearRenderer::BearRenderer(GraphicsDevice& device,const CanopyLightField& canopy
     effect_->setFogStartProperty(maximumDistance*.65f);effect_->setFogEndProperty(maximumDistance);
     const char* diagnostic="island-simulator: one large peaceful bear uses original articulated quadruped anatomy and a generated directional-fur atlas";
     std::cout<<diagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+    const char* faceDiagnostic="island-simulator: near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes";
+    std::cout<<faceDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(faceDiagnostic);
 }
 BearRenderer::~BearRenderer()=default;
 

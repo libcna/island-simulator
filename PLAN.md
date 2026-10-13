@@ -376,11 +376,16 @@ remain, so ecosystem-stage item 11 is `[~]`. See [prevailing-wind.md](docs/preva
   atlas; no third-party bear asset is shipped. It uses one body draw plus one 18-triangle
   terrain shadow. Original breath/snuffle/huff pairs share the existing wildlife voice and
   keep the six-source cap. Release/Debug CPU, WorldReport, WAV export and real-CNA dummy audio
-  playback pass. Inspected kernel-monitored llvmpipe evidence
-  `20261012T195558.674888Z-bear` shows 5904/18 body/shadow triangles and 2.24m motion over
-  eight ordered stages. The form is still recognisably procedural rather than photoreal;
-  actual Web/Android rendering, physical-device performance, headphone listening and further
-  fur/face/gait polish remain open, so this entry is intentionally not complete.
+  playback pass. A second face pass uses a darker two-volume tapered muzzle, smaller volumetric
+  nose, paired nostrils, shallow philtrum/divided mouth crease and highlighted inset eyes.
+  Inspected kernel-monitored llvmpipe evidence
+  `20261013T034649.650571Z-bear` shows 6734/18 body/shadow triangles and more than 2.3m motion
+  over eight ordered stages. Focused Chrome/SwiftShader evidence
+  `20261013T034840.525068Z-chrome-bear` keeps the animal framed across two different images,
+  records 60 finite intervals, GL0, an intact context and an empty kernel-fault delta. The form
+  is still recognisably procedural rather than photoreal; Android rendering, physical-device
+  performance, headphone listening and further fur/joint/gait polish remain open, so this entry
+  is intentionally not complete.
 
 Stream/wet-biome progress: shared normalized moisture/drainage/salt field now feeds
 terrain turf, grass, palms, four jungle layers and fallen-log probability. Flowing

@@ -1026,6 +1026,14 @@ if(ISLAND_BUILD_GAME)
             LABELS display
             PASS_REGULAR_EXPRESSION
                 "dolphin near/far geometry 558/15 vertices, single-surface fins and CPU faceted daylight")
+        add_test(NAME IslandGameBearCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-bear-capture.ppm"
+                    --viewpoint bear)
+        set_tests_properties(IslandGameBearCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes.*bear capture visible 1; draws 2")
         add_test(NAME IslandGameMonkeyCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-monkey-capture.ppm"
                     --viewpoint monkeys)

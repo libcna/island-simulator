@@ -654,6 +654,7 @@ def main():
                     if not Path(str(capture)+f".bear-stage-{stage}.ppm").is_file():
                         raise RuntimeError("missing bear locomotion-stage image")
                 for marker in ("one large peaceful bear uses original articulated quadruped anatomy",
+                               "near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes",
                                "bear capture visible 1; draws 2"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"bear integration diagnostic missing: {marker}")

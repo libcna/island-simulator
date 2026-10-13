@@ -280,7 +280,7 @@ namespace island
             const auto direction=target-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
-            std::cout<<"island-simulator: bear QA camera frames the single peaceful adult\n";
+            std::cout<<"island-simulator: bear QA camera frames and follows the single peaceful adult\n";
         } else if(viewpoint_==FixedViewpoint::HelicopterDetail
                   ||viewpoint_==FixedViewpoint::HelicopterInteriorDetail) {
             const bool inside=viewpoint_==FixedViewpoint::HelicopterInteriorDetail;
@@ -1639,9 +1639,13 @@ namespace island
         const auto previousBear=bear_->State();
         bear_->Update(deltaSeconds,bearCaptureClock?BearPoint{NAN,NAN,NAN}
             :BearPoint{observer.x,observer.y,observer.z});
-        if(bearCaptureClock) {
+        if(viewpoint_==FixedViewpoint::BearDetail) {
             const auto& current=bear_->State();
             cameraPosition_+=Vector3(current.x-previousBear.x,current.y-previousBear.y,current.z-previousBear.z);
+            const Vector3 target(current.x,current.y+1.03f,current.z+.22f);
+            const auto direction=target-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         }
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         butterflyMeadow_.Update(
