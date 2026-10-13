@@ -90,6 +90,29 @@ contexts and an empty new-kernel-fault delta. Both shipwreck frames and the firs
 companion scene were inspected; the broadside openings retain depth and do not expose a water or
 shared-state artifact.
 
+## Raked bow and stern profiles — 2026-10-13
+
+The lower bow and stern no longer terminate as nearly vertical rectangular walls. A bounded
+longitudinal rake begins only inside the outer 1.45m of the hull and increases below the 1.33m deck
+edge: the bow pulls inward by at most 0.90m and the stern by at most 0.65m. Hull shell stations,
+deck ends, plank seams and cap centroids use the same profile, while the sternpost now follows the
+aft rake from keel to deck. The authored 20m top endpoints, waterline placement, collision proxies,
+materials, debris, 4,972-triangle budget and one-draw batch are unchanged.
+
+The unchanged baseline is `20261013T182707.864823Z-shipwreck` (198 colour bins, luminance deviation
+38.66, spatial contrast 161.47). A first 0.46/0.34m version
+`20261013T183023.809069Z-shipwreck` was visually inspected and rejected as too subtle. The accepted
+native llvmpipe capture `20261013T183155.768012Z-shipwreck` has 194 colour bins, luminance deviation
+38.50, spatial contrast 161.09 and an empty kernel delta; its bow visibly rises into the deck rather
+than reading as a box end. The broad Chrome coast run
+`20261013T183440.535268Z-chrome-coast` is deliberately not claimed as a suite pass: shipwreck,
+water and west each passed 120 intervals, but the overall run timed out after the first reef frame.
+A new narrow shipwreck scope then passed as
+`20261013T185915.467977Z-chrome-shipwreck`: 60 finite SwiftShader intervals, two distinct inspected
+time-separated frames, GL error zero, live context and no new kernel fault. Linux Release and Debug
+core/asset tests, the 32 browser-harness tests, and Android ARM64 assemble/lint pass. No Android
+emulator, KVM or hardware GPU was used.
+
 The self-contained Linux archive built after the texture and fitting slices contains 14,752,032
 installed bytes and 7,880,492 compressed bytes, with SHA-256
 `0ce8ba429a69200952cbeceed15a3e295c73a730fb85ffa0410924cb15d6e0bf`. A temporary extraction

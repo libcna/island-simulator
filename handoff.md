@@ -1,5 +1,19 @@
 # island-simulator handoff
 
+## Current work — shipwreck raked bow/stern pass inspected
+
+Goal remains active; continue the whole plan and do not stop early. The wreck's lower bow/stern no
+longer end as vertical box walls: a bounded 0.90/0.65m rake below the deck edge is shared by hull,
+deck ends, seams, caps and the sternpost. The exact 20m top endpoints, collision, materials, debris,
+4,972 triangles and one draw remain unchanged. An initial 0.46/0.34m attempt was inspected and
+rejected as too subtle. Final native `20261013T183155.768012Z-shipwreck` PASS 194 bins/std38.50/
+spatial161.09/kernel[]. Broad Web `20261013T183440.535268Z-chrome-coast` passed shipwreck/water/west
+but timed out in reef, so is not a suite pass. New focused Web
+`20261013T185915.467977Z-chrome-shipwreck` PASS 60 finite intervals/two distinct inspected frames/
+GL0/context intact/kernel[]. Release+Debug core/asset tests, 32 browser-runner tests and ARM64
+assemble/lint pass. No emulator/KVM or AMD GPU. Further plank thickness/transom and beach/water
+integration remain; keep PLAN `[~]`. Max four compile cores.
+
 ## Current work — dolphin silhouette and countershading pass inspected
 
 Goal remains active; continue the whole plan. Fresh current baseline

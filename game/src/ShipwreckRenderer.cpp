@@ -61,6 +61,8 @@ namespace island
             "island-simulator: shipwreck hull uses asymmetric rising sheer, curved keel, and irregular splintered break sections";
         constexpr std::string_view BroadsideDamageDiagnostic =
             "island-simulator: shipwreck beach broadside has true missing plank bays with exposed structural ribs";
+        constexpr std::string_view EndProfileDiagnostic =
+            "island-simulator: shipwreck bow and stern use raked lower profiles with thick end timbers";
         constexpr int AgedWoodMaterial = 48;
         constexpr int InnerWoodMaterial = 80;
         constexpr int FreshBreakMaterial = 176;
@@ -469,6 +471,18 @@ void main()
                 * std::clamp((y + 0.12f) / 1.45f, 0.0f, 1.0f));
         }
 
+        [[nodiscard]] float HullEndRake(const float z, const float y)
+        {
+            const float endWeight = std::clamp((std::abs(z) - 8.55f) / 1.45f,
+                                               0.0f, 1.0f);
+            const float lowerWeight = std::clamp((1.33f - y) / 2.81f,
+                                                 0.0f, 1.0f);
+            // Keep the authored +/-10 m deck-edge endpoints while pulling the keel
+            // inward. This replaces flat vertical end cuts with recognizable raked
+            // bow/stern profiles without changing layout, collision, or landmark scale.
+            return endWeight * lowerWeight * (z >= 0.0f ? -0.90f : 0.65f);
+        }
+
         [[nodiscard]] std::array<Vector3, 11> HullSection(
             const ShipwreckPlacement& ship, const Axes& axes, const float z)
         {
@@ -479,11 +493,13 @@ void main()
             for (std::size_t level = 0; level < SideHeights.size(); ++level) {
                 const float height = SideHeights[level];
                 const float width = HullWidthAtHeight(ship, z, height);
-                points[level] = ShipPoint(ship, axes, -width, height + sheer, z);
+                const float rakedZ = z + HullEndRake(z, height);
+                points[level] = ShipPoint(ship, axes, -width, height + sheer, rakedZ);
                 points[points.size() - 1U - level] =
-                    ShipPoint(ship, axes, width, height + sheer, z);
+                    ShipPoint(ship, axes, width, height + sheer, rakedZ);
             }
-            points[SideHeights.size()] = ShipPoint(ship, axes, 0.0f, -1.48f + sheer, z);
+            points[SideHeights.size()] = ShipPoint(
+                ship, axes, 0.0f, -1.48f + sheer, z + HullEndRake(z, -1.48f));
             return points;
         }
 
@@ -556,13 +572,19 @@ void main()
                 const float firstWidth = HullHalfWidth(ship, sectionZ[section]) * 0.74f;
                 const float nextWidth = HullHalfWidth(ship, sectionZ[section + 1U]) * 0.74f;
                 const Vector3 deckFirstLeft = ShipPoint(
-                    ship, axes, -firstWidth, 1.16f + HullSheer(sectionZ[section]), sectionZ[section]);
+                    ship, axes, -firstWidth, 1.16f + HullSheer(sectionZ[section]),
+                    sectionZ[section] + HullEndRake(sectionZ[section], 1.16f));
                 const Vector3 deckFirstRight = ShipPoint(
-                    ship, axes, firstWidth, 1.16f + HullSheer(sectionZ[section]), sectionZ[section]);
+                    ship, axes, firstWidth, 1.16f + HullSheer(sectionZ[section]),
+                    sectionZ[section] + HullEndRake(sectionZ[section], 1.16f));
                 const Vector3 deckNextLeft = ShipPoint(
-                    ship, axes, -nextWidth, 1.16f + HullSheer(sectionZ[section + 1U]), sectionZ[section + 1U]);
+                    ship, axes, -nextWidth, 1.16f + HullSheer(sectionZ[section + 1U]),
+                    sectionZ[section + 1U]
+                        + HullEndRake(sectionZ[section + 1U], 1.16f));
                 const Vector3 deckNextRight = ShipPoint(
-                    ship, axes, nextWidth, 1.16f + HullSheer(sectionZ[section + 1U]), sectionZ[section + 1U]);
+                    ship, axes, nextWidth, 1.16f + HullSheer(sectionZ[section + 1U]),
+                    sectionZ[section + 1U]
+                        + HullEndRake(sectionZ[section + 1U], 1.16f));
                 AddQuad(vertices, deckFirstLeft, deckFirstRight, deckNextRight,
                         deckNextLeft, section % 2U == 0U ? InnerWood : OuterWood,
                         GrainAxis::AlongAD);
@@ -584,15 +606,21 @@ void main()
                         ship, sectionZ[section + 1U], seamY) + 0.025f;
                     for (const float side : {-1.0f, 1.0f}) {
                         const Vector3 a = ShipPoint(ship, axes, side * firstSide,
-                                                    seamY - 0.030f + HullSheer(sectionZ[section]), sectionZ[section]);
+                                                    seamY - 0.030f + HullSheer(sectionZ[section]),
+                                                    sectionZ[section]
+                                                        + HullEndRake(sectionZ[section], seamY));
                         const Vector3 b = ShipPoint(ship, axes, side * nextSide,
                                                     seamY - 0.030f + HullSheer(sectionZ[section + 1U]),
-                                                    sectionZ[section + 1U]);
+                                                    sectionZ[section + 1U]
+                                                        + HullEndRake(sectionZ[section + 1U], seamY));
                         const Vector3 c = ShipPoint(ship, axes, side * nextSide,
                                                     seamY + 0.030f + HullSheer(sectionZ[section + 1U]),
-                                                    sectionZ[section + 1U]);
+                                                    sectionZ[section + 1U]
+                                                        + HullEndRake(sectionZ[section + 1U], seamY));
                         const Vector3 d = ShipPoint(ship, axes, side * firstSide,
-                                                    seamY + 0.030f + HullSheer(sectionZ[section]), sectionZ[section]);
+                                                    seamY + 0.030f + HullSheer(sectionZ[section]),
+                                                    sectionZ[section]
+                                                        + HullEndRake(sectionZ[section], seamY));
                         AddQuad(vertices, a, b, c, d, DarkWood);
                     }
                 }
@@ -604,7 +632,10 @@ void main()
                 for (std::size_t band = 0; band + 1U < first.size(); ++band) {
                     AddTriangle(
                         vertices,
-                        ShipPoint(ship, axes, 0.0f, 0.38f + HullSheer(sectionZ.front()), sectionZ.front()),
+                        ShipPoint(ship, axes, 0.0f,
+                                  0.38f + HullSheer(sectionZ.front()),
+                                  sectionZ.front()
+                                      + HullEndRake(sectionZ.front(), 0.38f)),
                         first[band + 1U], first[band], DarkWood);
                 }
             } else {
@@ -706,8 +737,8 @@ void main()
                 ShipPoint(ship, axes, 0.0f, -1.45f + HullSheer(9.45f), 9.45f),
                 0.12f, 0.10f, DarkWood);
             AppendTaperedBeam(
-                vertices, ShipPoint(ship, axes, 0.0f, -1.36f + HullSheer(-9.92f), -9.92f),
-                ShipPoint(ship, axes, 0.0f, 1.26f + HullSheer(-9.92f), -9.92f),
+                vertices, ShipPoint(ship, axes, 0.0f, -1.36f + HullSheer(-9.40f), -9.40f),
+                ShipPoint(ship, axes, 0.0f, 1.26f + HullSheer(-10.0f), -10.0f),
                 0.15f, 0.11f, DarkWood);
             AppendBox(vertices, ShipPoint(ship, axes, 0.0f,
                                           -0.46f + HullSheer(-10.28f), -10.28f), axes,
@@ -950,12 +981,14 @@ void main()
         std::cout << LargeShipDetailDiagnostic << '\n';
         std::cout << HullShapeDiagnostic << '\n';
         std::cout << BroadsideDamageDiagnostic << '\n';
+        std::cout << EndProfileDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(
             "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast");
         MirrorRuntimeDiagnosticToPlatformLog(LargeShipDetailDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(HullShapeDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(BroadsideDamageDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(EndProfileDiagnostic);
     }
 
     ShipwreckRenderer::~ShipwreckRenderer() = default;

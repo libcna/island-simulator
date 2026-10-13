@@ -24,6 +24,7 @@ if (typeof WebSocket === "undefined") {
 }
 const focusedFoliageCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "wildlife-foliage";
 const focusedCoastCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "coast";
+const focusedShipwreckCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "shipwreck";
 const focusedGroundingCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "grounding";
 const focusedVegetationCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "vegetation";
 const focusedTerrainCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "terrain";
@@ -50,18 +51,19 @@ const focusedResidentCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "resident";
 const focusedHelicopterCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "helicopter";
 const focusedCampfireCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "campfire";
 const focusedCaveCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "cave";
-const focusedCheck = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedHelicopterCheck || focusedCampfireCheck || focusedCaveCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSharkCheck || focusedDolphinCheck || focusedBearCheck || focusedResidentCheck || focusedBoarCheck || focusedSnakeCheck || focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedStreamCheck || focusedMonkeyCheck;
+const focusedCheck = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedHelicopterCheck || focusedCampfireCheck || focusedCaveCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSharkCheck || focusedDolphinCheck || focusedBearCheck || focusedResidentCheck || focusedBoarCheck || focusedSnakeCheck || focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedShipwreckCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedStreamCheck || focusedMonkeyCheck;
 const focusedArtifactPrefix = focusedSpiderCheck ? "spiders" : focusedGoatCheck ? "goats" : focusedHutCheck ? "hut" : focusedHelicopterCheck ? "helicopter" : focusedCampfireCheck ? "campfire" : focusedCaveCheck ? "cave" : focusedTurtleCheck ? "turtles" : focusedCrabCheck ? "crabs" : focusedFishCheck ? "fish" : focusedSharkCheck ? "shark" : focusedDolphinCheck ? "dolphins" : focusedBearCheck ? "bear" : focusedResidentCheck ? "resident" : focusedBoarCheck ? "boars" : focusedSnakeCheck ? "snakes" : focusedFlightCheck ? "flight" : focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedStreamCheck ? "stream" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
-  : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
+  : focusedShipwreckCheck ? "shipwreck" : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
 const focusedViews = focusedSpiderCheck ? ["spiders", "spider-web"] : focusedGoatCheck ? ["goats"] : focusedHutCheck ? ["hut", "hut-material"] : focusedHelicopterCheck ? ["helicopter", "helicopter-inside"] : focusedCampfireCheck ? ["campfire"] : focusedCaveCheck ? ["cave", "cave-inside"] : focusedTurtleCheck ? ["turtles"] : focusedCrabCheck ? ["crabs"] : focusedFishCheck ? ["fish"] : focusedSharkCheck ? ["shark"] : focusedDolphinCheck ? ["dolphins"] : focusedBearCheck ? ["bear"] : focusedResidentCheck ? ["resident"] : focusedBoarCheck ? ["boars"] : focusedSnakeCheck ? ["snakes", "snake-head"] : focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedStreamCheck ? ["stream"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
   : focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
   : focusedGrassMotionCheck ? ["grass-motion"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
+  : focusedShipwreckCheck ? ["shipwreck"]
   : focusedCoastCheck ? ["shipwreck", "water", "west", "reef"]
   : ["jungle", "boars", "monkeys", "east"];
 const focusedFrameCount = focusedGrassMotionCheck ? 30 : focusedCoastCheck ? 120 : 60;
 if (process.env.ISLAND_WEB_SMOKE_SCOPE && !focusedCheck) {
-  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/grounding/vegetation/terrain/grass-motion/litter/materials/stream/monkeys/boars/turtles/crabs/fish/shark/dolphins/bear/resident/helicopter/campfire/cave");
+  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/shipwreck/grounding/vegetation/terrain/grass-motion/litter/materials/stream/monkeys/boars/turtles/crabs/fish/shark/dolphins/bear/resident/helicopter/campfire/cave");
 }
 // The outer Python supervisor monitors the host kernel continuously. A user/PID namespace
 // must not depend on retaining the host's supplementary journal-access group.
@@ -733,7 +735,7 @@ try {
           }, sessionId);
           const state = sampled.result.value;
           if (!state) throw new Error(`${mode} did not return frame evidence`);
-          const afterSimulationScreenshot = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedHelicopterCheck || focusedCampfireCheck || focusedCaveCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSharkCheck || focusedDolphinCheck || focusedBearCheck || focusedResidentCheck || focusedSnakeCheck || focusedFlightCheck || focusedStreamCheck || mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
+          const afterSimulationScreenshot = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedHelicopterCheck || focusedCampfireCheck || focusedCaveCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSharkCheck || focusedDolphinCheck || focusedBearCheck || focusedResidentCheck || focusedSnakeCheck || focusedFlightCheck || focusedStreamCheck || focusedShipwreckCheck || mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
             ? path.basename(await captureVisualFrame(sessionId,
               `island-browser-${focusedArtifactPrefix}-${mode}-after-simulation.png`, false)) : null;
           const log = state.result?.output ?? "";
@@ -781,6 +783,14 @@ try {
               && log.includes("dolphin tail stock bends vertically through horizontal fluke strokes")
               && log.includes("dolphin near/far geometry 1476/15 vertices, closed fins and CPU faceted daylight")
               && /dolphins [1-4]\/4 visible \(near [1-4], far [0-4]\), 1 draw/.test(log)))
+            && (!focusedShipwreckCheck || (log.includes("shipwreck wood loaded Content/structures/shipwreck-weathered-wood.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored interior atlas")
+              && log.includes("shipwreck weathered wood follows per-piece board and beam UVs")
+              && log.includes("shipwreck restrained rusted iron straps, rivets, hinges and rudder braces")
+              && log.includes("shipwreck hull uses asymmetric rising sheer, curved keel, and irregular splintered break sections")
+              && log.includes("shipwreck beach broadside has true missing plank bays with exposed structural ribs")
+              && log.includes("shipwreck bow and stern use raked lower profiles with thick end timbers")
+              && log.includes("shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 4972 triangles")
+              && log.includes("shipwreck visible, 12 debris, 1 draw")))
             && (!focusedBearCheck || (log.includes("bear QA camera frames and follows the single peaceful adult")
               && log.includes("bear fur loaded Content/wildlife/bear-fur.png; 128x128, 8 mips, 87380 RGBA8 bytes")
               && log.includes("near bear uses twenty-two body-envelope fur wedges without another draw")
@@ -924,7 +934,8 @@ try {
           ? "software WebGL terrain distance and close views only" : focusedGrassMotionCheck
           ? "software measured grass traversal only" : focusedVegetationCheck
           ? "software WebGL grass and vegetation only" : focusedCoastCheck
-          ? "software WebGL coast only" : focusedGroundingCheck
+          ? "software WebGL coast only" : focusedShipwreckCheck
+          ? "software WebGL shipwreck material and separated-time frames" : focusedGroundingCheck
             ? "software WebGL prop grounding only" : "software WebGL wildlife/foliage only",
         browser: version.Browser, browserPid: browserIdentity.outerPid,
         browserNamespacePid: chrome.pid, browserRenderer, views,
@@ -1912,6 +1923,8 @@ try {
       "island-simulator: shipwreck restrained rusted iron straps, rivets, hinges and rudder braces")
     && shipwreckResult.output?.includes(
       "island-simulator: shipwreck beach broadside has true missing plank bays with exposed structural ribs")
+    && shipwreckResult.output?.includes(
+      "island-simulator: shipwreck bow and stern use raked lower profiles with thick end timbers")
     && shipwreckResult.output?.includes(
       "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch")
     && shipwreckResult.output?.includes(

@@ -17,6 +17,38 @@ from gpu_incident_qualification import contained_command
 
 
 class BrowserSoftwareTests(unittest.TestCase):
+    def test_shipwreck_scope_requires_current_end_profile_two_frames_and_live_context(self):
+        self.assertIn("shipwreck", gate.SCOPES)
+        markers = "\n".join((
+            "shipwreck wood loaded Content/structures/shipwreck-weathered-wood.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored interior atlas",
+            "shipwreck weathered wood follows per-piece board and beam UVs",
+            "shipwreck restrained rusted iron straps, rivets, hinges and rudder braces",
+            "shipwreck hull uses asymmetric rising sheer, curved keel, and irregular splintered break sections",
+            "shipwreck beach broadside has true missing plank bays with exposed structural ribs",
+            "shipwreck bow and stern use raked lower profiles with thick end timbers",
+            "shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 4972 triangles",
+            "shipwreck visible, 12 debris, 1 draw",
+        ))
+        def report():
+            return {"passed": True, "views": [{"mode": "shipwreck", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": "shipwreck.png", "afterSimulationScreenshot": "shipwreck-after.png",
+                "intervals": [16.7] * 60, "result": {"output": markers}}]}
+        self.assertEqual(gate.validate_shipwreck_report(report()),
+                         ("shipwreck.png", "shipwreck-after.png"))
+        for mutate in (
+            lambda value: value.update(passed=False),
+            lambda value: value["views"][0].update(glError=1282),
+            lambda value: value["views"][0].update(contextLost=True),
+            lambda value: value["views"][0].update(intervals=[16.7] * 59),
+            lambda value: value["views"][0]["result"].update(output=markers.replace(
+                "shipwreck bow and stern use raked lower profiles with thick end timbers\n", "")),
+            lambda value: value["views"][0]["result"].update(output=markers.replace(
+                "shipwreck visible, 12 debris, 1 draw", "shipwreck culled, 12 debris, 0 draw")),
+        ):
+            invalid = report(); mutate(invalid)
+            with self.assertRaises(RuntimeError): gate.validate_shipwreck_report(invalid)
+
     def test_stream_scope_is_focused_and_checks_live_material(self):
         self.assertIn("stream", gate.SCOPES)
         source = (ROOT / "tools/run_web_smoke.mjs").read_text()
@@ -26,7 +58,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn("stream channel uses shared low-frequency pools and pinches", source)
         self.assertIn("stream-bank stones", source)
         self.assertIn("stream terrain uses a compact incised profile and slope-limited exposed bank strata", source)
-        self.assertIn('focusedFlightCheck || focusedStreamCheck || mode === "boars"', source)
+        self.assertIn('focusedFlightCheck || focusedStreamCheck || focusedShipwreckCheck || mode === "boars"', source)
         self.assertIn('["stream", ["--viewpoint", "stream", "--debug-overlay"]]',
                       (ROOT / "tools/web_smoke.html.in").read_text())
         good={"passed":True,"views":[{"mode":"stream","passed":True,"glError":0,

@@ -1670,6 +1670,17 @@ Visual rework explicitly requested by the operator (2026-10-11):
   Refreshed Chrome/SwiftShader coast evidence `20261013T072820.354747Z-chrome-coast` passes
   shipwreck/water/west/reef with 120 finite intervals per view, GL0, intact contexts and an empty
   kernel delta; both time-separated wreck frames were inspected.
+  A fourth coordinate-only silhouette pass replaces the lower vertical box ends with shared raked
+  bow/stern profiles (0.90/0.65m maximum inward displacement below the deck edge); shell, deck,
+  seams, caps and sternpost now agree while the authored 20m top endpoints remain. An initial
+  0.46/0.34m version was visually rejected as too subtle. Accepted native evidence
+  `20261013T183155.768012Z-shipwreck` passes with 194 colour bins, 38.50 luminance deviation,
+  161.09 spatial contrast, the same 4,972 triangles/one draw/12 debris and an empty kernel delta.
+  Broad Chrome run `20261013T183440.535268Z-chrome-coast` passed three complete 120-interval views
+  but timed out in reef and is not a suite pass. The added focused regression
+  `20261013T185915.467977Z-chrome-shipwreck` passes 60 finite SwiftShader intervals, two distinct
+  inspected frames, GL0, intact context and an empty kernel delta. Release/Debug core+asset tests,
+  all 32 browser-runner tests and Android ARM64 assemble/lint pass without emulator/KVM use.
   Further plank thickness/transom work, sand/water integration, a dedicated matched wide wreck
   comparison and Android visual qualification remain open; diagnostics alone do not close it.
 
