@@ -34,7 +34,7 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 38.0f;
-        constexpr int NearCrabVertexCount = 738;
+        constexpr int NearCrabVertexCount = 810;
         constexpr int FarCrabVertexCount = 12;
         constexpr int MaximumVerticesPerCrab = NearCrabVertexCount;
         constexpr int MaximumVertexCount = static_cast<int>(CrabColony::CrabCount)
@@ -42,7 +42,7 @@ namespace island
         constexpr std::string_view CrabDiagnostic =
             "island-simulator: beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch";
         constexpr std::string_view CrabDetailDiagnostic =
-            "island-simulator: near crabs use fixed-sun facets, tapered distal toes, and socketed eyes";
+            "island-simulator: near crabs use tapered toes, socketed eyes, and solid pincer fingers";
 
         struct CrabPalette
         {
@@ -142,6 +142,21 @@ namespace island
             AddTriangle(vertices, bottom, front, left, sideColor);
         }
 
+        void AppendPrismaticFinger(std::vector<VertexPositionColor>& vertices,
+                                   const Vector3& a, const Vector3& b, const Vector3& tip,
+                                   const float halfThickness,
+                                   const Color& faceColor, const Color& edgeColor)
+        {
+            const Vector3 lift(0.0f, halfThickness, 0.0f);
+            const Vector3 aTop = a + lift, bTop = b + lift, tipTop = tip + lift * 0.45f;
+            const Vector3 aBottom = a - lift, bBottom = b - lift, tipBottom = tip - lift * 0.45f;
+            AddTriangle(vertices, aTop, bTop, tipTop, faceColor);
+            AddTriangle(vertices, aBottom, tipBottom, bBottom, faceColor);
+            AddQuad(vertices, aTop, aBottom, bBottom, bTop, edgeColor);
+            AddQuad(vertices, bTop, bBottom, tipBottom, tipTop, edgeColor);
+            AddQuad(vertices, tipTop, tipBottom, aBottom, aTop, edgeColor);
+        }
+
         void AppendNearCrab(std::vector<VertexPositionColor>& vertices,
                             const CrabState& crab)
         {
@@ -237,9 +252,10 @@ namespace island
                     + forward * (0.035f * scale);
                 const Vector3 innerBase = palm - right * (side * 0.025f * scale)
                     + forward * (0.035f * scale);
-                AddDoubleSidedTriangle(vertices, outerBase, palm, outerTip, palette.claw);
-                AddDoubleSidedTriangle(vertices, palm, innerBase, innerTip,
-                                       palette.shellHighlight);
+                AppendPrismaticFinger(vertices, outerBase, palm, outerTip,
+                                      0.012f * scale, palette.claw, palette.shellSide);
+                AppendPrismaticFinger(vertices, palm, innerBase, innerTip,
+                                      0.010f * scale, palette.shellHighlight, palette.shellSide);
             }
 
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {

@@ -119,3 +119,27 @@ different headings/strokes, hashes differ, all 60 intervals complete, GL error i
 live and kernel delta is empty. SwiftShader timing is not a hardware-performance claim. Current
 Android execution, all-angle motion, less faceted materials and richer head/flipper scale detail
 remain open; the emulator/KVM configuration was not touched.
+
+## Fifth closed-paddle pass (2026-10-13)
+
+The next current visual audit showed that the upper and lower paddle faces still occupied exactly
+the same plane. At grazing angles they therefore read as large paper sheets, and the front root
+appeared detached from the carapace. Each sampled front and rear paddle now has separate upper and
+lower vertices, thickness tapering from 20 mm at the root to 8 mm at the tip, darker closed
+leading/trailing edges, and closed root and tip caps. The front centreline begins 5 cm farther
+inboard beneath the marginal scutes and is 2 cm shorter, retaining a long green-turtle paddle while
+removing the exposed shoulder gap.
+
+The 96 added edge/cap triangles bring the exact near tier to 750 triangles / 2,250 vertices per
+turtle, at most 180,000 bytes for all five `VertexPositionColor` models. The far tier, simulation,
+LOD distance, population, texture count and one-draw batching do not change. Release
+`IslandCoreTests` pass. Inspected llvmpipe evidence
+`build-consumer/software-captures/20261013T110942.434236Z-turtles` passes with 217 colour bins,
+27.90 luminance deviation, 161.96 spatial contrast and an empty kernel delta. It retains the
+recognizable shell/head and shows a shorter, joined front shoulder; the deliberately thin edge is
+subtle from the side-on audit angle. Android execution and all-angle motion review remain open.
+
+Focused Chrome/SwiftShader evidence `20261013T111627.247231Z-chrome-turtles` also passes. Both
+inspected frames retain the close turtle in different poses, their SHA-256 identities differ, all
+60 finite intervals complete, `glError` is zero, the context remains live and the kernel delta is
+empty. This closes current Web execution, not continuous all-angle stroke or Android qualification.

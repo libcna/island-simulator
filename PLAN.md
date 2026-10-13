@@ -1346,6 +1346,22 @@ Standing visual-quality rules (apply to every task from now on):
   technical-only because the subject left its second image before the translation-follow camera
   fix. Simplified colours/facets, continuous all-angle stroke review, material depth response and
   current Android runtime remain open.
+  A fifth turtle pass closes the formerly coincident upper/lower paddle sheets into tapered
+  volumes with lit leading/trailing edges and closed root/tip caps, and moves the front root
+  beneath the marginal scutes. Near geometry is2250vertices/750triangles (180000bytes for five),
+  with the same five agents, far tier and one draw. Release CoreTests pass; inspected native
+  `20261013T110942.434236Z-turtles` passes217bins/std27.90/spatial161.96/kernel[] and shows the
+  shorter, joined shoulder silhouette. Focused Chrome/SwiftShader
+  `20261013T111627.247231Z-chrome-turtles` passes two inspected different-hash poses,60finite
+  intervals,GL0/context intact/kernel[]. Current Android qualification remains open.
+  A third crab pass replaces all four zero-thickness triangular pincer fingers with closed,
+  tapering triangular prisms. Near geometry is810vertices/270triangles (388800bytes for all30),
+  with unchanged far tier/population/one draw. Inspected native
+  `20261013T111127.629747Z-crabs` passes195bins/std30.83/spatial189.41/kernel[]; the moving colony
+  retains separated claws with visibly solid edges. Focused Chrome/SwiftShader
+  `20261013T111847.667938Z-chrome-crabs` passes two inspected different-hash colony frames,60finite
+  intervals,GL0/context intact/kernel[]. Current Android qualification and shell microtexture
+  remain open.
 - [ ] A new species or object is not done when it merely exists and animates. It needs believable
   silhouette, proportions, material/colour, motion and ground/water contact in close first-person
   views, and must not ship at the current turtle's quality level.

@@ -44,7 +44,7 @@ namespace island
         constexpr std::string_view TurtleDetailDiagnostic =
             "island-simulator: near turtles use subdued scute seams, fuller heads, nostrils and mouth creases";
         constexpr std::string_view TurtleScaleDiagnostic =
-            "island-simulator: near turtles use staggered interlocking scutes and scaled paddle joints";
+            "island-simulator: near turtles use staggered scutes and closed tapered-volume paddles";
 
         struct TurtlePalette
         {
@@ -94,6 +94,14 @@ namespace island
             const Color lit = wildlife_render::FacetColor(a, b, c, color, true);
             AddTriangle(vertices, a, b, c, lit);
             AddTriangle(vertices, c, b, a, lit);
+        }
+
+        void AddQuad(std::vector<VertexPositionColor>& vertices,
+                     const Vector3& a, const Vector3& b,
+                     const Vector3& c, const Vector3& d, const Color& color)
+        {
+            AddLitTriangle(vertices, a, b, c, color);
+            AddLitTriangle(vertices, a, c, d, color);
         }
 
         [[nodiscard]] PoseAxes MakePoseAxes(const SeaTurtleState& turtle)
@@ -180,8 +188,9 @@ namespace island
                 + HeadSegments * (HeadRings - 1) * 2 + HeadSegments * 2       // neck/skull/crown/brow/snout, nose, neck cap
                 + 6                                                           // paired two-facet eyes and highlights
                 + 4                                                           // paired nostrils and mouth creases
-                + 2 * ((FrontSamples - 1) * 2 * 2)                            // front paddles, two faces
-                + 2 * ((RearSamples - 1) * 2 * 2)                             // rear paddles, two faces
+                + 2 * ((FrontSamples - 1) * 2 * 4)                            // front paddles, faces and edges
+                + 2 * ((RearSamples - 1) * 2 * 4)                             // rear paddles, faces and edges
+                + 2 * 4 * 2                                                   // closed roots and tips
                 + 2 * ((FrontSamples - 2) * 2 + (RearSamples - 2) * 2)        // upper paddle scale seams
                 + 4;                                                          // tail, two faces
         };
@@ -409,40 +418,54 @@ namespace island
                             side > 0.0f ? m1 : m2, eye);
             }
 
-            // Paddles: thin surfaces with a dark scaled upper face and a pale underside. Lit
-            // one-sided per face so the underside reads as shadowed, as on a real turtle.
+            // Paddles: closed tapered volumes with a dark scaled upper face, pale underside
+            // and shadowed edges. The old coincident top/bottom sheets looked paper-thin at
+            // grazing angles and disconnected from the shell.
             const float stroke = turtle.flipperStroke;
             const auto appendPaddle = [&](const float side, const int samples,
                                           const auto& sampler, const float topTone) {
-                std::vector<Vector3> leading, trailing;
+                std::vector<Vector3> upperLeading, upperTrailing;
+                std::vector<Vector3> lowerLeading, lowerTrailing;
                 for (int i = 0; i < samples; ++i) {
                     const float t = static_cast<float>(i) / static_cast<float>(samples - 1);
                     float halfWidth = 0.0f;
                     const FlipperPoint c = sampler(side, t, halfWidth);
-                    leading.push_back(local(c.x, c.y, c.z + halfWidth));
-                    trailing.push_back(local(c.x, c.y, c.z - halfWidth));
+                    const float halfThickness = (0.020f - 0.012f * t) * scale;
+                    const Vector3 lift = axes.up * halfThickness;
+                    upperLeading.push_back(local(c.x, c.y, c.z + halfWidth) + lift);
+                    upperTrailing.push_back(local(c.x, c.y, c.z - halfWidth) + lift);
+                    lowerLeading.push_back(local(c.x, c.y, c.z + halfWidth) - lift);
+                    lowerTrailing.push_back(local(c.x, c.y, c.z - halfWidth) - lift);
                 }
                 for (int i = 0; i + 1 < samples; ++i) {
                     const auto a = static_cast<std::size_t>(i), b = a + 1U;
                     const Color top = ToneColor(palette.skin, topTone * (i % 2 ? 0.95f : 1.0f));
                     const Color under = ToneColor(palette.underside, 0.9f);
-                    const Vector3 above = (leading[a] + trailing[b]) * 0.5f + axes.up * 0.2f;
-                    const Vector3 below = (leading[a] + trailing[b]) * 0.5f - axes.up * 0.2f;
-                    AddOutwardTriangle(vertices, leading[a], trailing[a], trailing[b], top, below);
-                    AddOutwardTriangle(vertices, leading[a], trailing[b], leading[b], top, below);
-                    AddOutwardTriangle(vertices, leading[a], trailing[a], trailing[b], under, above);
-                    AddOutwardTriangle(vertices, leading[a], trailing[b], leading[b], under, above);
+                    const Color edge = ToneColor(palette.skin, topTone * 0.72f);
+                    const Vector3 above = (upperLeading[a] + upperTrailing[b]) * 0.5f + axes.up * 0.2f;
+                    const Vector3 below = (lowerLeading[a] + lowerTrailing[b]) * 0.5f - axes.up * 0.2f;
+                    AddOutwardTriangle(vertices, upperLeading[a], upperTrailing[a], upperTrailing[b], top, below);
+                    AddOutwardTriangle(vertices, upperLeading[a], upperTrailing[b], upperLeading[b], top, below);
+                    AddOutwardTriangle(vertices, lowerLeading[a], lowerTrailing[b], lowerTrailing[a], under, above);
+                    AddOutwardTriangle(vertices, lowerLeading[a], lowerLeading[b], lowerTrailing[b], under, above);
+                    AddQuad(vertices, upperLeading[a], upperLeading[b], lowerLeading[b], lowerLeading[a], edge);
+                    AddQuad(vertices, upperTrailing[b], upperTrailing[a], lowerTrailing[a], lowerTrailing[b], edge);
                 }
+                const Color edge = ToneColor(palette.skin, topTone * 0.72f);
+                AddQuad(vertices, upperTrailing.front(), upperLeading.front(),
+                        lowerLeading.front(), lowerTrailing.front(), edge);
+                AddQuad(vertices, upperLeading.back(), upperTrailing.back(),
+                        lowerTrailing.back(), lowerLeading.back(), edge);
                 const Color joint = ToneColor(palette.skin, topTone * 0.74f);
                 for (int i = 1; i + 1 < samples; ++i) {
                     const auto before = static_cast<std::size_t>(i - 1);
                     const auto at = static_cast<std::size_t>(i);
                     const auto after = static_cast<std::size_t>(i + 1);
                     const Vector3 offset = axes.up * (0.0025f * scale);
-                    const Vector3 l0 = Vector3::Lerp(leading[before], leading[at], 0.985f) + offset;
-                    const Vector3 t0 = Vector3::Lerp(trailing[before], trailing[at], 0.985f) + offset;
-                    const Vector3 l1 = Vector3::Lerp(leading[at], leading[after], 0.015f) + offset;
-                    const Vector3 t1 = Vector3::Lerp(trailing[at], trailing[after], 0.015f) + offset;
+                    const Vector3 l0 = Vector3::Lerp(upperLeading[before], upperLeading[at], 0.985f) + offset;
+                    const Vector3 t0 = Vector3::Lerp(upperTrailing[before], upperTrailing[at], 0.985f) + offset;
+                    const Vector3 l1 = Vector3::Lerp(upperLeading[at], upperLeading[after], 0.015f) + offset;
+                    const Vector3 t1 = Vector3::Lerp(upperTrailing[at], upperTrailing[after], 0.015f) + offset;
                     const Vector3 below = (l0 + t0 + l1 + t1) * 0.25f - axes.up * 0.2f;
                     AddOutwardTriangle(vertices, l0, t0, t1, joint, below);
                     AddOutwardTriangle(vertices, l0, t1, l1, joint, below);

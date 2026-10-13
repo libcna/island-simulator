@@ -207,7 +207,7 @@ def validate_crab_report(report):
                    and math.isfinite(value) and value > 0 for value in intervals)
         or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
         or len(set(frames)) != 2
-        or "near crabs use fixed-sun facets, tapered distal toes, and socketed eyes" not in log
+        or "near crabs use tapered toes, socketed eyes, and solid pincer fingers" not in log
         or not re.search(r"crabs [1-9][0-9]*/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("crab view lacks current anatomy, frames or clean graphics state")
@@ -230,7 +230,7 @@ def validate_turtle_report(report):
                    and math.isfinite(value) and value > 0 for value in intervals)
         or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
         or len(set(frames)) != 2
-        or "near turtles use staggered interlocking scutes and scaled paddle joints" not in log
+        or "near turtles use staggered scutes and closed tapered-volume paddles" not in log
         or not re.search(r"turtles [1-5]/5 visible \(near [1-5], far [0-5]\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("turtle view lacks current anatomy, frames or clean graphics state")

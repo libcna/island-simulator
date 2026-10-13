@@ -148,7 +148,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn("turtles", gate.SCOPES)
         self.assertIn('["turtles", ["--viewpoint", "turtles", "--debug-overlay"]]',
                       (ROOT / "tools/web_smoke.html.in").read_text())
-        marker = "near turtles use staggered interlocking scutes and scaled paddle joints"
+        marker = "near turtles use staggered scutes and closed tapered-volume paddles"
         def report():
             return {"passed": True, "views": [{"mode": "turtles", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
@@ -171,7 +171,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn("crabs", gate.SCOPES)
         self.assertIn('["crabs", ["--viewpoint", "crabs", "--debug-overlay"]]',
                       (ROOT / "tools/web_smoke.html.in").read_text())
-        marker = "near crabs use fixed-sun facets, tapered distal toes, and socketed eyes"
+        marker = "near crabs use tapered toes, socketed eyes, and solid pincer fingers"
         def report():
             return {"passed": True, "views": [{"mode": "crabs", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",

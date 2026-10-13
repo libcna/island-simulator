@@ -124,7 +124,7 @@ namespace island::sea_turtle
         if (!std::isfinite(t) || t < 0.0f || t > 1.0f) throw std::invalid_argument("Flipper fraction");
         RequireUnit(stroke, "Flipper stroke must be normalized");
         if (side != 1.0f && side != -1.0f) throw std::invalid_argument("Flipper side");
-        constexpr float length = 0.74f;
+        constexpr float length = 0.72f;
         const float lag = std::pow(t, 1.6f);
         const float flap = stroke * 0.55f - stroke * 0.30f * lag;      // radians about forward axis
         // Power stroke (negative) sweeps back, recovery (positive) brings the paddle forward.
@@ -135,7 +135,10 @@ namespace island::sea_turtle
         const float rise = reach * std::sin(flap) * std::cos(sweep);
         halfWidth = 0.095f * (0.95f + 0.75f * std::sin(3.14159265f * std::min(1.0f, t * 1.1f + 0.1f)))
             * (1.0f - 0.55f * t * t);
-        return {side * (0.36f + outward), -0.01f + rise, 0.30f + back};
+        // Start beneath the marginal scutes instead of leaving a visible gap between the
+        // shell and the first paddle section. The distal reach remains long enough for the
+        // characteristic green-turtle silhouette.
+        return {side * (0.31f + outward), -0.01f + rise, 0.30f + back};
     }
 
     /** @brief Small rear paddle; stroke is a reduced, delayed echo of the front stroke. */

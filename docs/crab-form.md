@@ -83,3 +83,24 @@ two images. Actual `20261013T025538.029727Z-chrome-crabs` passes; both frames we
 retain the moving colony, hashes differ, and the kernel delta is empty. This does not qualify
 continuous gait, hardware performance, current Android rendering, claw curvature or a filtered
 shell microtexture; those remain open, and the Android emulator/KVM was not touched.
+
+## Solid pincer fingers (2026-10-13)
+
+The current five-animal audit still exposed both fingers of every claw as coincident, double-sided
+triangles. Each finger is now a closed tapering triangular prism: separate upper/lower faces, three
+lit edge quads and reduced tip thickness preserve the open pincer while giving it a visible solid
+edge. This changes no behavior, habitat, LOD threshold, population or draw count.
+
+Four fingers add 72 vertices, bringing the exact near tier to 810 vertices / 270 triangles per
+crab. The conservative all-near capacity is 24,300 vertices / 388,800 bytes; the far tier remains
+12 vertices. Inspected llvmpipe evidence
+`build-consumer/software-captures/20261013T111127.629747Z-crabs` passes with 195 colour bins, 30.83
+luminance deviation, 189.41 spatial contrast and an empty kernel delta. Thin planar fingers are no
+longer an open defect; smoother curvature, shell microtexture, Android execution and
+physical-device cost remain open.
+
+Focused Chrome/SwiftShader evidence `20261013T111847.667938Z-chrome-crabs` passes. The two
+inspected frames retain separated solid claws on the moving colony and have different SHA-256
+identities; all 60 finite intervals complete with `glError=0`, a live context and an empty kernel
+delta. Current Web execution is therefore qualified; Android, continuous gait, smoother curvature,
+shell microtexture and physical-device cost remain open.
