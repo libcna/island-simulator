@@ -511,12 +511,12 @@ namespace island
                 else mesh.indices.insert(mesh.indices.end(), {a, b, c, a, c, d});
             }
             if (near) {
-                // Twenty-four small three-sided clumps break the smooth hose outline without
+                // Thirty-six small three-sided clumps break the smooth hose outline without
                 // a second material or texture. They inherit the same two tail bones,
                 // so their roots cannot detach while the tail curls and sways.
                 constexpr float GoldenAngle=2.39996323f;
-                for(int tuft=0;tuft<24;++tuft) {
-                    const float t=.035f+.039f*tuft;
+                for(int tuft=0;tuft<36;++tuft) {
+                    const float t=.025f+.026f*tuft;
                     const auto section=MonkeyTailProfile::Sample(anchors,t);
                     const Vector3 axis=Vector3::Normalize(vector(section.tangent));
                     const Vector3 right=Vector3::Right;
@@ -525,9 +525,9 @@ namespace island
                     const Vector3 radial=right*std::cos(angle)+up*std::sin(angle);
                     const Vector3 side=Vector3::Normalize(Vector3::Cross(axis,radial));
                     const Vector3 surface=vector(section.centre)+radial*section.radius;
-                    const std::array<Vector3,4> points{{surface-axis*.026f-side*.010f,
-                        surface+axis*.020f-side*.010f,surface+side*.012f,
-                        surface+radial*(.024f+.002f*(tuft%3))-axis*.006f}};
+                    const std::array<Vector3,4> points{{surface-axis*.031f-side*.013f,
+                        surface+axis*.025f-side*.013f,surface+side*.015f,
+                        surface+radial*(.032f+.003f*(tuft%3))-axis*.007f}};
                     const auto first=static_cast<std::uint16_t>(mesh.vertices.size());
                     for(std::size_t i=0;i<points.size();++i) {
                         AddVertex(mesh,points[i],radial,bones[section.firstBone],
@@ -661,6 +661,15 @@ namespace island
             AddEllipsoid(mesh, Vector3(centre.x,centre.y,centre.z),
                          Vector3(radii.x,radii.y,radii.z) * shape.headSize,
                          Head, near ? 10 : 6, segments);
+            if (near) {
+                // Fur-bearing cheek ruffs overlap the cranium and frame the skin mask. The
+                // paired volumes replace the former hard oval edge with a broader primate
+                // face silhouette while remaining on the existing head bone and material.
+                for (float side : {-1.0f, 1.0f})
+                    AddEllipsoid(mesh, Vector3(side*.142f,.842f,.535f),
+                                 Vector3(.074f,.112f,.070f)*shape.headSize,
+                                 Head, 6, 10);
+            }
             for (float side : {-1.0f, 1.0f})
                 AddEllipsoid(mesh, Vector3(side * MonkeyFaceProfile::EarCentre.x,
                              MonkeyFaceProfile::EarCentre.y,MonkeyFaceProfile::EarCentre.z),

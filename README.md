@@ -304,7 +304,8 @@ camera follows a live subject for review; see
 Seven original procedural monkeys roam the interior using a compact, obstacle-aware state machine,
 three silhouette meshes, four material palettes, portable CNA GPU skeletal animation, and short
 state-transition crossfades. Near animals use generated directional fur, a sculpted rump/waist/chest
-loft and bone-following volumetric palms/soles with four forward digits and a lateral opposable digit.
+loft, paired fur cheek ruffs around the skin mask, a heavy hooked tail with raised fur clumps, and
+bone-following volumetric palms/soles with four forward digits and a lateral opposable digit.
 They approach qualified trees, grip actual wind-deformed bark, ascend to a supported summit and
 descend without teleporting. Calm idle/observe animals gradually turn
 their existing head bone

@@ -341,8 +341,10 @@ def validate_monkey_capture_log(diagnostics, require_tree_grips=False):
     # Submission is necessary, not proof of visible pixels: still inspect the image.
     if not re.search(r"monkey capture visible [1-9][0-9]*; near [1-9][0-9]*; draws [1-9][0-9]*;", diagnostics):
         raise RuntimeError("monkey capture did not retain a close subject at readback")
-    if "near monkey tails keep a compact muscular hook and twenty-four low fur clumps" not in diagnostics:
+    if "near monkey tails keep a compact muscular hook and thirty-six raised fur clumps" not in diagnostics:
         raise RuntimeError("monkey capture did not retain the current furry tail anatomy")
+    if "near monkey faces use paired fur cheek ruffs around the skin mask" not in diagnostics:
+        raise RuntimeError("monkey capture did not retain the fur-framed face")
     if "near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail" not in diagnostics:
         raise RuntimeError("monkey capture did not retain the current primate proportions")
     if require_tree_grips and not re.search(r"monkey subject paired tree grips 1\b", diagnostics):

@@ -128,17 +128,17 @@ try {
     const std::array<tail::Point, 4> anchors{{{0,.62f,-.48f}, {0,.73f,-.70f},
         {0,.88f,-.88f}, {0,1.08f,-.72f}}};
     const auto length = [](tail::Point p) { return std::sqrt(p.x*p.x+p.y*p.y+p.z*p.z); };
-    float previousRadius=.091f;
+    float previousRadius=.106f;
     for (int i = 0; i <= 300; ++i) {
         const auto section = tail::Sample(anchors, i/300.0f);
         Require(std::isfinite(section.centre.y) && length(section.tangent) > .1f,
                 "tail frame must be finite and nondegenerate");
-        Require(section.radius >= 0 && section.radius <= .090001f,
+        Require(section.radius >= 0 && section.radius <= .105001f,
                 "fur-bearing tail stays within authored radii");
         Require(section.radius<=previousRadius+1e-6f,"tail radius must taper toward the hook");
-        if(i<=240)Require(section.radius>.048f,"tail becomes needle-thin before rounded tip");
-        if(i<=270)Require(section.radius>.039f,"tail loses its fur-bearing terminal taper");
-        if(i==300)Require(section.radius==0,"tail tip remains open");
+        if(i<=240)Require(section.radius>.056f,"tail becomes needle-thin before rounded tip");
+        if(i<=270)Require(section.radius>.046f,"tail loses its fur-bearing terminal taper");
+        if(i==300)Require(section.radius==0,"tail tip must close");
         previousRadius=section.radius;
         Require(section.secondWeight >= 0 && section.secondWeight <= 1,
                 "tail weights remain normalized and nonnegative");

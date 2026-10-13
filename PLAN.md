@@ -758,6 +758,18 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   initial/four intermediate/final frames were inspected together and retain the broader
   face, deeper trunk and compact attached tail through the scripted turn. Android,
   continuous gait and finer shoulder/hip topology remain open.
+  Seventh follow-up uses a fresh current-binary141856.054706Z side inspection: the
+  remaining rat cues were the hard oval face-mask boundary and smooth tubular tail.
+  Paired fur-material cheek ruffs now frame the skin mask on the head bone; tail root
+  grows90→105mm, remains>56mm through80%/>46mm through90%, and36 raised two-bone
+  fur clumps replace24 low clumps. Near/far geometry is2315/797vertices,
+  3448/1208triangles; same atlas/shader/bones/draws/population and near LOD only.
+  Native142114.732847Z-monkeys PASS/inspected and nine-image142214.661677Z-monkey-tree
+  PASS/montage-inspected; ruffs and tail remain attached through head turns/tree reach,
+  kernel[]. Chrome/SwiftShader142410.234670Z-chrome-monkeys PASS60intervals/GL0/context
+  intact/kernel[]; initial/four poses/final inspected. Android ARM64 assemble/lint PASS
+  without emulator. Continuous gait, joint topology, facial micro-anatomy and Android
+  device rendering remain open, so the task remains unchecked.
 - [~] Move the hut substantially farther inland and rebuild its appearance toward the
   user's reference: raised timber house, front veranda/railing, broad pitched roof,
   exposed framing/braces, plank walls and framed door/windows in a jungle setting.

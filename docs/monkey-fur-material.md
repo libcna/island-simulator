@@ -1,5 +1,40 @@
 # Monkey fur material
 
+## Fur-framed face and broken tail outline — 2026-10-13
+
+A fresh current-binary native side capture `20261013T141856.054706Z-monkeys` was
+inspected before this pass. The shorter/deeper body already read as a quadrupedal
+primate, but the light facial surface still ended in a hard oval and the uniformly
+smooth tail surface retained a rodent-like tube silhouette. This pass addresses those
+two visible defects without changing gait, behavior, bones, materials or draw count.
+
+The near head now carries two overlapping fur-material cheek ruffs on the existing head
+bone. They frame the skin mask with a broader dark-fur silhouette instead of changing
+the mask colour. The tail root grows from 90 to 105 mm, stays above 56 mm through 80
+percent and above 46 mm through 90 percent, then closes rapidly. Thirty-six raised
+three-sided fur clumps replace the previous twenty-four low clumps. Each clump shares
+the underlying section's two tail-bone weights, and its varying 32--38 mm lift breaks
+the outline rather than painting fur onto a smooth cylinder. Near/far geometry is now
+2,315/797 vertices and 3,448/1,208 triangles; all added geometry is near-LOD-only and
+uses existing buffers, fur atlas, shader, 14-bone palette and three draws per near
+animal.
+
+The resulting native side image `20261013T142114.732847Z-monkeys` passes at 1280x720
+with 173 colour bins, 29.11 luminance deviation and 113.26 spatial contrast. Direct
+before/after inspection shows the mask recessed between furred cheeks and a visibly
+irregular, heavier hooked tail. The complete nine-image tree-contact sequence
+`20261013T142214.661677Z-monkey-tree` also passes and was inspected as a montage: the
+ruffs remain attached to the turning head, tail clumps follow the animated hook, and
+both hands retain their bark reach. Both native kernel deltas are empty.
+
+Current Chrome/SwiftShader evidence `20261013T142410.234670Z-chrome-monkeys` passes all
+60 finite intervals with `glError=0`, an intact context and empty final kernel delta.
+Its initial, four intermediate and final frames were inspected together; the fur-framed
+face and attached tail survive the scripted live turn. Android ARM64 assemble/lint also
+passes, without launching an emulator. The model remains procedural: shoulder/hip
+topology, continuous gait naturalism, facial micro-anatomy and Android device rendering
+remain open, so this is not a final photorealism acceptance.
+
 ## Compact primate proportion follow-up — 2026-10-13
 
 A renewed current-binary ordinary capture `20261013T090043.364406Z-monkeys` confirmed that the
