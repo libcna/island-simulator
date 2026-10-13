@@ -138,3 +138,25 @@ GL0, an intact context and an empty kernel delta. Its two distinct close images 
 show the same covered shoulder transition, separated fingers and layered face. This qualifies the
 bounded native/Web visual change, not photorealism, continuous gait, Android runtime or hardware
 performance.
+
+## Bound neckline and moving split wrap
+
+The next clothing-silhouette pass retains the culturally nonspecific practical woven outfit but
+removes two more mannequin cues. The upper torso shoulder ring is narrower and the cap sleeves are
+smaller and slope farther down the arms. Four thin cloth panels now overlap the existing fitted
+walking shorts as a short front/rear wrap. Each outside lower corner follows its authoritative
+thigh, while the inside corners remain near the pelvis; the centre split therefore opens visibly
+during a stride without introducing a cloth simulation. A four-segment plant-fibre trim follows
+the garment surface as a continuous bound V neckline.
+
+The body grows from5,090 to5,154 triangles /15,462 streamed vertices, still one opaque draw below
+the40,000-vertex allocation, plus the unchanged24-triangle sole-shadow draw. No texture, route,
+collision, animation state or population changes. Native llvmpipe
+`20261013T221102.938781Z-resident` passes all eight ordered stages,213 colour bins,35.47 luminance
+deviation,134.29 spatial contrast and empty kernel-fault evidence. The final close frame and gait
+sequence were inspected; the neckline is continuous and the hem opens with the walking pose.
+Chrome/SwiftShader `20261013T221420.747958Z-chrome-resident` passes two different inspected frames,
+60 finite intervals,GL0, intact context and empty kernel reports. ARM64 assembleDebug+lintDebug
+passes without emulator/KVM; Release and Debug resident motion tests and88 focused Python gate
+tests pass. Skin response, sidestepping, continuous gait, Android runtime and representative
+hardware performance remain open.

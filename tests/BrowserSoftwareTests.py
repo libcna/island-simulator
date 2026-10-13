@@ -468,7 +468,8 @@ class BrowserSoftwareTests(unittest.TestCase):
         log = ("resident QA camera frames and follows one peaceful adult\n"
                "resident uses a shoulder-sloped woven tunic with open cap sleeves and anatomically tapered calves\n"
                "resident uses buried deltoid shoulders, split hands, and layered facial anatomy\n"
-               "resident 1/1 visible, 2 draws, 5090 body triangles")
+               "resident woven clothing adds a bound V neckline and split thigh-following wrap\n"
+               "resident 1/1 visible, 2 draws, 5154 body triangles")
         report = {"passed":True,"views":[{"mode":"resident","passed":True,"glError":0,
             "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,
             "screenshot":"before.png","afterSimulationScreenshot":"after.png",

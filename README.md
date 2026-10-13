@@ -74,7 +74,8 @@ stack of gathered firewood sits about6m away. See [campfire evidence](docs/campf
 for the native first pass and remaining visual/portable checks.
 Exactly one peaceful adult resident now follows a deterministic688m inland tour with pauses,
 terrain-fitted planted feet and player yielding. The original procedural model has facial and
-hair geometry, woven clothes, a small generated material atlas, sandals and sole shadows. Use
+hair geometry, a bound-neck woven tunic, a short split thigh-following wrap, a small generated
+material atlas, sandals and sole shadows. Use
 `--viewpoint resident` for the fixed eight-stage review; [resident evidence](docs/resident.md)
 records the native first pass and its remaining artistic and portable limitations.
 Exactly one large peaceful bear now roams a bounded inland habitat with planted four-foot

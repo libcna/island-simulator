@@ -185,6 +185,11 @@ public:
                  p(ring+1,a0),n(ring+1,a0),{static_cast<float>(i)/segments,static_cast<float>(ring+1)/(centres.size()-1)},material);
         }
     }
+
+    void Panel(Vector3 a,Vector3 b,Vector3 c,Vector3 d,Vector3 normal,Material material) {
+        normal=SafeUnit(normal);
+        Quad(a,normal,{0,0},b,normal,{1,0},c,normal,{1,1},d,normal,{0,1},material);
+    }
 private:
     void Vertex(Vector3 p,Vector3 normal,Vector2 uv,Material material) {
         const auto base=BaseColor(material);
@@ -223,10 +228,37 @@ void BuildHuman(std::vector<VertexPositionColorTexture>& vertices,const Resident
     const std::array torsoCentres{root+up*-.035f,root+up*.045f,root+up*.145f,
         root+up*.255f+forward*.008f,root+up*.360f+forward*.012f,
         root+up*.430f+forward*.006f,root+up*.468f+forward*.003f,root+up*.500f};
-    const std::array torsoRx{.170f,.150f,.148f,.170f,.205f,.225f,.170f,.105f};
+    const std::array torsoRx{.170f,.150f,.148f,.170f,.200f,.212f,.164f,.102f};
     const std::array torsoRz{.114f,.105f,.103f,.115f,.136f,.126f,.101f,.077f};
     mesh.Loft(torsoCentres,torsoRx,torsoRz,right,forward,Material::Cloth,18);
     mesh.Tube(root+up*.045f,root+up*.092f,.178f,.17f,Material::Fibre,14);
+    // A bound V neckline breaks the flat bib-like front while staying practical and
+    // culturally nonspecific.  The trim follows the torso surface and shares its draw.
+    const Vector3 neckPoint=root+up*.402f+forward*.145f;
+    for(float sign:{-1.0f,1.0f}) {
+        const Vector3 collar=root+up*.478f+right*(sign*.061f)+forward*.108f;
+        const Vector3 middle=root+up*.443f+right*(sign*.033f)+forward*.130f;
+        mesh.Tube(collar,middle,.0048f,.0052f,Material::Fibre,7);
+        mesh.Tube(middle,neckPoint,.0052f,.0058f,Material::Fibre,7);
+    }
+
+    // Two front and two rear overlap panels form a short split wrap over the fitted
+    // walking shorts.  Each lower outside corner follows its thigh, so the cloth opens
+    // with the stride instead of remaining a rigid rectangular box around both legs.
+    for(std::size_t side=0;side<2;++side) {
+        const float sign=side==0?-1.0f:1.0f;
+        const Vector3 thigh=Lerp(Point(pose.legs[side].hip),Point(pose.legs[side].knee),.43f);
+        const Vector3 frontTop=root+up*.052f+forward*.123f;
+        const Vector3 frontOuterBottom=thigh+forward*.112f+right*(sign*.018f);
+        const Vector3 frontInnerBottom=root-up*.210f+forward*.112f+right*(sign*.008f);
+        mesh.Panel(frontTop+right*(sign*.008f),frontTop+right*(sign*.158f),
+            frontOuterBottom,frontInnerBottom,forward,Material::Cloth);
+        const Vector3 backTop=root+up*.052f-forward*.116f;
+        const Vector3 backOuterBottom=thigh-forward*.105f+right*(sign*.018f);
+        const Vector3 backInnerBottom=root-up*.210f-forward*.105f+right*(sign*.008f);
+        mesh.Panel(backTop+right*(sign*.158f),backTop+right*(sign*.008f),
+            backInnerBottom,backOuterBottom,-forward,Material::Cloth);
+    }
 
     const Vector3 neckBase=root+up*.48f,neckTop=root+up*.565f;
     mesh.Tube(neckBase,neckTop,.068f,.063f,Material::Skin,12);
@@ -266,11 +298,11 @@ void BuildHuman(std::vector<VertexPositionColorTexture>& vertices,const Resident
         const Vector3 shoulder=Point(pose.shoulders[side]),elbow=Point(pose.elbows[side]),wrist=Point(pose.wrists[side]);
         const float sideSign=side==0?-1.0f:1.0f;
         const Vector3 armRoot=shoulder-right*(sideSign*.018f)+up*.004f;
-        const Vector3 sleeveEnd=Lerp(shoulder,elbow,.18f);
+        const Vector3 sleeveEnd=Lerp(shoulder,elbow,.22f);
         const Vector3 upperMid=Lerp(shoulder,elbow,.46f);
         // An open cap sleeve bridges the animated arm root and the sloping torso cloth.
         // It hides the unavoidable procedural joint seam without adding a separate draw.
-        mesh.Tube(armRoot,sleeveEnd,.071f,.064f,Material::Cloth,12);
+        mesh.Tube(armRoot,sleeveEnd,.061f,.058f,Material::Cloth,12);
         mesh.Tube(sleeveEnd,upperMid,.057f,.052f,Material::Skin,12);
         mesh.Tube(upperMid,elbow,.052f,.045f,Material::Skin,11);
         mesh.Ellipsoid(elbow,right,up,forward,.047f,.048f,.047f,Material::Skin,10,6);
@@ -332,6 +364,8 @@ ResidentRenderer::ResidentRenderer(GraphicsDevice& device,const CanopyLightField
     std::cout<<silhouette<<'\n';MirrorRuntimeDiagnosticToPlatformLog(silhouette);
     const char* anatomy="island-simulator: resident uses buried deltoid shoulders, split hands, and layered facial anatomy";
     std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
+    const char* garment="island-simulator: resident woven clothing adds a bound V neckline and split thigh-following wrap";
+    std::cout<<garment<<'\n';MirrorRuntimeDiagnosticToPlatformLog(garment);
 }
 ResidentRenderer::~ResidentRenderer()=default;
 

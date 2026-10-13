@@ -4453,3 +4453,23 @@ final image inspected. WorldReport valid fingerprint`0ecd98ad6f56b15b`. Android 
 assembleDebug+lintDebug PASS10s without emulator/KVM. Debug build PASS and Core+Campfire2/2
 PASS67.95s. No AMD GPU/KVM/emulator/dependency change. Remaining
 campfire speaker listening, continuous moving-view/performance and broader plan stay open.
+
+# Latest — resident woven-clothing silhouette pass
+
+Goal remains active. Current resident audit showed the face readable but the top/shorts still
+forming a boxy figurine silhouette. `ResidentRenderer` now narrows the shoulder ring and cap sleeves,
+adds a continuous four-segment plant-fibre-bound V neckline, and overlays the fitted shorts with
+two front/two rear cloth panels. Outer hem corners follow the authoritative thigh positions while
+inner corners stay near the pelvis, so the centre split opens through the existing gait without a
+cloth simulator. Exactly one peaceful resident, route, collision, planted feet, atlas, draw count
+and shadow geometry are unchanged. Body cost5090→5154 triangles/15462 streamed vertices, still one
+body draw plus24 shadow triangles and below the40000-vertex capacity.
+
+Release build and ResidentTests PASS1.14s; focused Python gates88/88 PASS1.688s. First accepted
+native221102.938781Z-resident PASS213bins/std35.47/spatial134.29/kernel[]; all eight stages and a
+close crop inspected, with continuous neckline and stride-opening wrap. Chrome/SwiftShader
+221420.747958Z-chrome-resident PASS two distinct inspected frames/60 finite intervals/GL0/context
+intact/kernel[]. ARM64 assembleDebug+lintDebug PASS13s without emulator/KVM. Debug build and
+ResidentTests PASS5.99s; final Python gates88/88 PASS1.137s. No AMD GPU/KVM/emulator/dependency
+change. Skin response, sidestepping, continuous gait, Android runtime/performance and the wider
+plan remain open; do not mark resident or goal complete.

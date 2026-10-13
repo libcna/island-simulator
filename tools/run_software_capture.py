@@ -675,6 +675,7 @@ def main():
                 for marker in ("one adult resident uses original articulated human geometry",
                                "resident uses a shoulder-sloped woven tunic with open cap sleeves and anatomically tapered calves",
                                "resident uses buried deltoid shoulders, split hands, and layered facial anatomy",
+                               "resident woven clothing adds a bound V neckline and split thigh-following wrap",
                                "resident QA camera frames and follows one peaceful adult",
                                "resident capture visible 1; draws 2"):
                     if marker not in diagnostics:

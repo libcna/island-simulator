@@ -806,6 +806,7 @@ try {
             && (!focusedResidentCheck || (log.includes("resident QA camera frames and follows one peaceful adult")
               && log.includes("resident uses a shoulder-sloped woven tunic with open cap sleeves and anatomically tapered calves")
               && log.includes("resident uses buried deltoid shoulders, split hands, and layered facial anatomy")
+              && log.includes("resident woven clothing adds a bound V neckline and split thigh-following wrap")
               && /resident 1\/1 visible, 2 draws, [1-9][0-9]* body triangles/.test(log)))
             && (!focusedStreamCheck || (log.includes("route-following downstream ripple and translucent current streaks")
               && log.includes("stream water uses bank-edge sheen and broken shallow riffles")
