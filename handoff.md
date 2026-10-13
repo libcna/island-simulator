@@ -1,5 +1,20 @@
 # island-simulator handoff
 
+## Current work — helicopter cockpit controls inspected
+
+Goal remains active; continue the whole plan. Each pilot seat now has a curved tubular cyclic,
+left-mounted collective and two rudder pedals. Four recessed round gauges have metal bezels,
+individual needles and six lower annunciators. The interior QA camera now looks down the centre
+aisle so controls are visible. The model rises 1,788→2,104 triangles, still two draws and with no
+texture/shader/collision/flight-state change. First rear-cabin capture201141.581953Z passed but
+was rejected because seat backs hid the controls. Final native201600.553835Z-helicopter
+PASS301bins/std55.12/spatial235.22 and201518.621138Z-helicopter-inside PASS167/std25.15/
+spatial110.19, both inspected/kernel[]. Chrome/SwiftShader201903.851542Z-chrome-helicopter PASS
+both views/60 intervals each/four inspected frames/GL0/contexts intact/kernel[]. Release+Debug
+layout/asset,33 browser-runner tests and ARM64 assemble/lint pass. Free-walk clearance, Android
+runtime, sitting/interaction and richer mechanics remain; PLAN stays `[~]`. No emulator/KVM or
+AMD GPU. Max four compile cores.
+
 ## Current work — monkey nose and corneas inspected
 
 Goal remains active; continue the whole plan. The latest near face now moves/enlarges each cornea

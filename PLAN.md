@@ -993,7 +993,18 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   Chrome/SwiftShader `20261013T192258.296430Z-chrome-helicopter` passes exterior+interior at
   60 finite intervals each, GL0, intact contexts, four distinct images and kernel[]. Release/Debug
   layout+asset tests, 33 browser-runner tests and ARM64 assemble/lint pass without emulator/KVM.
-  Richer anatomy/mechanics,
+  A seventh cockpit pass replaces the flat coloured-lamp grid with four recessed round gauges,
+  metal bezels, individual needles and six annunciators. Both seats gain curved two-segment
+  cyclics, conventionally left-mounted three-segment collectives and paired rudder pedals. The
+  interior QA camera now looks down the centre aisle into the accessible footwell. Cost rises
+  1788→2104 triangles in the same two draws with no texture/shader/collision/flight change.
+  Native201600.553835Z-helicopter PASS301bins/std55.12/spatial235.22 and
+  201518.621138Z-helicopter-inside PASS167/std25.15/spatial110.19, both inspected/kernel[]. The
+  first201141.581953Z rear-cabin view passed technically but was rejected as control evidence
+  because seat backs hid the new parts. Chrome/SwiftShader201903.851542Z-chrome-helicopter
+  PASS both views/60intervals each/GL0/contexts intact/four inspected images/kernel[].
+  Release+Debug layout/asset,33 browser-runner tests and ARM64 assemble/lint pass. Richer
+  anatomy/mechanics,
   interactions, free walking, Android runtime and performance review remain. See
   `docs/helicopter.md`.
 

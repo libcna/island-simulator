@@ -621,7 +621,7 @@ def main():
                     if marker not in diagnostics:
                         raise RuntimeError(f"hut integration diagnostic missing: {marker}")
             if args.viewpoint in ("helicopter", "helicopter-inside"):
-                camera_marker=("helicopter QA camera frames rear cabin toward accessible cockpit"
+                camera_marker=("helicopter QA camera frames centre aisle across cockpit controls and accessible footwell"
                                if args.viewpoint=="helicopter-inside" else
                                "helicopter QA camera frames grounded exterior and open doors")
                 for marker in (camera_marker,
@@ -629,7 +629,8 @@ def main():
                                "helicopter uses rounded twenty-sided cockpit glazing, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane",
                                "helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges",
                                "helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber",
-                               "helicopter carries four outward-open framed door panels with glazing and handles"):
+                               "helicopter carries four outward-open framed door panels with glazing and handles",
+                               "helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"helicopter integration diagnostic missing: {marker}")
                 if not re.search(r"helicopter 2 draw", diagnostics):

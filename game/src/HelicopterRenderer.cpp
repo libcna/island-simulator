@@ -210,6 +210,15 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
                  first[static_cast<std::size_t>(next)],color,surface);
         }
     };
+    const auto disc=[&](const Vector3& centre,const float radius,const int segments,
+                        const Color& color,const Surface surface=Surface::Rubber) {
+        for(int segment=0;segment<segments;++segment) {
+            const float first=tau*segment/segments,next=tau*(segment+1)/segments;
+            triangle(centre,
+                centre+Vector3(std::cos(first)*radius,std::sin(first)*radius,0),
+                centre+Vector3(std::cos(next)*radius,std::sin(next)*radius,0),color,surface);
+        }
+    };
     const Color olive(101,116,80),oliveLight(136,147,102),oliveDark(61,73,56);
     const Color glass(42,78,91,132),glassLight(94,145,159,150),metal(82,85,81);
     const Color interior(49,54,50),seat(45,49,43),rubber(30,32,30);
@@ -296,21 +305,47 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         openDoor(side,-1.68f,-2.55f);
     }
 
-    // Two pilot seats, rear bench, instrument panel and paired cyclic controls.
+    // Two pilot seats, rear bench and articulated primary flight controls. Curved
+    // cyclic shafts and separate collectives read as controls rather than seat braces.
     for(const float x:{-.46f,.46f}) {
         box({x-.27f,.46f,.08f},{x+.27f,.76f,.66f},seat,Surface::Upholstery);
         box({x-.28f,.72f,.08f},{x+.28f,1.43f,.25f},seat,Surface::Upholstery);
-        beam({x,.58f,.79f},{x,.95f,1.03f},.045f,metal,Surface::Metal);
-        box({x-.055f,.91f,.98f},{x+.055f,1.01f,1.08f},rubber,Surface::Rubber);
+        tube({x,.58f,.79f},{x,.74f,.91f},.026f,metal,Surface::Metal);
+        tube({x,.74f,.91f},{x,.94f,1.03f},.026f,metal,Surface::Metal);
+        tube({x-.085f,.95f,1.03f},{x+.085f,.95f,1.03f},.039f,rubber,Surface::Rubber);
+        const float collectiveX=x-.32f; // A collective is conventionally left of each pilot.
+        tube({collectiveX,.56f,.34f},{collectiveX,.78f,.48f},.024f,metal,Surface::Metal);
+        tube({collectiveX,.78f,.48f},{collectiveX,.91f,.66f},.024f,metal,Surface::Metal);
+        tube({collectiveX,.91f,.66f},{collectiveX,.91f,.82f},.038f,rubber,Surface::Rubber);
+        for(const float pedalOffset:{-.11f,.11f}) {
+            tube({x+pedalOffset,.47f,.92f},{x+pedalOffset,.58f,1.15f},.020f,
+                 metal,Surface::Metal);
+            box({x+pedalOffset-.070f,.545f,1.12f},{x+pedalOffset+.070f,.615f,1.25f},
+                rubber,Surface::Rubber);
+        }
     }
     box({-.72f,.48f,-1.72f},{.72f,.79f,-1.43f},seat,Surface::Upholstery);
     box({-.72f,.75f,-1.70f},{.72f,1.38f,-1.52f},seat,Surface::Upholstery);
     box({-.72f,1.05f,1.30f},{.72f,1.39f,1.52f},rubber,Surface::Rubber);
-    for(int row=0;row<2;++row)for(int column=0;column<6;++column) {
-        const Color lamp=(column+row)%3==0?Color(194,91,57):
-            ((column+row)%3==1?Color(89,157,105):Color(204,177,80));
-        box({-.54f+column*.18f,1.18f+row*.10f,1.285f},
-            {-.49f+column*.18f,1.23f+row*.10f,1.295f},lamp,Surface::Emissive);
+    // Recessed round gauges, contrasting bezels and individual needles replace the
+    // former grid of twelve coloured squares. Their layered planes face the cabin.
+    constexpr std::array<float,4> gaugeX{{-.47f,-.16f,.16f,.47f}};
+    for(std::size_t gauge=0;gauge<gaugeX.size();++gauge) {
+        const Vector3 bezel(gaugeX[gauge],1.27f,1.289f);
+        disc(bezel,.095f,16,Color(116,119,111),Surface::Metal);
+        disc(bezel-Vector3(0,0,.006f),.073f,16,Color(14,17,15),Surface::Rubber);
+        const float angle=-1.03f+static_cast<float>(gauge)*.47f;
+        const Vector3 centre=bezel-Vector3(0,0,.010f);
+        const Vector3 along(std::cos(angle)*.058f,std::sin(angle)*.058f,0);
+        const Vector3 across(-std::sin(angle)*.010f,std::cos(angle)*.010f,0);
+        triangle(centre-across,centre+along,centre+across,
+                 gauge==0?Color(210,91,66):Color(218,207,168),Surface::Emissive);
+    }
+    for(int column=0;column<6;++column) {
+        const Color lamp=column%3==0?Color(194,91,57):
+            (column%3==1?Color(89,157,105):Color(204,177,80));
+        box({-.49f+column*.18f,1.09f,1.281f},
+            {-.44f+column*.18f,1.14f,1.291f},lamp,Surface::Emissive);
     }
 
     // Tail boom, empennage and clearly horizontal tail-rotor disc.
@@ -450,6 +485,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<doors<<'\n';MirrorRuntimeDiagnosticToPlatformLog(doors);
     const std::string rotor="island-simulator: helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges";
     std::cout<<rotor<<'\n';MirrorRuntimeDiagnosticToPlatformLog(rotor);
+    const std::string cockpit="island-simulator: helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals";
+    std::cout<<cockpit<<'\n';MirrorRuntimeDiagnosticToPlatformLog(cockpit);
 }
 
 HelicopterRenderer::~HelicopterRenderer()=default;

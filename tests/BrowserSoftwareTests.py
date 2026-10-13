@@ -23,6 +23,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             "helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges",
             "helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber",
             "helicopter carries four outward-open framed door panels with glazing and handles",
+            "helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals",
             "helicopter 2 draw",
         ))
         def view(mode):
@@ -34,6 +35,10 @@ class BrowserSoftwareTests(unittest.TestCase):
                          ["helicopter.png", "helicopter-inside.png"])
         report["views"][1]["result"]["output"] = markers.replace(
             "helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges\n", "")
+        with self.assertRaises(RuntimeError):
+            gate.validate_helicopter_report(report)
+        report["views"][1]["result"]["output"] = markers.replace(
+            "helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals\n", "")
         with self.assertRaises(RuntimeError):
             gate.validate_helicopter_report(report)
 

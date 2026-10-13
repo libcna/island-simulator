@@ -1,5 +1,35 @@
 # Grounded helicopter
 
+## Flight-control cockpit pass
+
+The previous cabin contained two seats, a flat panel and small rectangular lamps, but the
+pilot station remained too empty at first-person distance. Each seat now has a two-segment
+tubular cyclic with a transverse rubber grip, a conventionally left-mounted three-segment
+collective and a pair of linked rudder pedals. Four recessed sixteen-sided round gauges use
+metal bezels, dark faces and individually angled needles; six small annunciators remain below
+them. The interior QA camera now looks down the centre aisle into the accessible footwell so
+these controls can be judged rather than hidden behind the seat backs.
+
+The additions stay in the existing opaque batch and raise the complete model from 1,788 to
+2,104 triangles. They do not add a texture, shader, draw, collision obstacle, flight state or
+working interaction, and all four authored entry corridors remain unchanged. The controls are
+visual cockpit anatomy only; the parked helicopter still cannot fly.
+
+Final inspected native llvmpipe evidence is
+`20261013T201600.553835Z-helicopter` (301 colour bins, 55.12 luminance deviation, 235.22 spatial
+contrast) and `20261013T201518.621138Z-helicopter-inside` (167 bins, 25.15 deviation, 110.19
+contrast). Both pass with an empty kernel delta. An earlier rear-cabin view
+`20261013T201141.581953Z-helicopter-inside` passed technically but hid the controls behind the
+seat backs and was not accepted as control evidence.
+
+Focused Chrome/SwiftShader `20261013T201903.851542Z-chrome-helicopter` passes exterior and
+interior views with 60 finite intervals each, `glError=0`, intact contexts and an empty final
+kernel delta. All four separated-time images were inspected and retain the gauges, cyclics,
+pedals, centre collective, glazing and open doors. Release and Debug layout/asset tests, the
+33 browser-runner tests, Web syntax gate and Android ARM64 assemble/lint pass without an emulator
+or KVM. Free-walk control clearance, physical Android rendering, richer cockpit mechanics and
+interactive sitting remain open.
+
 ## Native second visual pass
 
 The island now places one deterministic grounded utility helicopter at

@@ -286,17 +286,16 @@ namespace island
                   ||viewpoint_==FixedViewpoint::HelicopterInteriorDetail) {
             const bool inside=viewpoint_==FixedViewpoint::HelicopterInteriorDetail;
             const auto camera=inside
-                ?helicopterPlacement_->World(0.0f,HelicopterLayout::FloorClearance
-                    +PlayerMotion::EyeHeight,-1.03f)
+                ?helicopterPlacement_->World(0.0f,1.64f,-.03f)
                 :helicopterPlacement_->World(-6.1f,2.8f,4.0f);
-            const auto target=inside?helicopterPlacement_->World(0.0f,1.18f,1.42f)
+            const auto target=inside?helicopterPlacement_->World(0.0f,.72f,1.08f)
                 :helicopterPlacement_->World(0.0f,1.40f,-.25f);
             cameraPosition_=Vector3(camera.x,camera.y,camera.z);
             const Vector3 direction=Vector3(target.x,target.y,target.z)-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
             std::cout<<"island-simulator: helicopter QA camera frames "
-                <<(inside?"rear cabin toward accessible cockpit":"grounded exterior and open doors")<<'\n';
+                <<(inside?"centre aisle across cockpit controls and accessible footwell":"grounded exterior and open doors")<<'\n';
         } else if (viewpoint_ == FixedViewpoint::CaveExterior || viewpoint_ == FixedViewpoint::CaveInterior) {
             const CaveLayout cave(terrain_);
             const bool inside=viewpoint_==FixedViewpoint::CaveInterior;

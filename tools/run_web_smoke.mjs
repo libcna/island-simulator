@@ -760,6 +760,7 @@ try {
               && log.includes("helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges")
               && log.includes("helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber")
               && log.includes("helicopter carries four outward-open framed door panels with glazing and handles")
+              && log.includes("helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals")
               && /helicopter 2 draw/.test(log)))
             && (!focusedCampfireCheck || (log.includes("campfire first visible animated draw")
               && log.includes("campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke")
