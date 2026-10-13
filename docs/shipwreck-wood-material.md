@@ -45,8 +45,11 @@ deck, gunwales, keel, fittings, openings, masts and cabin supports together. The
 break sections receive deterministic per-band longitudinal offsets, yielding uneven broken plank
 ends without another material, buffer or draw. The weathered cut colour and rim-beam radius were
 reduced after the first screenshot made the exposed cross-sections look like bright starbursts.
-The bow and deck line now read less like a pair of rectangular boxes, although the broadside hull
-planking and transom remain visibly procedural.
+The bow and deck line now read less like a pair of rectangular boxes. A subsequent broadside pass
+replaces two former black surface openings plus two additional intact panels on the beach-facing
+side with true missing-plank bays. Unequal retained plank lengths give adjacent strakes offset
+break edges, while three dark inner ribs stand behind the openings. The opposite shell remains
+closed, so the holes reveal structural depth rather than an ocean-coloured backface.
 
 ## Evidence and remaining work
 
@@ -71,8 +74,21 @@ reef scenes with 120 finite intervals each under ANGLE SwiftShader, GL error zer
 and no new kernel GPU fault. Both time-separated Web shipwreck images were inspected.
 
 This material and silhouette slice does not complete the broader realism item. Finer broadside
-plank thickness/damage, debris burial/water intersections, a dedicated matched wide wreck view,
+plank thickness, transom detail, debris burial/water intersections, a dedicated matched wide wreck view,
 and Android GLES 3 visual inspection remain required.
+
+The current inspected broadside-damage result is
+`build-consumer/software-captures/20261013T071626.841306Z-shipwreck`: 1280 by 720,
+195 colour bins, luminance deviation 38.67, spatial contrast 161.87, one wreck draw, 4,972
+triangles and no new kernel fault. The retained holes and ribs are visible from the deterministic
+beach camera; collision, debris placement and render batching are unchanged.
+
+The refreshed focused coast run
+`build/browser-software/20261013T072820.354747Z-chrome-coast` passes shipwreck, water, west and
+reef scenes with 120 finite intervals per view under ANGLE SwiftShader, GL error zero, intact
+contexts and an empty new-kernel-fault delta. Both shipwreck frames and the first frame from every
+companion scene were inspected; the broadside openings retain depth and do not expose a water or
+shared-state artifact.
 
 The self-contained Linux archive built after the texture and fitting slices contains 14,752,032
 installed bytes and 7,880,492 compressed bytes, with SHA-256

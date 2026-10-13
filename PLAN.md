@@ -1447,7 +1447,14 @@ Visual rework explicitly requested by the operator (2026-10-11):
   4,628 triangles, one draw, twelve coastal contact patches and an empty kernel delta. The focused
   Web coast suite `20261013T040508.125953Z-chrome-coast` passed shipwreck/water/west/reef with
   120 finite SwiftShader intervals per view, GL0, intact contexts and no new kernel GPU fault.
-  Further broadside plank/damage geometry, sand/water integration, a dedicated matched wide wreck
+  A third pass replaces two black painted openings plus additional intact beach-facing panels with
+  actual missing-plank bays, unequal retained strake ends and three visible inner ribs. The one-draw
+  batch is now 4,972 triangles; inspected native `20261013T071626.841306Z-shipwreck` passes with
+  195 colour bins, 38.67 luminance deviation, 161.87 spatial contrast and an empty kernel delta.
+  Refreshed Chrome/SwiftShader coast evidence `20261013T072820.354747Z-chrome-coast` passes
+  shipwreck/water/west/reef with 120 finite intervals per view, GL0, intact contexts and an empty
+  kernel delta; both time-separated wreck frames were inspected.
+  Further plank thickness/transom work, sand/water integration, a dedicated matched wide wreck
   comparison and Android visual qualification remain open; diagnostics alone do not close it.
 
 Wildlife backlog requested by the operator (all nonhostile ambient life; none may attack, block
@@ -6060,7 +6067,7 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [x] Give the shipwreck deterministic layout data, a portable culled renderer, fixed-sun material
   response, wet/submerged colour treatment, a dedicated first-person QA viewpoint, F1/F2 counts,
   tests for dimensions/depth/debris bounds/collision, and matched OpenGL 3.3, WebGL 2, and GLES 3
-  runtime evidence. The current 4,628-triangle one-draw batch is distance/frustum culled, provenance is
+  runtime evidence. The current 4,972-triangle one-draw batch is distance/frustum culled, provenance is
   manifest-gated, and native, Chrome, Firefox, and accelerated-Android captures were inspected.
 
 ### Ocean and shoreline

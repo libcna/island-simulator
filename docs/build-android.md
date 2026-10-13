@@ -553,10 +553,11 @@ reported its biome-aware grass path, and completed a GLES 3 first draw under KVM
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
 The current sources also include the original 20.0 m by 5.2 m broken wooden shipwreck, its twelve
-beachward debris pieces, and its single portable 4,628-triangle draw. The refined hull uses a
+beachward debris pieces, and its single portable 4,972-triangle draw. The refined hull uses a
 denser curved cross-section, localized missing boards, keel/rudder, broken rails, hull openings, a
 broken foremast, irregular splintered debris, and a portable aged-wood/waterline GLSL ES 300
-material. The current staged-assets task also prepares the 256-square shipwreck wood image; the
+material. Three additional internal ribs sit behind true beach-facing missing-plank bays. The
+current staged-assets task also prepares the 256-square shipwreck wood image; the
 shader consumes board-local UVs and excludes tagged rusted iron fittings from wood sampling.
 Strict Android gates require the new texture, UV and iron markers, but this new path has not yet
 been rendered on Android. Earlier dedicated x86_64 shipwreck runs on the API 35

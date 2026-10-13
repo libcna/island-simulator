@@ -59,6 +59,8 @@ namespace island
             "island-simulator: shipwreck restrained rusted iron straps, rivets, hinges and rudder braces";
         constexpr std::string_view HullShapeDiagnostic =
             "island-simulator: shipwreck hull uses asymmetric rising sheer, curved keel, and irregular splintered break sections";
+        constexpr std::string_view BroadsideDamageDiagnostic =
+            "island-simulator: shipwreck beach broadside has true missing plank bays with exposed structural ribs";
         constexpr int AgedWoodMaterial = 48;
         constexpr int InnerWoodMaterial = 80;
         constexpr int FreshBreakMaterial = 176;
@@ -520,10 +522,33 @@ void main()
                     const bool missingBoard = nearBrokenEnd
                         && ((capFirst && band == 2U && section % 2U == 0U)
                             || (!capFirst && band == 7U && section % 2U == 1U));
-                    if (missingBoard) continue;
+                    // The authored camera and beach approach see the negative-across
+                    // broadside (bands 0..4). Remove real planking there rather than
+                    // painting more black rectangles over an otherwise sealed hull.
+                    const float centreZ = (sectionZ[section] + sectionZ[section + 1U]) * .5f;
+                    const bool broadsideBreach =
+                        (centreZ > -3.6f && centreZ < -2.4f && (band == 1U || band == 2U))
+                        || (centreZ > 3.2f && centreZ < 4.8f && band == 1U)
+                        || (centreZ > 6.3f && centreZ < 7.8f && band == 2U);
                     const float tone = 0.89f + 0.035f
                         * static_cast<float>((section * 3U + band * 2U) % 6U);
                     const Color color = ScaleColor(OuterWood, tone);
+                    if (missingBoard) continue;
+                    if (broadsideBreach) {
+                        const float lowerCut = band % 2U == 0U ? .29f : .17f;
+                        const float upperCut = band % 2U == 0U ? .86f : .73f;
+                        const auto interpolate=[](const Vector3& a,const Vector3& b,
+                                                  const float amount) {
+                            return a+(b-a)*amount;
+                        };
+                        const Vector3 lowFirst=interpolate(first[band],next[band],lowerCut);
+                        const Vector3 highFirst=interpolate(first[band+1U],next[band+1U],lowerCut);
+                        const Vector3 lowSecond=interpolate(first[band],next[band],upperCut);
+                        const Vector3 highSecond=interpolate(first[band+1U],next[band+1U],upperCut);
+                        AddQuad(vertices,first[band],lowFirst,highFirst,first[band+1U],color);
+                        AddQuad(vertices,lowSecond,next[band],next[band+1U],highSecond,color);
+                        continue;
+                    }
                     AddQuad(vertices, first[band], next[band], next[band + 1U],
                             first[band + 1U], color);
                 }
@@ -666,6 +691,11 @@ void main()
             AppendRib(vertices, ship, axes, -0.88f, -0.12f);
             AppendRib(vertices, ship, axes, 0.05f, 0.18f);
             AppendRib(vertices, ship, axes, 1.12f, -0.08f);
+            // These frames sit directly behind the missing broadside plank bays.
+            // Their darker inner wood gives the damage depth in the beach view.
+            AppendRib(vertices, ship, axes, -3.18f, 0.06f);
+            AppendRib(vertices, ship, axes, 4.04f, -0.05f);
+            AppendRib(vertices, ship, axes, 6.92f, 0.04f);
 
             AppendTaperedBeam(
                 vertices, ShipPoint(ship, axes, 0.0f, -1.42f + HullSheer(-9.55f), -9.55f),
@@ -730,7 +760,7 @@ void main()
                 }
             }
 
-            for (const float z : {-4.9f, -2.8f, 3.7f, 6.0f}) {
+            for (const float z : {-4.9f, 6.0f}) {
                 constexpr float openingY = 0.53f;
                 const float openingX = HullWidthAtHeight(ship, z, openingY) + 0.022f;
                 for (const float side : {-1.0f, 1.0f}) {
@@ -919,11 +949,13 @@ void main()
                      "and snapped mast\n";
         std::cout << LargeShipDetailDiagnostic << '\n';
         std::cout << HullShapeDiagnostic << '\n';
+        std::cout << BroadsideDamageDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(
             "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast");
         MirrorRuntimeDiagnosticToPlatformLog(LargeShipDetailDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(HullShapeDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(BroadsideDamageDiagnostic);
     }
 
     ShipwreckRenderer::~ShipwreckRenderer() = default;
