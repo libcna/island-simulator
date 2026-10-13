@@ -22,8 +22,18 @@ the final 1280x720 scene passes with 346 colour bins, 49.71 luminance deviation 
 
 The focused Chromium 155 / SwiftShader WebGL 2 run
 `20261013T002850.683872Z-chrome-stream` also passes with two inspected separated-time
-frames, `glError == 0`, no context loss and an empty kernel delta. Android runtime,
-an ordinary interactive crossing walk and richer physical bank relief remain open.
+frames, distinct captured hashes, `glError == 0`, no context loss and an empty kernel
+delta.
+
+The focused native input run
+`software-stream-crossing/20261013T003730.637725Z` then uses an actual P debug
+placement and held W input rather than a controller-only route. Sixteen samples move
+from -3.39144 m signed across the southern bank through 0.341693 m nearest-route
+distance to +2.83405 m on the northern bank. Locomotion remains Walking throughout;
+every eye height agrees with the same nine-point maximum footprint support used by
+`PlayerMotion` within 4.8e-7 m. The inspected before/after frames show the visible
+water crossing and arrival in the wet-bank vegetation, with an empty kernel delta.
+Android runtime, longer free traversal and richer physical bank relief remain open.
 
 ## Shared meandering route — 2026-10-12
 

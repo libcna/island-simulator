@@ -7,6 +7,7 @@
 #include "IslandSimulator/GpuDiagnostics.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
+#include "IslandSimulator/StreamRoute.hpp"
 #include "IslandSimulator/TidePoolLayout.hpp"
 #include "IslandSimulator/WorldIdentity.hpp"
 
@@ -1730,6 +1731,20 @@ namespace island
                         <<" gain "<<audio.campfireVolume<<" distance "<<distance<<" clearance "<<clearance
                         <<" sources "<<audio.playingSourceCount<<'\n';
                 }
+                if(terrainRenderer_&&terrainRenderer_->StreamBed().Contains(position.x,position.z)) {
+                    const auto stream=StreamSoundField::Sample(position.x,position.z);
+                    float support=-std::numeric_limits<float>::infinity();
+                    for(const auto offset:PlayerMotion::GroundContactOffsets)
+                        support=std::max(support,terrainRenderer_->StreamBed().SampleHeight(
+                            position.x+offset.x*PlayerMotion::CapsuleRadius,
+                            position.z+offset.z*PlayerMotion::CapsuleRadius));
+                    std::cout<<"island-simulator: stream crossing position "
+                        <<position.x<<' '<<position.y<<' '<<position.z
+                        <<" signed-across "<<position.z-stream.z
+                        <<" route-distance "<<stream.distance
+                        <<" support-error "<<position.y-PlayerMotion::EyeHeight-support
+                        <<" mode "<<static_cast<int>(playerMotion_.Mode())<<'\n';
+                }
                 if (flightMotion_.IsActive())
                     std::cout << "island-simulator: flight position " << cameraPosition_.X << ' '
                               << cameraPosition_.Y << ' ' << cameraPosition_.Z
@@ -2033,12 +2048,12 @@ namespace island
         }
 #endif
 
-        constexpr std::array<Keys, 11> teleportKeys = {
+        constexpr std::array<Keys, 12> teleportKeys = {
             Keys::F5, Keys::F6, Keys::F7, Keys::F8, Keys::F9, Keys::F10, Keys::J,
-            Keys::F12, Keys::K, Keys::L, Keys::O};
-        constexpr std::array<const char*, 11> teleportNames = {
+            Keys::F12, Keys::K, Keys::L, Keys::O, Keys::P};
+        constexpr std::array<const char*, 12> teleportNames = {
             "south beach", "jungle trail", "east clearing", "west clearing",
-            "fish shallows", "offshore shark", "monkey troop", "offshore current", "boar herd", "cave entrance", "campfire"};
+            "fish shallows", "offshore shark", "monkey troop", "offshore current", "boar herd", "cave entrance", "campfire", "stream crossing"};
         for (std::size_t index = 0; index < teleportKeys.size(); ++index) {
             const bool down = keyboard.IsKeyDown(teleportKeys[index]);
             if (debugOverlayVisible_ && down && !debugTeleportWasDown_[index]) {
@@ -2047,7 +2062,10 @@ namespace island
                 float z = -225.0f;
                 yaw_ = 0.0f;
                 pitch_ = -0.03f;
-                if (index == 1U) {
+                if(index==11U) {
+                    x=-110.0f;z=StreamRoute::CentreZ(x)-4.0f;
+                    yaw_=0.0f;pitch_=-.10f;
+                } else if (index == 1U) {
                     z = 45.0f;
                     x = VegetationLayout::PrimaryPathCenterX(z);
                     yaw_ = std::numbers::pi_v<float> * 0.5f;

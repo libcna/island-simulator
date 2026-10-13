@@ -34,10 +34,25 @@ from run_fullscreen_software import validate_control_transitions, owned_runtime_
 from run_fullscreen_software import validate_diving_trace, validate_frame_windows
 from run_fullscreen_software import validate_cave_trace
 from run_fullscreen_software import validate_fire_audio_trace
+from run_fullscreen_software import validate_stream_crossing_trace
 from run_software_capture import validate_build_configuration
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_stream_crossing_requires_both_banks_channel_and_shared_support(self):
+        good=[(-110,5.0,-34+i*.55,-4+i*.55,abs(-4+i*.55),0,0) for i in range(14)]
+        result=validate_stream_crossing_trace(good)
+        self.assertGreater(result["nearest"],0)
+        for index,replacement in ((0,(-110,5,-1,0,0,0,0)),
+                                  (7,(-110,5,-30,.1,.1,.2,0)),
+                                  (7,(-110,5,-30,.1,.1,0,1))):
+            bad=list(good);bad[index]=replacement
+            with self.assertRaises(RuntimeError):validate_stream_crossing_trace(bad)
+        with self.assertRaises(RuntimeError):validate_stream_crossing_trace(good[:4])
+        reversed_route=list(good);reversed_route[8]=(-110,5,reversed_route[7][2]-.2,
+            reversed_route[8][3],reversed_route[8][4],0,0)
+        with self.assertRaises(RuntimeError):validate_stream_crossing_trace(reversed_route)
+
     def test_fire_audio_trace_requires_volume_collision_mute_resume_and_range(self):
         good=[(1,0,1,.26,2.4,.04,4)]*5+[(1,1,1,0,2.4,.04,4)]*25
         good+=[(1,0,1,.26,2.4,.04,4)]*5+[(1,0,0,.001,27,25,4)]

@@ -621,8 +621,11 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   geometry remains3429vertices/6080triangles/one culled draw. Four inspected native
   0.8--3.2s frames pass with empty kernel delta. Focused Chromium155/SwiftShader WebGL2
   also passes two separated-time frames with no GL error/context loss/kernel fault.
-  Android runtime, ordinary player crossing, richer banks and final visual/audio review
-  remain, so the stream stays in progress. See `docs/stream-course.md`.
+  A focused live native walk then crosses from-3.391m on one bank through.342m nearest
+  route distance to+2.834m on the other, stays in Walking mode and matches the shared
+  nine-point rendered-bed support within4.8e-7m; before/after frames were inspected and
+  kernel delta is empty. Android runtime, longer free traversal, richer banks and final
+  visual/audio review remain, so the stream stays in progress. See `docs/stream-course.md`.
 - [~] Add an accessible cave and adapt the island terrain around it. Choose a rocky
   hillside/headland, model a real entrance, interior floor/walls/ceiling and surrounding
   rock/terrain transition, with player clearance and no terrain sheet sealing the

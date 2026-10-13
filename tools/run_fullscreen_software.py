@@ -204,8 +204,25 @@ def validate_fire_audio_trace(samples):
         raise RuntimeError("campfire did not stop beyond its sound range")
 
 
+def validate_stream_crossing_trace(samples):
+    if len(samples)<8:
+        raise RuntimeError("missing live stream-crossing samples")
+    if any(len(p)!=7 or not all(map(math.isfinite,p)) or p[4]<0 or abs(p[5])>.025 or p[6]!=0
+           for p in samples):
+        raise RuntimeError("invalid stream walking support or locomotion state")
+    if samples[0][3]>-2.5 or samples[-1][3]<2.0:
+        raise RuntimeError("player did not walk from one stream bank to the other")
+    nearest=min(range(len(samples)),key=lambda i:samples[i][4])
+    if samples[nearest][4]>.65 or nearest==0 or nearest==len(samples)-1:
+        raise RuntimeError("stream crossing never reached the flowing channel")
+    if any(samples[i][2]>samples[i+1][2]+.02 for i in range(len(samples)-1)):
+        raise RuntimeError("stream crossing reversed instead of walking continuously forward")
+    return {"samples":samples,"nearest":nearest}
+
+
 def worker(build, evidence, window_manager, flight=False, boar_audio=False,
-           diving=False, snake_audio=False, goat_audio=False, cave=False, campfire=False):
+           diving=False, snake_audio=False, goat_audio=False, cave=False, campfire=False,
+           stream_crossing=False):
     if (os.environ.get("ISLAND_FULLSCREEN_SUPERVISED") != "1"
             or Path("/dev/dri").exists() or not os.environ.get("DISPLAY")
             or os.environ.get("LIBGL_ALWAYS_SOFTWARE") != "1"):
@@ -268,7 +285,7 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
             keys("F1", "debug overlay disabled")
             # Snake playback has its own focused native gate.  The normal invocation
             # remains the authoritative two-cycle F11/focus regression test.
-            fullscreen_cycles = 0 if snake_audio or goat_audio or cave or campfire or diving else 2
+            fullscreen_cycles = 0 if snake_audio or goat_audio or cave or campfire or diving or stream_crossing else 2
             for cycle in range(fullscreen_cycles):
                 # Some X11 window managers return focus to their root/desktop while
                 # restoring a non-resizable window from fullscreen.  Reassert focus
@@ -319,7 +336,7 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 frames = log().count("input sample captured")
                 wait(lambda: log().count("input sample captured") > frames, "windowed released-key frame")
             command("import", "-window", window, str(evidence / "windowed.png"))
-            if not snake_audio and not goat_audio and not cave and not campfire:
+            if not snake_audio and not goat_audio and not cave and not campfire and not stream_crossing:
                 # Only this owned dialog receives the background F11; never another
                 # desktop/client. Restoring focus must not synthesize a game toggle.
                 focus_target = subprocess.Popen(["xmessage", "-title", "island-fullscreen-focus",
@@ -355,6 +372,31 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
             if not snake_audio and not goat_audio:
                 keys("w", "input sample captured 1 relative 1")
                 keys("Escape", "input sample captured 0 relative 0")
+            if stream_crossing:
+                number=r"([-+\d.eE]+)"
+                def stream_samples():
+                    section=log().split("debug teleport stream crossing")[-1]
+                    return [tuple(map(float,m)) for m in re.findall(
+                        r"stream crossing position "+number+r" "+number+r" "+number
+                        +r" signed-across "+number+r" route-distance "+number
+                        +r" support-error "+number+r" mode (\d+)",section)]
+                keys("F1","debug overlay enabled")
+                keys("p","debug teleport stream crossing")
+                keys("F1","debug overlay disabled")
+                wait(lambda: len(stream_samples())>=2,"stream south-bank support samples")
+                command("import","-window",window,str(evidence/"stream-before.png"))
+                command("xdotool","keydown","w")
+                try:
+                    wait(lambda: stream_samples() and stream_samples()[-1][3]>2.0,
+                         "walk across stream to north bank")
+                finally:
+                    command("xdotool","keyup","w")
+                count=len(stream_samples())
+                wait(lambda: len(stream_samples())>=count+2,"released stream-bank samples")
+                command("import","-window",window,str(evidence/"stream-after.png"))
+                result=validate_stream_crossing_trace(stream_samples())
+                (evidence/"stream-crossing-result.json").write_text(json.dumps(
+                    {"passed":True,**result,"scope":"actual keyboard walk over rendered stream bed"},indent=2)+"\n")
             if campfire:
                 def fire_samples():
                     number=r"([-+\d.eE]+)"
@@ -704,11 +746,12 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 "scope": "persistent native scripted transitions; not GPU crash qualification"}, indent=2)+"\n")
             (evidence / "input-result.json").write_text(json.dumps({
                 "passed": True, "stages": stages,
-                "heldRepeatSuppressed": not snake_audio and not goat_audio and not cave and not campfire,
-                "backgroundKeyIgnoredAfterFocusReturn": not snake_audio and not goat_audio and not cave and not campfire,
+                "heldRepeatSuppressed": not snake_audio and not goat_audio and not cave and not campfire and not stream_crossing,
+                "backgroundKeyIgnoredAfterFocusReturn": not snake_audio and not goat_audio and not cave and not campfire and not stream_crossing,
                 "flightChecked": flight,
                 "caveChecked": cave,
                 "campfireChecked": campfire,
+                "streamCrossingChecked": stream_crossing,
                 "boarAudioChecked": boar_audio,
                 "snakeAudioChecked": snake_audio,
                 "goatAudioChecked": goat_audio,
@@ -734,6 +777,7 @@ def main():
     parser.add_argument("--flight", action="store_true", help="also exercise Tab flight, ceiling and return")
     parser.add_argument("--cave", action="store_true", help="focused live cave entry, wall, roof, floor and exit check")
     parser.add_argument("--campfire", action="store_true", help="focused live firepit approach, crackling mute/resume and range check")
+    parser.add_argument("--stream-crossing", action="store_true", help="focused live keyboard walk across the rendered stream bed")
     parser.add_argument("--diving", action="store_true", help="exercise underwater descent and resurfacing")
     parser.add_argument("--boar-audio", action="store_true", help="exercise boar playback and mute through SDL disk output")
     parser.add_argument("--snake-audio", action="store_true", help="exercise close snake-hiss playback and mute through SDL disk output")
@@ -742,13 +786,14 @@ def main():
                         default=shutil.which("openbox") or Path.home()/"deps/xtools/bin/openbox")
     parser.add_argument("--worker", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args()
-    if (args.cave or args.campfire) and sum((args.flight,args.diving,args.boar_audio,args.snake_audio,args.goat_audio,args.cave,args.campfire))!=1:
-        parser.error("--cave/--campfire use separate focused scopes")
+    if (args.cave or args.campfire or args.stream_crossing) and sum((args.flight,args.diving,args.boar_audio,args.snake_audio,args.goat_audio,args.cave,args.campfire,args.stream_crossing))!=1:
+        parser.error("--cave/--campfire/--stream-crossing use separate focused scopes")
     build = args.build.resolve(strict=True)
     window_manager = args.window_manager.resolve(strict=True)
     if args.worker:
         worker(build, args.worker.resolve(strict=True), window_manager, args.flight,
-               args.boar_audio, args.diving, args.snake_audio, args.goat_audio, args.cave, args.campfire)
+               args.boar_audio, args.diving, args.snake_audio, args.goat_audio, args.cave,
+               args.campfire,args.stream_crossing)
         return
     if sum((args.boar_audio,args.snake_audio,args.goat_audio))>1:
         raise RuntimeError("choose only one focused wildlife audio scope")
@@ -763,7 +808,7 @@ def main():
         journal = Journal()
         baseline = journal.latest()
         stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
-        evidence = build / ("software-campfire" if args.campfire else "software-cave" if args.cave else "software-boar-audio" if args.boar_audio else
+        evidence = build / ("software-stream-crossing" if args.stream_crossing else "software-campfire" if args.campfire else "software-cave" if args.cave else "software-boar-audio" if args.boar_audio else
                             "software-snake-audio" if args.snake_audio else
                             "software-goat-audio" if args.goat_audio else
                             "software-flight" if args.flight else "software-fullscreen") / stamp
@@ -778,6 +823,8 @@ def main():
             command.append("--cave")
         if args.campfire:
             command.append("--campfire")
+        if args.stream_crossing:
+            command.append("--stream-crossing")
         if args.diving:
             command.append("--diving")
         if args.boar_audio:
