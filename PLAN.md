@@ -1721,7 +1721,17 @@ Visual rework explicitly requested by the operator (2026-10-11):
   Focused Chrome/SwiftShader `20261013T191119.148542Z-chrome-shipwreck` passes 60 finite intervals,
   two distinct inspected frames, GL0, live context and an empty kernel delta. Release/Debug asset
   validation, 32 browser-runner tests and ARM64 assemble/lint pass without emulator/KVM use.
-  Further transom/cabin and end-grain work, sand/water integration, a dedicated matched wide wreck
+  A sixth pass replaces the stern deckhouse's single roof slab and two solid box walls with ten
+  separated uneven roof-board lanes, including one genuinely fractured lane, plus lower/upper
+  side bands and four uprights forming three window bays per side. The middle bays are true
+  through-openings; surviving outer panes are recessed. Cost rises5004→5532 triangles in the
+  same buffer/draw with unchanged texture, collision, layout and12 debris pieces. Final strict
+  native204318.064303Z-shipwreck PASS193bins/std38.55/spatial161.29/kernel[] and inspected; the
+  earlier203937.288568Z image passed/was inspected but preceded the tightened marker gate.
+  Chrome/SwiftShader204536.386851Z-chrome-shipwreck PASS60intervals/two inspected frames/GL0/
+  context intact/kernel[]. Release+Debug core/asset,33 browser-runner tests and ARM64
+  assemble/lint pass without emulator/KVM.
+  Further transom/end-grain work, sand/water integration, a dedicated matched wide wreck
   comparison and Android visual qualification remain open; diagnostics alone do not close it.
 
 Wildlife backlog requested by the operator (all nonhostile ambient life; none may attack, block

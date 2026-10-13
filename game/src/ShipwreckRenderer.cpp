@@ -65,6 +65,8 @@ namespace island
             "island-simulator: shipwreck bow and stern use raked lower profiles with thick end timbers";
         constexpr std::string_view PlankThicknessDiagnostic =
             "island-simulator: shipwreck missing plank bays expose eleven-centimetre inner edges";
+        constexpr std::string_view DeckhouseDamageDiagnostic =
+            "island-simulator: shipwreck stern deckhouse uses separated broken roof planks and framed window bays";
         constexpr int AgedWoodMaterial = 48;
         constexpr int InnerWoodMaterial = 80;
         constexpr int FreshBreakMaterial = 176;
@@ -856,16 +858,49 @@ void main()
                           0.11f, 0.80f, 0.11f, DarkWood);
             }
             const float cabinSheer = HullSheer(-6.9f);
-            AppendBox(vertices, ShipPoint(ship, axes, 0.0f, 2.62f + cabinSheer, -6.9f), axes,
-                      1.55f, 0.09f, 1.35f, OuterWood);
-            AppendBox(vertices, ShipPoint(ship, axes, -1.43f, 2.05f + cabinSheer, -6.9f), axes,
-                      0.08f, 0.56f, 1.22f, OuterWood);
-            AppendBox(vertices, ShipPoint(ship, axes, 1.43f, 2.05f + cabinSheer, -6.9f), axes,
-                      0.08f, 0.56f, 1.22f, OuterWood);
-            AppendBox(vertices, ShipPoint(ship, axes, -1.53f, 2.10f + cabinSheer, -6.9f), axes,
-                      0.025f, 0.23f, 0.34f, DarkWood);
-            AppendBox(vertices, ShipPoint(ship, axes, 1.53f, 2.10f + cabinSheer, -6.9f), axes,
-                      0.025f, 0.23f, 0.34f, DarkWood);
+            // The surviving stern deckhouse is open, framed wreckage rather than one
+            // roof slab over two solid box walls. Longitudinal roof boards retain small
+            // gaps, uneven ends and one central fracture that reads from the beach.
+            for (int plank = 0; plank < 10; ++plank) {
+                const float x = -1.35f + static_cast<float>(plank) * .30f;
+                const float lift = static_cast<float>((plank * 5) % 4) * .012f;
+                const float length = 1.24f + static_cast<float>((plank * 3) % 5) * .027f;
+                if (plank == 2) {
+                    AppendBrokenPlank(vertices,
+                        ShipPoint(ship, axes, x, 2.62f + cabinSheer + lift, -7.56f),
+                        axes, .135f, .065f, .48f, OuterWood, 301U);
+                    AppendBrokenPlank(vertices,
+                        ShipPoint(ship, axes, x, 2.62f + cabinSheer + lift, -6.22f),
+                        axes, .135f, .065f, .48f, InnerWood, 302U);
+                } else {
+                    AppendBrokenPlank(vertices,
+                        ShipPoint(ship, axes, x, 2.62f + cabinSheer + lift,
+                                  -6.9f + (plank % 3 - 1) * .025f),
+                        axes, .135f, .065f, length,
+                        plank % 4 == 0 ? InnerWood : OuterWood,
+                        310U + static_cast<std::size_t>(plank));
+                }
+            }
+            // Lower/upper plank bands and four uprights form three side window bays.
+            // The middle bay is genuinely open on both sides; the two surviving dark
+            // panes are recessed behind their frames rather than painted on a wall.
+            constexpr std::array<float,4> cabinPosts{{-8.02f,-7.28f,-6.54f,-5.78f}};
+            constexpr std::array<float,3> cabinWindows{{-7.65f,-6.91f,-6.16f}};
+            for (const float side : {-1.0f, 1.0f}) {
+                AppendBox(vertices, ShipPoint(ship, axes, side * 1.43f,
+                    1.70f + cabinSheer, -6.9f), axes, .08f, .21f, 1.22f, OuterWood);
+                AppendBox(vertices, ShipPoint(ship, axes, side * 1.43f,
+                    2.44f + cabinSheer, -6.9f), axes, .08f, .17f, 1.22f, OuterWood);
+                for (const float z : cabinPosts)
+                    AppendBox(vertices, ShipPoint(ship, axes, side * 1.43f,
+                        2.07f + cabinSheer, z), axes, .08f, .37f, .06f, DarkWood);
+                for (std::size_t window = 0; window < cabinWindows.size(); ++window) {
+                    if (window == 1U) continue;
+                    AppendBox(vertices, ShipPoint(ship, axes, side * 1.515f,
+                        2.08f + cabinSheer, cabinWindows[window]), axes,
+                        .018f, .235f, .27f, DeepWood);
+                }
+            }
         }
 
         [[nodiscard]] Axes HorizontalAxes(const float yaw)
@@ -999,6 +1034,7 @@ void main()
         std::cout << BroadsideDamageDiagnostic << '\n';
         std::cout << EndProfileDiagnostic << '\n';
         std::cout << PlankThicknessDiagnostic << '\n';
+        std::cout << DeckhouseDamageDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(
             "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast");
@@ -1007,6 +1043,7 @@ void main()
         MirrorRuntimeDiagnosticToPlatformLog(BroadsideDamageDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(EndProfileDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(PlankThicknessDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(DeckhouseDamageDiagnostic);
     }
 
     ShipwreckRenderer::~ShipwreckRenderer() = default;

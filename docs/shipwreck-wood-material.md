@@ -1,5 +1,30 @@
 # Shipwreck weathered-wood material
 
+## Broken stern deckhouse — 2026-10-13
+
+The last accepted broadside still left the surviving stern deckhouse as one horizontal roof slab
+over two solid rectangular walls. This pass replaces that box cue with ten separated longitudinal
+roof-board lanes. Their ends, elevation and length vary within a small weathered range, and one
+lane consists of two shorter broken planks with a real gap. Both side walls now use lower/upper
+plank bands plus four structural uprights to form three window bays. The middle bay is genuinely
+open through the deckhouse; the two surviving outer panes are dark recessed surfaces rather than
+black marks painted on a solid wall.
+
+The existing texture, local wood coordinates, collision, placement, 12 debris pieces, buffer and
+single draw remain unchanged. Replacing the old boxes costs 528 triangles, raising the whole wreck
+from 5,004 to 5,532 triangles. The close beach camera sees an irregular open stern silhouette
+instead of a compact cabin block; it remains deliberately ruined rather than a restored cabin.
+
+Final inspected native llvmpipe `20261013T204318.064303Z-shipwreck` passes at 1280x720 with 193
+colour bins, 38.55 luminance deviation, 161.29 spatial contrast and an empty kernel delta. The
+first image of the same geometry (`20261013T203937.288568Z-shipwreck`) was also inspected, but
+predated the tightened deckhouse-marker gate. Focused Chrome/SwiftShader
+`20261013T204536.386851Z-chrome-shipwreck` passes 60 finite intervals, two inspected frames,
+`glError=0`, an intact context and empty final kernel delta. Release and Debug core/asset tests,
+33 browser-runner tests and Android ARM64 assemble/lint pass without an emulator or KVM.
+End-grain refinement, debris burial/water contact, a matched wide comparison and Android-device
+rendering remain open; this does not complete the umbrella realism item.
+
 ## Source and provenance
 
 The runtime material uses the original 1254 by 1254 PNG at

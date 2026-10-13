@@ -120,10 +120,12 @@ simplified palm silhouettes break up the open-ocean horizon in one intentionally
 portable static batch.
 One beach shallows now contains a large original wooden sailing-ship wreck rather than a small
 boat. Its exact 20 m hull is grounded and heeled in the water with a central break, exposed ribs,
-partial deck, cabin, snapped mast, bowsprit, and rigging. Twelve planks and substantial fragments
+partial deck, an open broken stern deckhouse, snapped mast, bowsprit, and rigging. The deckhouse
+uses separated uneven roof boards, framed window bays and one true through-opening instead of a
+solid cabin box. Twelve planks and substantial fragments
 form a separate trail toward the sand. Six conservative hull proxies keep the player out of the
 major structure while the smaller debris remains non-solid and traversal-friendly. The complete
-5,004-triangle landmark uses a finer curved hull section, true missing-plank bays with visible inner
+5,532-triangle landmark uses a finer curved hull section, true missing-plank bays with visible inner
 ribs and 11cm closed inner edges, a split broken keel and rudder, broken deck rails, raked lower bow/stern profiles, dark hull
 openings, and a splintered foremast stump. The debris
 trail varies its angle strongly in both directions instead of repeating the ship axis. One portable

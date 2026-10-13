@@ -1,5 +1,18 @@
 # island-simulator handoff
 
+## Current work — broken stern deckhouse inspected
+
+Goal remains active; continue the whole plan. The shipwreck stern no longer carries one roof slab
+over solid box walls. Ten separated uneven longitudinal roof-board lanes include one real fracture;
+lower/upper wall bands and four uprights form three side window bays, with a true open middle bay
+and recessed surviving panes. Cost rises 5,004→5,532 triangles in the same one draw/buffer with
+unchanged texture, collision, layout and 12 debris pieces. Final strict native
+`20261013T204318.064303Z-shipwreck` PASS193bins/std38.55/spatial161.29/kernel[] and inspected.
+Chrome/SwiftShader `20261013T204536.386851Z-chrome-shipwreck` PASS60 intervals/two inspected
+frames/GL0/context intact/kernel[]. Release+Debug core/asset,33 browser-runner tests and ARM64
+assemble/lint pass. End grain, debris sand/water integration, wide comparison and Android runtime
+remain; PLAN stays `[~]`. No emulator/KVM or AMD GPU. Max four compile cores.
+
 ## Current work — helicopter cockpit controls inspected
 
 Goal remains active; continue the whole plan. Each pilot seat now has a curved tubular cyclic,

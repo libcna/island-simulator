@@ -711,6 +711,8 @@ def main():
                 raise RuntimeError("current shipwreck end profiles are missing; check for a stale executable")
             if args.viewpoint == "shipwreck" and "shipwreck missing plank bays expose eleven-centimetre inner edges" not in diagnostics:
                 raise RuntimeError("current shipwreck plank thickness is missing; check for a stale executable")
+            if args.viewpoint == "shipwreck" and "shipwreck stern deckhouse uses separated broken roof planks and framed window bays" not in diagnostics:
+                raise RuntimeError("current shipwreck deckhouse damage is missing; check for a stale executable")
             if not re.search(r"forest-floor filter (?:anisotropic, requested maximum 4x, device-clamped"
                              r"|trilinear, anisotropy unavailable)", diagnostics):
                 raise RuntimeError("forest-floor sampler capability decision is missing")

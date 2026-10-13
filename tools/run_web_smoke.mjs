@@ -792,7 +792,8 @@ try {
               && log.includes("shipwreck beach broadside has true missing plank bays with exposed structural ribs")
               && log.includes("shipwreck bow and stern use raked lower profiles with thick end timbers")
               && log.includes("shipwreck missing plank bays expose eleven-centimetre inner edges")
-              && log.includes("shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 5004 triangles")
+              && log.includes("shipwreck stern deckhouse uses separated broken roof planks and framed window bays")
+              && log.includes("shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 5532 triangles")
               && log.includes("shipwreck visible, 12 debris, 1 draw")))
             && (!focusedBearCheck || (log.includes("bear QA camera frames and follows the single peaceful adult")
               && log.includes("bear fur loaded Content/wildlife/bear-fur.png; 128x128, 8 mips, 87380 RGBA8 bytes")
@@ -1933,6 +1934,8 @@ try {
       "island-simulator: shipwreck bow and stern use raked lower profiles with thick end timbers")
     && shipwreckResult.output?.includes(
       "island-simulator: shipwreck missing plank bays expose eleven-centimetre inner edges")
+    && shipwreckResult.output?.includes(
+      "island-simulator: shipwreck stern deckhouse uses separated broken roof planks and framed window bays")
     && shipwreckResult.output?.includes(
       "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch")
     && shipwreckResult.output?.includes(
