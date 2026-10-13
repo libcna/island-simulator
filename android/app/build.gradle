@@ -31,6 +31,7 @@ def materialTasks = [
     Goat: [source: "goat-fur-albedo-v1.png", output: "Content/wildlife/goat-fur.png", size: 256],
     Spider: [source: "spider-setae-albedo-v1.png", output: "Content/wildlife/spider-setae.png", size: 256],
     Boar: [source: "boar-bristle-albedo-v2.png", output: "Content/wildlife/boar-bristle.png", size: 256],
+    Bear: [source: "bear-fur-albedo-v2.png", output: "Content/wildlife/bear-fur.png", size: 128],
     Shipwreck: [source: "shipwreck-weathered-wood-albedo-v1.png", output: "Content/structures/shipwreck-weathered-wood.png", size: 256]
 ].collect { name, material ->
     tasks.register("prepareIsland${name}", Exec) {

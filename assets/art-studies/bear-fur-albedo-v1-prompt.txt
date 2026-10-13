@@ -1,0 +1,10 @@
+Use case: photorealistic-natural
+Asset type: square game-material albedo source for a close-view brown bear fur atlas
+Primary request: generate a dense, realistic brown bear coat texture viewed straight-on, suitable for wrapping procedural 3D anatomy
+Scene/backdrop: the entire square is filled edge-to-edge with fur; no background and no animal body
+Style/medium: photorealistic natural fur albedo, flat material scan appearance rather than an illustration
+Composition/framing: uniform square texture field, predominantly vertical-to-slightly-diagonal hair flow, varied strand lengths and small irregular clumps, dense darker undercoat under longer guard hairs
+Lighting/mood: diffuse neutral even illumination, no cast shadow, no directional hotspot, no glossy glare
+Color palette: natural medium-to-dark warm brown with subtle umber, tawny and a few muted grey-brown guard hairs
+Materials/textures: individually readable tapered guard hairs, soft dense underfur, restrained multi-scale variation, low contrast enough to avoid obvious striping when mapped
+Constraints: edge-to-edge fur only; no eyes, ears, nose, paws, skin, face, silhouette, text, logo, watermark, border, vignette or transparent pixels; avoid obvious repeated motifs and avoid dramatic lighting; intended to be downsampled to 256x256

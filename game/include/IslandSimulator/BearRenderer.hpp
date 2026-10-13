@@ -18,7 +18,7 @@ struct VertexPositionColorTexture;
 namespace island {
 class CanopyLightField;
 
-/** A single articulated adult bear with a generated directional-fur material. */
+/** A single articulated adult bear with a required project-owned directional-fur material. */
 class BearRenderer final {
 public:
     BearRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
@@ -46,7 +46,7 @@ private:
     std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> effect_;
     std::unique_ptr<Microsoft::Xna::Framework::Graphics::DynamicVertexBuffer> buffer_;
     std::unique_ptr<Microsoft::Xna::Framework::Graphics::DynamicVertexBuffer> shadowBuffer_;
-    std::unique_ptr<Microsoft::Xna::Framework::Graphics::Texture2D> furAtlas_;
+    std::unique_ptr<Microsoft::Xna::Framework::Graphics::Texture2D> furTexture_;
     std::vector<Microsoft::Xna::Framework::Graphics::VertexPositionColorTexture> vertices_,shadows_;
     int visible_=0,draws_=0,triangles_=0,shadowTriangles_=0;
     bool nearDetail_=false;

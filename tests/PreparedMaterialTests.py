@@ -56,6 +56,7 @@ class PreparedMaterialTests(unittest.TestCase):
         for name, size in (("forest-floor-albedo-v1.png",512), ("leaf-lamina-v1.png",256),
                            ("monkey-fur-albedo-v2.png",512), ("goat-fur-albedo-v1.png",256),
                            ("boar-bristle-albedo-v2.png",256),
+                           ("bear-fur-albedo-v2.png",128),
                            ("shipwreck-weathered-wood-albedo-v1.png",256)):
             with self.subTest(name=name), Image.open(ROOT / "assets/art-studies" / name) as image:
                 self.compare(image, size)

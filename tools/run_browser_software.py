@@ -63,6 +63,8 @@ def validate_bear_report(report):
         or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
         or len(set(frames)) != 2
         or "bear QA camera frames and follows the single peaceful adult" not in log
+        or "bear fur loaded Content/wildlife/bear-fur.png; 128x128, 8 mips, 87380 RGBA8 bytes" not in log
+        or "near bear uses twenty-two body-envelope fur wedges without another draw" not in log
         or "near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes" not in log
         or not re.search(r"bear 1/1 visible, 2 draws, [1-9][0-9]* body triangles", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):

@@ -390,6 +390,17 @@ remain, so ecosystem-stage item 11 is `[~]`. See [prevailing-wind.md](docs/preva
   is still recognisably procedural rather than photoreal; Android rendering, physical-device
   performance, headphone listening and further fur/joint/gait polish remain open, so this entry
   is intentionally not complete.
+  Current-binary094848.144035Z audit confirmed the runtime greyscale atlas still read smooth.
+  Built-in ImageGen produced two original1254-square sources with exact prompts/provenance;
+  live100755.881806Z correctly rejected v1's large repeated wool-like locks. Selected v2 uses
+  fine straight low-contrast guard hairs over dark undercoat, area-reduced to required128square/
+  8mips/87380bytes with unchanged runtime texture budget. Twenty-two two-triangle near fur wedges
+  follow the breathing/foraging body envelope, adding44 body triangles but no draw/texture/buffer.
+  Release+Debug motion/prepared-pixel, asset and harness tests pass. Final inspected llvmpipe
+  102141.572218Z-bear PASS189bins/std36.45/spatial165.37/kernel[], eight poses retain2.3135m
+  travel/.4769m paw motion and6778/18 body/shadow triangles in2draws. Focused Chrome/SwiftShader
+  103349.512195Z-chrome-bear PASS60intervals/two distinct images/GL0/context intact/kernel[];
+  both frames inspected. Volume joins, facial topology, Android and speaker listening remain.
 
 Stream/wet-biome progress: shared normalized moisture/drainage/salt field now feeds
 terrain turf, grass, palms, four jungle layers and fallen-log probability. Flowing

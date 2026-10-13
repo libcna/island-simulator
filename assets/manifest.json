@@ -3,6 +3,30 @@
   "externalFiles": [],
   "projectFiles": [
     {
+      "name": "bear-fur-albedo-v2",
+      "path": "assets/art-studies/bear-fur-albedo-v2.png",
+      "sha256": "875ae47d83fc89df009ae95450ae5e900670a4800f28c3a110fad0fb0205048c",
+      "licenseRecord": "AI-generated brown-bear fur studies"
+    },
+    {
+      "name": "bear-fur-generation-prompt-v2",
+      "path": "assets/art-studies/bear-fur-albedo-v2-prompt.txt",
+      "sha256": "6fa5b9ae989584e6fd8067d0d7b70715330bba7379de84280213b245be9b1c04",
+      "licenseRecord": "AI-generated brown-bear fur studies"
+    },
+    {
+      "name": "bear-fur-albedo-v1",
+      "path": "assets/art-studies/bear-fur-albedo-v1.png",
+      "sha256": "35ba253a8b6e17cc6e1d9bf2547997add582898b6e72b87ca233e84de2f23dbd",
+      "licenseRecord": "AI-generated brown-bear fur studies"
+    },
+    {
+      "name": "bear-fur-generation-prompt-v1",
+      "path": "assets/art-studies/bear-fur-albedo-v1-prompt.txt",
+      "sha256": "29754db199744aba87021168f9a58450c89872d24b8eab00f7bdb9cd709937c8",
+      "licenseRecord": "AI-generated brown-bear fur studies"
+    },
+    {
       "name": "shipwreck-weathered-wood-albedo-v1",
       "path": "assets/art-studies/shipwreck-weathered-wood-albedo-v1.png",
       "sha256": "9fca0839d68b23408a42336564ddf0ed9e19b1eb4c0b319784a5a3b1df64596c",

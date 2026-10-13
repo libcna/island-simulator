@@ -1,0 +1,9 @@
+Use case: photorealistic-natural
+Asset type: square low-resolution game-material albedo source for a brown bear coat, designed to remain natural after downsampling to 128x128 and wrapping several procedural body volumes
+Primary request: dense realistic brown bear fur with fine high-frequency detail, short-to-medium straight and gently irregular guard hairs over a dark undercoat
+Scene/backdrop: fur fills the entire square edge-to-edge; no background and no animal body
+Style/medium: neutral photorealistic material-scan albedo, not an illustration
+Composition/framing: evenly distributed fine strands, mostly vertical with small natural deviations; very small subtle clumps only; consistent texel density across the image
+Lighting/mood: flat diffuse neutral illumination, no cast shadows, highlights, glossy sheen, vignette or directional hotspot
+Color palette: subdued medium-dark warm brown, umber and muted grey-brown with restrained tonal variation
+Constraints: specifically avoid large wavy locks, curls, ropes, swirls, broad dark valleys, high-contrast patches, obvious repeated motifs, body parts, skin, eyes, ears, face, text, logo, watermark, border and transparency; the texture must look like fine dense fur rather than shaggy wool when mapped at 128x128

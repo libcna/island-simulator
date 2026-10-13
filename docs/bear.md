@@ -4,16 +4,46 @@ The requested island contains exactly one large peaceful adult bear. The current
 real simulated and rendered animal, not a static prop, but it is deliberately not recorded as
 final photorealism or portable acceptance.
 
-No third-party mesh or texture is shipped. A brief asset review found either deliberately
+No third-party mesh or downloaded texture is shipped. A brief asset review found either deliberately
 low-poly models or realistic listings without a simultaneously verifiable downloadable and
 redistributable artifact. `BearRenderer.cpp` therefore creates original geometry and a
-128x128 mipmapped directional-fur atlas at runtime. The close model includes a heavy torso,
+project-owned ImageGen material now supplies the 128x128 mipmapped directional fur. The close model includes a heavy torso,
 raised shoulders, neck, short tail, muzzle, nose, restrained eyes, rounded outer/inner ears,
 four jointed legs, broad paws and claws. The second visual pass replaces the pale cylindrical
 snout with two overlapping tapered muzzle volumes, a smaller volumetric nose, paired nostrils,
 a shallow philtrum/divided mouth crease and highlighted inset eyes. A 55m near tier uses 6734
 triangles; the cheaper far tier omits face/claw detail. Body and one 18-triangle terrain shadow
 remain two bounded draws.
+
+## Fine fur material and silhouette follow-up — 2026-10-13
+
+The renewed current-binary audit `20261013T094848.144035Z-bear` confirmed that the original
+runtime-generated greyscale atlas read as a smooth muddy surface. Built-in ImageGen produced
+two original 1254-square sources with exact prompts preserved under
+`assets/art-studies/bear-fur-albedo-v1*` and `bear-fur-albedo-v2*`. The first live integration
+`20261013T100755.881806Z-bear` was visually rejected: large wavy locks became repeated wool-like
+ropes on the separate body volumes. It remains provenance and failed-iteration evidence only.
+
+The selected v2 source deliberately uses finer, straighter, lower-contrast guard hairs and a
+dense dark undercoat. The host pipeline area-reduces it to `Content/wildlife/bear-fur.png` at
+128 square; runtime loads eight opaque mips / 87,380 RGBA8 bytes instead of synthesizing pixels.
+The existing UVs now use the complete clamp-bounded source, mirrored for dark inner ears and a
+small bounded facial window. Geometry still renders in the same body draw and keeps the exact
+texture-memory budget.
+
+Twenty-two near-only two-triangle fur wedges follow the computed upper envelope of the live
+breathing torso, shoulder, neck and foraging head. They add 44 body triangles but no texture,
+draw, permanent buffer or population cost. Release/Debug bear-motion and exact prepared-pixel
+tests, the asset/provenance validator and native packaging preparation pass.
+
+Final inspected llvmpipe `20261013T102141.572218Z-bear` passes at 1280x720 with 189 colour bins,
+36.45 luminance deviation, 165.37 spatial contrast and an empty kernel delta. All eight poses
+retain fine fur, the restrained broken top outline, 2.3135m displacement and 0.4769m aggregate
+paw motion; the renderer reports 6,778 body / 18 shadow triangles in two draws. Focused
+Chrome/SwiftShader `20261013T103349.512195Z-chrome-bear` passes 60 finite intervals, two distinct
+images, `glError=0`, an intact context and empty final kernel delta. Both images were inspected.
+The result is materially less toy-like, but body-volume joins, finer facial topology, Android and
+subjective speaker listening remain open; this is not final photorealism acceptance.
 
 ## Habitat and motion
 
@@ -59,7 +89,9 @@ the second pass unifies the coat, reduces the tail, rounds the ears, shrinks bea
 and raises close tessellation. This follow-up darkens and tapers the muzzle and separates the
 nostril, mouth and eye detail. The result reads more clearly as a brown bear with a heavy
 quadrupedal gait, but remains visibly procedural: overlapping muzzle/neck surfaces, the smooth
-fur silhouette and joint volumes need more artistic refinement.
+fur silhouette and joint volumes need more artistic refinement. The later selected-v2 material
+and silhouette evidence supersedes this image for current appearance while preserving it as the
+smooth-atlas baseline.
 
 The focused WebGL audit is now part of the supervised Chrome harness rather than an ad-hoc page.
 `build/browser-software/20261013T034840.525068Z-chrome-bear` contains two inspected, different
@@ -69,7 +101,7 @@ partly occluded by foreground vegetation; this proves portable rendering and cam
 all-angle visual acceptance or physical-device performance.
 
 WorldReport exports count one, finite home/position and grounded limb state; current fingerprint
-is `d0edd20a977a3eaf`. Texture accounting includes the complete 87,380-byte bear atlas mip chain,
+is `d0edd20a977a3eaf`. Texture accounting includes the complete 87,380-byte bear texture mip chain,
 for 9,305,216 audited runtime RGBA8 bytes inside a 9,325,432-byte profile limit.
 
 ## Still required

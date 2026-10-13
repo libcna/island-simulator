@@ -162,7 +162,7 @@ def validate_guest_renderer(text):
 MATERIAL_PATHS = ("Content/terrain/forest-floor.png", "Content/vegetation/leaf-lamina.png",
                   "Content/wildlife/monkey-fur.png", "Content/structures/hut-palm-fibre.png",
                   "Content/wildlife/goat-fur.png", "Content/wildlife/spider-setae.png",
-                  "Content/wildlife/boar-bristle.png",
+                  "Content/wildlife/boar-bristle.png", "Content/wildlife/bear-fur.png",
                   "Content/structures/shipwreck-weathered-wood.png")
 
 
@@ -245,6 +245,8 @@ def validate_game_logs(directory, lifecycle, viewpoint=None):
                 raise RuntimeError("application did not confirm current boar limb anatomy")
             if not re.search(r"boars [1-6]/6 visible, 2 draw", log):
                 raise RuntimeError("application did not confirm visible boars and both material draws")
+        if viewpoint == "bear" and "bear fur loaded Content/wildlife/bear-fur.png; 128x128, 8 mips, 87380 RGBA8 bytes" not in log:
+            raise RuntimeError("application did not confirm the bear fur texture")
         if viewpoint in ("hut", "hut-material") and "hut beam-aligned weathered grain and filtered thatch fibres" not in log:
             raise RuntimeError("application did not confirm the hut material")
         if viewpoint in ("hut", "hut-material") and "hut four-pane muted glazing and braced plank door" not in log:

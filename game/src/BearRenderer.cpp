@@ -3,6 +3,7 @@
 #include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
+#include "IslandSimulator/OpaqueImageLoader.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/WildlifeRenderLighting.hpp"
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
@@ -39,82 +40,31 @@ namespace {
 constexpr int VertexCapacity=36000,ShadowCapacity=180;
 constexpr float Pi=std::numbers::pi_v<float>;
 enum class Material:std::uint8_t {Fur,DarkFur,Muzzle,Nose,Bare,EyeHighlight};
-struct Texel {std::uint8_t r=255,g=255,b=255,a=255;};
 
 Vector3 Point(BearPoint p){return {p.x,p.y,p.z};}
 BearPoint Point(Vector3 p){return {p.X,p.Y,p.Z};}
 Vector3 SafeUnit(Vector3 p) {if(p.LengthSquared()<1e-10f)return Vector3::Up;p.Normalize();return p;}
 Vector2 AtlasUv(Material material,float u,float v) {
-    const int column=(material==Material::DarkFur||material==Material::Nose
-        ||material==Material::Bare||material==Material::EyeHighlight)?1:0;
-    const int row=(material==Material::Muzzle||material==Material::Nose
-        ||material==Material::Bare||material==Material::EyeHighlight)?1:0;
-    return {column*.5f+.012f+std::clamp(u,0.0f,1.0f)*.476f,
-            row*.5f+.012f+std::clamp(v,0.0f,1.0f)*.476f};
+    u=std::clamp(u,0.0f,1.0f);v=std::clamp(v,0.0f,1.0f);
+    if(material==Material::Fur)return {.025f+.95f*u,.025f+.95f*v};
+    if(material==Material::DarkFur)return {.975f-.95f*u,.025f+.95f*v};
+    // Short facial surfaces use bounded source windows rather than stretching one
+    // long guard-hair clump over a nose, eye or mouth mark.
+    if(material==Material::Muzzle)return {.40f+.20f*u,.40f+.20f*v};
+    if(material==Material::EyeHighlight)return {.70f+.02f*u,.18f+.02f*v};
+    return {.18f+.025f*u,.86f+.025f*v};
 }
 Color BaseColor(Material material) {
     switch(material) {
-    case Material::Fur:return Color(92,68,45);
-    case Material::DarkFur:return Color(67,50,36);
-    case Material::Muzzle:return Color(101,82,63);
+    case Material::Fur:return Color(245,245,245);
+    case Material::DarkFur:return Color(176,166,154);
+    case Material::Muzzle:return Color(222,211,198);
     case Material::Nose:return Color(39,34,30);
     case Material::Bare:return Color(15,13,12);
     case Material::EyeHighlight:return Color(184,168,142);
     }
     return Color::White;
 }
-std::vector<Texel> MakeAtlasBase() {
-    constexpr int size=GeneratedTextureBudget::BearFurSize;
-    std::vector<Texel> pixels(static_cast<std::size_t>(size*size));
-    for(int y=0;y<size;++y)for(int x=0;x<size;++x) {
-        const int quadrant=(x>=size/2?1:0)+(y>=size/2?2:0);
-        const int lx=x%(size/2),ly=y%(size/2);
-        std::uint32_t hash=static_cast<std::uint32_t>(x*2246822519U+y*3266489917U+0x5f356495U);
-        hash^=hash>>15U;hash*=0x2c1b3c6dU;hash^=hash>>12U;
-        int value=230;
-        if(quadrant<2) {
-            // Fine tapered vertical guard hairs over a denser irregular undercoat.
-            const float guard=std::sin(lx*.71f+std::sin(ly*.19f)*2.4f);
-            const int strand=((lx+2*(ly/3))%11<2)?24:0;
-            value=quadrant==0?205:183;
-            value+=static_cast<int>(guard*13)+strand+static_cast<int>(hash%17U)-8;
-        } else if(quadrant==2) {
-            value=218+static_cast<int>(hash%19U)-9+((lx+ly)%13<2?11:0);
-        } else {
-            value=205+static_cast<int>(hash%13U)-6;
-        }
-        value=std::clamp(value,120,255);
-        pixels[static_cast<std::size_t>(y*size+x)]={static_cast<std::uint8_t>(value),
-            static_cast<std::uint8_t>(value),static_cast<std::uint8_t>(value),255};
-    }
-    return pixels;
-}
-std::vector<Texel> Downsample(const std::vector<Texel>& source,int size) {
-    const int next=std::max(1,size/2);std::vector<Texel> result(static_cast<std::size_t>(next*next));
-    for(int y=0;y<next;++y)for(int x=0;x<next;++x) {
-        unsigned r=0,g=0,b=0,a=0;
-        for(int oy=0;oy<2;++oy)for(int ox=0;ox<2;++ox) {
-            const auto& p=source[static_cast<std::size_t>(std::min(size-1,2*y+oy)*size+std::min(size-1,2*x+ox))];
-            r+=p.r;g+=p.g;b+=p.b;a+=p.a;
-        }
-        result[static_cast<std::size_t>(y*next+x)]={static_cast<std::uint8_t>(r/4),
-            static_cast<std::uint8_t>(g/4),static_cast<std::uint8_t>(b/4),static_cast<std::uint8_t>(a/4)};
-    }
-    return result;
-}
-std::unique_ptr<Texture2D> CreateFurAtlas(GraphicsDevice& device) {
-    constexpr int size=GeneratedTextureBudget::BearFurSize;
-    auto texture=std::make_unique<Texture2D>(device,size,size,true,SurfaceFormat::Color);
-    auto pixels=MakeAtlasBase();int levelSize=size,level=0;
-    while(true) {
-        texture->SetData(level,nullptr,reinterpret_cast<const std::uint8_t*>(pixels.data()),0,
-            static_cast<int>(pixels.size()*sizeof(Texel)));
-        if(levelSize==1)break;
-        pixels=Downsample(pixels,levelSize);levelSize=std::max(1,levelSize/2);++level;
-    }
-    return texture;
-}
-
 class BearMeshBuilder {
 public:
     BearMeshBuilder(std::vector<VertexPositionColorTexture>& output,const BearPose& pose,
@@ -146,6 +96,15 @@ public:
             Quad(a+n0*radiusA,n0,{static_cast<float>(i)/segments,0},a+n1*radiusA,n1,{static_cast<float>(i+1)/segments,0},
                 b+n1*radiusB,n1,{static_cast<float>(i+1)/segments,1},b+n0*radiusB,n0,{static_cast<float>(i)/segments,1},material);
         }
+    }
+    void FurTuft(Vector3 root,float halfWidth,float length,float sweep) {
+        const Vector3 across=Vector3::Right;
+        const Vector3 normal=SafeUnit(Vector3::Up+Vector3(0,0,-.12f));
+        const Vector3 tip=root+Vector3(0,length,sweep);
+        Quad(root-across*halfWidth,normal,{.16f,.88f},
+            root+across*halfWidth,normal,{.28f,.88f},
+            tip+across*halfWidth*.28f,normal,{.28f,.18f},
+            tip-across*halfWidth*.28f,normal,{.16f,.18f},Material::Fur);
     }
 private:
     Vector3 World(Vector3 local)const{return Point(pose_.ToWorld(Point(local)));}
@@ -185,6 +144,25 @@ void BuildBear(std::vector<VertexPositionColorTexture>& vertices,const BearState
         Material::Fur,lon,lat);
     const Vector3 head{0,1.28f-forage*.48f,1.12f+forage*.18f};
     mesh.Ellipsoid(head,right,up,forward,.38f,.35f,.39f,Material::Fur,lon,lat);
+    if(near) {
+        // Short overlapping wedges break the mathematically smooth top outline. Roots
+        // follow the upper envelope of the same body volumes, so breathing, foraging
+        // and the shoulder hump cannot expose floating fur cards.
+        const auto top=[](float z,float centreZ,float centreY,float radiusY,float radiusZ) {
+            const float t=(z-centreZ)/radiusZ;
+            return std::abs(t)<=1.0f?centreY+radiusY*std::sqrt(std::max(0.0f,1.0f-t*t)):-100.0f;
+        };
+        for(int tuft=0;tuft<22;++tuft) {
+            const float z=-1.02f+static_cast<float>(tuft)*.112f;
+            const float y=std::max({
+                top(z,-.20f,1.04f+state.pose.bodyBob,.53f+breath,.93f),
+                top(z,.31f,1.36f+state.pose.bodyBob,.42f,.57f),
+                top(z,.70f,1.18f-forage*.18f,.43f,.52f),
+                top(z,head.Z,head.Y,.35f,.39f)});
+            if(y>-50.0f)mesh.FurTuft({0,y-.004f,z},.020f+.003f*(tuft%3),
+                .030f+.006f*(tuft%4),-.014f-.004f*(tuft%2));
+        }
+    }
     // Two overlapping, successively narrower volumes make a short tapered brown-bear muzzle.
     // The former single pale cylinder read as a toy snout from every oblique capture angle.
     const Vector3 muzzleRoot=head+forward*.315f-up*.105f;
@@ -256,16 +234,29 @@ BearRenderer::BearRenderer(GraphicsDevice& device,const CanopyLightField& canopy
      buffer_(std::make_unique<DynamicVertexBuffer>(device,VertexPositionColorTexture::getVertexDeclarationStatic(),
         VertexCapacity,BufferUsage::WriteOnly)),
      shadowBuffer_(std::make_unique<DynamicVertexBuffer>(device,VertexPositionColorTexture::getVertexDeclarationStatic(),
-        ShadowCapacity,BufferUsage::WriteOnly)),furAtlas_(CreateFurAtlas(device)) {
+        ShadowCapacity,BufferUsage::WriteOnly)),furTexture_(std::make_unique<Texture2D>(device,
+        GeneratedTextureBudget::BearFurSize,GeneratedTextureBudget::BearFurSize,true,SurfaceFormat::Color)) {
     if(!std::isfinite(maximumDistance)||maximumDistance<=0)throw std::invalid_argument("Bear draw distance must be positive");
     vertices_.reserve(VertexCapacity);shadows_.reserve(ShadowCapacity);
+    const auto levels=LoadOpaqueImageMips(device,"Content/wildlife/bear-fur.png",
+        GeneratedTextureBudget::BearFurSize);
+    for(std::size_t level=0;level<levels.size();++level) {
+        const auto& pixels=levels[level].pixels;
+        furTexture_->SetData(static_cast<int>(level),nullptr,
+            reinterpret_cast<const std::uint8_t*>(pixels.data()),0,
+            static_cast<int>(pixels.size()*4));
+    }
     effect_->setVertexColorEnabledProperty(true);effect_->setLightingEnabledProperty(false);effect_->setFogEnabledProperty(true);
     effect_->setFogColorProperty(Vector3(environment::FogColorRed,environment::FogColorGreen,environment::FogColorBlue));
     effect_->setFogStartProperty(maximumDistance*.65f);effect_->setFogEndProperty(maximumDistance);
-    const char* diagnostic="island-simulator: one large peaceful bear uses original articulated quadruped anatomy and a generated directional-fur atlas";
+    const char* material="island-simulator: bear fur loaded Content/wildlife/bear-fur.png; 128x128, 8 mips, 87380 RGBA8 bytes";
+    std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
+    const char* diagnostic="island-simulator: one large peaceful bear uses original articulated quadruped anatomy and a photographic-detail directional-fur material";
     std::cout<<diagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
     const char* faceDiagnostic="island-simulator: near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes";
     std::cout<<faceDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(faceDiagnostic);
+    const char* furDiagnostic="island-simulator: near bear uses twenty-two body-envelope fur wedges without another draw";
+    std::cout<<furDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(furDiagnostic);
 }
 BearRenderer::~BearRenderer()=default;
 
@@ -301,7 +292,7 @@ void BearRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector
     device_.setRasterizerStateProperty(RasterizerState::CullNone);device_.setBlendStateProperty(BlendState::Opaque);
     device_.setDepthStencilStateProperty(DepthStencilState::Default);device_.SetVertexBuffer(buffer_.get());device_.setIndicesProperty(nullptr);
     device_.getSamplerStatesProperty()[0]=SamplerState::LinearClamp;effect_->setTextureEnabledProperty(true);
-    effect_->setTextureProperty(furAtlas_.get());effect_->setWorldProperty(Matrix::getIdentityProperty());
+    effect_->setTextureProperty(furTexture_.get());effect_->setWorldProperty(Matrix::getIdentityProperty());
     effect_->setViewProperty(view);effect_->setProjectionProperty(projection);effect_->Apply();
     device_.DrawPrimitives(PrimitiveType::TriangleList,0,triangles_);++draws_;
 }

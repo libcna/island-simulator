@@ -664,6 +664,8 @@ def main():
                     if not Path(str(capture)+f".bear-stage-{stage}.ppm").is_file():
                         raise RuntimeError("missing bear locomotion-stage image")
                 for marker in ("one large peaceful bear uses original articulated quadruped anatomy",
+                               "bear fur loaded Content/wildlife/bear-fur.png; 128x128, 8 mips, 87380 RGBA8 bytes",
+                               "near bear uses twenty-two body-envelope fur wedges without another draw",
                                "near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes",
                                "bear capture visible 1; draws 2"):
                     if marker not in diagnostics:
