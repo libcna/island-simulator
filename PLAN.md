@@ -783,8 +783,15 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   forward view from inside; Release/Debug four-door traversal tests pass. Focused Chrome/SwiftShader
   evidence `20261013T042639.045892Z-chrome-helicopter` passes distinct exterior/interior images,
   60 finite intervals per view, GL0, intact contexts and an empty kernel delta. Textured paint and
-  upholstery, finer tail/body anatomy, door/seat interaction, free-walk review and Android remain,
-  so this is intentionally still in progress. See `docs/helicopter.md`.
+  upholstery, finer body anatomy, door/seat interaction, free-walk review and Android remain.
+  A third bounded silhouette pass replaces slab-like skids with eight-sided terrain-following tubes
+  and two rising nose segments, and replaces the box stabilizer with a thin swept tailplane. The
+  model remains two draws and rises only from 1,316 to 1,436 triangles; inspected native evidence
+  `20261013T070234.719775Z-helicopter` and `20261013T070301.958014Z-helicopter-inside` passes with
+  Release/Debug layout and core tests. Focused Chrome/SwiftShader evidence
+  `20261013T070806.833263Z-chrome-helicopter` passes distinct inspected exterior/interior images,
+  60 finite intervals per view, GL0, intact contexts and an empty kernel delta, so this is
+  intentionally still in progress. See `docs/helicopter.md`.
 
 All six items remain incomplete or in progress. Stream/cave/helicopter locations should be coordinated with
 hut access and existing wildlife; do not remove vegetation or relocate animals blindly.

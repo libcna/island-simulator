@@ -751,7 +751,7 @@ try {
               && log.includes("hut raised veranda uses full-height outer posts, split rails, fascia, and three steps")
               && log.includes("hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes")
               && log.includes(`hut 1 draw, ${mode === "hut" ? 7 : 6} contact patches`)))
-            && (!focusedHelicopterCheck || (log.includes("helicopter uses rounded twenty-sided cockpit glazing in a separate translucent batch and an articulated eight-link rotor hub")
+            && (!focusedHelicopterCheck || (log.includes("helicopter uses rounded twenty-sided cockpit glazing, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane")
               && /helicopter 2 draw/.test(log)))
             && (!focusedTurtleCheck || (log.includes("near turtles use staggered interlocking scutes and scaled paddle joints")
               && /turtles [1-5]\/5 visible \(near [1-5], far [0-5]\), 1 draw/.test(log)))

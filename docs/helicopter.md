@@ -10,7 +10,7 @@ sample `RenderedTerrainSurface`; the body is not allowed to float or use one gue
 height.
 
 The model is original project procedural geometry, not a downloaded asset. An opaque batch plus
-a depth-read translucent-glass batch contain 1,316 triangles: a multi-ring fuselage, sealed glazed nose,
+a depth-read translucent-glass batch contain 1,436 triangles: a multi-ring fuselage, sealed glazed nose,
 windshield mullion, tail boom and empennage, stationary main and tail rotors, terrain-following
 skids, four open doorways, two threshold/ramp levels, a supported cabin floor, two pilot seats,
 paired cyclics, instrument lamps and a rear bench. Provenance is recorded in
@@ -47,6 +47,12 @@ adds paired sloping windshield frames and builds an eight-link rotor hub around 
 the glass, the panel and seats are now visible from outside; from the rear cabin the player has a
 real forward view instead of facing an opaque blue shell.
 
+The third bounded silhouette pass replaces the broad square-section landing rails with eight-sided
+tubes that follow all four retained terrain contacts and rise through two segments at each nose.
+It also replaces the box-shaped horizontal stabilizer with a thin swept, tapered tailplane. Both
+changes stay in the existing opaque batch, so the complete model remains two draws and adds only
+120 triangles. The collision and floor plan are unchanged.
+
 The inspected current native evidence is
 `build-consumer/software-captures/20261013T042032.089144Z-helicopter` (296 colour bins,
 54.31 luminance deviation, 230.01 spatial contrast) and
@@ -59,6 +65,13 @@ Focused Web evidence `build/browser-software/20261013T042639.045892Z-chrome-heli
 inspected exterior and interior images with different hashes, 60 finite intervals per view,
 ANGLE SwiftShader, GL error zero, intact contexts and no new kernel GPU fault.
 
-Open work includes textured paint/upholstery, richer tail/body anatomy and small mechanical
+Current third-pass evidence is
+`build-consumer/software-captures/20261013T070234.719775Z-helicopter` and
+`build-consumer/software-captures/20261013T070301.958014Z-helicopter-inside`. The corresponding
+focused Web run is `build/browser-software/20261013T070806.833263Z-chrome-helicopter`; both inspected
+images are distinct and both views again pass 60 finite intervals, ANGLE SwiftShader, GL error zero,
+intact contexts and an empty new-kernel-fault delta.
+
+Open work includes textured paint/upholstery, richer body anatomy and small mechanical
 detail, improved interior and exterior lighting, door animation, explicit sitting interaction,
 live free-walk visual review, physical performance measurement, and Android capture qualification.

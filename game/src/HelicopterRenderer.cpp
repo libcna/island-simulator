@@ -82,6 +82,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         quad(p[0],p[1],p[5],p[4],color);quad(p[1],p[2],p[6],p[5],color);
         quad(p[2],p[3],p[7],p[6],color);quad(p[3],p[0],p[4],p[7],color);
     };
+    constexpr float tau=2.0f*std::numbers::pi_v<float>;
     const auto beam=[&](const Vector3& a,const Vector3& b,const float width,
                         const Color& color) {
         Vector3 along=b-a;along.Normalize();
@@ -94,10 +95,32 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         quad(p[0],p[1],p[5],p[4],color);quad(p[1],p[2],p[6],p[5],color);
         quad(p[2],p[3],p[7],p[6],color);quad(p[3],p[0],p[4],p[7],color);
     };
+    const auto tube=[&](const Vector3& a,const Vector3& b,const float radius,
+                        const Color& color) {
+        constexpr int sides=8;
+        Vector3 along=b-a;along.Normalize();
+        Vector3 tangent=Vector3::Cross(along,std::abs(along.Y)>.88f
+            ?Vector3(0,0,1):Vector3::Up);
+        tangent.Normalize();
+        Vector3 bitangent=Vector3::Cross(along,tangent);bitangent.Normalize();
+        std::array<Vector3,sides> first{},second{};
+        for(int side=0;side<sides;++side) {
+            const float angle=tau*side/sides;
+            const Vector3 offset=(tangent*std::cos(angle)+bitangent*std::sin(angle))*radius;
+            first[static_cast<std::size_t>(side)]=a+offset;
+            second[static_cast<std::size_t>(side)]=b+offset;
+        }
+        for(int side=0;side<sides;++side) {
+            const int next=(side+1)%sides;
+            quad(first[static_cast<std::size_t>(side)],
+                 second[static_cast<std::size_t>(side)],
+                 second[static_cast<std::size_t>(next)],
+                 first[static_cast<std::size_t>(next)],color);
+        }
+    };
     const Color olive(101,116,80),oliveLight(136,147,102),oliveDark(61,73,56);
     const Color glass(42,78,91,132),glassLight(94,145,159,150),metal(82,85,81);
     const Color interior(49,54,50),seat(45,49,43),rubber(30,32,30);
-    constexpr float tau=2.0f*std::numbers::pi_v<float>;
 
     // Multi-ring fuselage with actual side openings for separate cockpit and rear doors.
     for(std::size_t band=0;band+1<Fuselage.size();++band) {
@@ -188,7 +211,22 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
          {-.06f,1.62f,-6.18f},oliveLight);
     quad({.06f,1.62f,-6.18f},{.06f,1.93f,-6.94f},{.06f,3.18f,-6.72f},
          {.06f,1.82f,-6.35f},olive);
-    box({-1.18f,1.72f,-5.72f},{1.18f,1.79f,-5.22f},oliveDark);
+    // A thin tapered stabilizer replaces the old rectangular slab. The swept tips
+    // remain broad enough to read from the authored exterior camera.
+    const std::array<Vector3,4> stabilizer{{
+        {-1.22f,1.73f,-5.57f},{-1.22f,1.73f,-5.30f},
+        { 1.22f,1.73f,-5.30f},{ 1.22f,1.73f,-5.57f}}};
+    const Vector3 stabilizerLift(0,.075f,0);
+    quad(stabilizer[0],stabilizer[1],stabilizer[2],stabilizer[3],oliveDark);
+    quad(stabilizer[3]+stabilizerLift,stabilizer[2]+stabilizerLift,
+         stabilizer[1]+stabilizerLift,stabilizer[0]+stabilizerLift,oliveLight);
+    for(int side=0;side<4;++side) {
+        const int next=(side+1)%4;
+        quad(stabilizer[static_cast<std::size_t>(side)],
+             stabilizer[static_cast<std::size_t>(side)]+stabilizerLift,
+             stabilizer[static_cast<std::size_t>(next)]+stabilizerLift,
+             stabilizer[static_cast<std::size_t>(next)],olive);
+    }
     beam({.18f,1.92f,-6.84f},{.30f,1.92f,-6.84f},.10f,metal);
     for(int blade=0;blade<4;++blade) {
         const float angle=blade*std::numbers::pi_v<float>*.5f;
@@ -197,17 +235,25 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
              .075f,Color(49,52,48));
     }
 
-    // Ground-following skid rails and four struts. Each endpoint comes from the
-    // authoritative rendered terrain sample retained by the layout.
+    // Ground-following tubular skid rails and four struts. The two rising nose
+    // segments create the characteristic curved ski profile without moving the
+    // authoritative terrain contact points retained by the layout.
     for(int rail=0;rail<2;++rail) {
         const auto& rear=placement.skidContacts[static_cast<std::size_t>(rail*2)];
         const auto& front=placement.skidContacts[static_cast<std::size_t>(rail*2+1)];
         const float side=rail==0?-1.0f:1.0f;
         const float rearY=rear.groundY-placement.groundY+.11f;
         const float frontY=front.groundY-placement.groundY+.11f;
-        beam({side*1.24f,rearY,-1.82f},{side*1.24f,frontY,1.70f},.105f,metal);
-        beam({side*.82f,.68f,-1.30f},{side*1.24f,rearY,-1.30f},.09f,metal);
-        beam({side*.82f,.67f,1.18f},{side*1.24f,frontY,1.18f},.09f,metal);
+        const std::array<Vector3,5> railPoints{{
+            {side*1.24f,rearY+.025f,-2.06f},
+            {side*1.24f,rearY,-1.82f},
+            {side*1.24f,frontY,1.55f},
+            {side*1.24f,frontY+.11f,1.83f},
+            {side*1.24f,frontY+.34f,2.03f}}};
+        for(std::size_t segment=0;segment+1<railPoints.size();++segment)
+            tube(railPoints[segment],railPoints[segment+1],.072f,metal);
+        tube({side*.82f,.68f,-1.30f},{side*1.24f,rearY,-1.30f},.062f,metal);
+        tube({side*.82f,.67f,1.18f},{side*1.24f,frontY,1.18f},.062f,metal);
     }
 
     // Stationary mast, hub and four broad blades; there is deliberately no flight state.
@@ -263,7 +309,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     const std::string message="island-simulator: grounded helicopter original procedural shell, open pilot/rear doors, interior and stationary rotors; triangles="
         +std::to_string(triangles_);
     std::cout<<message<<'\n';MirrorRuntimeDiagnosticToPlatformLog(message);
-    const std::string detail="island-simulator: helicopter uses rounded twenty-sided cockpit glazing in a separate translucent batch and an articulated eight-link rotor hub";
+    const std::string detail="island-simulator: helicopter uses rounded twenty-sided cockpit glazing, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane";
     std::cout<<detail<<'\n';MirrorRuntimeDiagnosticToPlatformLog(detail);
 }
 
