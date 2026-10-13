@@ -18,7 +18,7 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "stream", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "goats", "boars", "spiders", "turtles", "crabs", "fish", "shark", "dolphins", "bear", "resident")
+SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "stream", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "goats", "boars", "spiders", "turtles", "crabs", "fish", "shark", "dolphins", "bear", "resident")
 
 
 def validate_helicopter_report(report):
@@ -44,6 +44,31 @@ def validate_helicopter_report(report):
             or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
             raise RuntimeError("helicopter view lacks current glazing, bounded draws or clean graphics state")
         frames.append(frame)
+    return frames
+
+
+def validate_campfire_report(report):
+    views = report.get("views", [])
+    if report.get("passed") is not True or len(views) != 1 or views[0].get("mode") != "campfire":
+        raise RuntimeError("campfire report lacks one successful focused view")
+    view = views[0]
+    result = view.get("result", {})
+    log = result.get("output", "")
+    frames = (view.get("screenshot"), view.get("afterSimulationScreenshot"))
+    intervals = view.get("intervals", [])
+    if (view.get("passed") is not True or view.get("glError") != 0
+        or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+        or "SwiftShader" not in view.get("renderer", "") or len(intervals) != 60
+        or not all(isinstance(value, (int, float)) and not isinstance(value, bool)
+                   and math.isfinite(value) and value > 0 for value in intervals)
+        or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
+        or len(set(frames)) != 2
+        or "campfire QA camera near" not in log
+        or "campfire first visible animated draw" not in log
+        or "campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke" not in log
+        or "campfire 1992 solid triangles, 42 flame/smoke/spark triangles in two culled draws" not in log
+        or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
+        raise RuntimeError("campfire view lacks current moving material, frames or clean graphics state")
     return frames
 
 
@@ -439,6 +464,16 @@ def main(argv=None):
                 if identities[0]["sha256"] == identities[1]["sha256"]:
                     raise RuntimeError("helicopter exterior and interior frames are byte-identical")
                 metadata["helicopter_frames"]=identities
+            if args.scope == "campfire":
+                campfire_report=json.loads((evidence / "island-browser-campfire.json").read_text())
+                frames=validate_campfire_report(campfire_report)
+                paths=[evidence / frame for frame in frames]
+                if not all(path.is_file() for path in paths):
+                    raise RuntimeError("campfire image file missing")
+                identities=[artifact_identity(path) for path in paths]
+                if identities[0]["sha256"] == identities[1]["sha256"]:
+                    raise RuntimeError("campfire separated-time frames are byte-identical")
+                metadata["campfire_frames"]=identities
             if args.scope == "turtles":
                 turtle_report=json.loads((evidence / "island-browser-turtles.json").read_text())
                 frames=validate_turtle_report(turtle_report)

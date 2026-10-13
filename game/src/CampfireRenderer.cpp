@@ -83,17 +83,26 @@ void main(){
         float q=p.y/height;
         float width=(1.0-q)*(.72+.45*turbulence);
         float fine=noise(p*vec2(16.0,11.0)-vec2(t*.4,t*3.0)+pigment.r*17.0);
-        float edge=width-abs(p.x+bend+(turbulence-.5)*.28)+(fine-.5)*.09;
+        float offset=p.x+bend+(turbulence-.5)*.28;
+        float edge=width-abs(offset)+(fine-.5)*.09;
         alpha=smoothstep(-.03,.14,edge)*smoothstep(0.0,.07,p.y)*(1.0-smoothstep(.82,1.0,q))
-            *smoothstep(.20,.66,turbulence)*.74;
+            *smoothstep(.20,.66,turbulence)*.66;
+        // Narrow moving gaps stop the six planes merging into one opaque orange cut-out.
+        float breakup=noise(vec2(p.x*24.0-t*1.1,p.y*13.0-t*3.7)+pigment.r*31.0);
+        float strand=.5+.5*sin(p.x*18.0+p.y*9.0-t*4.2+pigment.r*41.0);
+        alpha*=mix(.58,1.0,smoothstep(.24,.80,breakup)*smoothstep(.08,.72,strand));
         float heat=clamp((1.0-p.y)*.95+(turbulence-.5)*.20,0.0,1.0);
         color=mix(vec3(.88,.055,.003),vec3(1,.65,.08),smoothstep(.15,.75,heat));
-        color=mix(color,vec3(1,.95,.55),smoothstep(.78,1.0,heat));
+        float core=smoothstep(.02,.24,edge)*(1.0-smoothstep(.28,.88,abs(offset)/max(width,.04)));
+        color=mix(color,vec3(1,.95,.58),smoothstep(.66,1.0,heat)*core);
+        float blueBase=(1.0-smoothstep(.025,.17,p.y))*core;
+        color=mix(color,vec3(.30,.48,1.0),blueBase*.46);
     }else if(pigment.a<.6){
         float cloud=fbm(vec2(p.x*2.6,p.y*5.0-t*.43)+pigment.r*8.0);
         alpha=(1.0-smoothstep(.12,1.0,length(vec2(p.x,p.y*2.0-1.0))))
-            *smoothstep(.25,.7,cloud)*.115;
-        color=vec3(.33,.32,.29);
+            *smoothstep(.25,.7,cloud)*.15;
+        alpha*=.65+.35*noise(vec2(p.x*8.0+t*.13,p.y*11.0-t*.31)+pigment.r*17.0);
+        color=mix(vec3(.24,.225,.20),vec3(.37,.35,.31),cloud);
     }else{alpha=(1.0-smoothstep(.05,.8,length(uv*2.0-1.0)))*life*.85;color=vec3(1,.45,.04);}
     fragColor=vec4(color*alpha,alpha);
 }
@@ -135,6 +144,7 @@ CampfireRenderer::CampfireRenderer(GraphicsDevice& device,const CampfireLayout& 
     bounds_=BoundingBox(Vector3(centre_.x-3,centre_.y-.4f,centre_.z-4.5f),Vector3(centre_.x+8,centre_.y+5,centre_.z+3));
     std::cout<<"island-simulator: campfire "<<solidCount_/3<<" solid triangles, "<<effectCount_/3
         <<" flame/smoke/spark triangles in two culled draws; 11 stored logs six metres away\n";
+    std::cout<<"island-simulator: campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke\n";
 }
 CampfireRenderer::~CampfireRenderer()=default;
 void CampfireRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector3& camera,float seconds,bool effects) {

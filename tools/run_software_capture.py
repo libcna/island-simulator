@@ -592,7 +592,8 @@ def main():
                 # Capture mode intentionally disables audio; real backend switching is
                 # exercised by IslandSoundscapeRuntimeTests, not a visual smoke run.
                 for marker in ("campfire first visible animated draw",
-                               "1992 solid triangles, 42 flame/smoke/spark triangles"):
+                               "1992 solid triangles, 42 flame/smoke/spark triangles",
+                               "campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke"):
                     if marker not in diagnostics:raise RuntimeError(f"campfire integration diagnostic missing: {marker}")
             if args.viewpoint == "stream":
                 metadata["stream_stages"]=validate_stream_stages(log)

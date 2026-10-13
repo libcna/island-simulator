@@ -85,3 +85,23 @@ material/smoke refinement, representative performance and consolidated Web/Andro
 Both native executable build trees are refreshed. The separate private F11 restoration
 finding remains open. No AMD, Android emulator or
 KVM setting was changed for this work; all builds are restricted to CPUs0–3 and at most4 workers.
+
+## Translucent flame breakup and focused WebGL evidence
+
+The next shader-only visual pass keeps all21 quads,42 effect triangles and both existing draws.
+Time-varying high-frequency breakup and narrow strand modulation stop the six flame planes from
+merging into one opaque orange cut-out. A surface-distance core adds pale yellow-white heat, while
+a restrained centre-weighted blue component is confined to the lowest17% of the flame. Smoke uses
+a second drifting opacity modulation and a slightly broader warm-grey range; sparks, solid geometry,
+local lighting and audio are unchanged. The premultiplied output remains depth-read against solids.
+
+Native llvmpipe `20261013T124837.259373Z-campfire` passes all four ordered0.8–3.2s stages,
+366 colour bins,39.03 luminance deviation,172.00 spatial contrast and kernel[]. The final frame
+and four-stage montage were inspected; the tongues retain visible motion while showing softer,
+broken edges and less solid overlap.
+
+A new focused browser scope makes this more than a Web build claim. Chrome/SwiftShader evidence
+`20261013T125359.878012Z-chrome-campfire` passes two different inspected time-separated images,
+60 finite intervals, GL0, an intact context and kernel[]. Static validators require the current
+material diagnostic, exact42-triangle/two-draw budget and both image paths. Android runtime,
+speaker listening, continuous moving-view review and representative performance remain open.

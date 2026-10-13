@@ -544,7 +544,15 @@ terrain triangles and share the replacement surface with movement/grounding.
   draws and the six-source audio limit. Near/wide four-stage native software views inspected;
   physics and real-CNA dummy audio tests pass. Live keyboard/disk audio182016passes protected
   approach, actualloop gain, exact mute/resume PCM and24m range release. Speaker listening, performance,
-  natural-material polish and consolidated Web/Android remain. See `docs/campfire.md`.
+  natural-material polish and consolidated Web/Android remain. A shader-only refinement keeps the
+  existing21 quads/42 effect triangles/two draws but breaks up coincident orange sheets with
+  time-varying gaps/strands, adds a pale centre core, a restrained low blue base and independently
+  drifting warm-grey smoke opacity. Inspected native four-stage
+  `20261013T124837.259373Z-campfire` passes366bins/std39.03/spatial172.00/kernel[]. A new focused
+  Chrome/SwiftShader gate requires current material/budget markers and distinct separated-time
+  images; `20261013T125359.878012Z-chrome-campfire` passes60 intervals,GL0/context intact/kernel[]
+  and both images were inspected. Android, speaker listening, continuous moving view and performance
+  remain. See `docs/campfire.md`.
   Adding fuel/crafting mechanics was not requested.
 
 - [~] Add underwater diving: while in water and not flying, Space ascends toward
