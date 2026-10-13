@@ -106,3 +106,20 @@ Focused Chrome/SwiftShader evidence `20261013T074740.113865Z-chrome-coast` passe
 water, west and reef with 120 finite intervals per view, GL error zero, intact contexts and an
 empty new-kernel-fault delta. Both time-separated elevated reef images were inspected. Android,
 physical performance, crest foam coupling and a higher-detail coral material remain open.
+
+## Staghorn form follow-up — 2026-10-13
+
+The near branching form no longer uses one heavy central trunk with an evenly radial tier of
+branches and bulbous caps, which read as a pruned brown tree underwater. Eleven thinner upright
+stems now rise directly from a low colony base with golden-angle spacing, unequal reach and
+height. Each near stem gains one offset side fork, while both main and secondary branches end in
+small lighter growing tips. The far LOD keeps five stems and the same overall character. This
+changes only existing CPU-generated geometry: population, placement, culling, instancing and
+draw count are unchanged.
+
+Inspected native llvmpipe evidence `20261013T080430.507685Z-reef-habitat` passes at 1280x720 with
+101 colour bins, 26.27 luminance deviation and 131.27 spatial contrast. The isolated target reads
+as an upright terracotta staghorn colony rather than a trunk and crown. Focused Chrome/SwiftShader
+evidence `20261013T080800.279649Z-chrome-coast` then passes all four coast views with 120 finite
+intervals each, the new form diagnostic present, GL error zero, intact contexts and no new kernel
+fault. Android qualification and a coral-specific surface material remain open.

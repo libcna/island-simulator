@@ -1834,6 +1834,8 @@ try {
       "island-simulator: rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering")
     && reefResult.output?.includes(
       "island-simulator: rock per-instance tint reuses existing transforms")
+    && reefResult.output?.includes(
+      "island-simulator: branching reef form uses dense upright staghorn stems, offset side forks, and small growing tips")
     && /[1-9][0-9]*\/14 reef outcrops/.test(reefResult.output ?? "")
     && !reefResult.error;
 

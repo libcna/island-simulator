@@ -61,7 +61,11 @@ existing features, not a broad redesign.
    inner lagoon, habitat-field-aligned reef patches, a broken 62–86m crest and a
    restrained deep-shelf drop-off without new geometry or draws. The elevated reef
    camera plus inspected native and Chrome/SwiftShader coast evidence now establish
-   distant readability. Android, measured performance and crest-foam coupling remain.
+   distant readability. The branching near form also replaces its former central-trunk,
+   bulb-capped silhouette with eleven thin golden-angle staghorn stems, offset side forks
+   and small growth tips without changing population or draws; a repeated four-view
+   Chrome/SwiftShader coast audit passes with intact contexts and GL error zero. Android,
+   measured performance and crest-foam coupling remain.
 6. [~] **Ecological placement of existing wildlife first.** Crabs on sand/wrack;
    butterflies in sunny clearings; snakes on dense-understory margins; spiders in
    forest/shrubs; boars in wetter interior; goats on dry open slopes; monkeys under
