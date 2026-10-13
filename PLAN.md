@@ -795,6 +795,19 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   intact/kernel[]; initial/four poses/final inspected. Android ARM64 assemble/lint PASS
   without emulator. Continuous gait, joint topology, facial micro-anatomy and Android
   device rendering remain open, so the task remains unchecked.
+  Eighth follow-up targets the still-flat pale facial mask: corneas move6mm forward and
+  grow slightly, while a fitted76mm-wide shallow nose pad is skinned to the existing head
+  bone and darkened through a reserved negative-U tag in the same face shader/draw. Cost
+  is78 vertices/120 triangles per near face; no texture/bone/material/draw/population or
+  simulation change. Initial native194439.335771Z-monkeys PASS technically but was
+  visually rejected as rear/occluded evidence. Nine-stage llvmpipe
+  194613.603137Z-monkey-tree PASS204--211bins/std44.21--44.94/spatial192.17--196.26/
+  kernel[] and montage inspection shows the nose, cornea and mouth in a clear side pose
+  while tail/tree contacts remain attached. Chrome/SwiftShader
+  195104.174891Z-chrome-monkeys PASS60intervals/GL0/context intact/kernel[]; six images
+  inspected. Release+Debug3/3 focused tests, asset gates,33 browser-runner tests and
+  Android ARM64 assemble/lint PASS. Facial anatomy, continuous gait/joints and Android
+  device rendering remain open; task stays unchecked.
 - [~] Move the hut substantially farther inland and rebuild its appearance toward the
   user's reference: raised timber house, front veranda/railing, broad pitched roof,
   exposed framing/braces, plank walls and framed door/windows in a jungle setting.

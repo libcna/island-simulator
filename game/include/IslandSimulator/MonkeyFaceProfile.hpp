@@ -21,8 +21,10 @@ namespace island::MonkeyFaceProfile
     inline constexpr Point EarRadii{.052f,.064f,.023f};
     inline constexpr Point InnerEarCentre{.177f,.866f,.440f};
     inline constexpr Point InnerEarRadii{.040f,.051f,.017f};
-    inline constexpr float EyeCentreX=.060f,EyeCentreY=.882f,EyeCentreZ=.638f;
-    inline constexpr float EyeRadiusX=.0215f,EyeRadiusY=.013f,EyeRadiusZ=.0095f;
+    inline constexpr float EyeCentreX=.060f,EyeCentreY=.882f,EyeCentreZ=.644f;
+    inline constexpr float EyeRadiusX=.024f,EyeRadiusY=.014f,EyeRadiusZ=.010f;
+    inline constexpr Point NoseCentre{0,.816f,.672f};
+    inline constexpr Point NoseRadii{.038f,.023f,.010f};
     inline float Bump(float value,float centre,float radius)
     {
         const float t=(value-centre)/radius;

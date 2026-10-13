@@ -1,5 +1,21 @@
 # island-simulator handoff
 
+## Current work — monkey nose and corneas inspected
+
+Goal remains active; continue the whole plan. The latest near face now moves/enlarges each cornea
+and adds a fitted 76mm-wide shallow dark nose pad on the existing head bone. A negative-U feature
+tag reuses the face shader/draw; cost is +78 vertices/+120 triangles per near face with no new
+texture, bone, material, draw, population or simulation change. Native
+`20261013T194439.335771Z-monkeys` passed technically but was rejected as facial evidence because
+the view was rear/occluded. The complete llvmpipe
+`20261013T194613.603137Z-monkey-tree` PASS all nine frames, 204--211 bins/std44.21--44.94/
+spatial192.17--196.26/kernel[]; montage inspection shows the nose, cornea and mouth in a clear
+side pose while the hooked furry tail and tree contacts remain attached. Chrome/SwiftShader
+`20261013T195104.174891Z-chrome-monkeys` PASS60 intervals/six inspected frames/GL0/context intact/
+kernel[]. Release+Debug monkey tests3/3, both asset gates,33 browser-runner tests and Android
+ARM64 assemble/lint pass. Procedural joint/gait/facial micro-anatomy and Android runtime remain;
+PLAN stays unchecked. No emulator/KVM or AMD GPU. Max four compile cores.
+
 ## Current work — helicopter closed main-rotor blades inspected
 
 Goal remains active; continue the whole plan. The four stationary 5.65m main-rotor blades no longer

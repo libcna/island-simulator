@@ -325,7 +325,9 @@ Seven original procedural monkeys roam the interior using a compact, obstacle-aw
 three silhouette meshes, four material palettes, portable CNA GPU skeletal animation, and short
 state-transition crossfades. Near animals use generated directional fur, a sculpted rump/waist/chest
 loft, paired fur cheek ruffs around the skin mask, a heavy hooked tail with raised fur clumps, and
-bone-following volumetric palms/soles with four forward digits and a lateral opposable digit.
+bone-following volumetric palms/soles with four forward digits and a lateral opposable digit. A
+shallow fitted dark nose, visible nostrils/mouth and slightly raised corneas break up the pale mask
+without another texture, material or draw.
 They approach qualified trees, grip actual wind-deformed bark, ascend to a supported summit and
 descend without teleporting. Calm idle/observe animals gradually turn
 their existing head bone

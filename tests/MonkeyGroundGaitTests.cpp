@@ -111,6 +111,11 @@ try {
         &&face::EyeCentreZ+face::EyeRadiusZ>orbitalSurface,
         "eye cornea must straddle the recessed orbital surface, not float outside");
     Require(face::Rows[7].front > face::Rows[4].front, "muzzle projects beyond orbital plane");
+    Require(face::EyeCentreZ>.640f&&face::EyeRadiusX>=.024f,
+        "close monkey corneas remain readable above the face surface");
+    Require(face::NoseRadii.x>=.036f&&face::NoseRadii.y>=.020f
+            &&face::NoseCentre.z+face::NoseRadii.z>.680f,
+        "fitted nose pad remains broad and visible on the short muzzle");
     for(float side:{-1.0f,1.0f}) for(bool upper:{false,true}) for(int i=0;i<=10;++i) {
         const float t=-.92f+1.84f*i/10.0f;
         const auto outer=face::Eyelid(side,t,upper,true);

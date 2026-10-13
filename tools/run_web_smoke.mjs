@@ -881,6 +881,7 @@ try {
             && !log.includes("boar terrain contact limited by limb reach")
             && log.includes("monkeys receive footprint-averaged canopy light through 14-bone skinning")
             && log.includes("monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes")
+            && log.includes("near monkey faces use a fitted dark nose pad and raised readable corneas")
             // Curved leaf budgets are unchanged; flared trunks, rounded buttresses and six-sided branches.
             && /canopy mesh variant=0 near-vertices=4818 near-triangles=4640 far-vertices=1071 far-triangles=1120/.test(log)
             && (mode !== "boars" || /boars [1-6]\/6 visible, 2 draw/.test(log))
@@ -1081,6 +1082,8 @@ try {
       "island-simulator: near monkey tails keep a compact muscular hook and thirty-six raised fur clumps")
     && result.output?.includes(
       "island-simulator: near monkey faces use paired fur cheek ruffs around the skin mask")
+    && result.output?.includes(
+      "island-simulator: near monkey faces use a fitted dark nose pad and raised readable corneas")
     && result.output?.includes(
       "island-simulator: calm monkeys use bounded skeletal head attention")
     && result.output?.includes("3 silhouettes, 4 palettes")
@@ -2334,6 +2337,8 @@ try {
       "island-simulator: near monkey tails keep a compact muscular hook and thirty-six raised fur clumps")
     && monkeyResult.output?.includes(
       "island-simulator: near monkey faces use paired fur cheek ruffs around the skin mask")
+    && monkeyResult.output?.includes(
+      "island-simulator: near monkey faces use a fitted dark nose pad and raised readable corneas")
     && monkeyResult.output?.includes(
       "island-simulator: calm monkeys use bounded skeletal head attention")
     && /monkeys [1-9]\/7 visible/.test(monkeyResult.output ?? "")

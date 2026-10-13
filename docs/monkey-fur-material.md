@@ -1,5 +1,34 @@
 # Monkey fur material
 
+## Fitted nose and readable corneas — 2026-10-13
+
+The latest fur-framed head still presented one nearly uniform pale mask at ordinary
+island distance. This follow-up moves each cornea 6mm forward, enlarges it slightly and
+adds a shallow 76mm-wide fitted nose pad to the short muzzle. The pad is skinned to the
+existing head bone. A reserved negative texture-U tag darkens only this geometry in the
+existing face shader and draw, while the pre-existing nostrils and mouth remain separate
+dark detail. Cost is 78 vertices and 120 triangles per near face; there is no new texture,
+bone, material, draw, animal or simulation work.
+
+The first current-binary native capture `20261013T194439.335771Z-monkeys` passes its
+technical gates at 1280x720 (190 colour bins, 34.81 luminance deviation, 147.09 spatial
+contrast and an empty kernel delta), but its rear/occluded view was rejected as facial
+evidence. The complete nine-stage llvmpipe sequence
+`20261013T194613.603137Z-monkey-tree` passes at 204--211 bins, 44.21--44.94 deviation and
+192.17--196.26 contrast. All nine frames were inspected together; the clear side pose
+shows the attached dark nose, raised cornea and mouth, while tree reach, cheek ruffs and
+the compact fur-broken hooked tail remain connected. Its kernel delta is empty.
+
+Focused Chrome/SwiftShader `20261013T195104.174891Z-chrome-monkeys` passes 60 finite
+intervals with `glError=0`, an intact context and empty final kernel delta. The initial,
+four intermediate and final images were inspected as a montage: front/side frames retain
+the new face through the live turn, while two deliberately sampled poses are partly
+occluded by foliage. Release and Debug monkey tests pass 3/3, both asset gates pass, the
+33 browser-runner tests pass, and Android ARM64 assemble/lint succeeds without an emulator.
+The result improves first-person facial readability; procedural joint topology, continuous
+gait naturalness, facial micro-anatomy and Android-device rendering remain open, so this
+does not claim photorealism or complete the wider monkey task.
+
 ## Fur-framed face and broken tail outline — 2026-10-13
 
 A fresh current-binary native side capture `20261013T141856.054706Z-monkeys` was

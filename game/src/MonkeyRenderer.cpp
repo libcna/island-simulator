@@ -738,6 +738,19 @@ namespace island
                              Vector3(MonkeyFaceProfile::InnerEarRadii.x,
                                      MonkeyFaceProfile::InnerEarRadii.y,
                                      MonkeyFaceProfile::InnerEarRadii.z), Head, 5, 10);
+            // A shallow attached nose pad breaks up the formerly uniform pale mask.
+            // Negative U is a face-feature tag consumed by the existing skinning shader;
+            // it keeps this darker skin in the same face draw and follows the head bone.
+            const std::size_t noseStart = mesh.vertices.size();
+            AddEllipsoid(mesh,
+                         Vector3(MonkeyFaceProfile::NoseCentre.x,
+                                 MonkeyFaceProfile::NoseCentre.y,
+                                 MonkeyFaceProfile::NoseCentre.z),
+                         Vector3(MonkeyFaceProfile::NoseRadii.x,
+                                 MonkeyFaceProfile::NoseRadii.y,
+                                 MonkeyFaceProfile::NoseRadii.z), Head, 5, 12);
+            for (std::size_t vertex = noseStart; vertex < mesh.vertices.size(); ++vertex)
+                mesh.vertices[vertex].TextureCoordinate = Vector2(-1.0f, -0.94f);
             // Skin-coloured upper/lower eyelid strips give the eyes an almond-shaped
             // socket and readable brow transition instead of two isolated black dots.
             constexpr int lidSegments=10;
