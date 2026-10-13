@@ -1716,7 +1716,11 @@ namespace island
                         << " sources " << audio.playingSourceCount
                         << " wildlife " << static_cast<int>(audio.activeWildlifeCall.type)
                         << " snake-hisses " << soundscape_->PlayedSnakeHissCount()
-                        << " goats " << soundscape_->PlayedGoatCallCount() << '\n';
+                        << " goats " << soundscape_->PlayedGoatCallCount()
+                        << " underwater " << audio.underwaterAudio.immersion
+                        << " air-gain " << audio.underwaterAudio.airGain
+                        << " water-gain " << audio.underwaterAudio.waterGain
+                        << " water-pitch-offset " << audio.underwaterAudio.waterPitchOffset << '\n';
                     const auto fire=campfireLayout_.Centre();
                     const float distance=std::hypot(cameraPosition_.X-fire.x,cameraPosition_.Y-fire.y,cameraPosition_.Z-fire.z);
                     const float clearance=std::hypot(position.x-fire.x,position.z-fire.z)
@@ -2291,7 +2295,8 @@ namespace island
             flightMotion_.IsActive() ? 0.0f : playerMotion_.OceanCurrentStrength(terrain_),
             deltaSeconds,windExposure,listener,
             birdFlock_.Birds(), monkeyTroop_.Monkeys(), boarHerd_.Boars(),
-            goats_->Goats(),snakes_->Snakes(),&bear_->State());
+            goats_->Goats(),snakes_->Snakes(),&bear_->State(),
+            flightMotion_.IsActive()?0.0f:playerMotion_.SubmergedDepth());
     }
 
     bool IslandGame::IsDebugFreeCameraActive() const noexcept

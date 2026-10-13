@@ -162,6 +162,7 @@ namespace island
         state.nearestMonkey = nearestMonkeySource_;
         state.activeWildlifeCall = activeWildlifeCall_;
         state.sourceBudget = MaximumPlayingSourceCount;
+        state.underwaterAudio = underwaterAudio_;
         if (available_) {
             // Query actual playback: an owned instance does not prove an audible/live track.
             for (const auto* instance : {surfInstance_.get(), breezeInstance_.get(),
@@ -468,7 +469,7 @@ namespace island
         const std::span<const BoarState> boars,
         const std::span<const GoatState> goats,
         const std::span<const SnakeState> snakes,
-        const BearState* bear) noexcept
+        const BearState* bear,const float submergedDepth) noexcept
     {
         const float safeDelta = std::isfinite(deltaSeconds)
             ? std::clamp(deltaSeconds, 0.0f, 0.25f) : 0.0f;
@@ -551,6 +552,14 @@ namespace island
                             coastalWindExposure, streamSound_.presence);
         (void)waterMovementModel_.Update(
             waterDepth, swimming, horizontalSpeed, safeDelta, oceanCurrentStrength);
+        underwaterAudio_=UnderwaterAudioResponse(swimming?submergedDepth:0.0f);
+        if(!underwaterAudioReported_&&underwaterAudio_.immersion>.5f) {
+            underwaterAudioReported_=true;
+            constexpr std::string_view diagnostic=
+                "island-simulator: submerged soundscape muffles airborne ambience and deepens the existing water loop";
+            std::cout<<diagnostic<<'\n'<<std::flush;
+            MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+        }
         const bool wantsCampfirePlayback=!swimming&&campfirePresence_>(campfirePlaybackActive_?.005f:.015f);
         const bool wantsStreamPlayback = !wantsCampfirePlayback&&StreamSoundField::ShouldUseStreamPlayback(
             swimming, streamSound_.presence, streamPlaybackActive_);
@@ -617,7 +626,8 @@ namespace island
                             } else {
                                 activeWildlifeCall_.source = {true, boar.x, y, boar.z};
                                 wildlifeInstance_->setVolumeProperty(boarVoiceGain_
-                                    * BoarCallVolume(activeBoarCall_.kind, distance));
+                                    * BoarCallVolume(activeBoarCall_.kind, distance)
+                                    * underwaterAudio_.airGain);
                             }
                         }
                     } else if (activeWildlifeCall_.type == WildlifeCallType::Goat) {
@@ -635,7 +645,8 @@ namespace island
                                 wildlifeSecondsRemaining_ = 0.0f;
                             } else {
                                 activeWildlifeCall_.source = {true,goat.x,y,goat.z};
-                                wildlifeInstance_->setVolumeProperty(goatVoiceGain_*volume);
+                                wildlifeInstance_->setVolumeProperty(goatVoiceGain_*volume
+                                    *underwaterAudio_.airGain);
                             }
                         }
                     } else if (activeWildlifeCall_.type == WildlifeCallType::Snake) {
@@ -655,7 +666,7 @@ namespace island
                             } else {
                                 activeWildlifeCall_.source = {true,head.x,head.y,head.z};
                                 wildlifeInstance_->setVolumeProperty(snakeVoiceGain_
-                                    * SnakeHissVolume(distance));
+                                    * SnakeHissVolume(distance)*underwaterAudio_.airGain);
                             }
                         }
                     } else if(activeWildlifeCall_.type==WildlifeCallType::Bear) {
@@ -667,7 +678,8 @@ namespace island
                             wildlifeInstance_->Stop();wildlifeSecondsRemaining_=0;
                         } else {
                             activeWildlifeCall_.source={true,bear->x,y,bear->z};
-                            wildlifeInstance_->setVolumeProperty(bearVoiceGain_*volume);
+                            wildlifeInstance_->setVolumeProperty(bearVoiceGain_*volume
+                                *underwaterAudio_.airGain);
                         }
                     }
                     AudioEmitter emitter;
@@ -830,7 +842,8 @@ namespace island
             try {
                 waveInstance_ = std::make_unique<SoundEffectInstance>(
                     shorelineEffect->CreateInstance());
-                waveInstance_->setVolumeProperty(creak.trigger ? creak.volume : accent.volume);
+                waveInstance_->setVolumeProperty((creak.trigger ? creak.volume : accent.volume)
+                    *underwaterAudio_.surfGain);
                 waveInstance_->setPitchProperty(creak.trigger ? creak.pitch : accent.pitch);
                 if (creak.trigger) {
                     AudioEmitter emitter;
@@ -939,7 +952,7 @@ namespace island
         try {
             wildlifeInstance_ = std::make_unique<SoundEffectInstance>(
                 wildlifeEffect->CreateInstance());
-            wildlifeInstance_->setVolumeProperty(wildlifeCall.volume);
+            wildlifeInstance_->setVolumeProperty(wildlifeCall.volume*underwaterAudio_.airGain);
             wildlifeInstance_->setPitchProperty(wildlifeCall.pitch);
             AudioEmitter emitter;
             emitter.setPositionProperty(Vector3(
@@ -1070,14 +1083,22 @@ namespace island
         }
         try {
             const float gain = muted_ ? 0.0f : 1.0f;
-            surfInstance_->setVolumeProperty(model_.Mix().surfVolume * gain);
-            breezeInstance_->setVolumeProperty(model_.Mix().breezeVolume * gain);
-            jungleInstance_->setVolumeProperty(model_.Mix().jungleVolume * gain);
-            streamInstance_->setVolumeProperty(model_.Mix().streamVolume * gain);
-            campfireInstance_->setVolumeProperty(campfireVolume_*gain);
-            waterMovementInstance_->setVolumeProperty(
-                waterMovementModel_.Mix().volume * gain);
-            waterMovementInstance_->setPitchProperty(waterMovementModel_.Mix().pitch);
+            surfInstance_->setVolumeProperty(model_.Mix().surfVolume
+                *underwaterAudio_.surfGain*gain);
+            breezeInstance_->setVolumeProperty(model_.Mix().breezeVolume
+                *underwaterAudio_.airGain*gain);
+            jungleInstance_->setVolumeProperty(model_.Mix().jungleVolume
+                *underwaterAudio_.airGain*gain);
+            streamInstance_->setVolumeProperty(model_.Mix().streamVolume
+                *underwaterAudio_.airGain*gain);
+            campfireInstance_->setVolumeProperty(campfireVolume_
+                *underwaterAudio_.airGain*gain);
+            const float underwaterBed=.025f*underwaterAudio_.immersion;
+            waterMovementInstance_->setVolumeProperty(std::min(1.0f,
+                (waterMovementModel_.Mix().volume+underwaterBed)
+                    *underwaterAudio_.waterGain*gain));
+            waterMovementInstance_->setPitchProperty(std::clamp(
+                waterMovementModel_.Mix().pitch+underwaterAudio_.waterPitchOffset,-1.0f,1.0f));
         } catch (const std::exception& exception) {
             DisableAfterRuntimeFailure(exception.what());
         }

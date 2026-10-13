@@ -480,8 +480,14 @@ terrain triangles and share the replacement surface with movement/grounding.
   into PlayerMotion/input with lazy rendered-seabed cache and conservative swept
   footprint rejection; Shift swimming doesn't toggle running. Actual-world CPU
   descent/hold/seabed-block/return/reset regressions pass with CoreTests40.77s.
-  No underwater visual/runtime claim; rendering/audio and edge-case QA remain.
-  See docs/diving.md for controller contracts and required swept-seabed integration.
+  Focused native live input descended from0.58m to-1.86399m, held depth and resurfaced;
+  inspected below/above-water captures show the existing depth haze/surface scatter
+  transitioning cleanly and the kernel fault delta is empty. Actual depth now applies
+  a bounded muffle to airborne ambience/terrestrial calls and reinforces/lowers the
+  existing water loop without another source. Real-CNA disk audio captured1,413,120
+  nonzero PCM bytes while deep response reached air0.18/water1.22/pitch-0.12. Longer
+  boundary/shore/focus routes, subjective listening and Web/Android runtime remain.
+  See docs/diving.md for controller, audio and evidence contracts.
 
 Boar material follow-up: original ImageGen fine-bristle v2 source and exact prompt
 preserved/manifest recorded; native/Web/Android preparation selects v2 with unchanged

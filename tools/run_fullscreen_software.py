@@ -268,7 +268,7 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
             keys("F1", "debug overlay disabled")
             # Snake playback has its own focused native gate.  The normal invocation
             # remains the authoritative two-cycle F11/focus regression test.
-            fullscreen_cycles = 0 if snake_audio or goat_audio or cave or campfire else 2
+            fullscreen_cycles = 0 if snake_audio or goat_audio or cave or campfire or diving else 2
             for cycle in range(fullscreen_cycles):
                 # Some X11 window managers return focus to their root/desktop while
                 # restoring a non-resizable window from fullscreen.  Reassert focus
@@ -570,6 +570,12 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 def swim_samples():
                     return [tuple(map(float,m)) for m in re.findall(
                         r"swim position ([-+\d.eE]+) ([-+\d.eE]+) ([-+\d.eE]+) depth ([-+\d.eE]+)",log())]
+                def underwater_audio_samples():
+                    number=r"([-+\d.eE]+)"
+                    return [tuple(map(float,m)) for m in re.findall(
+                        r"audio sample available ([01]) muted [01].* underwater "+number
+                        +r" air-gain "+number+r" water-gain "+number
+                        +r" water-pitch-offset "+number,log())]
                 keys("F1","debug overlay enabled")
                 keys("F12","debug teleport offshore current")
                 keys("F1","debug overlay disabled")
@@ -597,8 +603,22 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                     raise RuntimeError("diving Shift changed ground running mode")
                 if "flight on;" in log():
                     raise RuntimeError("swimming Space incorrectly activated flight")
+                if "submerged soundscape muffles airborne ambience and deepens the existing water loop" not in log():
+                    raise RuntimeError("diving did not reach the depth-responsive soundscape")
+                audio=underwater_audio_samples()
+                if not any(a[0]==1 and a[1]>.95 and a[2]<.20 and a[3]>1.20 and a[4]<-.11
+                           for a in audio):
+                    raise RuntimeError("live diving did not apply the bounded deep-water audio mix")
+                recording=evidence/"game-audio.raw"
+                if not recording.is_file() or recording.stat().st_size<4096:
+                    raise RuntimeError("diving disk-audio output is missing or empty")
+                with recording.open("rb") as pcm:
+                    if not any(pcm.read(min(recording.stat().st_size,1048576))):
+                        raise RuntimeError("diving disk-audio output contains only silence")
                 (evidence/"diving-result.json").write_text(json.dumps({"passed":True,
-                    "samples":samples,"scope":"actual descent and ascent; not visual/audio acceptance"},indent=2)+"\n")
+                    "samples":samples,"underwaterAudio":audio,
+                    "audioBytes":recording.stat().st_size,
+                    "scope":"actual descent/ascent, bounded depth mix and disk PCM; not speaker listening"},indent=2)+"\n")
             if flight:
                 def flight_samples():
                     return [tuple(map(float,m)) for m in re.findall(
@@ -771,7 +791,7 @@ def main():
             environment.pop(key, None)
         environment["ISLAND_FULLSCREEN_SUPERVISED"] = "1"
         environment["XDG_CONFIG_HOME"] = str(evidence / "config")
-        if args.boar_audio or args.snake_audio or args.goat_audio or args.campfire:
+        if args.boar_audio or args.snake_audio or args.goat_audio or args.campfire or args.diving:
             environment["SDL_AUDIO_DRIVER"] = "disk"
             environment["SDL_AUDIO_DISK_OUTPUT_FILE"] = str(evidence / "game-audio.raw")
             environment["SDL_AUDIO_DISK_TIMESCALE"] = "1.0"

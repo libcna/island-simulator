@@ -35,7 +35,8 @@ void Exercise(bool startNearStream) {
             listener.y = swimming ? .58f : 4.0f;
             for (int tick = 0; tick < 90; ++tick) {
                 sound.Update(near ? 30 : 2, swimming, swimming ? 1.0f : 0.0f,
-                    1.0f, 0, 1.0f/60, .5f, listener, {}, {}, {}, {}, {});
+                    1.0f, 0, 1.0f/60, .5f, listener, {}, {}, {}, {}, {},nullptr,
+                    swimming?1.4f:0.0f);
                 Check(sound.IsAvailable(), "Stream transition disabled all audio: " + sound.Error());
                 Check(sound.Error().empty(), "Audio retained an unexpected failure");
                 const auto sources = sound.DebugState().playingSourceCount;
@@ -43,6 +44,12 @@ void Exercise(bool startNearStream) {
                       "A persistent ambient track stopped after a stream transition");
                 Check(sources <= sound.MaximumPlayingSourceCount,
                       "Stream arbitration exceeded the shared voice budget");
+                if(swimming) {
+                    const auto underwater=sound.DebugState().underwaterAudio;
+                    Check(underwater.immersion==1&&underwater.airGain==.18f
+                              &&underwater.waterGain==1.22f,
+                          "real soundscape did not apply the deep-water mix");
+                }
             }
         }
     }

@@ -1241,6 +1241,23 @@ int main()
           "jungle texture is audible inland and explicitly attenuated while swimming");
     Check(swimmingMix.surfVolume >= 0.35f && swimmingMix.breezeVolume < beachMix.breezeVolume,
           "swimming emphasizes nearby water while softening canopy breeze");
+    const auto surfaceAudio=island::UnderwaterAudioResponse(0.0f);
+    const auto shallowAudio=island::UnderwaterAudioResponse(.55f);
+    const auto deepAudio=island::UnderwaterAudioResponse(2.0f);
+    const auto invalidDepthAudio=island::UnderwaterAudioResponse(
+        std::numeric_limits<float>::quiet_NaN());
+    Check(surfaceAudio.immersion==0&&surfaceAudio.airGain==1&&surfaceAudio.surfGain==1
+          &&surfaceAudio.waterGain==1&&surfaceAudio.waterPitchOffset==0,
+          "surface swimming leaves the existing sound mix unchanged");
+    Check(shallowAudio.immersion>0&&shallowAudio.immersion<1
+          &&shallowAudio.airGain<1&&shallowAudio.surfGain<1
+          &&shallowAudio.waterGain>1&&shallowAudio.waterPitchOffset<0,
+          "submersion progressively muffles air and deepens the water layer");
+    Check(deepAudio.immersion==1&&deepAudio.airGain==.18f&&deepAudio.surfGain==.72f
+          &&deepAudio.waterGain==1.22f&&deepAudio.waterPitchOffset==-.12f,
+          "deep-water audio response stays inside its authored bounds");
+    Check(invalidDepthAudio.immersion==0&&invalidDepthAudio.airGain==1,
+          "invalid submersion depth fails safely to the surface mix");
     Check(wetInteriorMix.streamVolume >= 0.22f
               && dryInteriorMix.streamVolume == 0.0f
               && wetInteriorMix.jungleVolume > dryInteriorMix.jungleVolume

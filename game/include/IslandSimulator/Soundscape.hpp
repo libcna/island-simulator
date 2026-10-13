@@ -40,6 +40,7 @@ namespace island
         int sourceBudget = 6;
         bool campfirePlaying = false;
         float campfireVolume=0;
+        UnderwaterAudioMix underwaterAudio;
     };
 
     /** @brief Owns the procedural ambient layers and their CNA playback instances. */
@@ -73,7 +74,8 @@ namespace island
                     std::span<const BoarState> boars,
                     std::span<const GoatState> goats,
                     std::span<const SnakeState> snakes,
-                    const BearState* bear=nullptr) noexcept;
+                    const BearState* bear=nullptr,
+                    float submergedDepth=0.0f) noexcept;
 
         /** @brief Refreshes diagnostic emitter candidates even when audio playback is disabled. */
         void RefreshDebugSources(float listenerX, float listenerY, float listenerZ,
@@ -138,6 +140,7 @@ namespace island
 
         SoundscapeModel model_;
         WaterMovementModel waterMovementModel_;
+        UnderwaterAudioMix underwaterAudio_;
         WaveAccentScheduler waveScheduler_;
         ShipwreckCreakScheduler shipwreckCreakScheduler_;
         WaterTransitionScheduler waterTransitionScheduler_;
@@ -219,6 +222,7 @@ namespace island
         bool footstepFailureReported_ = false;
         bool wildlifeCallsEnabled_ = false;
         bool wildlifeFailureReported_ = false;
+        bool underwaterAudioReported_ = false;
         float waveSecondsRemaining_ = 0.0f;
         float waterTransitionSecondsRemaining_ = 0.0f;
         float footstepSecondsRemaining_ = 0.0f;

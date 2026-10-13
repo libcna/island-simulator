@@ -21,6 +21,19 @@ namespace island
         float streamVolume = 0.0f;
     };
 
+    /** @brief Depth-driven gains applied to existing loops; it adds no audio source. */
+    struct UnderwaterAudioMix
+    {
+        float immersion = 0.0f;
+        float airGain = 1.0f;
+        float surfGain = 1.0f;
+        float waterGain = 1.0f;
+        float waterPitchOffset = 0.0f;
+    };
+
+    /** @brief Maps authoritative eye depth to a bounded, finite submerged sound response. */
+    [[nodiscard]] UnderwaterAudioMix UnderwaterAudioResponse(float submergedDepth) noexcept;
+
     /** @brief Original deterministic mono PCM used by one procedural ambient loop. */
     struct AmbientLoop
     {

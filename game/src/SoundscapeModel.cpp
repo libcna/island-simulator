@@ -1445,6 +1445,16 @@ namespace island
         return request;
     }
 
+    UnderwaterAudioMix UnderwaterAudioResponse(const float submergedDepth) noexcept
+    {
+        const float safeDepth=std::isfinite(submergedDepth)
+            ?std::max(0.0f,submergedDepth):0.0f;
+        const float immersion=SmoothStep(.08f,1.2f,safeDepth);
+        return {immersion,std::lerp(1.0f,.18f,immersion),
+            std::lerp(1.0f,.72f,immersion),std::lerp(1.0f,1.22f,immersion),
+            std::lerp(0.0f,-.12f,immersion)};
+    }
+
     SoundscapeMix SoundscapeModel::TargetMix(const float signedShoreDistance,
                                              const bool swimming,
                                              const float coastalWindExposure,

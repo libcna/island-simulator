@@ -254,8 +254,10 @@ otherwise empty build-owned directory to protect the present contract.
    depth and horizontal speed. The same finite-safe model detects moving wet/dry crossings with
    7.5/2.5 cm hysteresis, a 1.6-second cooldown, and a bounded 1.6-second transition phase; the
    ocean shader consumes both states without another render submission.
-8. `SoundscapeModel` derives surf/breeze/jungle/stream targets and player-water gain/pitch/undertow from
-   authoritative shoreline, the shared stream route, support-depth, locomotion, velocity, and current state; `Soundscape` applies smoothed changes
+8. `SoundscapeModel` derives surf/breeze/jungle/stream targets, player-water gain/pitch/undertow,
+   and a finite depth-responsive underwater mix from authoritative shoreline, the shared stream
+   route, support-depth, locomotion, velocity, current state, and actual submerged eye depth;
+   `Soundscape` applies smoothed changes
    to four concurrently active CNA loop instances (stream and player-water dynamically share one
    active voice) and schedules bounded wave/water accents, resolved-travel
    sand/soil footsteps, plus one pooled positional bird/monkey call voice from nearby wildlife
@@ -1412,7 +1414,10 @@ pitch ranges. Past the 42 m current threshold, the same loop supplies a slowly d
 bed capped at 0.08 gain, so the safety feedback does not consume a fifth persistent source. One
 persistent loop avoids the rapid repeated one-shot cadence common to footstep-style water effects,
 while 140 ms attack, 340 ms release, and 650 ms current-cue smoothing prevent hard edges and
-state-transition chatter. All current procedural
+state-transition chatter. Actual submerged camera depth adds a smooth 0.08--1.2 m response: airborne
+ambience and terrestrial calls fall no lower than 0.18 of their resolved gain, surf no lower than
+0.72, and the existing water loop rises no higher than 1.22 with at most -0.12 pitch offset. Invalid
+depth is surface-neutral, flight always supplies zero, and no PCM or source is added. All current procedural
 PCM payloads total 6,052,724 bytes (about 5.77 MiB) before backend bookkeeping, including the
 wildlife phrases described below. `Soundscape::Start` generates, converts, uploads, and releases
 one source at a time. It therefore does not retain all 6,052,724 PCM bytes and a second
