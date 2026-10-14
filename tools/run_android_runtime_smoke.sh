@@ -281,6 +281,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: terrain steep faces use dominant-axis rock projection with broken bedding and joints" \
+            "$LOG_FILE" \
         && grep -q "forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows" \
             "$LOG_FILE" \
         && grep -q "leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes" \

@@ -122,7 +122,30 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — denser natural palm crowns
+## Latest visual-audit implementation — projected steep-slope rock detail
+
+The post-palm terrain comparison selected the exposed headland and eastern hill faces: their
+height-field x/z noise compressed into broad muddy vertical curtains, making the largest landforms
+look flatter than the unchanged collision geometry. The accepted shader pass keeps terrain height,
+cells, draws and palette boundaries unchanged, but derives the dominant horizontal face axis from
+the real fragment normal and projects compact mottle through world height. Two filtered, low-cost
+fields add subdued eroded bedding and interrupted vertical joints. A first review variant was
+rejected because its strong continuous seams formed a large rectangular grid; the retained version
+uses finer height spacing, stronger coordinate warp, independent break-up masks and lower contrast.
+
+Baseline native evidence is
+`build-consumer/software-captures/20261014T043445.569460Z-headland` and
+`20261014T043453.120090Z-east`; final accepted evidence is
+`20261014T043922.887090Z-headland` and `20261014T044303.052110Z-east`. The final views replace the
+vertical smear with restrained stratified rock while keeping the distant overview calm. A reusable
+single-view `cliffs` browser scope now targets the detailed eastern face without requiring the full
+seven-view terrain suite. Chrome/SwiftShader passes 60 frame intervals with zero GL error and no
+context loss at `build/browser-software/20261014T044515.009530Z-chrome-cliffs`, and its image was
+inspected against native. Native Release, WebGL, and arm64-v8a debug APK plus lint all compile under
+the four-core constraint. Android appearance and physical-GPU fragment cost remain unqualified
+without an emulator or device; no Android emulator or KVM state was changed.
+
+## Previous visual-audit implementation — denser natural palm crowns
 
 The vegetation/terrain/lighting comparison selected palms as the weakest current element: the
 close beach view exposed ten to twelve rigid radial fronds with only nine long triangular leaflet

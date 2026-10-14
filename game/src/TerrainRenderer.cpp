@@ -73,6 +73,8 @@ namespace island
             "island-simulator: terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices";
         constexpr std::string_view StreamBankDiagnostic =
             "island-simulator: stream terrain uses a compact incised profile and slope-limited exposed bank strata";
+        constexpr std::string_view CliffMaterialDiagnostic =
+            "island-simulator: terrain steep faces use dominant-axis rock projection with broken bedding and joints";
 
         const VertexDeclaration& TerrainDeclaration()
         {
@@ -594,13 +596,45 @@ void main()
         clamp(0.5 + broad * 0.80 + medium * 0.42, 0.0, 1.0));
     weatheredRock *= 1.0 + medium * 0.27 + fine * 0.045;
     if (ridgeRock > 0.0) {
+        // Height-field x/z noise stretches into muddy vertical curtains on a steep face.
+        // Project detail through the dominant horizontal face axis and use world height for
+        // the other coordinate so cliffs retain compact rock blocks and readable bedding.
+        vec3 rockNormal = terrainSurfaceNormal(cross(worldDx, worldDy));
+        float xFacing = abs(rockNormal.x)
+            / max(abs(rockNormal.x) + abs(rockNormal.z), 0.0001);
+        float faceAcross = mix(vWorld.x, vWorld.z, xFacing);
+        float projectedMottle = mix(
+            valueNoise(vec2(vWorld.x, vWorld.y) * vec2(0.34, 0.42) + vec2(7.6, -3.1)),
+            valueNoise(vec2(vWorld.z, vWorld.y) * vec2(0.34, 0.42) + vec2(-11.8, 5.7)),
+            xFacing);
+        float beddingPhase = vWorld.y * 2.05 + broad * 2.2
+            + sin(faceAcross * 0.11 + medium * 1.4) * 0.72;
+        float beddingWave = sin(beddingPhase) + 0.34 * sin(beddingPhase * 2.07 + 0.8);
+        float beddingVisibility = 1.0 - smoothstep(0.16, 0.48, groundPixelWidth * 2.05);
+        float bedding = beddingWave * beddingVisibility;
+        float seamDistance = abs(fract(beddingPhase / 6.28318530718) - 0.5);
+        float seamWidth = max(0.018, groundPixelWidth * 0.035);
+        float beddingSeam = 1.0 - smoothstep(0.030, 0.030 + seamWidth, seamDistance);
+        float seamBreak = valueNoise(vec2(faceAcross * 0.16, vWorld.y * 0.27)
+            + vec2(-6.8, 12.1));
+        beddingSeam *= smoothstep(-0.34, 0.16, seamBreak + projectedMottle * 0.45);
+        float jointCoordinate = faceAcross * 0.18
+            + sin(vWorld.y * 0.21 + medium * 1.8) * 0.14
+            + valueNoise(vec2(vWorld.y * 0.18, faceAcross * 0.065) + vec2(4.9, -8.2)) * 0.70;
+        float jointDistance = abs(fract(jointCoordinate) - 0.5);
+        float jointWidth = max(0.012, groundPixelWidth * 0.022);
+        float verticalJoint = 1.0 - smoothstep(0.020, 0.020 + jointWidth, jointDistance);
+        float jointBreak = valueNoise(vec2(faceAcross * 0.07, vWorld.y * 0.36)
+            + vec2(18.4, -2.7));
+        verticalJoint *= smoothstep(-0.28, 0.13, jointBreak + broad * 0.35);
         float rockVisibility = 1.0 - smoothstep(0.18, 0.50, groundPixelWidth * 0.90);
         float rockGrain = valueNoise(p * 0.90 + vec2(31.8, -8.4)) * rockVisibility;
         float fractureField = valueNoise(p * 0.19 + vec2(vWorld.y * 0.17, 9.3));
         float fractureWidth = max(0.014, groundPixelWidth * 0.19);
         float fracture = 1.0 - smoothstep(0.018, 0.018 + fractureWidth, abs(fractureField));
-        weatheredRock *= 1.0 + rockGrain * 0.36 - fracture * 0.16
-            * (1.0 - smoothstep(0.10, 0.35, groundPixelWidth * 0.19));
+        weatheredRock *= 1.0 + rockGrain * 0.22 + projectedMottle * 0.14
+            + bedding * 0.045 - beddingSeam * 0.085 - verticalJoint * 0.075
+            - fracture * 0.10 * (1.0 - smoothstep(0.10, 0.35, groundPixelWidth * 0.19));
     }
     color = mix(color, weatheredRock * vGroundLight, ridgeRock * 0.92);
 
@@ -819,6 +853,8 @@ void main()
                     MirrorRuntimeDiagnosticToPlatformLog(SlopeLightDiagnostic);
                     std::cout << StreamBankDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(StreamBankDiagnostic);
+                    std::cout << CliffMaterialDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(CliffMaterialDiagnostic);
                 } else {
                     std::cerr << "island-simulator: terrain material fallback: "
                               << materialEffect_->GetCompileErrorEXT() << '\n';
