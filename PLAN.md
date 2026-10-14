@@ -122,7 +122,26 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — cumulus silhouette and light volume
+## Latest visual-audit implementation — fuller low-shrub structure
+
+The close-vegetation audit found the low shrubs materially weaker than the surrounding palms,
+canopy and grass: their narrow late-splaying shoots and small uniformly pitched leaves made them
+read as sparse radial props at walking distance. The accepted profile-only pass makes each existing
+shoot spread earlier, adds a slightly stronger crooked bend, widens and lengthens its leaves, and
+uses more varied pitch, cupping and pigment. The wood/foliage palette was also lifted enough for the
+branch hierarchy and overlapping leaf planes to remain legible in shade. The deterministic 581
+placements, leaf count, renderer batching, LOD identity and draw budget are unchanged.
+
+Baseline/final native close evidence is
+`build-consumer/software-captures/20261014T040512.273894Z-bush` and
+`20261014T051902.262185Z-bush`. The accepted result has a broader lower silhouette, visible crooked
+branching and less repetitive leaf planes without turning the shrub into a bright focal prop. A
+reusable focused `bushes` browser scope also passes at
+`build/browser-software/20261014T052141.486387Z-chrome-bushes`, including the actual generated shrub
+profile and screenshot review. Native Release, focused core/world/capture tests and Android ARM64
+assemble/lint remain the required close-out checks for this bounded vegetation cycle.
+
+## Previous visual-audit implementation — cumulus silhouette and light volume
 
 The overall-lighting audit found that the fixed sun, terrain daylight and haze remained coherent,
 but the eleven fair-weather cumulus masses still read as long nearly uniform white bars. The

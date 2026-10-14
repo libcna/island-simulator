@@ -845,6 +845,8 @@ def main():
                 raise RuntimeError("Shared-height-map litter contact diagnostic missing")
             if "shrubs use supported shoots and curved individual leaves with shared LOD identities and complete leaf outlines" not in diagnostics:
                 raise RuntimeError("current shrub geometry is missing; check for a stale executable")
+            if "shrubs use early radial spread, crooked shoots, cupped leaf pitch, and wider pigment variation" not in diagnostics:
+                raise RuntimeError("current shrub silhouette refinement is missing; check for a stale executable")
             if "palms lean away from the fixed east trade wind by coastal windward exposure" not in diagnostics:
                 raise RuntimeError("current prevailing wind is missing; check for a stale executable")
             if "palm crowns use dense narrow leaflets, irregular arcs, and emerging spear fronds" not in diagnostics:

@@ -27,9 +27,9 @@ namespace island
         if (shoot<0 || shoot>=BushShootCount(variant))
             throw std::invalid_argument("Invalid shrub shoot");
         return {variant*0.61f+shoot*2.39996323f,
-            0.48f+0.085f*((shoot*3+variant)%5),
-            0.76f+0.075f*((shoot*2+variant)%5),
-            0.05f*std::sin(shoot*2.17f+variant),
+            0.58f+0.075f*((shoot*3+variant)%5),
+            0.78f+0.075f*((shoot*2+variant)%5),
+            0.085f*std::sin(shoot*2.17f+variant),
             std::fmod(shoot*0.173f+variant*0.21f,1.0f)};
     }
 
@@ -41,7 +41,7 @@ namespace island
             || shoot.reach<=0 || shoot.reach>1 || shoot.height<=0 || shoot.height>1.2f
             || std::abs(shoot.bend)>0.1f)
             throw std::invalid_argument("Invalid shrub shoot profile");
-        const float radial=shoot.reach*t*t;
+        const float radial=shoot.reach*t*(0.28f+0.72f*t);
         const float bend=shoot.bend*std::sin(t*std::numbers::pi_v<float>);
         return {std::cos(shoot.angle)*radial-std::sin(shoot.angle)*bend,
             shoot.height*t,std::sin(shoot.angle)*radial+std::cos(shoot.angle)*bend};
@@ -59,14 +59,15 @@ namespace island
         if (leaf<0 || leaf>=BushLeavesPerShoot) throw std::invalid_argument("Invalid shrub leaf");
         const bool terminal=leaf==8;
         const float t=terminal ? 1.0f : BushShootKnots[1+leaf/2];
-        const float length=(0.39f+0.04f*((leaf*3+shoot+variant)%5))*(terminal ? 0.8f : 1.0f);
-        const float widthRatio=variant==0 ? 0.32f : (variant==1 ? 0.40f : 0.24f);
+        const float length=(0.39f+0.04f*((leaf*3+shoot+variant)%5))*(terminal ? 0.92f : 1.0f);
+        const float widthRatio=variant==0 ? 0.36f : (variant==1 ? 0.42f : 0.28f);
         return {leaf,SampleBushShoot(stem,t),
             stem.angle+(terminal ? 0.0f : (leaf%2==0 ? -1.12f : 1.12f))
                 +0.12f*std::sin(shoot*1.7f+leaf*2.3f),
-            terminal ? 0.38f : -0.14f+0.08f*(leaf/2)+0.09f*std::sin(shoot*2.2f+leaf),
+            terminal ? 0.50f : -0.08f+0.11f*(leaf/2)
+                +(leaf%2==0 ? -0.045f : 0.045f)+0.08f*std::sin(shoot*2.2f+leaf),
             length,length*widthRatio,stem.phase,
-            0.91f+0.055f*((leaf+shoot*2+variant)%4),BushShootWind(t)};
+            0.84f+0.075f*((leaf+shoot*2+variant)%4),BushShootWind(t)};
     }
 
     BushPoint SampleBushLeaf(const BushLeaf& leaf, float t, float side)
@@ -82,8 +83,8 @@ namespace island
         const float arch=t==0 || t==1 ? 0 : std::sin(t*std::numbers::pi_v<float>);
         const float across=side*leaf.width*std::pow(arch,0.8f)
             *(1+0.05f*side*std::sin(t*5+leaf.phase*6.2831853f));
-        const float lift=leaf.length*(0.075f*arch-0.035f*t*t)
-            +leaf.width*0.12f*(1-side*side)*arch;
+        const float lift=leaf.length*(0.10f*arch-0.032f*t*t)
+            +leaf.width*0.16f*(1-side*side)*arch;
         const float along=leaf.length*t;
         const float c=std::cos(leaf.angle),s=std::sin(leaf.angle);
         const float cp=std::cos(leaf.pitch),sp=std::sin(leaf.pitch);

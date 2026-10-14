@@ -1076,8 +1076,8 @@ void main()
         [[nodiscard]] PlantGeometry CreateBushGeometry(const int variant, const bool farMesh)
         {
             PlantGeometry geometry;
-            const Color baseColor = variant == 0 ? Color(38,112,48,255)
-                : (variant == 1 ? Color(48,126,55,255) : Color(31,101,48,255));
+            const Color baseColor = variant == 0 ? Color(43,122,52,255)
+                : (variant == 1 ? Color(52,134,59,255) : Color(36,111,52,255));
             const auto vector=[](const BushPoint& p) { return Vector3(p[0],p[1],p[2]); };
             const auto leafCoordinates=BushLeafCoordinates(farMesh);
             const auto leafIndices=BushLeafIndices(farMesh);
@@ -1100,8 +1100,8 @@ void main()
                     for (int side=0;side<sides;++side) {
                         const float angle=2*std::numbers::pi_v<float>*side/sides;
                         const Vector3 outward=right*std::cos(angle)+up*std::sin(angle);
-                        const Color wood(91,69,37,255);
-                        geometry.vertices.emplace_back(centre+outward*radius,ShadeColor(wood,0.85f),
+                        const Color wood(105,82,48,255);
+                        geometry.vertices.emplace_back(centre+outward*radius,ShadeColor(wood,0.92f),
                             Vector2(BushShootWind(t),shoot.phase));
                         SetWoodAlbedo(geometry,wood,angle,shoot.height*t);
                         outwardDirections.push_back(outward);
@@ -1402,6 +1402,10 @@ void main()
             "island-simulator: shrubs use supported shoots and curved individual leaves with shared LOD identities and complete leaf outlines";
         std::cout << bushDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(bushDiagnostic);
+        constexpr const char* bushFormDiagnostic =
+            "island-simulator: shrubs use early radial spread, crooked shoots, cupped leaf pitch, and wider pigment variation";
+        std::cout << bushFormDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(bushFormDiagnostic);
         constexpr const char* materialDiagnostic =
             "island-simulator: leaf daylight contrast and stable tip pigment; footprint-filtered leaf and bark detail";
         std::cout << materialDiagnostic << '\n';
