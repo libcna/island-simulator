@@ -229,5 +229,75 @@ namespace island
                 obstacles_.push_back(CircularObstacle{young.x, young.z, 0.31f * young.scale});
             }
         }
+
+        // A small storm history interrupts otherwise pristine groves without increasing the
+        // living-palm population. Fallen stems must remain entirely on stable dry ground and
+        // clear of the authored route; their visible length receives inexpensive round collision
+        // proxies so the player cannot walk through the log.
+        std::size_t fallenCount = 0U;
+        for (std::size_t index = 0; index < palms_.size()
+                && fallenCount < FallenPalmTargetCount; ++index) {
+            PalmPlacement& palm = palms_[index];
+            if (palm.scale < PalmMinimumScale || palm.shoreDistance < 13.0f
+                || palm.shoreDistance > 72.0f) {
+                continue;
+            }
+            const auto indexHash = Hash(static_cast<std::int32_t>(index), 17,
+                                        seed ^ 0xdab4c291U);
+            if (indexHash % 7U != 0U) continue;
+            const float direction = UnitRandom(indexHash ^ 0x517cc1b7U)
+                * 2.0f * std::numbers::pi_v<float>;
+            const float length = (8.6f + 0.45f * static_cast<float>(palm.variant)) * palm.scale;
+            bool suitable = true;
+            for (int step = 1; step <= 6; ++step) {
+                const float distance = length * static_cast<float>(step) / 6.0f;
+                const float x = palm.x + std::sin(direction) * distance;
+                const float z = palm.z + std::cos(direction) * distance;
+                const TerrainSample sample = terrain.Sample(x, z);
+                if (sample.signedShoreDistance < 5.0f || sample.slopeRadians > 0.31f
+                    || std::abs(sample.height - palm.y) > 0.85f
+                    || OverlapsReservedRoute(x, z, 0.65f)) {
+                    suitable = false;
+                    break;
+                }
+                for (const PalmPlacement& other : palms_) {
+                    if (&other == &palm) continue;
+                    const float clearance = step == 6 ? 2.2f : 0.85f;
+                    if (DistanceSquared(other.x, other.z, x, z) < clearance * clearance) {
+                        suitable = false;
+                        break;
+                    }
+                }
+                if (!suitable) break;
+            }
+            if (!suitable) continue;
+            palm.condition = PalmCondition::Fallen;
+            palm.damageYawRadians = direction;
+            for (int step = 1; step <= 5; ++step) {
+                const float distance = length * static_cast<float>(step) / 6.0f;
+                obstacles_.push_back(CircularObstacle{
+                    palm.x + std::sin(direction) * distance,
+                    palm.z + std::cos(direction) * distance,
+                    0.24f + 0.12f * palm.scale});
+            }
+            ++fallenCount;
+        }
+
+        std::size_t brokenCount = 0U;
+        for (std::size_t index = 0; index < palms_.size()
+                && brokenCount < BrokenPalmTargetCount; ++index) {
+            PalmPlacement& palm = palms_[index];
+            if (palm.condition != PalmCondition::Living || palm.scale < PalmMinimumScale
+                || palm.shoreDistance < 10.0f || palm.shoreDistance > 105.0f) {
+                continue;
+            }
+            const auto indexHash = Hash(static_cast<std::int32_t>(index), 29,
+                                        seed ^ 0x6bd9a5e3U);
+            if (indexHash % 5U != 0U) continue;
+            palm.condition = PalmCondition::Broken;
+            palm.damageYawRadians = UnitRandom(indexHash ^ 0x92d68ca3U)
+                * 2.0f * std::numbers::pi_v<float>;
+            ++brokenCount;
+        }
     }
 }

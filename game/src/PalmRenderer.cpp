@@ -419,6 +419,93 @@ void main()
             crownZ = std::sin(curveAngle) * lean;
         }
 
+        void AppendBrokenTrunk(PalmGeometry& geometry, const int variant, const bool farMesh)
+        {
+            const int sides = farMesh ? 6 : 10;
+            const int rings = farMesh ? 5 : 8;
+            const float height = 4.15f + static_cast<float>(variant) * 0.42f;
+            const float curveAngle = 0.61f + static_cast<float>(variant) * 1.19f;
+            const float lean = 0.16f + 0.05f * static_cast<float>(variant % 3);
+            const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+            for (int ring = 0; ring <= rings; ++ring) {
+                const float t = static_cast<float>(ring) / static_cast<float>(rings);
+                const float y = height * t;
+                const float bend = lean * t * t;
+                const float centreX = std::cos(curveAngle) * bend;
+                const float centreZ = std::sin(curveAngle) * bend;
+                const float radius = (PalmTrunkBaseRadius
+                    + (PalmTrunkTipRadius - PalmTrunkBaseRadius * 0.92f) * t)
+                    * (1.0f + PalmBoleFlare * std::exp(-y / PalmBoleHeight));
+                const float flareSlope = PalmTrunkBaseRadius * PalmBoleFlare / PalmBoleHeight
+                    * std::exp(-y / PalmBoleHeight);
+                const Color albedo = PalmBarkAlbedo(variant, t * 0.55f);
+                for (int side = 0; side < sides; ++side) {
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(side) / static_cast<float>(sides);
+                    geometry.vertices.emplace_back(
+                        Vector3(centreX + std::cos(angle) * radius, y,
+                                centreZ + std::sin(angle) * radius),
+                        ShadeColor(albedo, 0.72f + 0.28f * std::max(0.0f,
+                            std::cos(angle) * 0.62f + std::sin(angle) * 0.35f)),
+                        Vector2(0.0f, 0.0f));
+                    SetSolidSurface(geometry, albedo, Vector3::Normalize(
+                        Vector3(std::cos(angle), flareSlope, std::sin(angle))));
+                }
+            }
+            for (int ring = 0; ring < rings; ++ring) {
+                for (int side = 0; side < sides; ++side) {
+                    const int next = (side + 1) % sides;
+                    const auto lower = static_cast<std::uint16_t>(base + ring * sides + side);
+                    const auto lowerNext = static_cast<std::uint16_t>(base + ring * sides + next);
+                    const auto upper = static_cast<std::uint16_t>(base + (ring + 1) * sides + side);
+                    const auto upperNext = static_cast<std::uint16_t>(base + (ring + 1) * sides + next);
+                    geometry.indices.insert(geometry.indices.end(),
+                                            {lower, upper, lowerNext, lowerNext, upper, upperNext});
+                }
+            }
+
+            // Pale splintered fracture plane, with an uneven perimeter rather than a sawn disk.
+            const float centreX = std::cos(curveAngle) * lean;
+            const float centreZ = std::sin(curveAngle) * lean;
+            const Color fracture(190, 170, 132, 255);
+            const auto capBase = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(Vector3(centreX, height - 0.025f, centreZ),
+                                             fracture, Vector2(0.0f, 0.0f));
+            SetSolidSurface(geometry, fracture, Vector3::Up);
+            for (int side = 0; side < sides; ++side) {
+                const float angle = 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(side) / static_cast<float>(sides);
+                const float jag = 0.04f + 0.13f
+                    * (0.5f + 0.5f * std::sin(static_cast<float>(side + 1) * 4.17f
+                                              + static_cast<float>(variant)));
+                geometry.vertices.emplace_back(
+                    Vector3(centreX + std::cos(angle) * PalmTrunkTipRadius,
+                            height + jag,
+                            centreZ + std::sin(angle) * PalmTrunkTipRadius),
+                    ShadeColor(fracture, 0.92f + 0.08f * static_cast<float>(side % 2)),
+                    Vector2(0.0f, 0.0f));
+                SetSolidSurface(geometry, fracture, Vector3::Normalize(
+                    Vector3(std::cos(angle) * 0.25f, 1.0f, std::sin(angle) * 0.25f)));
+            }
+            for (int side = 0; side < sides; ++side) {
+                geometry.indices.insert(geometry.indices.end(), {
+                    capBase,
+                    static_cast<std::uint16_t>(capBase + 1U + static_cast<std::uint16_t>(side)),
+                    static_cast<std::uint16_t>(capBase + 1U
+                        + static_cast<std::uint16_t>((side + 1) % sides))});
+                const auto trunk = static_cast<std::uint16_t>(base + rings * sides + side);
+                const auto trunkNext = static_cast<std::uint16_t>(
+                    base + rings * sides + (side + 1) % sides);
+                const auto fractureEdge = static_cast<std::uint16_t>(
+                    capBase + 1U + static_cast<std::uint16_t>(side));
+                const auto fractureEdgeNext = static_cast<std::uint16_t>(
+                    capBase + 1U + static_cast<std::uint16_t>((side + 1) % sides));
+                geometry.indices.insert(geometry.indices.end(),
+                                        {trunk, fractureEdge, trunkNext,
+                                         trunkNext, fractureEdge, fractureEdgeNext});
+            }
+        }
+
         void AppendCoconuts(PalmGeometry& geometry, const int variant,
                             const float crownX, const float crownY, const float crownZ)
         {
@@ -750,6 +837,16 @@ void main()
             return geometry;
         }
 
+        [[nodiscard]] PalmGeometry CreateBrokenPalmGeometry(const int variant, const bool farMesh)
+        {
+            PalmGeometry geometry;
+            geometry.vertices.reserve(farMesh ? 64U : 180U);
+            geometry.indices.reserve(farMesh ? 220U : 620U);
+            if (!farMesh) AppendRoots(geometry, variant);
+            AppendBrokenTrunk(geometry, variant, farMesh);
+            return geometry;
+        }
+
         [[nodiscard]] std::size_t CellIndex(const float x, const float z) noexcept
         {
             constexpr float cellWidth = 2.0f * TerrainMeshLayout::Extent
@@ -823,6 +920,8 @@ void main()
                   << TerrainMeshLayout::CellCount << " cells, "
                   << (instancingSupported_ ? "hardware instancing" : "per-palm fallback")
                   << '\n';
+        std::cout << "island-simulator: palm storm history " << fallenPalmCount_
+                  << " fallen, " << brokenPalmCount_ << " broken trunks\n";
         if (customShaderReady_) {
             std::cout << "island-simulator: palm portable wind shader with near/far mesh LOD\n";
             std::cout << "island-simulator: palm near mesh segmented fuller leaflet silhouettes\n";
@@ -861,6 +960,10 @@ void main()
                 "island-simulator: palm per-instance frond tint reuses existing transforms";
             std::cout << tintDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(tintDiagnostic);
+            constexpr const char* stormDiagnostic =
+                "island-simulator: palm groves include grounded fallen crowns and splintered storm-broken trunks";
+            std::cout << stormDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(stormDiagnostic);
         } else {
             std::cerr << "island-simulator: palm stock-effect fallback: " << fallbackReason_
                       << '\n';
@@ -913,6 +1016,10 @@ void main()
                    "palm near LOD");
             upload(CreatePalmGeometry(static_cast<int>(variant), true), farMeshes_[variant],
                    "palm far LOD");
+            upload(CreateBrokenPalmGeometry(static_cast<int>(variant), false),
+                   brokenNearMeshes_[variant], "broken palm near LOD");
+            upload(CreateBrokenPalmGeometry(static_cast<int>(variant), true),
+                   brokenFarMeshes_[variant], "broken palm far LOD");
         }
     }
 
@@ -921,14 +1028,26 @@ void main()
         for (const PalmPlacement& palm : layout.Palms()) {
             PalmCell& cell = cells_[CellIndex(palm.x, palm.z)];
             PalmDrawInstance instance;
-            // Lean away from the fixed trade wind in world space, after yaw so the lean does
-            // not depend on the authored facing. Collision stays at the base.
-            const float lean = wind::PalmLeanRadians(wind::Exposure(palm.x, palm.z, palm.shoreDistance));
-            const Vector3 leanAxis(-wind::DirectionZ, 0.0f, wind::DirectionX); // perpendicular to the wind
-            instance.transform = Matrix::CreateScale(palm.scale)
-                * Matrix::CreateRotationY(palm.yawRadians)
-                * Matrix::CreateFromAxisAngle(leanAxis, lean)
-                * Matrix::CreateTranslation(palm.x, palm.y, palm.z);
+            if (palm.condition == PalmCondition::Fallen) {
+                const float side = palm.variant % 2U == 0U ? 1.0f : -1.0f;
+                instance.transform = Matrix::CreateScale(palm.scale)
+                    * Matrix::CreateRotationZ(side * 1.43f)
+                    // Compensate the local Z-axis fall rotation so local +Y follows the same
+                    // world-space direction used by placement, collision, and the contact patch.
+                    * Matrix::CreateRotationY(palm.damageYawRadians
+                                              + side * std::numbers::pi_v<float> * 0.5f)
+                    * Matrix::CreateTranslation(palm.x, palm.y + 0.24f * palm.scale, palm.z);
+            } else {
+                // Lean away from the fixed trade wind in world space, after yaw so the lean does
+                // not depend on the authored facing. Collision stays at the base.
+                const float lean = wind::PalmLeanRadians(
+                    wind::Exposure(palm.x, palm.z, palm.shoreDistance));
+                const Vector3 leanAxis(-wind::DirectionZ, 0.0f, wind::DirectionX);
+                instance.transform = Matrix::CreateScale(palm.scale)
+                    * Matrix::CreateRotationY(palm.yawRadians)
+                    * Matrix::CreateFromAxisAngle(leanAxis, lean)
+                    * Matrix::CreateTranslation(palm.x, palm.y, palm.z);
+            }
             instance.x = palm.x;
             instance.z = palm.z;
             const float normalizedYaw = palm.yawRadians
@@ -937,14 +1056,22 @@ void main()
                 + NearLodDistanceRange * normalizedYaw;
             instance.nearLodDistanceSquared = nearLodDistance * nearLodDistance;
             instance.variant = palm.variant;
+            instance.condition = palm.condition;
             cell.instances.push_back(instance);
             ++totalPalmCount_;
+            fallenPalmCount_ += palm.condition == PalmCondition::Fallen ? 1 : 0;
+            brokenPalmCount_ += palm.condition == PalmCondition::Broken ? 1 : 0;
 
-            const Vector3 minimum(palm.x - 5.8f * palm.scale, palm.y - 0.1f,
-                                  palm.z - 5.8f * palm.scale);
-            const Vector3 maximum(palm.x + 5.8f * palm.scale,
-                                  palm.y + 15.0f * palm.scale,
-                                  palm.z + 5.8f * palm.scale);
+            const float horizontalExtent = palm.condition == PalmCondition::Fallen
+                ? 15.0f * palm.scale : 5.8f * palm.scale;
+            const float verticalExtent = palm.condition == PalmCondition::Fallen
+                ? 6.2f * palm.scale
+                : (palm.condition == PalmCondition::Broken ? 6.5f : 15.0f) * palm.scale;
+            const Vector3 minimum(palm.x - horizontalExtent, palm.y - 0.2f,
+                                  palm.z - horizontalExtent);
+            const Vector3 maximum(palm.x + horizontalExtent,
+                                  palm.y + verticalExtent,
+                                  palm.z + horizontalExtent);
             if (!cell.occupied) {
                 cell.bounds = BoundingBox(minimum, maximum);
                 cell.occupied = true;
@@ -959,6 +1086,12 @@ void main()
         }
         for (auto& transforms : visibleFarTransforms_) {
             transforms.reserve(static_cast<std::size_t>(totalPalmCount_));
+        }
+        for (auto& transforms : visibleBrokenNearTransforms_) {
+            transforms.reserve(VegetationLayout::BrokenPalmTargetCount);
+        }
+        for (auto& transforms : visibleBrokenFarTransforms_) {
+            transforms.reserve(VegetationLayout::BrokenPalmTargetCount);
         }
     }
 
@@ -1014,6 +1147,8 @@ void main()
         for (auto& transforms : visibleFarTransforms_) {
             transforms.clear();
         }
+        for (auto& transforms : visibleBrokenNearTransforms_) transforms.clear();
+        for (auto& transforms : visibleBrokenFarTransforms_) transforms.clear();
         visiblePalmCount_ = 0;
         visibleNearPalmCount_ = 0;
         visibleFarPalmCount_ = 0;
@@ -1040,10 +1175,14 @@ void main()
                         + instanceDeltaZ * instanceDeltaZ
                     <= instance.nearLodDistanceSquared;
                 if (nearLod) {
-                    visibleNearTransforms_[instance.variant].push_back(instance.transform);
+                    (instance.condition == PalmCondition::Broken
+                         ? visibleBrokenNearTransforms_[instance.variant]
+                         : visibleNearTransforms_[instance.variant]).push_back(instance.transform);
                     ++visibleNearPalmCount_;
                 } else {
-                    visibleFarTransforms_[instance.variant].push_back(instance.transform);
+                    (instance.condition == PalmCondition::Broken
+                         ? visibleBrokenFarTransforms_[instance.variant]
+                         : visibleFarTransforms_[instance.variant]).push_back(instance.transform);
                     ++visibleFarPalmCount_;
                 }
                 ++visiblePalmCount_;
@@ -1078,6 +1217,14 @@ void main()
                 customEffect_->SetUniformFloat("uMaterialDetail", 0.0f);
             }
             DrawVariant(farMeshes_[variant], visibleFarTransforms_[variant]);
+            if (customShaderReady_) {
+                customEffect_->SetUniformFloat("uMaterialDetail", 1.0f);
+            }
+            DrawVariant(brokenNearMeshes_[variant], visibleBrokenNearTransforms_[variant]);
+            if (customShaderReady_) {
+                customEffect_->SetUniformFloat("uMaterialDetail", 0.0f);
+            }
+            DrawVariant(brokenFarMeshes_[variant], visibleBrokenFarTransforms_[variant]);
         }
         device_.SetVertexBuffers({});
         device_.setIndicesProperty(nullptr);

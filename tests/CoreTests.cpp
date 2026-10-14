@@ -4589,8 +4589,8 @@ int main()
           "palm population stays within the intended first performance budget");
     Check(vegetation.Palms().size() == repeatedVegetation.Palms().size(),
           "palm population is deterministic");
-    Check(vegetation.Obstacles().size() == vegetation.Palms().size(),
-          "every palm has exactly one trunk collision proxy");
+    Check(vegetation.Obstacles().size() >= vegetation.Palms().size(),
+          "every palm has a trunk collision proxy and fallen stems may add visible-log proxies");
     CheckNear(island::VegetationLayout::PrimaryPathCenterX(
                   -island::VegetationLayout::PrimaryPathZOffset),
               island::VegetationLayout::PrimaryPathBaseX, 0.0001f,
@@ -4615,14 +4615,15 @@ int main()
         Check(island::VegetationLayout::IsReservedRoute(pathX, static_cast<float>(z)),
               "the authored primary path centre remains reserved from vegetation");
     }
-    std::size_t youngPalms = 0U;
+    std::size_t youngPalms = 0U, fallenPalms = 0U, brokenPalms = 0U;
     for (std::size_t index = 0; index < vegetation.Palms().size(); ++index) {
         const island::PalmPlacement& palm = vegetation.Palms()[index];
         const island::PalmPlacement& repeated = repeatedVegetation.Palms()[index];
         const island::TerrainSample sample = terrain.Sample(palm.x, palm.z);
         Check(palm.x == repeated.x && palm.y == repeated.y && palm.z == repeated.z
                   && palm.yawRadians == repeated.yawRadians && palm.scale == repeated.scale
-                  && palm.variant == repeated.variant,
+                  && palm.damageYawRadians == repeated.damageYawRadians
+                  && palm.variant == repeated.variant && palm.condition == repeated.condition,
               "palm placement data is bitwise deterministic for one seed");
         Check(sample.signedShoreDistance >= 7.0f && sample.signedShoreDistance <= 158.0f,
               "palms remain inside the authored coastal/interior belt");
@@ -4642,12 +4643,46 @@ int main()
                   : palm.scale <= island::VegetationLayout::PalmMaximumScale,
               "palm scale remains in the authored adult or juvenile range");
         youngPalms += youngPalm ? 1U : 0U;
+        fallenPalms += palm.condition == island::PalmCondition::Fallen ? 1U : 0U;
+        brokenPalms += palm.condition == island::PalmCondition::Broken ? 1U : 0U;
+        Check(!youngPalm || palm.condition == island::PalmCondition::Living,
+              "juvenile palms remain upright while only established adults carry storm history");
+        Check(std::isfinite(palm.damageYawRadians),
+              "palm storm orientation remains finite");
+        if (palm.condition == island::PalmCondition::Fallen) {
+            const float length = (8.6f + 0.45f * static_cast<float>(palm.variant)) * palm.scale;
+            for (int step = 1; step <= 6; ++step) {
+                const float distance = length * static_cast<float>(step) / 6.0f;
+                const float x = palm.x + std::sin(palm.damageYawRadians) * distance;
+                const float z = palm.z + std::cos(palm.damageYawRadians) * distance;
+                const island::TerrainSample stemSample = terrain.Sample(x, z);
+                Check(stemSample.signedShoreDistance >= 5.0f
+                          && stemSample.slopeRadians <= 0.31f
+                          && std::abs(stemSample.height - palm.y) <= 0.85f,
+                      "fallen palm stem remains on stable dry terrain");
+                Check(!island::VegetationLayout::OverlapsReservedRoute(x, z, 0.65f),
+                      "fallen palm stem keeps the complete authored route open");
+                for (const island::PalmPlacement& other : vegetation.Palms()) {
+                    if (&other == &palm) continue;
+                    const float clearance = step == 6 ? 2.2f : 0.85f;
+                    Check(std::hypot(other.x - x, other.z - z) >= clearance,
+                          "fallen palm stem and crown avoid standing palm trunks");
+                }
+            }
+        }
         const island::CircularObstacle& obstacle = vegetation.Obstacles()[index];
         CheckNear(obstacle.x, palm.x, 0.0001f, "palm obstacle shares its visual x coordinate");
         CheckNear(obstacle.z, palm.z, 0.0001f, "palm obstacle shares its visual z coordinate");
         Check(obstacle.radius > (youngPalm ? 0.12f : 0.20f) && obstacle.radius < 0.45f,
               "palm collision radius stays close to the visible trunk");
     }
+    Check(fallenPalms == island::VegetationLayout::FallenPalmTargetCount,
+          "the default groves contain the bounded fallen-palm target");
+    Check(brokenPalms == island::VegetationLayout::BrokenPalmTargetCount,
+          "the default groves contain the bounded storm-broken-palm target");
+    Check(vegetation.Obstacles().size()
+              == vegetation.Palms().size() + fallenPalms * 5U,
+          "each fallen stem adds five collision samples along its visible length");
     {
         // Groves on the coast, few palms inland, young palms beside adults.
         std::size_t grouped = 0U, inland = 0U;

@@ -187,6 +187,20 @@ namespace island
         const float shadowDirectionZ = -environment::SunDirectionZ / horizontalSunLength;
 
         for (const PalmPlacement& palm : vegetation.Palms()) {
+            if (palm.condition == PalmCondition::Fallen) {
+                const float directionX = std::sin(palm.damageYawRadians);
+                const float directionZ = std::cos(palm.damageYawRadians);
+                const float length = (8.6f + 0.45f * static_cast<float>(palm.variant))
+                    * palm.scale;
+                const float centreX = palm.x + directionX * length * 0.48f;
+                const float centreZ = palm.z + directionZ * length * 0.48f;
+                cacheShadow(StaticShadowKind::Palm, centreX,
+                            terrain_.Height(centreX, centreZ), centreZ,
+                            length * 0.62f, PalmMaximumDistance * maximumDistanceScale,
+                            directionX, directionZ, length * 0.54f,
+                            0.34f + 0.12f * palm.scale, 0.0f, 38U);
+                continue;
+            }
             cacheShadow(StaticShadowKind::Palm, palm.x, palm.y, palm.z,
                         1.2f * palm.scale, PalmMaximumDistance * maximumDistanceScale,
                         shadowDirectionX, shadowDirectionZ,

@@ -78,6 +78,8 @@
       ["bush", ["--viewpoint", "bush", "--debug-overlay"]],
       ["litter", ["--viewpoint", "litter", "--debug-overlay"]],
       ["palms", ["--viewpoint", "palms", "--debug-overlay"]],
+      ["fallen-palm", ["--viewpoint", "fallen-palm", "--debug-overlay"]],
+      ["broken-palm", ["--viewpoint", "broken-palm", "--debug-overlay"]],
       ["mangroves", ["--viewpoint", "mangroves", "--debug-overlay"]],
       ["jungle", ["--viewpoint", "jungle", "--debug-overlay"]],
       ["snags", ["--viewpoint", "snags", "--debug-overlay"]],

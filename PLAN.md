@@ -3621,11 +3621,24 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   GL0, a live context and clean kernel delta. The ARM64 debug APK builds (24,014,955 bytes,
   `25ae9ff4...e5372`) without starting an emulator. Physical GLES runtime qualification remains
   a platform-wide gate rather than an unfinished part of this forest feature.
-- [~] 9. Palm distribution: large coconut groves at a few beaches, a few old solitary palms, fewer
+- [x] 9. Palm distribution: large coconut groves at a few beaches, a few old solitary palms, fewer
   palms deep in the forest, young palms near adults, varied lean, some fallen or broken palms.
   2026-10-10 (`docs/palm-groves.md`): coastal grove field, juveniles beside adults, 370 palms
   (187 grouped, 3 deep inland), wind lean; tested; native overview/palms/beach inspected.
-  Fallen/broken palms remain. Qualification: 33/33 non-display groups; Android KVM/SwiftShader
+  2026-10-15 storm-history completion adds six deterministic fallen adults and eight broken
+  trunks without increasing the 327-palm population. Fallen candidates keep their full stems and
+  crowns on stable dry ground, avoid the route and receive five collision samples along the
+  visible log; broken palms use dedicated two-tier geometry with tapered 4-6m stems and pale,
+  irregular splintered fracture caps. Juveniles remain upright. Native detail captures
+  `20261014T222248.112957Z-fallen-palm` and `20261014T220547.163070Z-broken-palm` pass and were
+  inspected. The fallen render direction, five collision samples and elongated contact shadow
+  share one world-space axis, and the complete stem/crown envelope avoids standing palm trunks.
+  Chrome/SwiftShader `20261014T222441.379093Z-chrome-palms` passes the ordinary,
+  fallen and broken views with 60 positive finite intervals each, GL0, live contexts and a clean
+  kernel delta; both damage frames were inspected. World report is valid with fingerprint
+  `766a63088483e673`. ARM64 assemble/lint passes through the two-worker wrapper using a temporary
+  checkout of the locked Sharp Runtime revision (24,024,963 bytes,
+  `c67f6894...49640b`), without emulator or KVM. Earlier qualification: Android KVM/SwiftShader
   `175715.080427Z-palms` (PID 1837/TID 1898), `175828.715762Z-jungle`, `175941.257408Z-east`
   pass with emulator exit 0 and empty kernel deltas; x86_64 APK 20,427,723 bytes
   (`06a20a45...6b3e83d`), ARM64 restored 20,513,572 bytes (`78a4f460...1e9cd3`). First full Web

@@ -255,6 +255,10 @@ namespace
         }
 
         HashScaledPlacements(hash, std::span(world.palms.Palms()));
+        for (const island::PalmPlacement& placement : world.palms.Palms()) {
+            hash.AddFloat(placement.damageYawRadians);
+            hash.AddEnum(placement.condition);
+        }
 
         hash.AddSize(world.grass.Patches().size());
         for (const island::GrassPlacement& placement : world.grass.Patches()) {
@@ -617,7 +621,16 @@ namespace
             && world.props.FallenFronds().size() <= 180U
             && world.props.ReefHabitat().size() >= 180U
             && world.props.ReefHabitat().size() <= 380U;
-        const bool derivedCountsAgree = world.palms.Obstacles().size() == world.palms.Palms().size()
+        std::size_t fallenPalmCount = 0U;
+        std::size_t brokenPalmCount = 0U;
+        for (const island::PalmPlacement& palm : world.palms.Palms()) {
+            fallenPalmCount += palm.condition == island::PalmCondition::Fallen ? 1U : 0U;
+            brokenPalmCount += palm.condition == island::PalmCondition::Broken ? 1U : 0U;
+        }
+        const bool derivedCountsAgree = world.palms.Obstacles().size()
+                == world.palms.Palms().size() + fallenPalmCount * 5U
+            && fallenPalmCount == island::VegetationLayout::FallenPalmTargetCount
+            && brokenPalmCount == island::VegetationLayout::BrokenPalmTargetCount
             && world.jungle.Obstacles().size()
                 == world.jungle.Canopy().size() + world.jungle.StandingSnags().size()
             && world.collisionGrid.Obstacles().size() == world.worldObstacles.size()
@@ -660,6 +673,12 @@ namespace
             && ScaledPlacementsAreFinite(std::span(world.props.FallenFronds()))
             && ScaledPlacementsAreFinite(std::span(world.props.ReefHabitat()));
         bool finiteSpecializedData = true;
+        for (const island::PalmPlacement& placement : world.palms.Palms()) {
+            finiteSpecializedData = finiteSpecializedData
+                && std::isfinite(placement.damageYawRadians)
+                && placement.condition >= island::PalmCondition::Living
+                && placement.condition <= island::PalmCondition::Broken;
+        }
         for (const island::GrassPlacement& placement : world.grass.Patches()) {
             finiteSpecializedData = finiteSpecializedData
                 && AllFinite(placement.x, placement.y, placement.z, placement.yawRadians,
@@ -1038,6 +1057,14 @@ namespace
         output << "\n  },\n"
                << "  \"placements\": {\n"
                << "    \"palms\": " << world.palms.Palms().size() << ",\n"
+               << "    \"fallenPalms\": " << std::count_if(world.palms.Palms().begin(),
+                    world.palms.Palms().end(), [](const island::PalmPlacement& palm) {
+                        return palm.condition == island::PalmCondition::Fallen;
+                    }) << ",\n"
+               << "    \"brokenPalms\": " << std::count_if(world.palms.Palms().begin(),
+                    world.palms.Palms().end(), [](const island::PalmPlacement& palm) {
+                        return palm.condition == island::PalmCondition::Broken;
+                    }) << ",\n"
                << "    \"grassPatches\": " << world.grass.Patches().size() << ",\n"
                << "    \"canopyTrees\": " << world.jungle.Canopy().size() << ",\n";
         output << "    \"standingSnags\": " << world.jungle.StandingSnags().size() << ",\n";

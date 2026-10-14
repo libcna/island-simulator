@@ -69,7 +69,7 @@ const focusedArtifactPrefix = focusedSpiderCheck ? "spiders" : focusedGoatCheck 
   : focusedShipwreckCheck ? "shipwreck" : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
 const focusedViews = focusedSpiderCheck ? ["spiders", "spider-web"] : focusedGoatCheck ? ["goats"] : focusedHutCheck ? ["hut", "hut-material"] : focusedHelicopterCheck ? ["helicopter", "helicopter-inside"] : focusedCampfireCheck ? ["campfire"] : focusedCaveCheck ? ["cave", "cave-inside"] : focusedBunkerCheck ? ["bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end"] : focusedTurtleCheck ? ["turtles"] : focusedCrabCheck ? ["crabs"] : focusedCrocodileCheck ? ["crocodiles"] : focusedFishCheck ? ["fish"] : focusedSharkCheck ? ["shark"] : focusedDolphinCheck ? ["dolphins"] : focusedBearCheck ? ["bear"] : focusedResidentCheck ? ["resident"] : focusedBoarCheck ? ["boars"] : focusedSnakeCheck ? ["snakes", "snake-head"] : focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedStreamCheck ? ["stream"] : focusedSaplingCheck ? ["sapling"] : focusedSnagCheck ? ["snags"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
   : focusedLitterCheck ? ["litter", "grass"] : focusedCanopyLightCheck ? ["jungle"] : focusedDistantCheck ? ["distant"] : focusedSkyCheck ? ["overview"] : focusedCliffCheck ? ["east", "headland"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
-  : focusedGrassMotionCheck ? ["grass-motion"] : focusedSplitGroundCheck ? ["ground"] : focusedGroundBroadleafCheck ? ["ground-broadleaf"] : focusedBushCheck ? ["bush"] : focusedMangroveCheck ? ["mangroves"] : focusedPalmCheck ? ["palms"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
+  : focusedGrassMotionCheck ? ["grass-motion"] : focusedSplitGroundCheck ? ["ground"] : focusedGroundBroadleafCheck ? ["ground-broadleaf"] : focusedBushCheck ? ["bush"] : focusedMangroveCheck ? ["mangroves"] : focusedPalmCheck ? ["palms", "fallen-palm", "broken-palm"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
   : focusedShipwreckCheck ? ["shipwreck"]
   : focusedCoastCheck ? ["shipwreck", "water", "west", "reef"]
@@ -881,6 +881,8 @@ try {
             && (!focusedClimbCheck || log.includes("monkey climb held summit presented after eight cycle stages"))
             && (!focusedPalmCheck || (log.includes("palm crowns use dense narrow leaflets, irregular arcs, and emerging spear fronds")
               && log.includes("palm far crowns retain twelve arched ribbons and two narrow emerging spears")
+              && log.includes("palm storm history 6 fallen, 8 broken trunks")
+              && log.includes("palm groves include grounded fallen crowns and splintered storm-broken trunks")
               && /palms [1-9][0-9]*\/327 \(near [1-9][0-9]*, far [0-9]+\)/.test(log)))
             && (!focusedMangroveCheck || (log.includes("mangrove salt-worn bark uses a pale warm palette above shared damp-base moss")
               && log.includes("mangrove QA target exposes stilt roots and low crown")

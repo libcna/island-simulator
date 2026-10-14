@@ -52,6 +52,8 @@ namespace island
         [[nodiscard]] int VisibleFarPalmCount() const noexcept { return visibleFarPalmCount_; }
         [[nodiscard]] int VisibleCellCount() const noexcept { return visibleCellCount_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
+        [[nodiscard]] int FallenPalmCount() const noexcept { return fallenPalmCount_; }
+        [[nodiscard]] int BrokenPalmCount() const noexcept { return brokenPalmCount_; }
 
     private:
         struct PalmMesh
@@ -71,6 +73,7 @@ namespace island
             float z = 0.0f;
             float nearLodDistanceSquared = 0.0f;
             std::uint8_t variant = 0U;
+            PalmCondition condition = PalmCondition::Living;
         };
 
         struct PalmCell
@@ -92,16 +95,24 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> customEffect_;
         std::array<PalmMesh, VegetationLayout::PalmVariantCount> nearMeshes_;
         std::array<PalmMesh, VegetationLayout::PalmVariantCount> farMeshes_;
+        std::array<PalmMesh, VegetationLayout::PalmVariantCount> brokenNearMeshes_;
+        std::array<PalmMesh, VegetationLayout::PalmVariantCount> brokenFarMeshes_;
         std::array<PalmCell, TerrainMeshLayout::CellCount> cells_;
         std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
                    VegetationLayout::PalmVariantCount> visibleNearTransforms_;
         std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
                    VegetationLayout::PalmVariantCount> visibleFarTransforms_;
+        std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
+                   VegetationLayout::PalmVariantCount> visibleBrokenNearTransforms_;
+        std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
+                   VegetationLayout::PalmVariantCount> visibleBrokenFarTransforms_;
         std::string fallbackReason_;
         bool instancingSupported_ = false;
         bool customShaderReady_ = false;
         float maximumDistance_ = 0.0f;
         int totalPalmCount_ = 0;
+        int fallenPalmCount_ = 0;
+        int brokenPalmCount_ = 0;
         int visiblePalmCount_ = 0;
         int visibleNearPalmCount_ = 0;
         int visibleFarPalmCount_ = 0;

@@ -104,6 +104,8 @@ namespace island
             case FixedViewpoint::GroundContactDetail: return "contact";
             case FixedViewpoint::MovementTraceDetail: return "movement";
             case FixedViewpoint::PalmDetail: return "palms";
+            case FixedViewpoint::FallenPalmDetail: return "fallen-palm";
+            case FixedViewpoint::BrokenPalmDetail: return "broken-palm";
             case FixedViewpoint::WaterlineDetail: return "water";
             case FixedViewpoint::WetSandDetail: return "wet-sand";
             case FixedViewpoint::CurrentBoundaryDetail: return "current";
@@ -638,6 +640,57 @@ namespace island
                       << " QA target variant "
                       << static_cast<int>(selected->variant)
                       << " at player-eye detail distance\n";
+        } else if ((viewpoint_ == FixedViewpoint::FallenPalmDetail
+                    || viewpoint_ == FixedViewpoint::BrokenPalmDetail)
+                   && !vegetationLayout_.Palms().empty()) {
+            const PalmCondition wanted = viewpoint_ == FixedViewpoint::FallenPalmDetail
+                ? PalmCondition::Fallen : PalmCondition::Broken;
+            const PalmPlacement* selected = nullptr;
+            for (const PalmPlacement& palm : vegetationLayout_.Palms()) {
+                if (palm.condition == wanted) {
+                    selected = &palm;
+                    break;
+                }
+            }
+            if (selected == nullptr) selected = &vegetationLayout_.Palms().front();
+            Vector3 target(selected->x, selected->y + 2.5f, selected->z);
+            Vector3 cameraDirection(0.8f, 0.0f, 0.6f);
+            float distance = 8.0f;
+            if (wanted == PalmCondition::Fallen) {
+                const float side = selected->variant % 2U == 0U ? 1.0f : -1.0f;
+                const Matrix transform = Matrix::CreateScale(selected->scale)
+                    * Matrix::CreateRotationZ(side * 1.43f)
+                    * Matrix::CreateRotationY(selected->damageYawRadians
+                                              + side * std::numbers::pi_v<float> * 0.5f)
+                    * Matrix::CreateTranslation(selected->x,
+                                                selected->y + 0.24f * selected->scale,
+                                                selected->z);
+                const Vector3 base = Vector3::Transform(Vector3::Zero, transform);
+                const Vector3 crown = Vector3::Transform(Vector3(0.0f, 9.8f, 0.0f), transform);
+                target = (base + crown) * 0.5f + Vector3(0.0f, 0.35f, 0.0f);
+                const Vector3 stem = crown - base;
+                const float horizontalLength = std::max(0.1f, std::hypot(stem.X, stem.Z));
+                cameraDirection = Vector3(-stem.Z / horizontalLength, 0.0f,
+                                          stem.X / horizontalLength);
+                distance = 10.5f;
+            } else {
+                target.Y = selected->y
+                    + (2.4f + 0.20f * static_cast<float>(selected->variant)) * selected->scale;
+                cameraDirection = Vector3(std::cos(selected->damageYawRadians), 0.0f,
+                                          std::sin(selected->damageYawRadians));
+            }
+            const float cameraX = target.X + cameraDirection.X * distance;
+            const float cameraZ = target.Z + cameraDirection.Z * distance;
+            cameraPosition_ = Vector3(cameraX,
+                                      terrain_.Height(cameraX, cameraZ) + PlayerMotion::EyeHeight,
+                                      cameraZ);
+            const Vector3 toPalm = target - cameraPosition_;
+            yaw_ = std::atan2(toPalm.X, toPalm.Z);
+            pitch_ = std::atan2(toPalm.Y, std::hypot(toPalm.X, toPalm.Z));
+            std::cout << "island-simulator: storm palm QA condition "
+                      << (wanted == PalmCondition::Fallen ? "fallen" : "broken")
+                      << " at " << selected->x << ',' << selected->y << ',' << selected->z
+                      << '\n';
         } else if (viewpoint_ == FixedViewpoint::PalmDetail
                    && !vegetationLayout_.Palms().empty()) {
             constexpr float targetX = -120.0f;

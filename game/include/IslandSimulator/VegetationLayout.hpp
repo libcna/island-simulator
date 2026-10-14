@@ -2,12 +2,20 @@
 
 #include "IslandSimulator/WorldCollision.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
 namespace island
 {
     class IslandTerrain;
+
+    enum class PalmCondition : std::uint8_t
+    {
+        Living,
+        Fallen,
+        Broken
+    };
 
     /** @brief One deterministic palm placement shared by rendering and collision. */
     struct PalmPlacement
@@ -18,7 +26,9 @@ namespace island
         float yawRadians = 0.0f;
         float scale = 1.0f;
         float shoreDistance = 0.0f; // Signed analytic shore distance at placement, metres.
+        float damageYawRadians = 0.0f;
         std::uint8_t variant = 0U;
+        PalmCondition condition = PalmCondition::Living;
     };
 
     /** @brief One authored vegetation clearing shared by placement, QA, and terrain material. */
@@ -42,6 +52,8 @@ namespace island
         static constexpr float PalmJuvenileMaximumScale = 0.64f;
         static constexpr float PalmJuvenileChance = 0.32f;
         static constexpr float PalmGroveThreshold = 0.45f;
+        static constexpr std::size_t FallenPalmTargetCount = 6U;
+        static constexpr std::size_t BrokenPalmTargetCount = 8U;
         static constexpr float PrimaryPathBaseX = -5.0f;
         static constexpr float PrimaryPathAmplitude = 21.0f;
         static constexpr float PrimaryPathZOffset = 34.0f;

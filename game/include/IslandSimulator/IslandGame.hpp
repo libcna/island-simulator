@@ -137,6 +137,8 @@ namespace island
         GroundContactDetail,
         MovementTraceDetail,
         PalmDetail,
+        FallenPalmDetail,
+        BrokenPalmDetail,
         WaterlineDetail,
         WetSandDetail,
         CurrentBoundaryDetail,

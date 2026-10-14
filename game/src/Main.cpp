@@ -56,6 +56,8 @@ namespace
         case FixedViewpoint::GroundContactDetail: return "contact";
         case FixedViewpoint::MovementTraceDetail: return "movement";
         case FixedViewpoint::PalmDetail: return "palms";
+        case FixedViewpoint::FallenPalmDetail: return "fallen-palm";
+        case FixedViewpoint::BrokenPalmDetail: return "broken-palm";
         case FixedViewpoint::WaterlineDetail: return "water";
         case FixedViewpoint::WetSandDetail: return "wet-sand";
         case FixedViewpoint::CurrentBoundaryDetail: return "current";
@@ -148,7 +150,7 @@ int main(const int argc, char* argv[])
         } else if (argument == "--viewpoint") {
             if (++index >= argc) {
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, snags, sapling, "
-                             "east, headland, tide-pools, turtle-nest, cave, cave-inside, bunker, bunker-corridor, bunker-computers, bunker-reactor, bunker-service, bunker-end, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
+                             "east, headland, tide-pools, turtle-nest, cave, cave-inside, bunker, bunker-corridor, bunker-computers, bunker-reactor, bunker-service, bunker-end, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, fallen-palm, broken-palm, water, "
                              "wet-sand, current, distant, props, driftwood, reef, reef-habitat, fronds, birds, fish, "
                              "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, helicopter, helicopter-inside, crabs, crocodiles, boars, goats, spiders, spiders-bright, spider-web, snakes, snake-head, butterflies, turtles, or traversal\n";
                 return 2;
@@ -226,6 +228,10 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::MovementTraceDetail;
             } else if (name == "palms") {
                 viewpoint = island::FixedViewpoint::PalmDetail;
+            } else if (name == "fallen-palm") {
+                viewpoint = island::FixedViewpoint::FallenPalmDetail;
+            } else if (name == "broken-palm") {
+                viewpoint = island::FixedViewpoint::BrokenPalmDetail;
             } else if (name == "water") {
                 viewpoint = island::FixedViewpoint::WaterlineDetail;
             } else if (name == "wet-sand") {
