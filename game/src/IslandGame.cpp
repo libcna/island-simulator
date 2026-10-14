@@ -1509,6 +1509,7 @@ namespace island
                   << "island-simulator: near monkey tails keep a compact muscular hook and thirty-six raised fur clumps\n"
                   << "island-simulator: near monkey faces use paired fur cheek ruffs around the skin mask\n"
                   << "island-simulator: near monkey faces use a fitted dark nose pad and raised readable corneas\n"
+                  << "island-simulator: monkey face skin uses muted brown palettes and a recessed perimeter shade\n"
                   << "island-simulator: calm monkeys use bounded skeletal head attention\n"
                   << "island-simulator: terrain-conforming contact shadows in one portable "
                      "near-field batch\n"

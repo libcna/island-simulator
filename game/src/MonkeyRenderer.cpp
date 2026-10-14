@@ -958,10 +958,10 @@ namespace island
             Vector3(0.29f, 0.21f, 0.16f),
             Vector3(0.50f, 0.35f, 0.22f)};
         const std::array<Vector3, 4> FaceColors = {
-            Vector3(0.58f, 0.45f, 0.35f),
-            Vector3(0.65f, 0.49f, 0.38f),
-            Vector3(0.52f, 0.40f, 0.34f),
-            Vector3(0.68f, 0.52f, 0.40f)};
+            Vector3(0.43f, 0.34f, 0.28f),
+            Vector3(0.48f, 0.37f, 0.30f),
+            Vector3(0.39f, 0.32f, 0.28f),
+            Vector3(0.51f, 0.39f, 0.31f)};
         const Vector3 FurSpecularColor(0.04f, 0.04f, 0.035f);
         const Vector3 EyeSpecularColor(0.42f, 0.37f, 0.28f);
         constexpr float FurSpecularPower = 8.0f;

@@ -60,6 +60,24 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — muted monkey face skin
+
+The portable movement audit after the body-proportion repair selected the face as the next weak
+detail: its high-value uniform tan palette read as a flat beige shield against the dark fur. Four
+muted brown-grey palettes replace those colours. The existing signed face UV now supplies a bounded
+lateral contour shade, darkening the embedded perimeter by up to 22% without changing the projecting
+muzzle, fitted nose, eyes, eyelids or socket retention. No geometry, texture, bone, buffer, draw or
+animation changes.
+
+Native ordinary captures `20261014T165801.538669Z-monkeys` and `165936.822910Z` pass technically
+but are not appearance evidence because foliage and head angle hide the face. The complete current
+nine-frame `20261014T170120.376359Z-monkey-tree` sequence passes and was inspected as a montage;
+front-quarter states retain readable eye/nose/muzzle detail while the perimeter blends more
+naturally into the cheek fur. Focused Chrome/SwiftShader
+`20261014T170630.483212Z-chrome-monkeys` passes six inspected movement frames, 60 finite positive
+intervals, GL error zero, intact context and empty kernel delta. Default arm64 assemble/lint passes
+through the two-worker wrapper without emulator execution.
+
 ## Latest visual-audit implementation — compact monkey body silhouette
 
 The renewed close animal audit found that the monkey's fur and quadrupedal motion worked, but its

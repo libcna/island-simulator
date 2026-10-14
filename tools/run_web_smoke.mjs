@@ -1179,6 +1179,8 @@ try {
     && result.output?.includes(
       "island-simulator: near monkey faces use a fitted dark nose pad and raised readable corneas")
     && result.output?.includes(
+      "island-simulator: monkey face skin uses muted brown palettes and a recessed perimeter shade")
+    && result.output?.includes(
       "island-simulator: calm monkeys use bounded skeletal head attention")
     && result.output?.includes("3 silhouettes, 4 palettes")
     && result.output?.includes(
@@ -2462,6 +2464,8 @@ try {
       "island-simulator: near monkey faces use paired fur cheek ruffs around the skin mask")
     && monkeyResult.output?.includes(
       "island-simulator: near monkey faces use a fitted dark nose pad and raised readable corneas")
+    && monkeyResult.output?.includes(
+      "island-simulator: monkey face skin uses muted brown palettes and a recessed perimeter shade")
     && monkeyResult.output?.includes(
       "island-simulator: calm monkeys use bounded skeletal head attention")
     && /monkeys [1-9]\/7 visible/.test(monkeyResult.output ?? "")

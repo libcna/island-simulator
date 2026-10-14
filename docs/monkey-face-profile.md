@@ -1,5 +1,25 @@
 # Connected monkey face profile — native first pass
 
+## 2026-10-14 muted skin and recessed perimeter
+
+The portable movement review after the compact-body pass exposed the remaining face mismatch:
+the uniform high-value tan palette made the entire connected facial surface read as a flat beige
+shield against dark fur. All four skin palettes now use muted brown-grey values. The existing
+signed face UV adds a bounded lateral contour shade, darkening the embedded perimeter by up to 22%
+while leaving the centre, projecting muzzle pads, nose, eyes, eyelids and socket retention intact.
+This is vertex-shader colour modelling, not another texture or draw.
+
+Geometry, head bone, face/eye buffers, animation and draw counts are unchanged. Ordinary native
+captures `20261014T165801.538669Z-monkeys` and `165936.822910Z` pass but are rejected as appearance
+evidence because a foreground leaf and rearward head angle hide the face. The complete current
+nine-frame tree sequence `20261014T170120.376359Z-monkey-tree` passes and was inspected as a
+montage: multiple front-quarter states retain the eyes, fitted nose and muzzle while the darker
+perimeter joins the cheek fur more naturally.
+Focused Chrome/SwiftShader `20261014T170630.483212Z-chrome-monkeys` passes six inspected movement
+frames, 60 finite positive intervals, GL error zero, an intact context and no new kernel GPU fault.
+The default arm64 APK assembles and application lint passes through the two-worker wrapper without
+starting an emulator; Android runtime appearance remains unqualified.
+
 ## 2026-10-14 close-audit muzzle repair
 
 The first unobstructed front-quarter capture exposed two defects that the former lateral

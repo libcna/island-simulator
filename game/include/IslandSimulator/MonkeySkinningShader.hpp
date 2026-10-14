@@ -58,7 +58,10 @@ void main() {
     // muzzle pads are a restrained midtone and the smaller wet nose remains darkest.
     float faceFeature = aTexCoord.x < -0.9 ? 0.43
                       : aTexCoord.x < -0.6 ? 0.76 : 1.0;
-    vDiffuse = clamp(uDiffuse * faceFeature * (vec3(0.47, 0.50, 0.42) * faceAmbient
+    float faceEdge = aTexCoord.y < 0.0 && aTexCoord.x >= 0.0
+        ? smoothstep(0.28, 0.50, abs(aTexCoord.x - 0.5)) : 0.0;
+    vec3 faceContour = mix(vec3(1.0), vec3(0.78, 0.76, 0.72), faceEdge);
+    vDiffuse = clamp(uDiffuse * faceFeature * faceContour * (vec3(0.47, 0.50, 0.42) * faceAmbient
                      + vec3(0.78, 0.74, 0.62) * max(sunDot, 0.0)), 0.0, 1.0);
     vSpecular = clamp(uSpecular * uLightSpecular * specular, 0.0, 1.0);
     float depth = -(uView * world).z;
