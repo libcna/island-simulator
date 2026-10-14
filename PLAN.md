@@ -59,7 +59,28 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
-## Latest visual-audit implementation — volumetric perched birds
+## Latest visual-audit implementation — close patterned butterflies
+
+After the bird pass, the same overview comparison selected butterflies as the next weak close
+subject. Their 18-agent low-altitude habitats and asynchronous hinged flight already worked, but
+the QA camera aimed at a habitat centre from nearly four metres away; even near animals appeared as
+small coloured strokes. It now follows one existing deterministic animal from under one metre and
+uses an overhead capture-only observer so the inspection camera does not continually trigger the
+ordinary player-avoidance response. Gameplay movement and placement are unchanged.
+
+The resulting close view exposed the renderer's flat diamond body and large triangular wing sheets.
+The accepted near LOD uses a closed six-sided tapered body, a separate head, paired antennae, five
+lobed outline stations per wing, dark outer margins and the existing family accent. Population,
+physical scale, palettes, wing hinge, far LOD, culling and one-draw batching remain unchanged; the
+bounded near budget rises from 72 to 228 vertices. Baseline group, camera-only and final anatomy
+evidence is `build-consumer/software-captures/20261014T130501.521721Z-butterflies`,
+`20261014T133056.877305Z-butterflies` and `20261014T133448.341718Z-butterflies`. All three were
+inspected; the final frame passes the ordinary image gate and proves the rounded dark-edged wings
+and volumetric body, while antenna readability in motion remains open. Release and WebGL builds,
+portable script syntax/diagnostic guards and Android ARM64 assemble/lint pass. No portable runtime,
+emulator or device was used for this stage.
+
+## Previous visual-audit implementation — volumetric perched birds
 
 The fresh overview/butterfly/bird comparison selected the perched bird as the weakest remaining
 silhouette. Its live wreck perch and folded-wing state worked, but the five-metre audit camera was

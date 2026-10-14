@@ -943,6 +943,8 @@ def main():
                     raise RuntimeError("crab capture did not submit a near detailed colony")
             if args.viewpoint == "birds" and "near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes" not in diagnostics:
                 raise RuntimeError("current near-bird anatomy is missing; check for a stale executable")
+            if args.viewpoint == "butterflies" and "near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins" not in diagnostics:
+                raise RuntimeError("current near-butterfly anatomy is missing; check for a stale executable")
             if args.viewpoint == "bush" and "bush QA target variant 0 at player-eye detail distance" not in diagnostics:
                 raise RuntimeError("bush camera did not select the intended shrub")
             if args.viewpoint == "ground-broadleaf" and "ground-broadleaf QA target variant 1 at player-eye detail distance" not in diagnostics:

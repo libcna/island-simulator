@@ -2104,7 +2104,9 @@ try {
     && butterflyResult.output?.includes(
       "island-simulator: clearing butterflies use hinged patterned wings in one culled batch")
     && butterflyResult.output?.includes(
-      "island-simulator: butterfly QA camera views a sunny clearing group")
+      "island-simulator: near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins")
+    && butterflyResult.output?.includes(
+      "island-simulator: butterfly QA camera follows one existing sunny-clearing animal")
     && /butterflies [1-9][0-9]*\/18 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(
       butterflyResult.output ?? "")
     && !butterflyResult.error;

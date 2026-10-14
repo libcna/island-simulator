@@ -267,6 +267,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: clearing butterflies use hinged patterned wings in one culled batch" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: sea turtles 5 agents in bounded near-shore cruise, forage, and surface routes" \
             "$LOG_FILE" \
         && grep -q "island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch" \

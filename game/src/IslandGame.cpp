@@ -1109,17 +1109,18 @@ namespace island
             std::cout << "island-simulator: crab QA camera views an active beach colony\n";
         } else if (viewpoint_ == FixedViewpoint::ButterflyDetail
                    && butterflyMeadow_.Butterflies().size() > 2U) {
-            const ButterflyHomeRange& home = butterflyMeadow_.Homes()[2U];
-            const float cameraX = home.x - 3.0f;
-            const float cameraZ = home.z - 2.2f;
-            cameraPosition_ = Vector3(
-                cameraX, terrain_.Height(cameraX, cameraZ) + 1.18f, cameraZ);
-            const Vector3 toGroup = Vector3(
-                home.x, terrain_.Height(home.x, home.z) + 0.72f, home.z) - cameraPosition_;
+            const ButterflyState& butterfly=butterflyMeadow_.Butterflies()[2U];
+            const Vector3 forward(std::cos(butterfly.headingRadians),0,
+                std::sin(butterfly.headingRadians));
+            const Vector3 side(-forward.Z,0,forward.X);
+            cameraPosition_=Vector3(butterfly.x,butterfly.y,butterfly.z)
+                -forward*.55f+side*.55f+Vector3::Up*.28f;
+            const Vector3 toGroup=Vector3(butterfly.x,butterfly.y,butterfly.z)
+                -cameraPosition_;
             yaw_ = std::atan2(toGroup.X, toGroup.Z);
             pitch_ = std::atan2(
                 toGroup.Y, std::hypot(toGroup.X, toGroup.Z));
-            std::cout << "island-simulator: butterfly QA camera views a sunny clearing group\n";
+            std::cout << "island-simulator: butterfly QA camera follows one existing sunny-clearing animal\n";
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferMultiSamplingProperty(qualityProfile_.preferredBackBufferSamples > 0);
@@ -1679,8 +1680,21 @@ namespace island
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         }
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
-        butterflyMeadow_.Update(
-            deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        const ButterflyState previousButterfly=butterflyMeadow_.Butterflies()[2U];
+        Vector3 butterflyObserver=cameraPosition_;
+        if(viewpoint_==FixedViewpoint::ButterflyDetail)
+            butterflyObserver=Vector3(previousButterfly.x,previousButterfly.y+3.0f,
+                previousButterfly.z);
+        butterflyMeadow_.Update(deltaSeconds,butterflyObserver.X,butterflyObserver.Y,
+            butterflyObserver.Z);
+        if(viewpoint_==FixedViewpoint::ButterflyDetail) {
+            const ButterflyState& current=butterflyMeadow_.Butterflies()[2U];
+            cameraPosition_+=Vector3(current.x-previousButterfly.x,
+                current.y-previousButterfly.y,current.z-previousButterfly.z);
+            const Vector3 direction=Vector3(current.x,current.y,current.z)-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+        }
         const CrabState previousCrabSubject = crabColony_.Crabs()[2U];
         crabColony_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         if (viewpoint_ == FixedViewpoint::CrabDetail) {

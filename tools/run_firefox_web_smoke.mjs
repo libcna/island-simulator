@@ -349,6 +349,7 @@ try {
     "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch",
     "island-simulator: shipwreck large-ship silhouette uses deck rails, hull openings, keel, rudder, and a broken foremast",
     "island-simulator: clearing butterflies use hinged patterned wings in one culled batch",
+    "island-simulator: near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins",
     "island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch",
     "island-simulator: ocean sunward ripple crests reuse analytic slope field",
     "island-simulator: ocean grazing reflection bands reuse analytic slope field",
@@ -628,7 +629,8 @@ try {
       "island-simulator: renderer WEBGL2",
       "island-simulator: clearing butterflies 18 agents in deterministic low-altitude habitats",
       "island-simulator: clearing butterflies use hinged patterned wings in one culled batch",
-      "island-simulator: butterfly QA camera views a sunny clearing group",
+      "island-simulator: near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins",
+      "island-simulator: butterfly QA camera follows one existing sunny-clearing animal",
     ],
     /butterflies [1-9][0-9]*\/18 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/);
   const turtleScene = await qualifyScene(

@@ -32,11 +32,13 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 25.0f;
-        constexpr int MaximumVerticesPerButterfly = 72;
+        constexpr int MaximumVerticesPerButterfly = 228;
         constexpr int MaximumVertexCount = static_cast<int>(ButterflyMeadow::ButterflyCount)
             * MaximumVerticesPerButterfly;
         constexpr std::string_view ButterflyDiagnostic =
             "island-simulator: clearing butterflies use hinged patterned wings in one culled batch";
+        constexpr std::string_view ButterflyAnatomyDiagnostic =
+            "island-simulator: near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins";
 
         struct ButterflyPalette
         {
@@ -100,44 +102,92 @@ namespace island
             const float horizontal = std::cos(foldAngle);
             const float lift = std::sin(foldAngle);
 
-            const Vector3 head = LocalPoint(
-                centre, right, up, forward, 0.0f, 0.015f, 0.29f, scale);
-            const Vector3 bodyLeft = LocalPoint(
-                centre, right, up, forward, -0.045f, 0.0f, 0.02f, scale);
-            const Vector3 bodyRight = LocalPoint(
-                centre, right, up, forward, 0.045f, 0.0f, 0.02f, scale);
-            const Vector3 abdomen = LocalPoint(
-                centre, right, up, forward, 0.0f, -0.015f, -0.34f, scale);
-            AddDoubleSidedTriangle(vertices, head, bodyLeft, abdomen, palette.body);
-            AddDoubleSidedTriangle(vertices, head, abdomen, bodyRight, palette.body);
+            constexpr int BodySides=6;
+            const Vector3 bodyFront=LocalPoint(
+                centre,right,up,forward,0,.012f,.21f,scale);
+            const Vector3 bodyRear=LocalPoint(
+                centre,right,up,forward,0,-.012f,-.38f,scale);
+            const auto bodyRing=[&](float angle,float z,float radius) {
+                return LocalPoint(centre,right,up,forward,std::cos(angle)*radius,
+                    std::sin(angle)*radius,z,scale);
+            };
+            for(int sideIndex=0;sideIndex<BodySides;++sideIndex) {
+                const float a0=6.28318530718f*static_cast<float>(sideIndex)/BodySides;
+                const float a1=6.28318530718f*static_cast<float>(sideIndex+1)/BodySides;
+                const Vector3 front0=bodyRing(a0,.12f,.055f),front1=bodyRing(a1,.12f,.055f);
+                const Vector3 rear0=bodyRing(a0,-.15f,.050f),rear1=bodyRing(a1,-.15f,.050f);
+                AddTriangle(vertices,bodyFront,front0,front1,palette.body);
+                AddTriangle(vertices,front0,rear0,rear1,palette.body);
+                AddTriangle(vertices,front0,rear1,front1,palette.body);
+                AddTriangle(vertices,bodyRear,rear1,rear0,palette.body);
+            }
+            const Vector3 headCentre=LocalPoint(
+                centre,right,up,forward,0,.012f,.255f,scale);
+            const Vector3 headTop=headCentre+up*(.065f*scale);
+            const Vector3 headBottom=headCentre-up*(.065f*scale);
+            const Vector3 headFront=headCentre+forward*(.070f*scale);
+            const Vector3 headBack=headCentre-forward*(.060f*scale);
+            const Vector3 headLeft=headCentre-right*(.062f*scale);
+            const Vector3 headRight=headCentre+right*(.062f*scale);
+            AddTriangle(vertices,headTop,headFront,headLeft,palette.body);
+            AddTriangle(vertices,headTop,headRight,headFront,palette.body);
+            AddTriangle(vertices,headTop,headBack,headRight,palette.body);
+            AddTriangle(vertices,headTop,headLeft,headBack,palette.body);
+            AddTriangle(vertices,headBottom,headLeft,headFront,palette.body);
+            AddTriangle(vertices,headBottom,headFront,headRight,palette.body);
+            AddTriangle(vertices,headBottom,headRight,headBack,palette.body);
+            AddTriangle(vertices,headBottom,headBack,headLeft,palette.body);
+            for(const float side:{-1.0f,1.0f}) {
+                const Vector3 antennaRoot=LocalPoint(
+                    centre,right,up,forward,side*.025f,.045f,.30f,scale);
+                const Vector3 antennaTip=LocalPoint(
+                    centre,right,up,forward,side*.17f,.085f,.52f,scale);
+                const Vector3 antennaEdge=LocalPoint(
+                    centre,right,up,forward,side*.155f,.073f,.505f,scale);
+                AddDoubleSidedTriangle(vertices,antennaRoot,antennaTip,antennaEdge,
+                    palette.body);
+            }
 
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
                 const float side = static_cast<float>(sideIndex);
+                const auto wingPoint=[&](float span,float z,float extraLift=0.0f) {
+                    return LocalPoint(centre,right,up,forward,side*span*horizontal,
+                        span*lift+extraLift,z,scale);
+                };
                 const Vector3 foreRoot = LocalPoint(
                     centre, right, up, forward, side * 0.035f, 0.0f, 0.12f, scale);
                 const Vector3 hindRoot = LocalPoint(
                     centre, right, up, forward, side * 0.035f, 0.0f, -0.13f, scale);
-                const Vector3 foreTip = LocalPoint(
-                    centre, right, up, forward, side * 0.58f * horizontal,
-                    0.58f * lift, 0.22f, scale);
-                const Vector3 outerTip = LocalPoint(
-                    centre, right, up, forward, side * 0.64f * horizontal,
-                    0.64f * lift, -0.05f, scale);
-                const Vector3 hindTip = LocalPoint(
-                    centre, right, up, forward, side * 0.47f * horizontal,
-                    0.47f * lift, -0.31f, scale);
+                const Vector3 leadingTip=wingPoint(.40f,.31f);
+                const Vector3 foreTip=wingPoint(.64f,.18f);
+                const Vector3 outerTip=wingPoint(.68f,-.05f);
+                const Vector3 hindTip=wingPoint(.52f,-.33f);
+                const Vector3 rearTip=wingPoint(.28f,-.42f);
                 AddDoubleSidedTriangle(
-                    vertices, foreRoot, foreTip, outerTip, palette.forewing);
+                    vertices,foreRoot,leadingTip,foreTip,palette.forewing);
                 AddDoubleSidedTriangle(
-                    vertices, foreRoot, outerTip, hindRoot, palette.forewing);
+                    vertices,foreRoot,foreTip,outerTip,palette.forewing);
                 AddDoubleSidedTriangle(
-                    vertices, hindRoot, outerTip, hindTip, palette.hindwing);
+                    vertices,foreRoot,outerTip,hindRoot,palette.forewing);
+                AddDoubleSidedTriangle(
+                    vertices,hindRoot,outerTip,hindTip,palette.hindwing);
+                AddDoubleSidedTriangle(
+                    vertices,hindRoot,hindTip,rearTip,palette.hindwing);
 
-                const Vector3 accentTip = LocalPoint(
-                    centre, right, up, forward, side * 0.45f * horizontal,
-                    0.45f * lift + 0.004f, -0.03f, scale);
+                const Vector3 foreInner=wingPoint(.51f,.13f,.004f);
+                const Vector3 outerInner=wingPoint(.55f,-.055f,.004f);
+                const Vector3 hindInner=wingPoint(.41f,-.275f,.004f);
                 AddDoubleSidedTriangle(
-                    vertices, foreRoot, accentTip, hindRoot, palette.accent);
+                    vertices,foreTip,outerTip,outerInner,palette.body);
+                AddDoubleSidedTriangle(
+                    vertices,foreTip,outerInner,foreInner,palette.body);
+                AddDoubleSidedTriangle(
+                    vertices,outerTip,hindTip,hindInner,palette.body);
+                AddDoubleSidedTriangle(
+                    vertices,outerTip,hindInner,outerInner,palette.body);
+                const Vector3 accentTip=wingPoint(.43f,-.02f,.008f);
+                AddDoubleSidedTriangle(vertices,foreRoot,accentTip,hindRoot,
+                    palette.accent);
             }
         }
 
@@ -190,7 +240,9 @@ namespace island
         effect_->setFogEndProperty(82.0f);
         stagingVertices_.reserve(static_cast<std::size_t>(MaximumVertexCount));
         std::cout << ButterflyDiagnostic << '\n';
+        std::cout << ButterflyAnatomyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(ButterflyAnatomyDiagnostic);
     }
 
     ButterflyRenderer::~ButterflyRenderer() = default;
