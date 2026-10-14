@@ -192,4 +192,16 @@ namespace island
             group.width*(cluster%2 ? 0.96f : 1.04f),group.height*(cluster%2 ? 0.91f : 0.96f),
             angle,std::fmod(cluster*0.139f+variant*0.23f,1.0f)};
     }
+
+    float CanopyNominalHeight(const int variant)
+    {
+        if (variant < 0 || variant >= CanopyFormCount)
+            throw std::invalid_argument("Invalid canopy variant");
+        float height = 0.0f;
+        for (int cluster = 0; cluster < 8; ++cluster) {
+            const auto crown = MakeCanopyCrownProfile(variant, cluster);
+            height = std::max(height, crown.y + crown.height);
+        }
+        return height;
+    }
 }

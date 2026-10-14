@@ -46,4 +46,6 @@ namespace island
                                                             std::optional<float> windTime = std::nullopt);
     // Both mesh tiers and the light bake share all eight lobe anchors and dimensions.
     [[nodiscard]] CanopyCrownProfile MakeCanopyCrownProfile(int variant, int cluster);
+    /** @brief Upper nominal crown envelope used to author real-world stature bands. */
+    [[nodiscard]] float CanopyNominalHeight(int variant);
 }

@@ -122,6 +122,7 @@ namespace island
         BeachPath,
         JungleTrail,
         StandingSnagDetail,
+        SaplingDetail,
         EastClearingDetail,
         ClearingEdgeDetail,
         CanopyInspection,

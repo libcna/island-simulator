@@ -16,9 +16,11 @@ trees of one height.
   overall). Their collision radius follows the trunk (`0.43 x scale`). Crown lobes, the canopy
   light occluders, per-tree culling boxes and contact shadows all scale with the tree.
 - Saplings: a separate 10% candidate channel inside the stand field converts a bounded subset of
-  later placements to scale 0.38--0.58 (roughly 3--6 m). A sapling must retain an established
-  neighbour within 18 m. The default world contains 16; no tree, mesh, buffer or draw is added.
-  Their root collision shrinks conservatively with the trunk. Monkeys do not select them as
+  later placements to scale 0.18--0.31. `CanopyNominalHeight` measures the full nominal crown
+  envelope of every shared form, and the regression requires every juvenile to remain in the
+  requested 2--5 m band. A sapling must retain an established neighbour within 18 m. The default
+  world contains 16; no tree, mesh, buffer or draw is added. Their root collision shrinks with the
+  visible trunk down to a 0.12 m minimum. Monkeys do not select them as
   closed-canopy climbing trees, and the seven qualified climbing-home indices remain adult.
 - Standing deadwood: twelve separate deterministic placements are selected only after every live
   vegetation layer is complete. Each must be on dry stable inland ground, have at least two mature
@@ -29,12 +31,11 @@ trees of one height.
   scar, desaturated sun-bleached bark and pale uneven fracture caps. Near/far meshes are instanced,
   cell-culled and bounded by the same terrain-grounded renderer path as living jungle plants.
 
-Resulting default population: 277 canopy trees (was 281), 22 emergents, 223 trees with at least
-three neighbours within 20 m, 9 solitary. Downstream layouts that avoid trunks shifted slightly:
-579 bushes (14 at the clearings), 3,116 ground plants (64 clearing, 827 forest colony, 2,225
-island-wide unchanged), 199 colonies, 159 land rocks, 12 logs, 31 driftwood. Tests pin the stand
-structure (>= 60 % grouped, <= 15 % solitary, 3-15 % emergent, emergents only inside stands)
-and the new counts; the Web/Firefox/Android harness count pins were updated.
+Current default population after the later ecology passes: 261 living canopy trees including 16
+saplings and 22 emergents, plus 12 separate standing snags; 1,737 understory plants, 569 bushes, 2,903 ground
+plants, 171 forest-floor colonies with 674 companions, 203 rocks, 12 fallen logs and 33 driftwood.
+Tests pin the stand structure (>= 60 % grouped, <= 15 % solitary, 3-15 % emergent, emergents only
+inside stands), the literal sapling height envelope and the snag habitat/clearance invariants.
 
 ## Evidence and limitations
 
@@ -48,16 +49,14 @@ traced to the cumulus loop in the sky shader (`docs/sky-atmosphere.md`); the sta
 forest-floor colonies were innocent and are unchanged. Android results after the sky fix are
 recorded in `PLAN.md`.
 
-The later sapling pass is evidenced by current native overview/jungle/east captures
-`build-consumer/software-captures/20261014T203722.209283Z-overview`,
-`20261014T203727.476082Z-jungle` and `20261014T203732.668788Z-east`. A frozen view of the first
-sapling passes in both forced tiers at `20261014T204128.524263Z-canopy` and
-`20261014T204133.968191Z-canopy`. Chrome/SwiftShader evidence is
-`build/browser-software/20261014T205103.677192Z-chrome-canopy-light`: one inspected jungle frame,
-60 positive finite intervals, GL error zero and no context loss. The ARM64 debug APK assembles and
-contains the diagnostic; device runtime remains unclaimed. The core regression first caught, then
-prevented, loss of the ordinary monkey climb path. Standing dead and broken trunks remain outside
-the sapling pass but are now covered by the later native detail evidence
+The corrected sapling pass is evidenced by native detail capture
+`build-consumer/software-captures/20261014T213040.320780Z-sapling`: the first sapling measures
+3.74935 m and its inspected silhouette is visibly juvenile beside the mature stand. Matching
+Chrome/SwiftShader evidence is
+`build/browser-software/20261014T213320.262214Z-chrome-saplings`: the inspected frame matches native,
+all 60 intervals are positive and finite, GL error is zero, the context remains live and the kernel
+delta is empty. The core regression first caught, then prevented, loss of the ordinary monkey climb
+path. Standing dead and broken trunks are covered by the later native detail evidence
 `build-consumer/software-captures/20261014T211429.632358Z-snags`. The first image exposed a dark,
 thin-armed pole silhouette; the inspected final image has thicker asymmetric stubs, a blunter
 broken crown and lighter deadwood separation. Core regressions pin all twelve placements, habitat,
@@ -65,6 +64,6 @@ route clearance, living-trunk separation, collision extent and determinism. Chro
 subsequently passes the dedicated
 `build/browser-software/20261014T212223.406022Z-chrome-snags` view: the inspected frame matches
 native, all 60 intervals are positive and finite, GL error is zero, the context remains live and
-the kernel delta is empty. The ARM64 debug APK assembles to 24,012,115 bytes with SHA-256
-`2c20f565aca42f90d424ca393f87841ae7c8e57e5d5d872de8726547b658ea01`; no emulator or KVM was
+the kernel delta is empty. The ARM64 debug APK assembles to 24,014,955 bytes with SHA-256
+`25ae9ff46e6acafba0079a570f2516a986b45bca51cab1386d5c0227f11e5372`; no emulator or KVM was
 started, so physical GLES runtime evidence is still not claimed.

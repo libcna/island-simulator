@@ -5169,6 +5169,11 @@ int main()
               "canopy scale remains in its authored juvenile, adult or emergent range");
         emergentCount += emergent ? 1U : 0U;
         juvenileCount += juvenile ? 1U : 0U;
+        if (juvenile) {
+            const float nominalHeight = island::CanopyNominalHeight(tree.variant) * tree.scale;
+            Check(nominalHeight >= 2.0f && nominalHeight <= 5.0f,
+                  "juvenile full crown envelope remains inside the requested 2-5m stature band");
+        }
         if (emergent) {
             int standNeighbours = 0;
             for (const island::CanopyPlacement& other : jungle.Canopy()) {
@@ -5185,7 +5190,7 @@ int main()
             CheckNear(obstacle.radius, 1.08f * tree.scale, .0001f,
                 "mangrove collision covers its visible stilt-root spread");
         } else {
-            Check(obstacle.radius >= (juvenile ? .22f : .30f)
+            Check(obstacle.radius >= (juvenile ? .12f : .30f)
                       && obstacle.radius < 0.43f * island::JungleLayout::CanopyEmergentScale + 0.01f
                       && (emergent || obstacle.radius < 0.56f),
                   "broadleaf collision radius stays close to the visible trunk");

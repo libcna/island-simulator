@@ -3600,11 +3600,13 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   solitary) with fully open areas between, keeping a similar tree count (8-12 h). 2026-10-10
   first pass (`docs/forest-stands.md`): 10.5 m candidate grid with a contrast-shaped stand
   field; 277 trees, 223 grouped, 9 solitary; downstream counts and harness pins updated.
-- [~] 8. Vertical forest structure: 5-10% emergent trees of 18-24 m, young 2-5 m trees, some dead
+- [x] 8. Vertical forest structure: 5-10% emergent trees of 18-24 m, young 2-5 m trees, some dead
   and broken trunks. 2026-10-10: 22 emergents (scale 1.60-1.85) promoted only inside closed
-  stands. 2026-10-14: sixteen deterministic 3-6m saplings reuse the shared crown forms at
-  scale 0.38-0.58 beside established stands without increasing population or draw count; monkey
-  climbing excludes them and remains regression-covered. The same day, twelve upright dead and
+  stands. 2026-10-14: sixteen deterministic 2-5m saplings reuse the shared crown forms at
+  scale 0.18-0.31 beside established stands without increasing population or draw count;
+  `CanopyNominalHeight` measures their complete nominal crown envelope and the first detail probe
+  is 3.74935 m. Monkey climbing excludes them and remains regression-covered. The same day,
+  twelve upright dead and
   storm-broken trunks were added inside established multi-tree stands: two asymmetric silhouettes,
   tapered bent stems, thick branch stubs, pale irregular fracture planes, sun-bleached bark,
   root-covering collision proxies, cell culling and two-tier instanced LOD. Their placement is
@@ -3613,9 +3615,12 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   `20261014T211429.632358Z-snags` passes and was inspected after one silhouette refinement.
   Chrome/SwiftShader `20261014T212223.406022Z-chrome-snags` then passes its dedicated view with
   60 positive finite intervals, GL0, an intact context and clean kernel delta; its frame was
-  inspected. The ARM64 debug APK builds (24,012,115 bytes,
-  `2c20f565...58ea01`) without starting an emulator. Physical GLES runtime qualification and
-  bringing saplings down to the literal 2-5m band remain.
+  inspected. The corrected saplings pass inspected native detail
+  `20261014T213040.320780Z-sapling` and Chrome/SwiftShader
+  `20261014T213320.262214Z-chrome-saplings`; the latter records 60 positive finite intervals,
+  GL0, a live context and clean kernel delta. The ARM64 debug APK builds (24,014,955 bytes,
+  `25ae9ff4...e5372`) without starting an emulator. Physical GLES runtime qualification remains
+  a platform-wide gate rather than an unfinished part of this forest feature.
 - [~] 9. Palm distribution: large coconut groves at a few beaches, a few old solitary palms, fewer
   palms deep in the forest, young palms near adults, varied lean, some fallen or broken palms.
   2026-10-10 (`docs/palm-groves.md`): coastal grove field, juveniles beside adults, 370 palms

@@ -91,8 +91,8 @@ namespace island
         static constexpr float MangroveMaximumScale = 0.92f;
         static constexpr float CanopyMinimumScale = 0.78f;
         static constexpr float CanopyMaximumScale = 1.28f;
-        static constexpr float CanopyJuvenileMinimumScale = 0.38f;
-        static constexpr float CanopyJuvenileMaximumScale = 0.58f;
+        static constexpr float CanopyJuvenileMinimumScale = 0.18f;
+        static constexpr float CanopyJuvenileMaximumScale = 0.31f;
         static constexpr float CanopyJuvenileChance = 0.10f;
         // A few emergents rise above the closed canopy only inside dense stands.
         static constexpr float CanopyEmergentMinimumScale = 1.60f;

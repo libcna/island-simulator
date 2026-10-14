@@ -89,6 +89,7 @@ namespace island
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::StandingSnagDetail: return "snags";
+            case FixedViewpoint::SaplingDetail: return "sapling";
             case FixedViewpoint::EastClearingDetail: return "east";
             case FixedViewpoint::ClearingEdgeDetail: return "clearing-edge";
             case FixedViewpoint::CanopyInspection: return "canopy";
@@ -412,6 +413,29 @@ namespace island
             std::cout << "island-simulator: standing-snag QA target variant="
                       << static_cast<int>(snag.variant) << " scale=" << snag.scale
                       << " position=" << snag.x << ',' << snag.y << ',' << snag.z << '\n';
+        } else if (viewpoint_ == FixedViewpoint::SaplingDetail) {
+            const auto selected = std::ranges::find_if(jungleLayout_.Canopy(), [](const auto& tree) {
+                return tree.variant != MangroveCanopyVariant
+                    && tree.scale < JungleLayout::CanopyMinimumScale;
+            });
+            if (selected == jungleLayout_.Canopy().end())
+                throw std::runtime_error("Sapling QA camera found no target");
+            const Vector3 forward(std::sin(selected->yawRadians), 0.0f,
+                                  std::cos(selected->yawRadians));
+            const Vector3 right(forward.Z, 0.0f, -forward.X);
+            const float cameraX = selected->x + forward.X * 5.0f + right.X * 1.5f;
+            const float cameraZ = selected->z + forward.Z * 5.0f + right.Z * 1.5f;
+            cameraPosition_ = Vector3(cameraX,
+                terrain_.Height(cameraX, cameraZ) + 2.2f, cameraZ);
+            const float stature = CanopyNominalHeight(selected->variant) * selected->scale;
+            const Vector3 target(selected->x, selected->y + stature * .52f, selected->z);
+            const Vector3 direction = target - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+            std::cout << "island-simulator: sapling QA target variant="
+                      << static_cast<int>(selected->variant) << " scale=" << selected->scale
+                      << " nominal-height=" << stature << " position=" << selected->x << ','
+                      << selected->y << ',' << selected->z << '\n';
         } else if (viewpoint_ == FixedViewpoint::EastClearingDetail) {
             const ClearingDefinition& clearing = VegetationLayout::EastClearing;
             cameraPosition_ = Vector3(clearing.x, terrain_.Height(clearing.x, clearing.z)

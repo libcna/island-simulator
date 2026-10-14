@@ -1640,7 +1640,7 @@ void main()
                 + std::to_string(static_cast<int>(std::lround(juvenile->z * 1000.0f)));
         const std::string juvenileDiagnostic = "island-simulator: canopy age structure includes "
             + std::to_string(layout.JuvenileCanopyCount())
-            + " deterministic 3-6m saplings beside established stands; first="
+            + " deterministic 2-5m saplings beside established stands; first="
             + juvenilePosition;
         std::cout << juvenileDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(juvenileDiagnostic);

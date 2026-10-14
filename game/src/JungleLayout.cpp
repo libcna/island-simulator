@@ -177,7 +177,7 @@ namespace island
                     * candidate.juvenileScaleRandom;
             // Retain a conservative root footprint without making a thin young trunk feel like
             // an adult collision cylinder.
-            obstacles_[candidate.index].radius = std::max(0.22f, 0.43f * tree.scale);
+            obstacles_[candidate.index].radius = std::max(0.12f, 0.43f * tree.scale);
             ++juvenileCanopyCount_;
         }
 
