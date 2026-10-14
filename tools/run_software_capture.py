@@ -894,6 +894,8 @@ def main():
                     raise RuntimeError("current close crab detail is missing; check for a stale executable")
                 if "near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms" not in diagnostics:
                     raise RuntimeError("current crab silhouette proportions are missing; check for a stale executable")
+                if "near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs" not in diagnostics:
+                    raise RuntimeError("current crab shell surface is missing; check for a stale executable")
                 if not re.search(r"crabs [1-9][0-9]*/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):
                     raise RuntimeError("crab capture did not submit a near detailed colony")
             if args.viewpoint == "bush" and "bush QA target variant 0 at player-eye detail distance" not in diagnostics:

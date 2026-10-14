@@ -131,3 +131,23 @@ inspected different-hash moving poses, 60 finite intervals, `glError=0`, a live 
 empty kernel delta. ARM64 debug packaging and lint also pass without starting or changing the
 Android emulator. Current Android runtime rendering, continuous gait review, smoother shell
 curvature, filtered shell microtexture and physical-device performance remain open.
+
+## Smooth low carapace and solid legs (2026-10-14)
+
+The next visual audit found that the ten-sector shell still exposed large triangular colour panels
+and the crossed leg strips remained visibly flat. An initial smooth version was rendered and
+rejected because its high round dome looked beetle-like. The accepted version uses eighteen radial
+segments, a lower and substantially wider four-ring profile, per-vertex radial daylight and ten
+small irregular shell marks. All twenty-four walking-leg sections are now tapered rectangular
+volumes rather than crossed sheets. Claws, eyes, thirty-agent simulation, 38 m LOD boundary, far
+silhouette and one-draw batching remain unchanged.
+
+The exact near budget is 1,326 vertices / 442 triangles per crab; conservative all-near capacity
+is 39,780 vertices / 636,480 bytes. Inspected llvmpipe evidence
+`build-consumer/software-captures/20261014T031332.711101Z-crabs` passes with 197 colour bins, 34.00
+luminance deviation, 193.78 spatial contrast and no new kernel GPU fault. The accepted frame reads
+as a lower, broad-bodied shore crab with materially solid legs; the discarded high-dome iterations
+are retained only as local build evidence. Focused Chrome/SwiftShader evidence
+`build/browser-software/20261014T031556.664431Z-chrome-crabs` passes with two inspected animated
+frames, 60 finite intervals, GL error zero, an intact context and no new kernel GPU fault. The
+ARM64 debug APK assembles and lint passes without starting an emulator.

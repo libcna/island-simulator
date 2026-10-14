@@ -784,6 +784,7 @@ try {
               && /turtles [1-5]\/5 visible \(near [1-5], far [0-5]\), 1 draw/.test(log)))
             && (!focusedCrabCheck || (log.includes("near crabs use tapered toes, socketed eyes, and solid pincer fingers")
               && log.includes("near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms")
+              && log.includes("near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs")
               && /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedFishCheck || (log.includes("near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes")
               && log.includes("near fish use capped smooth-lit bodies, caudal peduncles and progressive rear-body bends")

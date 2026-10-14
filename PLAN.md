@@ -122,7 +122,20 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — shark body continuity
+## Latest visual-audit implementation — crab shell and leg continuity
+
+After the shark pass, the next weakest inspected animal was the beach crab: ten large carapace
+panels and crossed leg sheets remained conspicuous. One high-dome revision was rendered and
+rejected for looking beetle-like. The accepted close form uses a low, wide eighteen-sided shell,
+smooth radial daylight, restrained irregular markings and solid tapered volumes for all twenty-four
+walking-leg sections. Near/far geometry is 1,326/12 vertices; all 30 agents, behavior, habitat,
+LOD policy and one draw remain unchanged. Native evidence
+`20261014T031332.711101Z-crabs` passes with 197 colour bins, 34.00 luminance deviation and 193.78
+spatial contrast. Focused Chrome/SwiftShader evidence
+`20261014T031556.664431Z-chrome-crabs` passes two inspected animated frames,60finite intervals,
+GL0/context intact/kernel[]. ARM64 assemble/lint pass without emulator execution.
+
+## Previous visual-audit implementation — shark body continuity
 
 After the turtle, monkey, dolphin and fish passes, the next weakest inspected aquatic close form
 was the shark's visibly ten-sided torso. The close model now uses fourteen longitudinal stations,
@@ -602,7 +615,14 @@ docs/stream-course.md and docs/environment-field-design.md.
   `20261013T170649.755712Z-crabs` passes192bins/std30.24/spatial184.04/kernel[]; focused
   Chrome/SwiftShader `20261013T170831.603758Z-chrome-crabs` passes two inspected different-hash
   animated frames,60finite intervals/GL0/context intact/kernel[]. ARM64 assemble/lint passes
-  without starting the emulator. Android runtime remains pending.
+  without starting the emulator. A fifth pass replaces the ten-sector shell with a low, wide
+  eighteen-sided smooth-lit surface, adds restrained irregular marks and turns all twenty-four
+  walking-leg sections from crossed sheets into solid tapered volumes. Near/far geometry is
+  1326/12vertices, still30 agents/one draw. Inspected native
+  `20261014T031332.711101Z-crabs` passes197bins/std34.00/spatial193.78/kernel[]. Focused
+  Chrome/SwiftShader `20261014T031556.664431Z-chrome-crabs` passes two inspected animated frames,
+  60finite intervals/GL0/context intact/kernel[]. ARM64 assemble/lint pass without emulator;
+  Android runtime remains pending.
   See `docs/crab-form.md`. All five requested species now have a first native visual pass, but
   the umbrella item is intentionally not complete because they remain visibly procedural and
   Web/Android/performance review is open. See `docs/dolphins.md`.
@@ -1671,7 +1691,13 @@ Standing visual-quality rules (apply to every task from now on):
   kernel[] and reads less like a spider; focused Chrome/SwiftShader
   `20261013T170831.603758Z-chrome-crabs` passes two distinct inspected poses,60finite intervals,
   GL0/context intact/kernel[]. ARM64 assemble/lint passes without emulator; current Android
-  runtime and shell microtexture remain open.
+  runtime and shell microtexture remain open. A fifth audit pass uses a low, wide eighteen-sided
+  smooth-lit carapace with restrained marks and solid tapered volumes for all twenty-four walking
+  leg sections. Near/far geometry is1326/12vertices (636480bytes maximum for all30), still one
+  draw. Inspected native `20261014T031332.711101Z-crabs` passes197bins/std34.00/spatial193.78/
+  kernel[]. Focused Chrome/SwiftShader `20261014T031556.664431Z-chrome-crabs` passes two inspected
+  animated frames,60finite intervals/GL0/context intact/kernel[]. ARM64 assemble/lint pass without
+  emulator execution.
 - [ ] A new species or object is not done when it merely exists and animates. It needs believable
   silhouette, proportions, material/colour, motion and ground/water contact in close first-person
   views, and must not ship at the current turtle's quality level.

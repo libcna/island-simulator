@@ -297,12 +297,13 @@ class BrowserSoftwareTests(unittest.TestCase):
                       (ROOT / "tools/web_smoke.html.in").read_text())
         marker = "near crabs use tapered toes, socketed eyes, and solid pincer fingers"
         silhouette = "near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms"
+        surface = "near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs"
         def report():
             return {"passed": True, "views": [{"mode": "crabs", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "crabs.png", "afterSimulationScreenshot": "crabs-after.png",
                 "intervals": [16.7] * 60,
-                "result": {"output": marker + "\n" + silhouette
+                "result": {"output": marker + "\n" + silhouette + "\n" + surface
                     + "\ncrabs 5/30 visible (near 5, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_crab_report(report()), ("crabs.png", "crabs-after.png"))
         for mutate in (

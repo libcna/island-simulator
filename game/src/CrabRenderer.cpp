@@ -34,7 +34,8 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 38.0f;
-        constexpr int NearCrabVertexCount = 810;
+        constexpr int CarapaceSegments = 18;
+        constexpr int NearCrabVertexCount = 1326;
         constexpr int FarCrabVertexCount = 12;
         constexpr int MaximumVerticesPerCrab = NearCrabVertexCount;
         constexpr int MaximumVertexCount = static_cast<int>(CrabColony::CrabCount)
@@ -45,6 +46,8 @@ namespace island
             "island-simulator: near crabs use tapered toes, socketed eyes, and solid pincer fingers";
         constexpr std::string_view CrabSilhouetteDiagnostic =
             "island-simulator: near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms";
+        constexpr std::string_view CrabSurfaceDiagnostic =
+            "island-simulator: near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs";
 
         struct CrabPalette
         {
@@ -97,6 +100,26 @@ namespace island
             AddTriangle(vertices, a, c, d, color);
         }
 
+        void AddGradientTriangle(std::vector<VertexPositionColor>& vertices,
+                                 const Vector3& a, const Vector3& b, const Vector3& c,
+                                 const Color& colorA, const Color& colorB,
+                                 const Color& colorC)
+        {
+            vertices.emplace_back(a, colorA);
+            vertices.emplace_back(b, colorB);
+            vertices.emplace_back(c, colorC);
+        }
+
+        void AddGradientQuad(std::vector<VertexPositionColor>& vertices,
+                             const Vector3& a, const Vector3& b,
+                             const Vector3& c, const Vector3& d,
+                             const Color& colorA, const Color& colorB,
+                             const Color& colorC, const Color& colorD)
+        {
+            AddGradientTriangle(vertices, a, b, c, colorA, colorB, colorC);
+            AddGradientTriangle(vertices, a, c, d, colorA, colorC, colorD);
+        }
+
         void AppendCrossedSegment(std::vector<VertexPositionColor>& vertices,
                                   const Vector3& a, const Vector3& b,
                                   const float halfWidth, const Color& color)
@@ -113,6 +136,34 @@ namespace island
                     b - vertical, b + vertical, color);
         }
 
+        void AppendTaperedLimbSegment(std::vector<VertexPositionColor>& vertices,
+                                      const Vector3& a, const Vector3& b,
+                                      const float startHalfWidth,
+                                      const float endHalfWidth, const Color& color)
+        {
+            const Vector3 delta = b - a;
+            const float horizontalLength = std::hypot(delta.X, delta.Z);
+            const Vector3 side = horizontalLength > .0001f
+                ? Vector3(-delta.Z / horizontalLength, 0.0f, delta.X / horizontalLength)
+                : Vector3::Right;
+            const Vector3 aSide = side * startHalfWidth;
+            const Vector3 bSide = side * endHalfWidth;
+            const Vector3 aVertical(0.0f, startHalfWidth * .70f, 0.0f);
+            const Vector3 bVertical(0.0f, endHalfWidth * .70f, 0.0f);
+            const std::array<Vector3, 4> start = {{
+                a + aSide + aVertical, a - aSide + aVertical,
+                a - aSide - aVertical, a + aSide - aVertical,
+            }};
+            const std::array<Vector3, 4> end = {{
+                b + bSide + bVertical, b - bSide + bVertical,
+                b - bSide - bVertical, b + bSide - bVertical,
+            }};
+            for (std::size_t sideIndex = 0; sideIndex < start.size(); ++sideIndex) {
+                const std::size_t next = (sideIndex + 1U) % start.size();
+                AddQuad(vertices, start[sideIndex], end[sideIndex], end[next], start[next], color);
+            }
+        }
+
         [[nodiscard]] Vector3 LocalPoint(const Vector3& centre, const Vector3& right,
                                          const Vector3& up, const Vector3& forward,
                                          const float x, const float y, const float z,
@@ -120,6 +171,30 @@ namespace island
         {
             return centre + right * (x * scale) + up * (y * scale)
                 + forward * (z * scale);
+        }
+
+        [[nodiscard]] Color SmoothShellColor(const CrabPalette& palette,
+                                             const Vector3& right, const Vector3& up,
+                                             const Vector3& forward, const float angle,
+                                             const float vertical)
+        {
+            const float horizontal = std::sqrt(std::max(0.0f, 1.0f - vertical * vertical));
+            const Vector3 normal = Vector3::Normalize(
+                right * (std::cos(angle) * horizontal)
+                + forward * (std::sin(angle) * horizontal) + up * vertical);
+            const float direct = std::max(
+                0.0f, Vector3::Dot(normal, wildlife_render::FixedSunDirection));
+            const Color base = Color::Lerp(palette.shellSide, palette.shellTop,
+                                           std::clamp(vertical * 1.08f, 0.0f, 1.0f));
+            return wildlife_render::ScaleColor(base, .78f + .25f * direct + .05f * vertical);
+        }
+
+        [[nodiscard]] float CarapaceSurfaceHeight(const float x, const float z)
+        {
+            const float ellipse = std::clamp(
+                1.0f - (x * x) / (.39f * .39f) - (z * z) / (.215f * .215f),
+                0.0f, 1.0f);
+            return .096f + .070f * std::sqrt(ellipse);
         }
 
         void AppendOctahedron(std::vector<VertexPositionColor>& vertices,
@@ -170,11 +245,11 @@ namespace island
             const Vector3 up = Vector3::Up;
             const float scale = crab.scale;
             const Vector3 top = LocalPoint(
-                centre, right, up, forward, 0.0f, 0.210f, -0.01f, scale);
-            std::array<Vector3, 10> crown{};
-            std::array<Vector3, 10> shoulder{};
-            std::array<Vector3, 10> rim{};
-            std::array<Vector3, 10> lower{};
+                centre, right, up, forward, 0.0f, 0.166f, -0.01f, scale);
+            std::array<Vector3, CarapaceSegments> crown{};
+            std::array<Vector3, CarapaceSegments> shoulder{};
+            std::array<Vector3, CarapaceSegments> rim{};
+            std::array<Vector3, CarapaceSegments> lower{};
             for (std::size_t index = 0; index < crown.size(); ++index) {
                 const float angle = static_cast<float>(index) * 2.0f
                     * std::numbers::pi_v<float> / static_cast<float>(crown.size());
@@ -182,27 +257,75 @@ namespace island
                 const float sine = std::sin(angle);
                 const float frontTaper = sine > 0.0f ? 0.94f : 1.0f;
                 crown[index] = LocalPoint(centre, right, up, forward,
-                    cosine * 0.120f, 0.202f, sine * 0.065f - 0.01f, scale);
+                    cosine * 0.240f, 0.160f, sine * 0.090f - 0.01f, scale);
                 shoulder[index] = LocalPoint(centre, right, up, forward,
-                    cosine * 0.285f, 0.160f,
-                    sine * 0.150f * frontTaper - 0.005f, scale);
+                    cosine * 0.390f, 0.140f,
+                    sine * 0.155f * frontTaper - 0.005f, scale);
                 rim[index] = LocalPoint(centre, right, up, forward,
-                    cosine * 0.39f, 0.090f, sine * 0.215f * frontTaper, scale);
+                    cosine * 0.475f, 0.095f, sine * 0.198f * frontTaper, scale);
                 lower[index] = LocalPoint(
-                    centre, right, up, forward, cosine * 0.36f, 0.030f,
-                    sine * 0.19f * frontTaper, scale);
+                    centre, right, up, forward, cosine * 0.440f, 0.040f,
+                    sine * 0.178f * frontTaper, scale);
             }
             for (std::size_t index = 0; index < crown.size(); ++index) {
                 const std::size_t next = (index + 1U) % crown.size();
-                const Color panel = index % 3U == 0U
-                    ? palette.shellHighlight : palette.shellTop;
-                AddTriangle(vertices, top, crown[index], crown[next], panel);
-                AddQuad(vertices, crown[index], shoulder[index], shoulder[next], crown[next],
-                        panel);
-                AddQuad(vertices, shoulder[index], rim[index], rim[next], shoulder[next],
-                        palette.shellTop);
-                AddQuad(vertices, rim[index], lower[index], lower[next], rim[next],
-                        palette.shellSide);
+                const float angle = static_cast<float>(index) * 2.0f
+                    * std::numbers::pi_v<float> / static_cast<float>(crown.size());
+                const float nextAngle = static_cast<float>(next) * 2.0f
+                    * std::numbers::pi_v<float> / static_cast<float>(crown.size());
+                const Color crownColor = SmoothShellColor(
+                    palette, right, up, forward, angle, .91f);
+                const Color nextCrownColor = SmoothShellColor(
+                    palette, right, up, forward, nextAngle, .91f);
+                const Color shoulderColor = SmoothShellColor(
+                    palette, right, up, forward, angle, .68f);
+                const Color nextShoulderColor = SmoothShellColor(
+                    palette, right, up, forward, nextAngle, .68f);
+                const Color rimColor = SmoothShellColor(
+                    palette, right, up, forward, angle, .34f);
+                const Color nextRimColor = SmoothShellColor(
+                    palette, right, up, forward, nextAngle, .34f);
+                const Color lowerColor = SmoothShellColor(
+                    palette, right, up, forward, angle, .10f);
+                const Color nextLowerColor = SmoothShellColor(
+                    palette, right, up, forward, nextAngle, .10f);
+                AddGradientTriangle(vertices, top, crown[index], crown[next],
+                                    palette.shellHighlight, crownColor, nextCrownColor);
+                AddGradientQuad(vertices, crown[index], shoulder[index], shoulder[next],
+                                crown[next], crownColor, shoulderColor,
+                                nextShoulderColor, nextCrownColor);
+                AddGradientQuad(vertices, shoulder[index], rim[index], rim[next],
+                                shoulder[next], shoulderColor, rimColor,
+                                nextRimColor, nextShoulderColor);
+                AddGradientQuad(vertices, rim[index], lower[index], lower[next], rim[next],
+                                rimColor, lowerColor, nextLowerColor, nextRimColor);
+            }
+
+            struct ShellMark
+            {
+                float x;
+                float z;
+                float halfX;
+                float halfZ;
+            };
+            constexpr std::array<ShellMark, 10> ShellMarks = {{
+                {-.22f, -.075f, .030f, .018f}, {-.10f, -.115f, .024f, .014f},
+                { .04f, -.105f, .032f, .017f}, { .19f, -.060f, .026f, .015f},
+                {-.27f,  .015f, .022f, .014f}, {-.13f,  .035f, .035f, .019f},
+                { .09f,  .020f, .027f, .016f}, { .25f,  .030f, .021f, .013f},
+                {-.16f,  .120f, .023f, .013f}, { .14f,  .105f, .030f, .015f},
+            }};
+            const Color markColor = Color::Lerp(palette.shellSide, palette.shellTop, .28f);
+            for (const ShellMark& mark : ShellMarks) {
+                const auto point = [&](const float x, const float z) {
+                    return LocalPoint(centre, right, up, forward, x,
+                                      CarapaceSurfaceHeight(x, z) + .004f, z, scale);
+                };
+                AddQuad(vertices,
+                        point(mark.x - mark.halfX, mark.z),
+                        point(mark.x, mark.z + mark.halfZ),
+                        point(mark.x + mark.halfX, mark.z),
+                        point(mark.x, mark.z - mark.halfZ), markColor);
             }
 
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
@@ -213,23 +336,23 @@ namespace island
                     const float bend = (leg < 2 ? -0.045f : 0.045f)
                         + (leg % 2 == 0 ? 0.018f : -0.018f);
                     const Vector3 root = LocalPoint(
-                        centre, right, up, forward, side * 0.28f, 0.075f, z, scale);
+                        centre, right, up, forward, side * 0.34f, 0.075f, z, scale);
                     const Vector3 knee = LocalPoint(
-                        centre, right, up, forward, side * 0.43f, 0.035f,
+                        centre, right, up, forward, side * 0.52f, 0.035f,
                         z + bend + stride, scale);
                     const Vector3 foot = LocalPoint(
-                        centre, right, up, forward, side * 0.56f, -0.015f,
+                        centre, right, up, forward, side * 0.68f, -0.015f,
                         z + bend * 1.35f + stride * 1.55f, scale);
                     const Vector3 toe = LocalPoint(
-                        centre, right, up, forward, side * 0.63f, -0.020f,
+                        centre, right, up, forward, side * 0.78f, -0.020f,
                         z + bend * 1.55f + stride * 1.72f
                             + (leg % 2 == 0 ? -0.018f : 0.018f), scale);
-                    AppendCrossedSegment(vertices, root, knee, 0.024f * scale,
-                                         palette.limb);
-                    AppendCrossedSegment(vertices, knee, foot, 0.016f * scale,
-                                         palette.joint);
-                    AppendCrossedSegment(vertices, foot, toe, 0.009f * scale,
-                                         palette.limb);
+                    AppendTaperedLimbSegment(vertices, root, knee, 0.026f * scale,
+                                             0.021f * scale, palette.limb);
+                    AppendTaperedLimbSegment(vertices, knee, foot, 0.020f * scale,
+                                             0.013f * scale, palette.joint);
+                    AppendTaperedLimbSegment(vertices, foot, toe, 0.013f * scale,
+                                             0.006f * scale, palette.limb);
                 }
 
                 const float clawSpread = 0.025f + crab.clawPose * 0.035f;
@@ -353,6 +476,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(CrabDetailDiagnostic);
         std::cout << CrabSilhouetteDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CrabSilhouetteDiagnostic);
+        std::cout << CrabSurfaceDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(CrabSurfaceDiagnostic);
     }
 
     CrabRenderer::~CrabRenderer() = default;
