@@ -122,7 +122,27 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — readable salt-worn mangrove bark
+## Latest visual-audit implementation — broad valley-scale stream bends
+
+The stream/terrain audit found the wet-bank planting, incised bed and animated surface convincing,
+but the lower reach still read as a nearly straight, constant-axis drainage ditch from the authored
+camera. The single shared `StreamRoute` now combines three long non-commensurate bends inside the
+existing source/mouth envelope. Terrain carving, water geometry, the CPU moisture field and its
+GLSL counterpart all follow the same route, while existing low-frequency pools and pinches retain
+their width variation. No new simulation, texture, render batch or draw call was added.
+
+Native baseline/final evidence from the identical stream camera is
+`build-consumer/software-captures/20261014T081839.270029Z-stream` and
+`20261014T082844.103642Z-stream`; the final frame passes with 357 colour bins, 53.37 luminance
+deviation and 245.68 spatial contrast. Inspection shows the foreground reach visibly curving into
+the next bank instead of following one ruler-straight axis. The changed wetland field initially
+removed one mangrove, so four bounded reserve probes now reuse genuine upstream gaps and compact
+root spacing; the integrated world retains 16 mangroves and the requested 15–30 budget. The
+Chrome/SwiftShader `stream` scope passes 60 clean intervals, zero GL error/context loss and
+separated-time current images at
+`build/browser-software/20261014T083103.764061Z-chrome-stream`.
+
+## Previous visual-audit implementation — readable salt-worn mangrove bark
 
 The wetland vegetation audit found the localized mangrove colony already strong in silhouette and
 root structure, but its shaded trunks and stilt roots collapsed into nearly uniform charcoal. The

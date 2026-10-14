@@ -4496,7 +4496,12 @@ int main()
         island::StreamRoute::SourceX-island::StreamRoute::NominalLength), 1.5f,
         .0001f, "stream mouth retains its broad authored connection");
     float positiveWidthVariation=0.0f,negativeWidthVariation=0.0f;
+    float positiveMeander=0.0f,negativeMeander=0.0f;
     for(int along=0;along<=98;++along) {
+        const float routeX=island::StreamRoute::SourceX-static_cast<float>(along);
+        const float routeOffset=island::StreamRoute::CentreZ(routeX)-(-55.0f-.23f*routeX);
+        positiveMeander=std::max(positiveMeander,routeOffset);
+        negativeMeander=std::min(negativeMeander,routeOffset);
         const float t=static_cast<float>(along)/island::StreamRoute::NominalLength;
         const float shaped=t*t*(3.0f-2.0f*t);
         const float baseline=std::lerp(.45f,1.5f,shaped);
@@ -4509,6 +4514,8 @@ int main()
     }
     Check(positiveWidthVariation>.16f&&negativeWidthVariation<-.31f,
         "stream profile contains material low-frequency pools and pinches");
+    Check(positiveMeander>2.0f&&negativeMeander<-2.8f,
+        "stream route contains broad visible bends on both sides of its valley axis");
     const auto streamCentre=island::IslandEnvironmentField::SampleInland(
         streamX,streamZ,terrain.SignedShoreDistance(streamX,streamZ));
     const auto streamBank=island::IslandEnvironmentField::SampleInland(
@@ -4932,7 +4939,7 @@ int main()
         "forest colony membership and shape are deterministic for one seed");
     Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 569
         && jungle.GroundPlants().size() - jungle.ClearingGroundPlantCount()
-            - jungle.ForestGroundPlantCount() - jungle.StreamBankGroundPlantCount() == 2176,
+            - jungle.ForestGroundPlantCount() - jungle.StreamBankGroundPlantCount() == 2173,
         "wet-biome, cave and helicopter reservations preserve measured deterministic populations");
     Check(jungle.StreamBankGroundPlantCount() >= 20
         && jungle.StreamBankGroundPlantCount() <= static_cast<std::size_t>(

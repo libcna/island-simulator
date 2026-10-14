@@ -213,7 +213,8 @@ vec3 streamRouteGeometry(vec2 worldPosition) {
     float streamRange=smoothstep(0.0,5.0,along)*(1.0-smoothstep(98.0,104.0,along));
     float meanderEnvelope=smoothstep(0.0,9.0,along)*(1.0-smoothstep(86.0,98.0,along));
     float streamCentre=-55.0-worldPosition.x*0.23+meanderEnvelope
-        *(1.55*sin(along*0.117)+0.62*sin(along*0.253+0.7));
+        *(2.55*sin(along*0.117)+0.95*sin(along*0.253+0.7)
+            +0.45*sin(along*0.061-1.2));
     float streamAcross=abs(worldPosition.y-streamCentre);
     float t=clamp(along/98.0,0.0,1.0);float shaped=t*t*(3.0-2.0*t);
     float widthEnvelope=smoothstep(4.0,12.0,along)*(1.0-smoothstep(88.0,98.0,along));

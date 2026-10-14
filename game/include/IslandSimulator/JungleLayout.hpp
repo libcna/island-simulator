@@ -74,7 +74,7 @@ namespace island
         static constexpr int UnderstoryVariantCount = 4;
         static constexpr int BushVariantCount = 3;
         static constexpr int GroundPlantVariantCount = 3;
-        static constexpr int MangroveCandidateCount = 44;
+        static constexpr int MangroveCandidateCount = 48;
         static constexpr float MangroveMinimumScale = 0.72f;
         static constexpr float MangroveMaximumScale = 0.92f;
         static constexpr float CanopyMinimumScale = 0.78f;

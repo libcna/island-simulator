@@ -24,8 +24,11 @@ namespace island
             const float sourceFade = Smooth(0.0f, 9.0f, along);
             const float mouthFade = 1.0f - Smooth(86.0f, NominalLength, along);
             const float envelope = sourceFade * mouthFade;
-            const float meander = 1.55f * std::sin(along * .117f)
-                + .62f * std::sin(along * .253f + .7f);
+            // Three long, non-commensurate bends make the channel visibly leave and
+            // rejoin the valley axis without adding small mesh-scale wiggles.
+            const float meander = 2.55f * std::sin(along * .117f)
+                + .95f * std::sin(along * .253f + .7f)
+                + .45f * std::sin(along * .061f - 1.2f);
             return -55.0f - .23f * x + envelope * meander;
         }
 

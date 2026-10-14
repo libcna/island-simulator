@@ -124,6 +124,7 @@ StreamWaterRenderer::StreamWaterRenderer(GraphicsDevice& device,const IslandTerr
     std::cout<<"island-simulator: stream water uses bank-edge sheen and broken shallow riffles\n";
     std::cout<<"island-simulator: stream water uses depth-graded colour and braided moving current threads\n";
     std::cout<<"island-simulator: stream channel uses shared low-frequency pools and pinches\n";
+    std::cout<<"island-simulator: stream route uses three broad valley-scale bends with fixed source and mouth\n";
 }
 StreamWaterRenderer::~StreamWaterRenderer()=default;
 void StreamWaterRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector3& camera,float seconds) {

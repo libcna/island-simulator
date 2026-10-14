@@ -156,7 +156,9 @@ namespace island
                 return UnitRandom(Hash(candidate, static_cast<std::int32_t>(channel),
                     seed ^ (0xd7b71e49U + channel * 0x9e3779b9U)));
             };
-            const int station = candidate / 2;
+            // Retain the original paired sweep, then spend the four reserve probes
+            // on distinct upstream gaps rather than continuing beyond the sea mouth.
+            const int station = candidate < 44 ? candidate / 2 : candidate - 44;
             const float baseX = -141.0f - static_cast<float>(station) * .98f
                 - random(0) * .55f;
             const float centreZ = StreamRoute::CentreZ(baseX);
@@ -191,7 +193,7 @@ namespace island
             const bool clear = std::none_of(obstacles_.begin(), obstacles_.end(),
                 [&](const CircularObstacle& obstacle) {
                     return std::hypot(tree.x - obstacle.x, tree.z - obstacle.z)
-                        < rootRadius + obstacle.radius + 1.15f;
+                        < rootRadius + obstacle.radius + .95f;
                 });
             if (!clear) continue;
             tree.y = sample.height;
