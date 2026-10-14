@@ -74,8 +74,14 @@ namespace island
     {
         canopy_.reserve(420U);
         obstacles_.reserve(420U);
-        struct EmergentCandidate { std::size_t index; bool eligible; float scaleRandom; };
-        std::vector<EmergentCandidate> emergentCandidates;
+        struct CanopyScaleCandidate {
+            std::size_t index;
+            bool emergentEligible;
+            bool juvenileEligible;
+            float emergentScaleRandom;
+            float juvenileScaleRandom;
+        };
+        std::vector<CanopyScaleCandidate> scaleCandidates;
         for (int gridZ = -CanopyRadius; gridZ <= CanopyRadius; ++gridZ) {
             for (int gridX = -CanopyRadius; gridX <= CanopyRadius; ++gridX) {
                 const std::uint32_t siteHash = Hash(gridX, gridZ, seed);
@@ -120,10 +126,13 @@ namespace island
                 // Crowns may overhang the trail; their collision trunks may not.
                 if (VegetationLayout::OverlapsReservedRoute(x, z,
                         0.43f * CanopyEmergentScale)) continue;
-                emergentCandidates.push_back({canopy_.size(),
+                scaleCandidates.push_back({canopy_.size(),
                     stand > CanopyStandThreshold
                         && UnitRandom(Hash(gridX, gridZ, seed ^ 0x3c6ef372U)) < CanopyEmergentChance,
-                    UnitRandom(Hash(gridX, gridZ, seed ^ 0x7f4a7c15U))});
+                    canopy_.size() >= 64U && stand > 0.28f
+                        && UnitRandom(Hash(gridX, gridZ, seed ^ 0x6a09e667U)) < CanopyJuvenileChance,
+                    UnitRandom(Hash(gridX, gridZ, seed ^ 0x7f4a7c15U)),
+                    UnitRandom(Hash(gridX, gridZ, seed ^ 0xbb67ae85U))});
                 tree.variant = static_cast<std::uint8_t>(
                     Hash(gridX, gridZ, seed ^ 0xd3a2646cU) % NaturalCanopyFormCount);
                 canopy_.push_back(tree);
@@ -133,8 +142,8 @@ namespace island
 
         // Emergents rise only above a closed stand: promote eligible trees that actually have
         // accepted neighbours, so the stand field alone cannot create a lone giant.
-        for (const auto& candidate : emergentCandidates) {
-            if (!candidate.eligible) continue;
+        for (const auto& candidate : scaleCandidates) {
+            if (!candidate.emergentEligible) continue;
             CanopyPlacement& tree = canopy_[candidate.index];
             int neighbours = 0;
             for (std::size_t other = 0; other < canopy_.size(); ++other) {
@@ -144,8 +153,32 @@ namespace island
             }
             if (neighbours < 2) continue;
             tree.scale = CanopyEmergentMinimumScale
-                + (CanopyEmergentScale - CanopyEmergentMinimumScale) * candidate.scaleRandom;
+                + (CanopyEmergentScale - CanopyEmergentMinimumScale)
+                    * candidate.emergentScaleRandom;
             obstacles_[candidate.index].radius = 0.43f * tree.scale;
+        }
+
+        // Saplings reuse the full tree mesh at a genuinely young 3--6 m stature. Keep them
+        // beside established forest rather than sprinkling miniature solitary trees into open
+        // ground, and never replace a promoted emergent.
+        for (const auto& candidate : scaleCandidates) {
+            if (!candidate.juvenileEligible) continue;
+            CanopyPlacement& tree = canopy_[candidate.index];
+            if (tree.scale > CanopyMaximumScale) continue;
+            int neighbours = 0;
+            for (std::size_t other = 0; other < canopy_.size(); ++other) {
+                if (other == candidate.index) continue;
+                const float dx = canopy_[other].x - tree.x, dz = canopy_[other].z - tree.z;
+                if (dx * dx + dz * dz < 18.0f * 18.0f) ++neighbours;
+            }
+            if (neighbours < 1) continue;
+            tree.scale = CanopyJuvenileMinimumScale
+                + (CanopyJuvenileMaximumScale - CanopyJuvenileMinimumScale)
+                    * candidate.juvenileScaleRandom;
+            // Retain a conservative root footprint without making a thin young trunk feel like
+            // an adult collision cylinder.
+            obstacles_[candidate.index].radius = std::max(0.22f, 0.43f * tree.scale);
+            ++juvenileCanopyCount_;
         }
 
         // One compact brackish colony follows the final stream reach. Low crowns and wide

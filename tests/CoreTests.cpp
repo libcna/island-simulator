@@ -5113,6 +5113,7 @@ int main()
           "every broadleaf canopy trunk has one collision proxy");
     std::array<std::size_t, island::JungleLayout::CanopyVariantCount> canopyFormCounts{};
     std::size_t emergentCount = 0U;
+    std::size_t juvenileCount = 0U;
     std::size_t mangroveCount = 0U;
     for (std::size_t index = 0; index < jungle.Canopy().size(); ++index) {
         const island::CanopyPlacement& tree = jungle.Canopy()[index];
@@ -5152,15 +5153,21 @@ int main()
         ++canopyFormCounts.at(tree.variant);
         const bool emergent = !mangrove
             && tree.scale > island::JungleLayout::CanopyMaximumScale;
+        const bool juvenile = !mangrove
+            && tree.scale < island::JungleLayout::CanopyMinimumScale;
         Check(mangrove
                   ? tree.scale >= island::JungleLayout::MangroveMinimumScale
                       && tree.scale <= island::JungleLayout::MangroveMaximumScale
-                  : tree.scale >= island::JungleLayout::CanopyMinimumScale
-                      && (tree.scale <= island::JungleLayout::CanopyMaximumScale
-                          || (tree.scale >= island::JungleLayout::CanopyEmergentMinimumScale
-                              && tree.scale <= island::JungleLayout::CanopyEmergentScale)),
-              "canopy scale remains in its authored habitat or emergent range");
+                  : juvenile
+                      ? tree.scale >= island::JungleLayout::CanopyJuvenileMinimumScale
+                          && tree.scale <= island::JungleLayout::CanopyJuvenileMaximumScale
+                      : tree.scale >= island::JungleLayout::CanopyMinimumScale
+                          && (tree.scale <= island::JungleLayout::CanopyMaximumScale
+                              || (tree.scale >= island::JungleLayout::CanopyEmergentMinimumScale
+                                  && tree.scale <= island::JungleLayout::CanopyEmergentScale)),
+              "canopy scale remains in its authored juvenile, adult or emergent range");
         emergentCount += emergent ? 1U : 0U;
+        juvenileCount += juvenile ? 1U : 0U;
         if (emergent) {
             int standNeighbours = 0;
             for (const island::CanopyPlacement& other : jungle.Canopy()) {
@@ -5177,7 +5184,7 @@ int main()
             CheckNear(obstacle.radius, 1.08f * tree.scale, .0001f,
                 "mangrove collision covers its visible stilt-root spread");
         } else {
-            Check(obstacle.radius > 0.30f
+            Check(obstacle.radius >= (juvenile ? .22f : .30f)
                       && obstacle.radius < 0.43f * island::JungleLayout::CanopyEmergentScale + 0.01f
                       && (emergent || obstacle.radius < 0.56f),
                   "broadleaf collision radius stays close to the visible trunk");
@@ -5202,6 +5209,20 @@ int main()
               "canopy trees form closed stands with a sparse scatter of solitary trees");
         Check(emergentCount / total >= 0.03 && emergentCount / total <= 0.15,
               "a small fraction of canopy trees is emergent");
+        Check(juvenileCount / total >= 0.04 && juvenileCount / total <= 0.15
+                  && juvenileCount == jungle.JuvenileCanopyCount()
+                  && juvenileCount == repeatedJungle.JuvenileCanopyCount(),
+              "a small deterministic fraction of canopy trees is juvenile");
+        for (const island::CanopyPlacement& tree : jungle.Canopy()) {
+            if (tree.variant == island::MangroveCanopyVariant
+                || tree.scale >= island::JungleLayout::CanopyMinimumScale) continue;
+            const bool nearAdult = std::ranges::any_of(jungle.Canopy(), [&](const auto& other) {
+                return &other != &tree && other.variant != island::MangroveCanopyVariant
+                    && other.scale >= island::JungleLayout::CanopyMinimumScale
+                    && std::hypot(other.x-tree.x,other.z-tree.z)<18.0f;
+            });
+            Check(nearAdult, "juvenile canopy trees remain beside established forest");
+        }
     }
     Check(std::ranges::all_of(canopyFormCounts, [](std::size_t count) { return count >= 10; }),
           "every shared canopy form is represented across the island");

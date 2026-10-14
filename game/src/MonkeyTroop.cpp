@@ -130,11 +130,13 @@ namespace island
     bool MonkeyTroop::IsClosedCanopyTree(
         const std::span<const CanopyPlacement> trees, const std::size_t index) noexcept
     {
-        if (index >= trees.size() || trees[index].variant == MangroveCanopyVariant)
+        if (index >= trees.size() || trees[index].variant == MangroveCanopyVariant
+            || trees[index].scale < JungleLayout::CanopyMinimumScale)
             return false;
         int neighbours = 0;
         for (std::size_t other = 0; other < trees.size(); ++other) {
-            if (other == index || trees[other].variant == MangroveCanopyVariant)
+            if (other == index || trees[other].variant == MangroveCanopyVariant
+                || trees[other].scale < JungleLayout::CanopyMinimumScale)
                 continue;
             const float dx = trees[other].x - trees[index].x;
             const float dz = trees[other].z - trees[index].z;

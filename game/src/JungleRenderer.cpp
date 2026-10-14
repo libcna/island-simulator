@@ -1492,6 +1492,19 @@ void main()
         std::cout << "island-simulator: localized mangrove colony " << layout.MangroveCount()
                   << " trees, low crowns, multiple stems, stilt roots, canopy variant "
                   << MangroveCanopyVariant << '\n';
+        const auto juvenile = std::ranges::find_if(layout.Canopy(), [](const auto& tree) {
+            return tree.variant != MangroveCanopyVariant
+                && tree.scale < JungleLayout::CanopyMinimumScale;
+        });
+        const std::string juvenilePosition = juvenile == layout.Canopy().end() ? "none"
+            : std::to_string(static_cast<int>(std::lround(juvenile->x * 1000.0f))) + ':'
+                + std::to_string(static_cast<int>(std::lround(juvenile->z * 1000.0f)));
+        const std::string juvenileDiagnostic = "island-simulator: canopy age structure includes "
+            + std::to_string(layout.JuvenileCanopyCount())
+            + " deterministic 3-6m saplings beside established stands; first="
+            + juvenilePosition;
+        std::cout << juvenileDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(juvenileDiagnostic);
         constexpr std::string_view mangroveBarkDiagnostic =
             "island-simulator: mangrove salt-worn bark uses a pale warm palette above shared damp-base moss";
         std::cout << mangroveBarkDiagnostic << '\n';

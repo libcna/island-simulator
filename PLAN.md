@@ -60,6 +60,29 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — juvenile canopy age structure
+
+The wide overview/jungle/east audit found that the eight mature crown forms and their near/far
+meshes remained coherent, but nearly every non-emergent tree still occupied one adult height band.
+Sixteen deterministic established-stand placements now become 3--6 m saplings at scale 0.38--0.58.
+They are selected only in the stand field beside at least one other canopy tree; the total tree
+population, shared geometry, buffers, batches and draw count are unchanged. Their conservative
+root collisions follow the smaller trunk, while monkey closed-canopy selection explicitly ignores
+saplings and the seven qualified climbing-home indices remain adult.
+
+The first complete core run exposed that unrestricted replacement could invalidate ordinary monkey
+climbing. The accepted selection excludes the qualified prefix and passes the complete core suite,
+including full live climb preparation and excursion. Native Release overview, jungle and east
+captures `20261014T203722.209283Z-overview`, `203727.476082Z-jungle` and
+`203732.668788Z-east` were inspected against their adult-only baselines. The paired forced near/far
+review of the first sapling is `20261014T204128.524263Z-canopy` and
+`20261014T204133.968191Z-canopy`; it retains one recognisable bent trunk/crown identity across the
+LOD switch. Chrome/SwiftShader `20261014T205103.677192Z-chrome-canopy-light` passes the inspected
+jungle frame, 60 finite positive intervals, GL error zero, intact context and an empty kernel delta.
+The ARM64 debug APK assembles through the two-worker wrapper and contains the age-structure
+diagnostic (SHA-256 `aeae32ea7ea64e532471c295f84680c420f28c2c266c07430c3ad0449b31d240`);
+no emulator or KVM state was changed. Dead and broken standing trunks remain open.
+
 ## Latest visual-audit implementation — swept fish tails
 
 The renewed aquatic-school audit found that the detailed bodies still ended in tall, short caudal
@@ -3579,7 +3602,9 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   field; 277 trees, 223 grouped, 9 solitary; downstream counts and harness pins updated.
 - [~] 8. Vertical forest structure: 5-10% emergent trees of 18-24 m, young 2-5 m trees, some dead
   and broken trunks. 2026-10-10: 22 emergents (scale 1.60-1.85) promoted only inside closed
-  stands; young, dead and broken trunks still open.
+  stands. 2026-10-14: sixteen deterministic 3-6m saplings reuse the shared crown forms at
+  scale 0.38-0.58 beside established stands without increasing population or draw count; monkey
+  climbing excludes them and remains regression-covered. Dead and broken trunks remain open.
 - [~] 9. Palm distribution: large coconut groves at a few beaches, a few old solitary palms, fewer
   palms deep in the forest, young palms near adults, varied lean, some fallen or broken palms.
   2026-10-10 (`docs/palm-groves.md`): coastal grove field, juveniles beside adults, 370 palms

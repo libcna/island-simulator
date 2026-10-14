@@ -124,6 +124,8 @@ near broken-end contours,
 and 233 near-field
 shell/pebble/dry-wrack clusters. Three varied driftwood silhouettes form a non-solid landmark arc
 in one sheltered cove;
+the canopy age structure includes 16 deterministic 3--6 m saplings beside established stands in
+addition to ordinary adults and emergent trees, without another mesh family or draw call;
 five rocks and two fallen logs form natural orientation landmarks around the outer rings of the
 two authored clearings without blocking their central walking room. Every dense near-island
 visual layer has spatial culling and appropriate distance
