@@ -199,6 +199,16 @@ frames with no polygon-grid or looping-strata regression. The Release and WebGL 
 native tests, Android assemble/lint and diagnostic guards pass. Android runtime remains unqualified
 because no emulator or device was used.
 
+The 2026-10-14 follow-up audit found that this face-projected colour still covered the inland
+east ridge almost continuously. The same already-sampled projected macro/mottle/bedding fields now
+break thin soil into connected rock outcrops, while the coastal field keeps salt-worn headlands
+predominantly mineral. Bedding/seam/joint contrast is moderately stronger and steep shade gains a
+bounded cool-sky fill. Baseline/final native evidence is
+`20261014T135539.892693Z-east` / `20261014T140025.714730Z-east`; coastal guard
+`20261014T135547.506252Z-headland` / `20261014T140033.470550Z-headland`. Geometry, collision,
+noise-sample count and draws are unchanged. Focused terrain/core tests, WebGL build and Android
+ARM64 assemble/lint pass; no emulator/KVM was used and portable appearance remains unclaimed.
+
 ## Previous visual-audit implementation — retained shark countershading
 
 The shark close audit accepted its blunt head, gill slits, fins and heterocercal tail, but selected

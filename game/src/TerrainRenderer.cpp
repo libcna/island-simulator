@@ -613,6 +613,7 @@ void main()
         * smoothstep(-0.25, 0.35, vWorld.y)
         * (1.0 - smoothstep(9.0, 17.0, vWorld.y));
     ridgeRock = max(ridgeRock, coastField.x * smoothstep(-0.25, 0.35, vWorld.y));
+    float rockCoverage = ridgeRock;
     vec3 weatheredRock = vec3(0.36, 0.33, 0.27);
     if (ridgeRock > 0.0) {
         // Height-field x/z noise stretches into muddy vertical curtains on a steep face.
@@ -634,8 +635,8 @@ void main()
             xFacing);
         float rockTone = clamp(0.50 + projectedMacro * 0.82
             + projectedMottle * 0.30, 0.0, 1.0);
-        weatheredRock = mix(vec3(0.285, 0.285, 0.250),
-                            vec3(0.455, 0.390, 0.295), rockTone);
+        weatheredRock = mix(vec3(0.255, 0.272, 0.268),
+                            vec3(0.455, 0.392, 0.300), rockTone);
         vec3 saltWornRock = mix(vec3(0.350, 0.370, 0.350),
                                 vec3(0.485, 0.425, 0.330),
                                 clamp(0.52 + projectedMacro * 0.76
@@ -644,6 +645,16 @@ void main()
         weatheredRock *= 1.0 + projectedMottle * 0.25;
         float beddingPhase = vWorld.y * 1.72 + projectedMacro * 0.58
             + sin(faceAcross * 0.11 + projectedMottle * 1.4) * 0.30;
+        // Thin soil leaves connected but irregular outcrops, rather than tinting an entire
+        // inland hillside as one dark muddy curtain. Low coastal cliffs remain more exposed.
+        float outcropField = projectedMacro * 0.86 + projectedMottle * 0.42
+            + sin(beddingPhase * 0.47 + faceAcross * 0.035) * 0.10;
+        float outcropBreakup = smoothstep(-0.24, 0.26, outcropField);
+        // The coastal ground field keeps salt-worn headlands continuously mineral; only
+        // inland ridge soil breaks strongly between exposed rock patches.
+        float minimumExposure = mix(0.16, 0.88, coastField.x);
+        rockCoverage *= mix(minimumExposure, 1.0,
+                            max(outcropBreakup, coastalCliff * 0.72));
         float beddingWave = sin(beddingPhase) + 0.34 * sin(beddingPhase * 2.07 + 0.8);
         float beddingVisibility = 1.0 - smoothstep(0.16, 0.48, groundPixelWidth * 2.05);
         float bedding = beddingWave * beddingVisibility;
@@ -669,16 +680,17 @@ void main()
             vWorld.y * 0.23) + vec2(4.2, 9.3));
         float fractureWidth = max(0.014, groundPixelWidth * 0.19);
         float fracture = 1.0 - smoothstep(0.018, 0.018 + fractureWidth, abs(fractureField));
-        weatheredRock *= 1.0 + rockGrain * 0.22 + projectedMottle * 0.14
-            + bedding * 0.025 - beddingSeam * 0.045 - verticalJoint * 0.045
+        weatheredRock *= 1.0 + rockGrain * 0.24 + projectedMottle * 0.18
+            + bedding * 0.055 - beddingSeam * 0.085 - verticalJoint * 0.075
             - fracture * 0.06 * (1.0 - smoothstep(0.10, 0.35, groundPixelWidth * 0.19));
     }
     vec3 litRidgeRock = weatheredRock * vGroundLight;
     float ridgeSkyFill = 1.0 - smoothstep(0.38, 0.72, vGroundLight);
-    litRidgeRock += vec3(0.060, 0.078, 0.084) * ridgeSkyFill;
+    litRidgeRock += vec3(0.090, 0.112, 0.120) * ridgeSkyFill
+        * (0.72 + smoothstep(0.24, 0.62, slopeRadians) * 0.28);
     litRidgeRock += vec3(0.038, 0.054, 0.058) * coastalCliff
         * (0.62 + ridgeSkyFill * 0.38);
-    color = mix(color, litRidgeRock, ridgeRock * 0.98);
+    color = mix(color, litRidgeRock, rockCoverage * 0.98);
 
     // One shared environment field darkens the carved drainage and its irregular damp banks.
     // Existing broad/medium fields break the straight surveyed valley without moving water

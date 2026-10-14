@@ -1,5 +1,26 @@
 # Asymmetric interior ridges and drainage
 
+## 2026-10-14 irregular exposed-rock follow-up
+
+A fresh overview/east/headland audit selected the broad inland ridge face as the weakest
+terrain element. Although its noise already used a vertical face projection, the exposure
+mask still blended that rock almost continuously across the hillside, producing one dark
+brown curtain. The material now derives an irregular but connected outcrop coverage from
+the existing projected macro/mottle/bedding fields. Inland thin soil can show between those
+outcrops; the coastal field independently keeps salt-worn headlands predominantly mineral.
+Medium bedding, seams and joints have slightly stronger contrast, and shaded steep faces
+receive a bounded cool sky fill. No new noise sample, texture, vertex, terrain cell, collision
+shape or draw is added.
+
+Native baseline/final evidence is `20261014T135539.892693Z-east` and
+`20261014T140025.714730Z-east`; the coastal regression pair is
+`20261014T135547.506252Z-headland` / `20261014T140033.470550Z-headland`. All four were
+inspected. The interior slope now alternates soil/moss and weathered outcrop rather than one
+uniform mud tint, while the headland retains its continuous rock face. This is a material
+improvement, not additional terrain tessellation or a claim that the height field has true
+overhangs. Focused terrain/core tests pass; WebGL builds and Android ARM64 assemble/lint
+passes without an emulator or KVM. Portable visual runtime remains unqualified.
+
 2026-10-11, interior stage of the macro-geography rewrite (item 1).
 
 The previous terrain was a low noise-driven dome, reaching about 19.4 m. Two offset elongated
