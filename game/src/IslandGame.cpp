@@ -953,8 +953,16 @@ namespace island
             const Vector3 forward(std::cos(monkey.headingRadians), 0.0f,
                                   std::sin(monkey.headingRadians));
             const Vector3 side(-forward.Z, 0.0f, forward.X);
-            cameraPosition_ = Vector3(monkey.x, monkey.y, monkey.z)
-                + forward * 0.6f - side * 2.1f + Vector3::Up * 1.10f;
+            if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
+                // The deterministic ground subject faces its selected tree. Put the close
+                // audit camera inside that clear stand-off, rather than looking through the
+                // trunk or foreground understorey from either lateral side.
+                cameraPosition_ = Vector3(monkey.x, monkey.y, monkey.z)
+                    + forward * 0.85f + side * 0.55f + Vector3::Up * 0.92f;
+            } else {
+                cameraPosition_ = Vector3(monkey.x, monkey.y, monkey.z)
+                    + forward * 0.6f - side * 2.1f + Vector3::Up * 1.10f;
+            }
             if (viewpoint_==FixedViewpoint::MonkeyClimbDetail)
                 cameraPosition_=Vector3(monkey.x,monkey.y,monkey.z)+forward*.65f-side*5.0f+Vector3::Up*2.2f;
             std::ostringstream monkeyCameraReport;
@@ -964,7 +972,9 @@ namespace island
                 << terrain_.Height(cameraPosition_.X, cameraPosition_.Z);
             std::cout << monkeyCameraReport.str() << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(monkeyCameraReport.str());
-            const Vector3 toMonkey = Vector3(monkey.x, monkey.y + (viewpoint_==FixedViewpoint::MonkeyClimbDetail ? 1.8f : .52f), monkey.z)
+            const Vector3 toMonkey = Vector3(monkey.x, monkey.y
+                + (viewpoint_==FixedViewpoint::MonkeyClimbDetail ? 1.8f
+                    : viewpoint_==FixedViewpoint::MonkeyDetail ? .72f : .52f), monkey.z)
                 - cameraPosition_;
             yaw_ = std::atan2(toMonkey.X, toMonkey.Z);
             pitch_ = std::atan2(toMonkey.Y, std::hypot(toMonkey.X, toMonkey.Z));

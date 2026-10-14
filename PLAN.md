@@ -3230,6 +3230,16 @@ Landmark backlog requested by the operator:
   of this latest shader/profile pending; not an AMD fix or whole-monkey acceptance.
   Web build/package PASS11,358,303raw/4,335,409gzip; all owned jobs terminal, hardware
   stop latch unchanged. No push.
+  2026-10-14 unobstructed close-audit follow-up: the capture camera now occupies the
+  subject/tree stand-off instead of looking through a trunk or understorey. That evidence
+  exposed a planar mask and four pig-like nose holes. The face keeps its existing head bone
+  and two detail draws, but gains a rounded forehead/chin boundary, paired embedded midtone
+  muzzle volumes, a smaller projecting nose with exactly two nostrils, and a surface-visible
+  curved mouth. Native `20261014T135115.551391Z-monkeys` passes and was visually inspected;
+  gait/population/fur/tree interaction are unchanged. Focused profile, shader and sole tests
+  pass. WebGL build and Android ARM64 assemble/lint pass (no emulator/KVM); all 61 enabled
+  non-display CTest cases and 112 cross-platform harness unit tests pass. Portable visual
+  runtime remains unclaimed.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars

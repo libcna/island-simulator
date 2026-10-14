@@ -766,6 +766,20 @@ namespace island
                              Vector3(MonkeyFaceProfile::InnerEarRadii.x,
                                      MonkeyFaceProfile::InnerEarRadii.y,
                                      MonkeyFaceProfile::InnerEarRadii.z), Head, 5, 10);
+            // Two overlapping muzzle pads turn the broad skin patch into a shallow three-
+            // dimensional primate muzzle. Their backs remain embedded in the profile and
+            // their midtone tag separates the mouth region without a new draw call.
+            for (float side : {-1.0f, 1.0f}) {
+                const std::size_t muzzleStart = mesh.vertices.size();
+                AddEllipsoid(mesh, Vector3(side * MonkeyFaceProfile::MuzzlePadCentre.x,
+                             MonkeyFaceProfile::MuzzlePadCentre.y,
+                             MonkeyFaceProfile::MuzzlePadCentre.z),
+                             Vector3(MonkeyFaceProfile::MuzzlePadRadii.x,
+                                     MonkeyFaceProfile::MuzzlePadRadii.y,
+                                     MonkeyFaceProfile::MuzzlePadRadii.z), Head, 6, 12);
+                for (std::size_t vertex = muzzleStart; vertex < mesh.vertices.size(); ++vertex)
+                    mesh.vertices[vertex].TextureCoordinate = Vector2(-0.70f, -0.96f);
+            }
             // A shallow attached nose pad breaks up the formerly uniform pale mask.
             // Negative U is a face-feature tag consumed by the existing skinning shader;
             // it keeps this darker skin in the same face draw and follows the head bone.
@@ -812,18 +826,18 @@ namespace island
                                            MonkeyFaceProfile::EyeCentreZ),
                              Vector3(MonkeyFaceProfile::EyeRadiusX,MonkeyFaceProfile::EyeRadiusY,
                                      MonkeyFaceProfile::EyeRadiusZ), Head, 5, 12);
-                AddEllipsoid(mesh, Vector3(side * .017f, .827f, .681f),
-                             Vector3(.006f, .004f, .003f), Head, 3, 6);
+                // One fitted nostril per side. The former second pair read as four holes
+                // on a pig-like nasal disc in the actual close audit.
+                AddEllipsoid(mesh, Vector3(side * .014f, .817f, .689f),
+                             Vector3(.0075f, .0045f, .0035f), Head, 3, 6);
             }
-            for (float side : {-1.0f, 1.0f})
-                AddEllipsoid(mesh, Vector3(side * .018f, .814f, .680f),
-                             Vector3(.0065f, .0040f, .0030f), Head, 3, 6);
             // Follow the curved muzzle instead of floating a straight mouth bar in front.
             const auto mouthBase = static_cast<std::uint16_t>(mesh.vertices.size());
             for (int step = 0; step <= 8; ++step) {
                 const float x = -.056f + .112f * step / 8.0f;
-                const float z = .565f + .106f * std::sqrt(1.0f-(x/.096f)*(x/.096f)) + .002f;
-                for (float y : {.7815f, .7845f})
+                const float normalized = x / .056f;
+                const float z = .684f + .004f * (1.0f - normalized * normalized);
+                for (float y : {.7755f, .7790f})
                     AddVertex(mesh, Vector3(x,y,z), Vector3(0,0,1), Head, Vector2(.5f,.5f));
             }
             for (int step = 0; step < 8; ++step) {

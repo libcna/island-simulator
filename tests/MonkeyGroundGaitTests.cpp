@@ -119,9 +119,12 @@ try {
     Require(face::Rows[7].front > face::Rows[4].front, "muzzle projects beyond orbital plane");
     Require(face::EyeCentreZ>.640f&&face::EyeRadiusX>=.024f,
         "close monkey corneas remain readable above the face surface");
-    Require(face::NoseRadii.x>=.036f&&face::NoseRadii.y>=.020f
+    Require(face::NoseRadii.x>=.032f&&face::NoseRadii.y>=.018f
             &&face::NoseCentre.z+face::NoseRadii.z>.680f,
         "fitted nose pad remains broad and visible on the short muzzle");
+    Require(face::MuzzlePadRadii.x>=.050f&&face::MuzzlePadRadii.y>=.040f
+            &&face::MuzzlePadCentre.z+face::MuzzlePadRadii.z>.682f,
+        "paired muzzle pads remain broad and project beyond the facial skin");
     for(float side:{-1.0f,1.0f}) for(bool upper:{false,true}) for(int i=0;i<=10;++i) {
         const float t=-.92f+1.84f*i/10.0f;
         const auto outer=face::Eyelid(side,t,upper,true);

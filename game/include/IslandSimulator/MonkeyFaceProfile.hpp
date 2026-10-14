@@ -10,10 +10,10 @@ namespace island::MonkeyFaceProfile
     // A capuchin-like short face: broad brow and cheeks surround a projecting
     // but blunt muzzle instead of the former small rodent-like mask.
     inline constexpr std::array<Row, 12> Rows{{
-        {.982f,.008f,.575f}, {.950f,.078f,.606f}, {.920f,.116f,.632f},
+        {.970f,.044f,.592f}, {.948f,.086f,.616f}, {.923f,.119f,.637f},
         {.894f,.137f,.648f}, {.870f,.142f,.646f}, {.847f,.134f,.651f},
         {.825f,.126f,.659f}, {.804f,.117f,.670f}, {.784f,.109f,.675f},
-        {.764f,.091f,.665f}, {.746f,.055f,.635f}, {.735f,.006f,.590f}
+        {.764f,.091f,.665f}, {.746f,.055f,.635f}, {.735f,.020f,.595f}
     }};
     inline constexpr Point CraniumCentre{0,.885f,.440f};
     inline constexpr Point CraniumRadii{.190f,.210f,.160f};
@@ -23,8 +23,10 @@ namespace island::MonkeyFaceProfile
     inline constexpr Point InnerEarRadii{.040f,.051f,.017f};
     inline constexpr float EyeCentreX=.060f,EyeCentreY=.882f,EyeCentreZ=.644f;
     inline constexpr float EyeRadiusX=.024f,EyeRadiusY=.014f,EyeRadiusZ=.010f;
-    inline constexpr Point NoseCentre{0,.816f,.672f};
-    inline constexpr Point NoseRadii{.038f,.023f,.010f};
+    inline constexpr Point MuzzlePadCentre{.036f,.794f,.666f};
+    inline constexpr Point MuzzlePadRadii{.055f,.043f,.020f};
+    inline constexpr Point NoseCentre{0,.817f,.675f};
+    inline constexpr Point NoseRadii{.034f,.020f,.014f};
     inline float Bump(float value,float centre,float radius)
     {
         const float t=(value-centre)/radius;
