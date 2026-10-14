@@ -1973,6 +1973,26 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   views with an intact context. The entrance no longer stands on beach ground.
   See `docs/cave.md`.
 
+- [~] Add an enterable concealed inland research bunker in the spirit of a mysterious
+  tropical-island installation, without copying protected branding or story content. The
+  facility needs a believable non-beach entrance, traversable corridors and rooms, functional
+  interior lighting, a computer workspace and a fictional reactor/generator set piece. Keep
+  terrain and vegetation above the buried shell while preventing either from filling its
+  interior. The player must be able to enter, explore and return outside; do not add missions,
+  combat or an operational nuclear simulation. The current project-owned procedural pass places
+  a rock-concealed portal at `(92,24)`, a descending 36m spine, computer room, complete service
+  workshop and fictional cyan generator chamber in 3,876 triangles/two culled draws. Concrete,
+  metal and rock receive portable world-space mottling, damp/oxidation variation and baked face
+  shading; lights, screens and the core use the existing second luminous batch. `BunkerLayout`
+  owns floor support and player-capsule collision. Terrain is discarded only below the authored
+  roof and a full steel maintenance bulkhead now closes the deep end, fixing the exposed underside
+  of the island. Native `island_bunker_tests` passes entry, descent, room access and exit. Inspected
+  Chrome/SwiftShader evidence `20261014T190856.457455Z-chrome-bunker` passes six distinct views,
+  12 finite intervals per static view, GL0, intact contexts, current material/closure markers and
+  kernel[]. Android ARM64 assemble/lint passes without emulator or KVM. Moving free-walk visual
+  review, local audio, Android runtime and further close-range prop/material polish remain open.
+  See `docs/bunker.md`.
+
 - [~] Add a realistic grounded helicopter near the centre of the island. It cannot
   fly, but the player must be able to enter both the pilot cockpit and rear cabin.
   Prefer a suitable existing 3D model only after verifying its licence permits the
@@ -2059,7 +2079,7 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   `20261014T174906.588260Z-helicopter-inside` pass; four-door traversal remains green. Focused WebGL
   and Android qualification are intentionally grouped with the coming bunker integration.
 
-All six items remain incomplete or in progress. Stream/cave/helicopter locations should be coordinated with
+All seven items remain incomplete or in progress. Stream/cave/bunker/helicopter locations should be coordinated with
 hut access and existing wildlife; do not remove vegetation or relocate animals blindly.
 
 The 2026-10-14 cross-species visual audit compared the current resident, bear, boars, goats,

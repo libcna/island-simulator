@@ -3,6 +3,7 @@
 #include "IslandSimulator/StreamBedPatch.hpp"
 #include "IslandSimulator/CaveGroundPatch.hpp"
 #include "IslandSimulator/CampfireLighting.hpp"
+#include "IslandSimulator/BunkerLayout.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/CanopyLighting.hpp"
@@ -130,6 +131,8 @@ in vec2 vTerrainData;
 in float vGroundLight;
 uniform vec3 uCaveEntrance;
 uniform vec2 uCaveForward;
+uniform vec3 uBunkerEntrance;
+uniform vec4 uBunkerFrame;
 
 uniform vec3 uCameraPosition;
 uniform vec3 uToSun;
@@ -240,6 +243,26 @@ void main()
     vec3 worldDy = dFdy(vWorld);
     float groundPixelWidth = max(length(worldDx.xz), length(worldDy.xz));
     float distanceToCamera = length(vWorld - uCameraPosition);
+    // The island remains a heightfield above the buried facility. Only fragments
+    // physically below its roof are removed, so the entrance and rooms are clear
+    // from inside while the natural ridge remains intact when viewed from above.
+    vec2 bunkerOffset=p-uBunkerEntrance.xz;
+    float bunkerAcross=dot(bunkerOffset,uBunkerFrame.xy);
+    float bunkerDepth=dot(bunkerOffset,uBunkerFrame.zw);
+    float bunkerFloor=bunkerDepth<=0.0?0.11*bunkerDepth
+        :(bunkerDepth<10.0?-0.32*bunkerDepth:-3.2);
+    bool bunkerCorridor=abs(bunkerAcross)<=1.40
+        &&bunkerDepth>=-0.80&&bunkerDepth<=36.35;
+    bool bunkerComputer=bunkerAcross>=1.02&&bunkerAcross<=9.30
+        &&bunkerDepth>=10.95&&bunkerDepth<=23.25;
+    bool bunkerReactor=bunkerAcross>=-10.15&&bunkerAcross<=-1.02
+        &&bunkerDepth>=22.75&&bunkerDepth<=36.25;
+    bool bunkerService=bunkerAcross>=1.02&&bunkerAcross<=7.15
+        &&bunkerDepth>=25.75&&bunkerDepth<=35.55;
+    float bunkerCeiling=uBunkerEntrance.y+bunkerFloor
+        +(bunkerDepth<10.0?2.75:3.05);
+    if((bunkerCorridor||bunkerComputer||bunkerReactor||bunkerService)
+        &&vWorld.y<bunkerCeiling+0.04) discard;
     float detailFade = 1.0 - smoothstep(95.0, 285.0, distanceToCamera);
 
     // Substrate is a world property: never fade humus, clearings or paths back to
@@ -858,8 +881,8 @@ void main()
     }
 
     TerrainRenderer::TerrainRenderer(GraphicsDevice& device, const IslandTerrain& terrain,
-                                     CanopyLighting& canopyLighting)
-        : device_(device), canopyLighting_(canopyLighting),
+                                     CanopyLighting& canopyLighting,const BunkerLayout& bunker)
+        : device_(device), canopyLighting_(canopyLighting),bunker_(bunker),
           fallbackEffect_(std::make_unique<BasicEffect>(device))
     {
         fallbackEffect_->setVertexColorEnabledProperty(true);
@@ -998,7 +1021,9 @@ void main()
                         +TerrainMeshLayout::Coordinate(layout.firstGridColumn+column+1))*.5f;
                     const float midZ=(TerrainMeshLayout::Coordinate(layout.firstGridRow+row)
                         +TerrainMeshLayout::Coordinate(layout.firstGridRow+row+1))*.5f;
-                    if(streamBed_->Contains(midX,midZ)||caveGround_->Contains(midX,midZ))continue;
+                    const float midY=terrain.Height(midX,midZ);
+                    if(streamBed_->Contains(midX,midZ)||caveGround_->Contains(midX,midZ)
+                        ||(!materialReady_&&bunker_.HidesTerrain(midX,midY,midZ)))continue;
                     const auto topLeft = static_cast<std::uint16_t>(
                         (layout.firstGridRow + row) * TerrainMeshLayout::Resolution
                         + layout.firstGridColumn + column);
@@ -1107,6 +1132,14 @@ void main()
             const auto entrance=cave_->Entrance(),forward=cave_->World(0,0,1);
             materialEffect_->SetUniformVec3("uCaveEntrance",entrance.x,entrance.y,entrance.z);
             materialEffect_->SetUniformVec2("uCaveForward",forward.x-entrance.x,forward.z-entrance.z);
+            const auto bunkerEntrance=bunker_.Entrance();
+            const auto bunkerAcross=bunker_.World(1,0,0);
+            const auto bunkerDepth=bunker_.World(0,0,1);
+            materialEffect_->SetUniformVec3("uBunkerEntrance",bunkerEntrance.x,
+                                            bunkerEntrance.y,bunkerEntrance.z);
+            materialEffect_->SetUniformVec4("uBunkerFrame",
+                bunkerAcross.x-bunkerEntrance.x,bunkerAcross.z-bunkerEntrance.z,
+                bunkerDepth.x-bunkerEntrance.x,bunkerDepth.z-bunkerEntrance.z);
             materialEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
                                             cameraPosition.Y, cameraPosition.Z);
             materialEffect_->SetUniformVec3(

@@ -56,6 +56,8 @@
 #include "IslandSimulator/OceanRenderer.hpp"
 #include "IslandSimulator/StreamWaterRenderer.hpp"
 #include "IslandSimulator/CaveRenderer.hpp"
+#include "IslandSimulator/BunkerLayout.hpp"
+#include "IslandSimulator/BunkerRenderer.hpp"
 #include "IslandSimulator/CampfireRenderer.hpp"
 #include "IslandSimulator/ResidentMotion.hpp"
 #include "IslandSimulator/ResidentRenderer.hpp"
@@ -105,6 +107,12 @@ namespace island
         TurtleNestDetail,
         CaveExterior,
         CaveInterior,
+        BunkerExterior,
+        BunkerCorridor,
+        BunkerComputerRoom,
+        BunkerReactorRoom,
+        BunkerServiceRoom,
+        BunkerEndBulkhead,
         CampfireDetail,
         CampfireWide,
         ResidentDetail,
@@ -287,6 +295,7 @@ namespace island
         std::optional<HutPlacement> hutPlacement_;
         std::optional<HelicopterPlacement> helicopterPlacement_;
         CampfireLayout campfireLayout_{terrain_};
+        BunkerLayout bunkerLayout_{terrain_};
         WorldCollisionGrid worldCollisionGrid_;
         std::unique_ptr<ResidentMotion> resident_;
         std::unique_ptr<BearMotion> bear_;
@@ -336,6 +345,7 @@ namespace island
         std::unique_ptr<OceanRenderer> oceanRenderer_;
         std::unique_ptr<StreamWaterRenderer> streamWaterRenderer_;
         std::unique_ptr<CaveRenderer> caveRenderer_;
+        std::unique_ptr<BunkerRenderer> bunkerRenderer_;
         std::unique_ptr<CampfireRenderer> campfireRenderer_;
         std::unique_ptr<ResidentRenderer> residentRenderer_;
         std::unique_ptr<BearRenderer> bearRenderer_;

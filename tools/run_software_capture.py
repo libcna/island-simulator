@@ -547,7 +547,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "stream", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -657,6 +657,16 @@ def main():
                         raise RuntimeError(f"helicopter integration diagnostic missing: {marker}")
                 if not re.search(r"helicopter 2 draw", diagnostics):
                     raise RuntimeError("helicopter viewpoint did not retain its bounded two-draw model")
+            if args.viewpoint in ("bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end"):
+                for marker in (
+                    "concealed inland bunker has an open rock portal, descending access corridor, computer room, service room, and fictional reactor-generator chamber",
+                    "bunker uses bounded baked light pools, luminous ceiling fixtures, active terminal screens, and a contained cyan generator core in two static draws",
+                    "bunker computer room has four desks and terminals, keyboard consoles, eight server cabinets, and a separate generator control bank",
+                    "bunker concrete and metal use portable world-space mottling, restrained age variation, and baked face shading",
+                    "bunker deep spine ends at a sealed maintenance bulkhead and the service branch has a complete lit shell",
+                    f"bunker QA camera {args.viewpoint}"):
+                    if marker not in diagnostics:
+                        raise RuntimeError(f"bunker integration diagnostic missing: {marker}")
             if args.viewpoint in ("snakes", "snake-head"):
                 if "snakes use a readable dorsal saddle and active forked-tongue flicks" not in diagnostics:
                     raise RuntimeError("current snake anatomy material is missing")

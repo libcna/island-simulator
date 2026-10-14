@@ -50,6 +50,7 @@ add_library(island_core STATIC
     game/src/CanopyLightField.cpp
     game/src/CanopyProfile.cpp
     game/src/CrabColony.cpp
+    game/src/BunkerLayout.cpp
     game/src/CaveLayout.cpp
     game/src/CaveGroundPatch.cpp
     game/src/CampfireLayout.cpp
@@ -223,6 +224,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_flight_tests)
     island_enable_first_party_sanitizers(island_flight_tests)
     add_test(NAME IslandFlightMotionTests COMMAND island_flight_tests)
+    add_executable(island_bunker_tests tests/BunkerLayoutTests.cpp)
+    target_link_libraries(island_bunker_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_bunker_tests)
+    island_enable_first_party_sanitizers(island_bunker_tests)
+    add_test(NAME IslandBunkerLayoutTests COMMAND island_bunker_tests)
     add_executable(island_diagnostic_stream_tests tests/DiagnosticStreamMirrorTests.cpp)
     target_include_directories(island_diagnostic_stream_tests PRIVATE game/include)
     target_compile_features(island_diagnostic_stream_tests PRIVATE cxx_std_20)
@@ -599,6 +605,7 @@ if(ISLAND_BUILD_GAME)
         game/src/NaturalPropRenderer.cpp
         game/src/OceanRenderer.cpp
         game/src/StreamWaterRenderer.cpp
+        game/src/BunkerRenderer.cpp
         game/src/CaveRenderer.cpp
         game/src/CampfireRenderer.cpp
         game/src/ResidentRenderer.cpp

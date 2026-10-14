@@ -24,12 +24,14 @@ namespace island
     class StreamBedPatch;
     class CaveLayout;
     class CaveGroundPatch;
+    class BunkerLayout;
     /** @brief Frustum-culled island terrain with portable procedural material variation. */
     class TerrainRenderer final
     {
     public:
         TerrainRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
-                        const IslandTerrain& terrain, CanopyLighting& canopyLighting);
+                        const IslandTerrain& terrain, CanopyLighting& canopyLighting,
+                        const BunkerLayout& bunker);
         ~TerrainRenderer();
 
         TerrainRenderer(const TerrainRenderer&) = delete;
@@ -67,6 +69,7 @@ namespace island
 
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
         CanopyLighting& canopyLighting_;
+        const BunkerLayout& bunker_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> fallbackEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> materialEffect_;
         std::unique_ptr<ForestFloorMaterial> forestFloor_;

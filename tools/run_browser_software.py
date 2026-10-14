@@ -18,7 +18,7 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "goats", "boars", "spiders", "turtles", "crabs", "fish", "shark", "dolphins", "bear", "resident")
+SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "fish", "shark", "dolphins", "bear", "resident")
 
 
 def validate_shipwreck_report(report):
@@ -83,6 +83,40 @@ def validate_cave_report(report):
             or "cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling" not in log
             or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
             raise RuntimeError("cave view lacks current material, terrain blend or clean graphics state")
+        frames.append(frame)
+    return frames
+
+
+def validate_bunker_report(report):
+    expected = ["bunker", "bunker-corridor", "bunker-computers", "bunker-reactor",
+                "bunker-service", "bunker-end"]
+    views = report.get("views", [])
+    if report.get("passed") is not True or [view.get("mode") for view in views] != expected:
+        raise RuntimeError("bunker report lacks exterior, corridor, room and sealed-end views")
+    frames = []
+    required = (
+        "concealed inland bunker has an open rock portal, descending access corridor, computer room, service room, and fictional reactor-generator chamber",
+        "bunker uses bounded baked light pools, luminous ceiling fixtures, active terminal screens, and a contained cyan generator core in two static draws",
+        "bunker computer room has four desks and terminals, keyboard consoles, eight server cabinets, and a separate generator control bank",
+        "bunker concrete and metal use portable world-space mottling, restrained age variation, and baked face shading",
+        "bunker deep spine ends at a sealed maintenance bulkhead and the service branch has a complete lit shell",
+    )
+    for view in views:
+        result = view.get("result", {})
+        log = result.get("output", "")
+        intervals = view.get("intervals", [])
+        frame = view.get("screenshot")
+        if (view.get("passed") is not True or view.get("glError") != 0
+            or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+            or "SwiftShader" not in view.get("renderer", "") or len(intervals) != 12
+            or not all(isinstance(value, (int, float)) and not isinstance(value, bool)
+                       and math.isfinite(value) and value > 0 for value in intervals)
+            or not isinstance(frame, str) or not frame.endswith(".png")
+            or f"bunker QA camera {view.get('mode')}" not in log
+            or not all(marker in log for marker in required)
+            or re.search(r"bunker material fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",
+                         log, re.I)):
+            raise RuntimeError("bunker view lacks current shell, material, closure or clean graphics state")
         frames.append(frame)
     return frames
 
@@ -583,6 +617,16 @@ def main(argv=None):
                 if identities[0]["sha256"] == identities[1]["sha256"]:
                     raise RuntimeError("cave exterior and interior frames are byte-identical")
                 metadata["cave_frames"]=identities
+            if args.scope == "bunker":
+                bunker_report=json.loads((evidence / "island-browser-bunker.json").read_text())
+                frames=validate_bunker_report(bunker_report)
+                paths=[evidence / frame for frame in frames]
+                if not all(path.is_file() for path in paths):
+                    raise RuntimeError("bunker image file missing")
+                identities=[artifact_identity(path) for path in paths]
+                if len({identity["sha256"] for identity in identities}) != len(identities):
+                    raise RuntimeError("bunker exterior/interior evidence contains duplicate views")
+                metadata["bunker_frames"]=identities
             if args.scope == "campfire":
                 campfire_report=json.loads((evidence / "island-browser-campfire.json").read_text())
                 frames=validate_campfire_report(campfire_report)

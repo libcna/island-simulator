@@ -14,6 +14,7 @@ namespace island
     class StreamBedPatch;
     class CaveLayout;
     class CaveGroundPatch;
+    class BunkerLayout;
     struct HelicopterPlacement;
 
     /** @brief Physical movement state relevant to animation, audio, and camera presentation. */
@@ -111,6 +112,7 @@ namespace island
         // Both immutable objects must outlive the controller; null disables the cave.
         void SetCave(const CaveLayout* cave,const CaveGroundPatch* ground) noexcept
         {cave_=cave;caveGround_=ground;}
+        void SetBunker(const BunkerLayout* bunker) noexcept {bunker_=bunker;}
         // Immutable grounded-helicopter floor/shell layout; null disables the landmark.
         void SetHelicopter(const HelicopterPlacement* helicopter) noexcept
         {helicopter_=helicopter;}
@@ -210,6 +212,7 @@ namespace island
         const StreamBedPatch* groundPatch_ = nullptr;
         const CaveLayout* cave_ = nullptr;
         const CaveGroundPatch* caveGround_ = nullptr;
+        const BunkerLayout* bunker_ = nullptr;
         const HelicopterPlacement* helicopter_ = nullptr;
         SwimDepth swimDepth_;
         bool swimAscend_ = false, swimDescend_ = false;

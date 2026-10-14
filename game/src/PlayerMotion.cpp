@@ -5,6 +5,7 @@
 #include "IslandSimulator/StreamBedPatch.hpp"
 #include "IslandSimulator/CaveGroundPatch.hpp"
 #include "IslandSimulator/HelicopterLayout.hpp"
+#include "IslandSimulator/BunkerLayout.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -61,6 +62,14 @@ namespace island
         const IslandTerrain& terrain, const float x, const float z) const noexcept
     {
         GroundContact contact;
+        float bunkerHeight=0.0f;
+        if(bunker_&&bunker_->SupportHeight(x,z,position_.y-EyeHeight,bunkerHeight)) {
+            contact.height=bunkerHeight;
+            const auto local=bunker_->Local({x,bunkerHeight,z});
+            contact.maximumSlopeRadians=local.z>0&&local.z<10
+                ?std::atan(.32f):0.0f;
+            return contact;
+        }
         contact.height = -std::numeric_limits<float>::infinity();
         for (const PlayerGroundOffset& offset : GroundContactOffsets) {
             const float px=x+offset.x*CapsuleRadius,pz=z+offset.z*CapsuleRadius;
@@ -196,6 +205,11 @@ namespace island
                 {candidateX,std::max(candidate.height+.001f,position_.y-EyeHeight),candidateZ},
                 CapsuleRadius,CapsuleHeight)<1)
                 return HorizontalStepResult::ObstacleBlocked;
+            if(bunker_&&bunker_->SafeTravelFraction(
+                {position_.x,std::max(current.height+.001f,position_.y-EyeHeight),position_.z},
+                {candidateX,std::max(candidate.height+.001f,position_.y-EyeHeight),candidateZ},
+                CapsuleRadius,CapsuleHeight)<1)
+                return HorizontalStepResult::ObstacleBlocked;
             if(helicopter_&&helicopter_->SafeTravelFraction(
                 position_.x,position_.z,candidateX,candidateZ,CapsuleRadius)<1.0f)
                 return HorizontalStepResult::ObstacleBlocked;
@@ -237,6 +251,12 @@ namespace island
         }
         if(helicopter_&&helicopter_->IntersectsCapsule(position_.x,position_.z,CapsuleRadius)) {
             const auto safe=helicopter_->World(2.2f,0.0f,-.95f);
+            position_.x=safe.x;position_.z=safe.z;
+            ResolveModeAndHeight(terrain,std::numeric_limits<float>::infinity());
+        }
+        if(bunker_&&bunker_->IntersectsCapsule({position_.x,position_.y-EyeHeight,position_.z},
+            CapsuleRadius,CapsuleHeight)) {
+            const auto safe=bunker_->World(0,0,-3.2f);
             position_.x=safe.x;position_.z=safe.z;
             ResolveModeAndHeight(terrain,std::numeric_limits<float>::infinity());
         }

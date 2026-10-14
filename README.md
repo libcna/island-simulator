@@ -72,6 +72,13 @@ mottled ash bed, mixed glowing charcoal, subtle smoke/sparks, nearby flickering 
 and positional wood crackling. A separate
 stack of gathered firewood sits about6m away. See [campfire evidence](docs/campfire.md)
 for the native first pass and remaining visual/portable checks.
+An enterable rock-concealed research bunker now descends beneath an inland ridge. Its
+reinforced corridor connects a lit computer room, complete service workshop and a fictional
+cyan reactor-generator chamber; a sealed maintenance bulkhead closes the deep end so the
+underside of the island is never exposed. Terrain is suppressed only inside the buried shell,
+leaving soil and vegetation above its roof. Use `--viewpoint bunker`, `bunker-corridor`,
+`bunker-computers`, `bunker-reactor`, `bunker-service` or `bunker-end`; see
+[bunker evidence](docs/bunker.md) for traversal, WebGL and Android-build qualification.
 Exactly one peaceful adult resident now follows a deterministic688m inland tour with pauses,
 terrain-fitted planted feet and player yielding. The original procedural model has facial and
 hair geometry, a bound-neck woven tunic, a short split thigh-following wrap, a small generated

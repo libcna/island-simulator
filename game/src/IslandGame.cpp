@@ -76,6 +76,12 @@ namespace island
             case FixedViewpoint::TurtleNestDetail: return "turtle-nest";
             case FixedViewpoint::CaveExterior: return "cave";
             case FixedViewpoint::CaveInterior: return "cave-inside";
+            case FixedViewpoint::BunkerExterior: return "bunker";
+            case FixedViewpoint::BunkerCorridor: return "bunker-corridor";
+            case FixedViewpoint::BunkerComputerRoom: return "bunker-computers";
+            case FixedViewpoint::BunkerReactorRoom: return "bunker-reactor";
+            case FixedViewpoint::BunkerServiceRoom: return "bunker-service";
+            case FixedViewpoint::BunkerEndBulkhead: return "bunker-end";
             case FixedViewpoint::CampfireDetail: return "campfire";
             case FixedViewpoint::CampfireWide: return "campfire-wide";
             case FixedViewpoint::ResidentDetail: return "resident";
@@ -306,6 +312,37 @@ namespace island
             yaw_=std::atan2(target.x-p.x,target.z-p.z);
             pitch_=std::atan2(target.y-p.y,std::hypot(target.x-p.x,target.z-p.z));
             std::cout<<"island-simulator: cave QA camera "<<(inside?"inside":"outside")<<'\n';
+        } else if(viewpoint_==FixedViewpoint::BunkerExterior
+                  ||viewpoint_==FixedViewpoint::BunkerCorridor
+                  ||viewpoint_==FixedViewpoint::BunkerComputerRoom
+                  ||viewpoint_==FixedViewpoint::BunkerReactorRoom
+                  ||viewpoint_==FixedViewpoint::BunkerServiceRoom
+                  ||viewpoint_==FixedViewpoint::BunkerEndBulkhead) {
+            BunkerPoint camera,target;
+            if(viewpoint_==FixedViewpoint::BunkerExterior) {
+                camera=bunkerLayout_.World(-7.2f,4.1f,-10.5f);
+                target=bunkerLayout_.World(0,1.35f,.5f);
+            } else if(viewpoint_==FixedViewpoint::BunkerCorridor) {
+                camera=bunkerLayout_.World(0,bunkerLayout_.FloorRelative(5)+1.72f,5);
+                target=bunkerLayout_.World(0,bunkerLayout_.FloorRelative(19)+1.45f,19);
+            } else if(viewpoint_==FixedViewpoint::BunkerComputerRoom) {
+                camera=bunkerLayout_.World(2.45f,bunkerLayout_.FloorRelative(17)+1.72f,17);
+                target=bunkerLayout_.World(6.4f,bunkerLayout_.FloorRelative(17)+1.18f,17);
+            } else if(viewpoint_==FixedViewpoint::BunkerReactorRoom) {
+                camera=bunkerLayout_.World(-2.3f,bunkerLayout_.FloorRelative(29.5f)+1.72f,29.5f);
+                target=bunkerLayout_.World(-5.55f,bunkerLayout_.FloorRelative(29.5f)+1.28f,29.5f);
+            } else if(viewpoint_==FixedViewpoint::BunkerServiceRoom) {
+                camera=bunkerLayout_.World(2.05f,bunkerLayout_.FloorRelative(31.2f)+1.72f,31.2f);
+                target=bunkerLayout_.World(6.55f,bunkerLayout_.FloorRelative(31.2f)+1.25f,31.2f);
+            } else {
+                camera=bunkerLayout_.World(0,bunkerLayout_.FloorRelative(31.4f)+1.72f,31.4f);
+                target=bunkerLayout_.World(0,bunkerLayout_.FloorRelative(35.9f)+1.30f,35.9f);
+            }
+            cameraPosition_={camera.x,camera.y,camera.z};
+            const Vector3 direction=Vector3(target.x,target.y,target.z)-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+            std::cout<<"island-simulator: bunker QA camera "<<ViewpointName(viewpoint_)<<'\n';
         } else if (viewpoint_ == FixedViewpoint::TidePoolDetail) {
             const auto [poolX,poolZ]=TidePoolLayout::Centre(terrain_,0U);
             const float radialLength=std::hypot(poolX,poolZ);
@@ -1297,7 +1334,8 @@ namespace island
         // owner so a repeated LoadContent never leaves old renderers referencing freed data.
         auto canopyLighting = std::make_unique<CanopyLighting>(device, canopyLightField_, groundCoverField_, terrain_);
         auto terrainHeightMap = std::make_unique<RenderedTerrainHeightMap>(device, terrain_);
-        auto terrainRenderer = std::make_unique<TerrainRenderer>(device, terrain_, *canopyLighting);
+        auto terrainRenderer = std::make_unique<TerrainRenderer>(
+            device, terrain_, *canopyLighting, bunkerLayout_);
         distantSceneryRenderer_ = std::make_unique<DistantSceneryRenderer>(
             device, distantSceneryLayout_);
         contactShadowRenderer_ = std::make_unique<ContactShadowRenderer>(
@@ -1359,8 +1397,10 @@ namespace island
         terrainRenderer_ = std::move(terrainRenderer);
         playerMotion_.SetGroundPatch(&terrainRenderer_->StreamBed());
         playerMotion_.SetCave(&terrainRenderer_->Cave(),&terrainRenderer_->CaveGround());
+        playerMotion_.SetBunker(&bunkerLayout_);
         flightMotion_.SetCave(&terrainRenderer_->Cave(),&terrainRenderer_->CaveGround());
         caveRenderer_=std::make_unique<CaveRenderer>(device,terrainRenderer_->Cave());
+        bunkerRenderer_=std::make_unique<BunkerRenderer>(device,bunkerLayout_);
         campfireRenderer_=std::make_unique<CampfireRenderer>(device,campfireLayout_);
         streamWaterRenderer_=std::make_unique<StreamWaterRenderer>(device,terrain_,terrainRenderer_->StreamBed());
         grassRenderer_ = std::move(grassRenderer);
@@ -2580,6 +2620,7 @@ namespace island
     int IslandGame::TrackedSceneDrawCount() const noexcept
     {
         return 2 + terrainRenderer_->DrawCallCount()+streamWaterRenderer_->DrawCallCount()+caveRenderer_->DrawCallCount()
+            +bunkerRenderer_->DrawCallCount()
             +campfireRenderer_->DrawCallCount()
             + palmRenderer_->DrawCallCount() + jungleRenderer_->DrawCallCount()
             + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
@@ -3012,6 +3053,7 @@ namespace island
             GpuDiagnosticScope gpuPass("terrain");
             terrainRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,timeSeconds);
             caveRenderer_->Draw(cameraView_,cameraProjection_);
+            bunkerRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_);
             campfireRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,timeSeconds,false);
         }
         {

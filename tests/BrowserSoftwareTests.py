@@ -17,6 +17,38 @@ from gpu_incident_qualification import contained_command
 
 
 class BrowserSoftwareTests(unittest.TestCase):
+    def test_bunker_scope_requires_all_rooms_material_and_sealed_end(self):
+        self.assertIn("bunker", gate.SCOPES)
+        modes = ["bunker", "bunker-corridor", "bunker-computers", "bunker-reactor",
+                 "bunker-service", "bunker-end"]
+        page = (ROOT / "tools/web_smoke.html.in").read_text()
+        for mode in modes:
+            self.assertIn(f'["{mode}", ["--viewpoint", "{mode}", "--debug-overlay"]]', page)
+        markers = "\n".join((
+            "concealed inland bunker has an open rock portal, descending access corridor, computer room, service room, and fictional reactor-generator chamber",
+            "bunker uses bounded baked light pools, luminous ceiling fixtures, active terminal screens, and a contained cyan generator core in two static draws",
+            "bunker computer room has four desks and terminals, keyboard consoles, eight server cabinets, and a separate generator control bank",
+            "bunker concrete and metal use portable world-space mottling, restrained age variation, and baked face shading",
+            "bunker deep spine ends at a sealed maintenance bulkhead and the service branch has a complete lit shell",
+        ))
+        def report():
+            return {"passed": True, "views": [{"mode": mode, "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": mode + ".png", "intervals": [16.0] * 12,
+                "result": {"error": "", "exited": False,
+                           "output": f"bunker QA camera {mode}\n{markers}"}}
+                for mode in modes]}
+        self.assertEqual(gate.validate_bunker_report(report()),
+                         [mode + ".png" for mode in modes])
+        missing = report()
+        missing["views"][-1]["result"]["output"] = markers
+        with self.assertRaises(RuntimeError):
+            gate.validate_bunker_report(missing)
+        fallback = report()
+        fallback["views"][2]["result"]["output"] += "\nbunker material fallback: shader error"
+        with self.assertRaises(RuntimeError):
+            gate.validate_bunker_report(fallback)
+
     def test_helicopter_scope_requires_closed_rotor_blades_in_both_views(self):
         markers = "\n".join((
             "helicopter uses a smoothly tapered thirty-two-sided cockpit canopy, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane",

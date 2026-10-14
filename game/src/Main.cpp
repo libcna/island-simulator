@@ -28,6 +28,12 @@ namespace
         case FixedViewpoint::TurtleNestDetail: return "turtle-nest";
         case FixedViewpoint::CaveExterior: return "cave";
         case FixedViewpoint::CaveInterior: return "cave-inside";
+        case FixedViewpoint::BunkerExterior: return "bunker";
+        case FixedViewpoint::BunkerCorridor: return "bunker-corridor";
+        case FixedViewpoint::BunkerComputerRoom: return "bunker-computers";
+        case FixedViewpoint::BunkerReactorRoom: return "bunker-reactor";
+        case FixedViewpoint::BunkerServiceRoom: return "bunker-service";
+        case FixedViewpoint::BunkerEndBulkhead: return "bunker-end";
         case FixedViewpoint::CampfireDetail: return "campfire";
         case FixedViewpoint::CampfireWide: return "campfire-wide";
         case FixedViewpoint::ResidentDetail: return "resident";
@@ -139,7 +145,7 @@ int main(const int argc, char* argv[])
         } else if (argument == "--viewpoint") {
             if (++index >= argc) {
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, "
-                             "east, headland, tide-pools, turtle-nest, cave, cave-inside, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
+                             "east, headland, tide-pools, turtle-nest, cave, cave-inside, bunker, bunker-corridor, bunker-computers, bunker-reactor, bunker-service, bunker-end, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
                              "wet-sand, current, distant, props, driftwood, reef, reef-habitat, fronds, birds, fish, "
                              "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, helicopter, helicopter-inside, crabs, boars, goats, spiders, spiders-bright, spider-web, snakes, snake-head, butterflies, turtles, or traversal\n";
                 return 2;
@@ -159,6 +165,18 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::CaveExterior;
             } else if (name == "cave-inside") {
                 viewpoint = island::FixedViewpoint::CaveInterior;
+            } else if(name=="bunker") {
+                viewpoint=island::FixedViewpoint::BunkerExterior;
+            } else if(name=="bunker-corridor") {
+                viewpoint=island::FixedViewpoint::BunkerCorridor;
+            } else if(name=="bunker-computers") {
+                viewpoint=island::FixedViewpoint::BunkerComputerRoom;
+            } else if(name=="bunker-reactor") {
+                viewpoint=island::FixedViewpoint::BunkerReactorRoom;
+            } else if(name=="bunker-service") {
+                viewpoint=island::FixedViewpoint::BunkerServiceRoom;
+            } else if(name=="bunker-end") {
+                viewpoint=island::FixedViewpoint::BunkerEndBulkhead;
             } else if(name=="campfire") {
                 viewpoint=island::FixedViewpoint::CampfireDetail;
             } else if(name=="campfire-wide") {
