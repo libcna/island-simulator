@@ -328,12 +328,14 @@ class BrowserSoftwareTests(unittest.TestCase):
                       (ROOT / "tools/web_smoke.html.in").read_text())
         marker = "near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes"
         profile = "near fish use capped smooth-lit bodies, caudal peduncles and progressive rear-body bends"
+        pattern = "near fish use softly interpolated family flank lines, bars, and caudal marks"
         def report():
             return {"passed": True, "views": [{"mode": "fish", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "fish.png", "afterSimulationScreenshot": "fish-after.png",
                 "intervals": [16.7] * 60,
-                "result": {"output": marker + "\n" + profile + "\nfish 6/48 visible (near 6, far 0), 1 draw"}}]}
+                "result": {"output": marker + "\n" + profile + "\n" + pattern
+                    + "\nfish 6/48 visible (near 6, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_fish_report(report()), ("fish.png", "fish-after.png"))
         for mutate in (
             lambda value: value.update(passed=False),
@@ -341,7 +343,10 @@ class BrowserSoftwareTests(unittest.TestCase):
             lambda value: value["views"][0].update(contextLost=True),
             lambda value: value["views"][0].update(intervals=[16.7] * 59),
             lambda value: value["views"][0]["result"].update(output="fish 6/48 visible (near 6, far 0), 1 draw"),
-            lambda value: value["views"][0]["result"].update(output=marker + "\n" + profile + "\nfish 0/48 visible (near 0, far 0), 0 draw"),
+            lambda value: value["views"][0]["result"].update(output=marker + "\n" + profile
+                + "\nfish 6/48 visible (near 6, far 0), 1 draw"),
+            lambda value: value["views"][0]["result"].update(output=marker + "\n" + profile
+                + "\n" + pattern + "\nfish 0/48 visible (near 0, far 0), 0 draw"),
         ):
             invalid = report(); mutate(invalid)
             with self.assertRaises(RuntimeError): gate.validate_fish_report(invalid)

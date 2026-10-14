@@ -92,6 +92,8 @@ namespace island
             "island-simulator: near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes";
         constexpr std::string_view FishFinDiagnostic =
             "island-simulator: fish fins inherit body-family pigment with dark fitted root edges";
+        constexpr std::string_view FishPatternDiagnostic =
+            "island-simulator: near fish use softly interpolated family flank lines, bars, and caudal marks";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -150,15 +152,68 @@ namespace island
                                std::clamp(vertical * .82f, 0.0f, 1.0f));
         }
 
+        [[nodiscard]] float SoftBand(const float value, const float centre,
+                                     const float halfWidth)
+        {
+            const float distance = std::abs(value - centre);
+            return 1.0f - std::clamp((distance - halfWidth * .42f)
+                / (halfWidth * .58f), 0.0f, 1.0f);
+        }
+
         [[nodiscard]] Color SmoothBodyColor(const FishPalette& palette,
-                                            const PoseAxes& axes, const float angle)
+                                            const PoseAxes& axes, const float angle,
+                                            const float longitudinal,
+                                            const std::uint8_t variant)
         {
             const Vector3 normal = Vector3::Normalize(
                 axes.right * std::cos(angle) + axes.up * std::sin(angle));
             const float direct = std::max(
                 0.0f, Vector3::Dot(normal, wildlife_render::FixedSunDirection));
             const float sky = std::max(0.0f, normal.Y);
-            return wildlife_render::ScaleColor(BodyColor(palette, std::sin(angle)),
+            Color patterned = BodyColor(palette, std::sin(angle));
+            // Pigment lives mainly on the two flanks and fades continuously over the back/
+            // belly. Four bounded families prevent the school collapsing to one cyan mass
+            // after shared underwater attenuation, without adding a texture or geometry.
+            const float flank = 1.0f - std::clamp((std::abs(std::sin(angle)) - .18f) / .42f,
+                                                  0.0f, 1.0f);
+            switch (variant % 4U) {
+            case 0U: {
+                const float line = flank * SoftBand(std::sin(angle), 0.0f, .20f)
+                    * (1.0f - SoftBand(longitudinal, .48f, .10f));
+                patterned = Color::Lerp(patterned, palette.back, line * .30f);
+                patterned = wildlife_render::ScaleColor(patterned, 1.0f - line * .13f);
+                break;
+            }
+            case 1U: {
+                const float bars = std::max(SoftBand(longitudinal, .18f, .095f),
+                                            SoftBand(longitudinal, -.17f, .10f));
+                patterned = Color::Lerp(patterned, palette.back, flank * bars * .27f);
+                patterned = wildlife_render::ScaleColor(patterned,
+                    1.0f - flank * bars * .16f);
+                break;
+            }
+            case 2U: {
+                const float centreFlank = flank * SoftBand(longitudinal, .04f, .30f);
+                patterned = Color::Lerp(patterned, palette.belly, centreFlank * .22f);
+                patterned = wildlife_render::ScaleColor(patterned,
+                    1.0f + centreFlank * .10f);
+                const float tailSpot = flank * SoftBand(longitudinal, -.34f, .075f);
+                patterned = Color::Lerp(patterned, palette.back, tailSpot * .42f);
+                patterned = wildlife_render::ScaleColor(patterned,
+                    1.0f - tailSpot * .20f);
+                break;
+            }
+            default: {
+                const float bars = std::max(SoftBand(longitudinal, .28f, .075f),
+                    std::max(SoftBand(longitudinal, .01f, .080f),
+                             SoftBand(longitudinal, -.25f, .075f)));
+                patterned = Color::Lerp(patterned, palette.back, flank * bars * .24f);
+                patterned = wildlife_render::ScaleColor(patterned,
+                    1.0f - flank * bars * .14f);
+                break;
+            }
+            }
+            return wildlife_render::ScaleColor(patterned,
                                                .76f + .25f * direct + .05f * sky);
         }
 
@@ -238,12 +293,19 @@ namespace island
                         * static_cast<float>(segment) / static_cast<float>(BodySegments);
                     const float nextAngle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(next) / static_cast<float>(BodySegments);
-                    const Color color = SmoothBodyColor(palette, axes, angle);
-                    const Color nextColor = SmoothBodyColor(palette, axes, nextAngle);
+                    const Color color = SmoothBodyColor(palette, axes, angle,
+                        BodySections[row].z, fish.colorVariant);
+                    const Color nextColor = SmoothBodyColor(palette, axes, nextAngle,
+                        BodySections[row].z, fish.colorVariant);
+                    const Color forwardColor = SmoothBodyColor(palette, axes, angle,
+                        BodySections[row + 1U].z, fish.colorVariant);
+                    const Color nextForwardColor = SmoothBodyColor(palette, axes, nextAngle,
+                        BodySections[row + 1U].z, fish.colorVariant);
                     AddGradientTriangle(vertices, rings[row][segment], rings[row + 1U][segment],
-                                        rings[row + 1U][next], color, color, nextColor);
+                                        rings[row + 1U][next], color, forwardColor,
+                                        nextForwardColor);
                     AddGradientTriangle(vertices, rings[row][segment], rings[row + 1U][next],
-                                        rings[row][next], color, nextColor, nextColor);
+                                        rings[row][next], color, nextForwardColor, nextColor);
                 }
             }
 
@@ -259,8 +321,10 @@ namespace island
                         * static_cast<float>(segment) / static_cast<float>(BodySegments);
                     const float nextAngle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(next) / static_cast<float>(BodySegments);
-                    const Color color = SmoothBodyColor(palette, axes, angle);
-                    const Color nextColor = SmoothBodyColor(palette, axes, nextAngle);
+                    const Color color = SmoothBodyColor(palette, axes, angle, z,
+                                                        fish.colorVariant);
+                    const Color nextColor = SmoothBodyColor(palette, axes, nextAngle, z,
+                                                            fish.colorVariant);
                     if (front)
                         AddGradientTriangle(vertices, rings[row][segment],
                                             rings[row][next], cap,
@@ -409,6 +473,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(FishDetailDiagnostic);
         std::cout << FishFinDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(FishFinDiagnostic);
+        std::cout << FishPatternDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(FishPatternDiagnostic);
     }
 
     FishRenderer::~FishRenderer() = default;

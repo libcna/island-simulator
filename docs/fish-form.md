@@ -1,5 +1,26 @@
 # Shallow-water fish form
 
+## Family-specific flank pigment (2026-10-14)
+
+A fresh fish/dolphin/goat/bear matrix confirmed that the revised fish geometry is active,
+but shared underwater attenuation still compressed the four fish families toward nearly one
+cyan body colour. The existing eleven longitudinal body stations now carry softly interpolated
+family markings: a restrained lateral line, two broad flank bars, a lighter flank with a dark
+caudal mark, or three narrow bars. The masks fade over the back and belly and retain radial
+daylight, dorsal/flank/belly countershading and moving underwater light.
+
+This is vertex pigment on the existing body surface: no image texture, vertex, buffer capacity,
+draw, population, LOD or simulation state is added. The first study was visually rejected because
+ordinary water tint erased it; only the bounded blend weights were then raised. Baseline/final
+native evidence is `20261014T140659.730960Z-fish` and
+`20261014T141738.403396Z-fish`. The final remains deliberately subtle, but the nearest family
+silhouettes no longer share exactly the same uninterrupted flank. The capture and focused Web
+guards require the new pigment diagnostic so stale executables cannot qualify. Focused
+Chrome/SwiftShader evidence `20261014T142042.272849Z-chrome-fish` passes 60 finite intervals;
+both different-time frames were inspected, the context remained live and the kernel delta is
+clean. WebGL builds; Android ARM64 assemble/lint passes without an emulator/KVM. All 61 enabled
+non-display CTest cases and 112 cross-platform harness unit tests pass.
+
 ## Image-driven repair
 
 The previous close fish was an eight-triangle diamond body with flat single-triangle fins. In the

@@ -249,6 +249,18 @@ the focused Chrome/SwiftShader fish runtime at
 pass under the four-core constraint. Android runtime appearance remains unqualified without a
 device/emulator.
 
+The following cross-species audit retained the same body/fin geometry but found shared underwater
+attenuation still compressed all four fish families toward one uninterrupted cyan flank. Existing
+body-ring vertices now interpolate one bounded family marking each: lateral line, paired soft bars,
+light flank plus caudal mark, or three narrow bars. The masks fade over back/belly and preserve
+countershading and moving aquatic light. No texture, geometry, capacity, draw, population, LOD or
+motion changes. Baseline/final native evidence is `20261014T140659.730960Z-fish` /
+`20261014T141738.403396Z-fish`; an initially weaker study was visually rejected. Native and focused
+Web guards now require the exact pattern diagnostic. Focused Chrome/SwiftShader evidence
+`20261014T142042.272849Z-chrome-fish` passes 60 finite intervals with two inspected moving frames,
+live context and clean kernel delta. WebGL build, Android ARM64 assemble/lint, all 61 enabled
+non-display CTest cases and 112 cross-platform harness unit tests pass; no emulator/KVM was used.
+
 ## Previous visual-audit implementation — readable canopy trunks in deep shade
 
 The jungle-floor audit rejected grass geometry as the next target: its unequal tufts, ground
