@@ -57,9 +57,15 @@ namespace island
             {
                 const auto tint = CanopyTransmissionTint(
                     canopyLight.SampleReceiver(world.X, world.Y, world.Z, origin.Y));
-                return Color(static_cast<int>(std::lround(color.getRProperty() * tint.red)),
-                             static_cast<int>(std::lround(color.getGProperty() * tint.green)),
-                             static_cast<int>(std::lround(color.getBProperty() * tint.blue)),
+                // Retain the cool canopy cue without letting the already dark bristle
+                // albedo collapse the animal into a black silhouette.
+                constexpr float visibilityLift = .16f;
+                const float red = std::lerp(tint.red, 1.0f, visibilityLift);
+                const float green = std::lerp(tint.green, 1.0f, visibilityLift);
+                const float blue = std::lerp(tint.blue, 1.0f, visibilityLift);
+                return Color(static_cast<int>(std::lround(color.getRProperty() * red)),
+                             static_cast<int>(std::lround(color.getGProperty() * green)),
+                             static_cast<int>(std::lround(color.getBProperty() * blue)),
                              static_cast<int>(color.getAProperty()));
             }
 
@@ -165,7 +171,11 @@ namespace island
                     const float dorsal = 0.90f + 0.10f * (1.0f - std::max(0.0f, s));
                     const float stripe = juvenile && ring.z < 0.45f
                         ? 1.0f + 0.16f * std::pow(std::max(0.0f, std::sin(angle * 6.0f)), 4.0f) : 1.0f;
-                    const auto coat = wildlife_render::ScaleColor(color, grain * dorsal * stripe);
+                    const float shoulder = .075f * std::exp(
+                        -std::pow((ring.z - .25f) / .25f, 2.0f));
+                    const float cheek = .085f * std::clamp((ring.z - .52f) / .34f, 0.0f, 1.0f);
+                    const auto coat = wildlife_render::ScaleColor(
+                        color, grain * dorsal * stripe * (1.0f + shoulder + cheek));
                     const Vector2 uv(BoarFurAlong(ring.z),
                         MonkeyFurUv::Around(angle));
                     return SmoothVertex(point, Vector3(nx, ny, nz), coat, uv);
@@ -194,7 +204,7 @@ namespace island
             const std::array<Color,3> furTints{Color(245,239,229),Color(211,217,222),Color(255,240,218)};
             mesh.Body(furTints[boar.colorVariant%furTints.size()], dip, bob, boar.scale < 0.8f, sides);
             mesh.Ellipsoid(Vector3(0, 0.42f - dip + bob, BoarMuzzleZ(1.047f)), Vector3(0.114f, 0.09f, 0.0175f),
-                           Color(51, 44, 39), near ? 12 : 6, 4);
+                           Color(72, 58, 47), near ? 12 : 6, 4);
             for (int side : {-1, 1}) {
                 const float x = static_cast<float>(side);
                 for (int leg = 0; leg < 2; ++leg) {
@@ -276,6 +286,9 @@ namespace island
                         eyeTriangle(i,j,8+j,lid);eyeTriangle(i,8+j,8+i,lid);
                         eyeTriangle(16,8+i,8+j,Color(18,15,11));
                     }
+                    const auto eyeCentre=eyePoint(16);
+                    mesh.Ellipsoid(eyeCentre+Vector3(x*.0025f,.004f,-.002f),
+                                   Vector3(.0035f,.0045f,.0035f),Color(184,142,76),5,2);
                     mesh.Ellipsoid(Vector3(x * 0.046f, 0.435f - dip + bob, BoarMuzzleZ(1.068f)),
                                    Vector3(0.021f, 0.013f, 0.0063f), Color(17, 15, 13), 6, 3);
                     if (boar.scale > 0.8f) {
@@ -340,6 +353,7 @@ namespace island
         effect_->setTextureProperty(coatTexture_.get());
         effect_->setVertexColorEnabledProperty(true);
         effect_->setLightingEnabledProperty(false);
+        effect_->setDiffuseColorProperty(Vector3(1.46f, 1.36f, 1.24f));
         effect_->setFogEnabledProperty(true);
         effect_->setFogColorProperty(Vector3(environment::FogColorRed, environment::FogColorGreen, environment::FogColorBlue));
         effect_->setFogStartProperty(90.0f);
@@ -368,6 +382,10 @@ namespace island
             "island-simulator: boars use a lifted shoulder mantle and broad sealed nasal disc";
         std::cout << silhouetteDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(silhouetteDiagnostic);
+        constexpr const char* visibilityDiagnostic =
+            "island-simulator: near boars retain warm shoulder, cheek, nose, and eye contrast in canopy shade";
+        std::cout << visibilityDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(visibilityDiagnostic);
         constexpr const char* contactDiagnostic =
             "island-simulator: boar soles fit rendered terrain independently with fixed-length limbs";
         std::cout << contactDiagnostic << '\n';

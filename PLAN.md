@@ -122,7 +122,21 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — stream surface readability
+## Latest visual-audit implementation — boar canopy readability
+
+The post-stream land-animal comparison selected the boar: its detailed bristle texture collapsed
+into an almost black silhouette in the intended woodland habitat. The accepted pass lifts the
+final warm coat exposure while preserving canopy tint, adds a subtle shoulder/cheek distinction,
+lightens the broad nasal disc against its nostrils and adds minute fitted eye catchlights. A first
+tint-only attempt was rendered and rejected because it remained visually unchanged after vertex
+colour clamping. Population, geometry, gait, texture allocation and two-draw material split are
+unchanged. Eight-pose native evidence `20261014T034717.571102Z-boars` passes with 224 colour bins,
+18.66 luminance deviation and 89.12 spatial contrast. Focused Chrome/SwiftShader evidence
+`20261014T035309.581591Z-chrome-boars` passes two inspected live poses,60finite intervals,
+GL0/context intact/kernel[]. Core/herd/coat/pose/112 harness tests and ARM64 assemble/lint pass
+without emulator execution.
+
+## Previous visual-audit implementation — stream surface readability
 
 After the aquatic-animal cycle, the environment comparison selected the stream as the weakest
 surface: despite a physical bed and banks, it still read as a muted grey-green strip. The existing
@@ -834,6 +848,14 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   kernel[]; matched stage-two comparison inspected. Chrome/SwiftShader
   223134.897234Z-chrome-boars PASS60intervals/two distinct images/GL0/context intact/kernel[];
   final image inspected. ARM64 assemble+lint and Debug build plus herd/coat/pose tests pass.
+  A canopy-readability pass lifts the final warm material exposure without replacing the detailed
+  bristle source, subtly distinguishes shoulder/cheek, lightens the sealed nasal disc against its
+  nostrils and adds fitted amber eye catchlights. Geometry, herd, gait, texture allocation and two
+  draws are unchanged. Eight-pose native `20261014T034717.571102Z-boars` passes224bins/std18.66/
+  spatial89.12/kernel[] and was inspected against the preceding dark silhouette. Focused
+  Chrome/SwiftShader `20261014T035309.581591Z-chrome-boars` passes two inspected live poses,
+  60finite intervals/GL0/context intact/kernel[]. Core/herd/coat/pose/112 harness tests and ARM64
+  assemble/lint pass without emulator execution.
   Broader joint/gait realism and subjective audio acceptance remain open.
 - [ ] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
   tail. Rework head/body proportions and a fur-covered tail together, not just a colour

@@ -1,5 +1,27 @@
 # Boar coat material — live integration, visual refinement open
 
+## Canopy-shade readability and facial contrast (2026-10-14)
+
+The next land-animal audit found that the detailed bristle source survived technically but became
+an almost black silhouette in its intended damp woodland habitat. The retained pass keeps the same
+texture and canopy response while lifting its final warm material exposure, slightly lifting the
+canopy tint floor and warming the shoulder-to-cheek transition. The broad nasal disc is lighter
+against dark nostrils and each fitted eye gains a minute amber catchlight. An initial tint-only
+attempt was rendered and rejected because near-white vertex colours clamped before they could
+meaningfully lift the dark sampled coat.
+
+No population, body topology, gait, habitat, LOD, texture allocation, upload capacity or draw is
+added. Inspected eight-pose llvmpipe evidence
+`build-consumer/software-captures/20261014T034717.571102Z-boars` passes with 224 colour bins,
+18.66 luminance deviation, 89.12 spatial contrast and no new kernel GPU fault. Compared with
+`20261013T222749.259239Z-boars`, the bristle direction remains intact while the rump, shoulder and
+lowered head remain distinguishable under the same canopy.
+Focused Chrome/SwiftShader evidence
+`build/browser-software/20261014T035309.581591Z-chrome-boars` passes with two inspected live poses,
+60 finite intervals, GL error zero, an intact context and no new kernel GPU fault. Both images make
+the head, eye, nasal disc and directional bristles readable. Core, herd, coat, pose and 112 harness
+tests pass; the ARM64 debug APK assembles and lint passes without starting an emulator.
+
 ## Continuous lower-leg taper — 2026-10-13
 
 The near model no longer places a dark spherical ellipsoid over each knee. From the
