@@ -1975,6 +1975,8 @@ try {
     && reefResult.output?.includes(
       "island-simulator: branching reef form uses dense upright staghorn stems, offset side forks, and small growing tips")
     && reefResult.output?.includes(
+      "island-simulator: near staghorn coral uses bent two-stage stems and paired lower and upper forks")
+    && reefResult.output?.includes(
       "island-simulator: broken reef-crest foam follows the shared 62-86m habitat field without new draws")
     && reefResult.output?.includes(
       "island-simulator: reef QA camera targets peak broken crest weight")

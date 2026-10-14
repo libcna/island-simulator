@@ -59,7 +59,25 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
-## Latest audio-audit implementation — filtered boar and goat breathing
+## Latest visual-audit implementation — branched staghorn growth
+
+The water/reef audit selected the spatial reef's staghorn colony as the weakest close form. Its
+eleven stems and tip bulbs were recognizable, but long straight single tubes still read as a bundle
+of fingers. The accepted near-LOD geometry divides every main stem into two slightly bent tapering
+growth stages and adds a second, opposed lower fork alongside the existing upper fork. Each branch
+retains a small pale growing tip, producing a denser coral silhouette without changing the 314
+deterministic habitat placements, four variants, LOD distances, collision policy or instanced draw
+structure. The far LOD receives the bent main-stem rhythm but not the extra fork geometry.
+
+Native baseline/final evidence is
+`build-consumer/software-captures/20261014T120919.391225Z-reef-habitat` and
+`20261014T121255.195929Z-reef-habitat`; the final was inspected at full resolution and retains its
+seabed root, water haze and surrounding habitat context. Release and WebGL builds, focused native
+tests, Android assemble/lint and stale-binary diagnostic guards pass. A future full browser suite
+will require the new growth diagnostic; Android runtime remains unqualified because no emulator or
+device was used.
+
+## Previous audio-audit implementation — filtered boar and goat breathing
 
 The requested boar/goat sound audit confirmed that positional scheduling, grunts, bleats, mute and
 resume were already functional, then selected the quiet breathing clips as the weakest material.

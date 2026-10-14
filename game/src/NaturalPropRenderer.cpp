@@ -80,6 +80,8 @@ namespace island
             "island-simulator: fallen frond leaflets use geometric central folds";
         constexpr std::string_view StaghornCoralDiagnostic =
             "island-simulator: branching reef form uses dense upright staghorn stems, offset side forks, and small growing tips";
+        constexpr std::string_view StaghornGrowthDiagnostic =
+            "island-simulator: near staghorn coral uses bent two-stage stems and paired lower and upper forks";
         constexpr int FallenFrondMaterialDetail = 248;
 
         struct PropGeometry
@@ -536,9 +538,14 @@ void main()
                         + .085f * static_cast<float>((branch * 3) % 6);
                     const Vector3 end(std::cos(angle) * reach, height,
                                       std::sin(angle) * reach);
-                    AppendReefTube(geometry, start, end, .074f, .026f, sides, coral);
+                    const Vector3 tangent(-std::sin(angle), 0, std::cos(angle));
+                    const Vector3 middle = start + (end - start) * .52f
+                        + tangent * (branch % 2 == 0 ? .030f : -.030f)
+                        + Vector3::Up * .018f;
+                    AppendReefTube(geometry, start, middle, .074f, .050f, sides, coral);
+                    AppendReefTube(geometry, middle, end, .052f, .026f, sides, coral);
                     if (!farMesh) {
-                        const Vector3 direction = Vector3::Normalize(end - start);
+                        const Vector3 direction = Vector3::Normalize(end - middle);
                         const Vector3 fork = end - direction
                             * (.20f + .025f * static_cast<float>(branch % 3));
                         const float split = branch % 2 == 0 ? .52f : -.52f;
@@ -549,6 +556,15 @@ void main()
                         AppendReefTube(geometry, fork, sideTip, .035f, .018f, 6, coral);
                         AppendReefMound(geometry, sideTip - Vector3::Up * .014f,
                             .030f, .045f, 2, 6, angle, growingTip);
+                        const Vector3 lowerFork = start + (middle - start) * .72f;
+                        const Vector3 lowerTip = lowerFork + Vector3(
+                            std::cos(angle - split * .72f) * .13f,
+                            .17f + .018f * static_cast<float>((branch + 1) % 3),
+                            std::sin(angle - split * .72f) * .13f);
+                        AppendReefTube(geometry, lowerFork, lowerTip,
+                            .030f, .015f, 6, coral);
+                        AppendReefMound(geometry, lowerTip - Vector3::Up * .012f,
+                            .027f, .041f, 2, 6, angle + 1.4f, growingTip);
                     }
                     AppendReefMound(geometry, end - Vector3::Up * .016f,
                         farMesh ? .035f : .033f, farMesh ? .052f : .050f,
@@ -1369,6 +1385,8 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(reefDiagnostic);
             std::cout << StaghornCoralDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(StaghornCoralDiagnostic);
+            std::cout << StaghornGrowthDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(StaghornGrowthDiagnostic);
         } else {
             std::cerr << "island-simulator: natural-prop stock-effect fallback: "
                       << fallbackReason_ << '\n';

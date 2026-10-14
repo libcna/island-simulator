@@ -769,6 +769,8 @@ def main():
                     raise RuntimeError("spatial reef form diagnostic missing")
                 if "branching reef form uses dense upright staghorn stems, offset side forks, and small growing tips" not in diagnostics:
                     raise RuntimeError("current staghorn coral silhouette diagnostic missing")
+                if "near staghorn coral uses bent two-stage stems and paired lower and upper forks" not in diagnostics:
+                    raise RuntimeError("current staghorn coral growth structure diagnostic missing")
                 if not re.search(r"reef habitat QA camera underwater with [1-9][0-9]* neighbours", diagnostics):
                     raise RuntimeError("reef-habitat camera did not select a populated patch")
                 if not re.search(r"[1-9][0-9]*/[1-9][0-9]* reef habitat", diagnostics):
