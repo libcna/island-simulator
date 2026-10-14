@@ -810,6 +810,7 @@ try {
             && (!focusedDolphinCheck || (log.includes("near dolphins use closed-volume fins and flukes, short beaks, faceted eyes, mouth creases, and a blowhole")
               && log.includes("near dolphins use a nineteen-station closed melon profile, twenty-four-sided body, and vertex-blended countershading")
               && log.includes("dolphin tail stock bends vertically through horizontal fluke strokes")
+              && log.includes("near dolphins use an extended fitted rostrum, lower swept fins, and readable grey countershading")
               && log.includes("dolphin near/far geometry 3144/15 vertices, closed fins and CPU faceted daylight")
               && /dolphins [1-4]\/4 visible \(near [1-4], far [0-4]\), 1 draw/.test(log)))
             && (!focusedShipwreckCheck || (log.includes("shipwreck wood loaded Content/structures/shipwreck-weathered-wood.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored interior atlas")

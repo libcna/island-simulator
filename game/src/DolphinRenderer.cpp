@@ -142,12 +142,12 @@ Vector3 Point(const Vector3 &centre, const Axes &axes, float x, float y,
 
 std::array<Color, 4> Palette(const DolphinState &dolphin, float time) {
   const std::array<std::array<Color, 4>, 3> colors{
-      {std::array{Color(86, 108, 118, 255), Color(69, 91, 102, 255),
-                  Color(139, 154, 155, 255), Color(20, 28, 33, 255)},
-       std::array{Color(94, 112, 118, 255), Color(75, 94, 102, 255),
-                  Color(146, 157, 151, 255), Color(18, 27, 31, 255)},
-       std::array{Color(77, 101, 115, 255), Color(61, 83, 97, 255),
-                  Color(130, 150, 154, 255), Color(17, 25, 30, 255)}}};
+      {std::array{Color(105, 124, 132, 255), Color(87, 107, 117, 255),
+                  Color(154, 168, 168, 255), Color(20, 28, 33, 255)},
+       std::array{Color(112, 128, 133, 255), Color(92, 110, 118, 255),
+                  Color(160, 171, 165, 255), Color(18, 27, 31, 255)},
+       std::array{Color(96, 118, 132, 255), Color(78, 101, 116, 255),
+                  Color(148, 166, 171, 255), Color(17, 25, 30, 255)}}};
   auto result = colors[dolphin.colorVariant % colors.size()];
   const auto light = AquaticLightAt(dolphin.x, dolphin.y, dolphin.z, time);
   for (auto &color : result)
@@ -205,12 +205,12 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
   for (int segment = 0; segment < RostrumSegments; ++segment) {
     const float angle = 2.0f * std::numbers::pi_v<float>
         * static_cast<float>(segment) / static_cast<float>(RostrumSegments);
-    rostrumBase[segment] = Point(centre, axes, .090f * std::cos(angle),
-        -.042f + .055f * std::sin(angle), .905f, scale);
-    rostrumTip[segment] = Point(centre, axes, .045f * std::cos(angle),
-        -.047f + .034f * std::sin(angle), 1.035f, scale);
+    rostrumBase[segment] = Point(centre, axes, .094f * std::cos(angle),
+        -.042f + .058f * std::sin(angle), .895f, scale);
+    rostrumTip[segment] = Point(centre, axes, .043f * std::cos(angle),
+        -.048f + .032f * std::sin(angle), 1.125f, scale);
   }
-  const auto rostrumCap = Point(centre, axes, 0, -.047f, 1.065f, scale);
+  const auto rostrumCap = Point(centre, axes, 0, -.048f, 1.155f, scale);
   for (int segment = 0; segment < RostrumSegments; ++segment) {
     const int next = (segment + 1) % RostrumSegments;
     const float angle = 2.0f * std::numbers::pi_v<float>
@@ -224,21 +224,21 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
   // edge-on like the former coincident sheet.
   const std::array dorsal{
       Point(centre, axes, 0, .205f, .16f, scale),
-      Point(centre, axes, 0, .292f, .07f, scale),
-      Point(centre, axes, 0, .350f, -.025f, scale),
-      Point(centre, axes, 0, .335f, -.105f, scale),
-      Point(centre, axes, 0, .285f, -.185f, scale),
-      Point(centre, axes, 0, .230f, -.275f, scale),
-      Point(centre, axes, 0, .180f, -.34f, scale)};
+      Point(centre, axes, 0, .258f, .075f, scale),
+      Point(centre, axes, 0, .302f, -.020f, scale),
+      Point(centre, axes, 0, .286f, -.105f, scale),
+      Point(centre, axes, 0, .246f, -.190f, scale),
+      Point(centre, axes, 0, .207f, -.280f, scale),
+      Point(centre, axes, 0, .180f, -.350f, scale)};
   ClosedPolygon(out, dorsal, axes.right * (.010f * scale), colors[0], colors[1]);
   for (float side : {-1.0f, 1.0f}) {
     const std::array fin{
         Point(centre, axes, side * .19f, -.055f, .30f, scale),
         Point(centre, axes, side * .27f, -.080f, .22f, scale),
-        Point(centre, axes, side * .34f, -.105f, .13f, scale),
-        Point(centre, axes, side * .44f, -.13f, .015f, scale),
-        Point(centre, axes, side * .34f, -.14f, -.095f, scale),
-        Point(centre, axes, side * .24f, -.130f, -.145f, scale),
+        Point(centre, axes, side * .35f, -.110f, .10f, scale),
+        Point(centre, axes, side * .47f, -.145f, -.060f, scale),
+        Point(centre, axes, side * .34f, -.145f, -.170f, scale),
+        Point(centre, axes, side * .23f, -.125f, -.150f, scale),
         Point(centre, axes, side * .14f, -.105f, -.18f, scale)};
     ClosedPolygon(out, fin, axes.up * (.009f * scale), colors[0], colors[1]);
   }
@@ -270,10 +270,10 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
              Point(centre, axes, side * .223f, .060f, .660f, scale),
              Point(centre, axes, side * .223f, .059f, .640f, scale), eyeShine);
 
-    const auto mouthFront = Point(centre, axes, side * .030f, -.078f, 1.075f, scale);
-    const auto mouthOuter = Point(centre, axes, side * .090f, -.078f, .905f, scale);
-    const auto mouthKnee = Point(centre, axes, side * .074f, -.088f, .970f, scale);
-    const auto mouthInner = Point(centre, axes, side * .026f, -.087f, 1.045f, scale);
+    const auto mouthFront = Point(centre, axes, side * .027f, -.078f, 1.150f, scale);
+    const auto mouthOuter = Point(centre, axes, side * .092f, -.078f, .905f, scale);
+    const auto mouthKnee = Point(centre, axes, side * .070f, -.088f, 1.020f, scale);
+    const auto mouthInner = Point(centre, axes, side * .025f, -.086f, 1.125f, scale);
     Triangle(out, mouthFront, mouthOuter, mouthKnee, colors[3]);
     Triangle(out, mouthFront, mouthKnee, mouthInner, colors[3]);
   }
@@ -346,6 +346,10 @@ DolphinRenderer::DolphinRenderer(GraphicsDevice &device,
       "island-simulator: dolphin tail stock bends vertically through horizontal fluke strokes";
   std::cout << stroke << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(stroke);
+  const char *profile =
+      "island-simulator: near dolphins use an extended fitted rostrum, lower swept fins, and readable grey countershading";
+  std::cout << profile << '\n';
+  MirrorRuntimeDiagnosticToPlatformLog(profile);
 }
 DolphinRenderer::~DolphinRenderer() = default;
 

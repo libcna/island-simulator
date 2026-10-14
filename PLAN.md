@@ -59,6 +59,22 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
+## Latest visual-audit implementation — readable dolphin broadside
+
+The fresh goat/dolphin/frond/distant comparison selected dolphins as the weakest subject. The old
+camera followed a deliberately surfacing animal only 0.24 m below the water plane from above; the
+surface bisected its forehead and hid the existing rostrum, eye and fins. The accepted QA route now
+tracks a cruise-depth animal's live heading from a low broadside position, while pitch, bank, tail
+stroke and route simulation remain live. The model receives a visibly longer fitted rostrum, lower
+swept dorsal, narrower rear-swept pectorals and a lighter but still subdued three-family grey
+countershade. Geometry count, four-agent population, far LOD, movement and one-draw batch are
+unchanged. Baseline, surface-bisected broadside and accepted cruise-depth evidence are
+`20261014T144045.076654Z-dolphins`, `20261014T144636.488287Z-dolphins` and
+`20261014T145149.471503Z-dolphins`; all were inspected and the final frame passes the image gate
+at 123 colour bins, 44.73 luminance deviation and 211.18 spatial contrast. Focused simulation,
+browser-gate and script-syntax tests pass; portable builds remain for the consolidated landmark
+repair pass.
+
 ## Latest visual-audit implementation — level lee-cove driftwood
 
 The coast/prop audit found that the three-piece authored driftwood landmark still used the old

@@ -1125,13 +1125,14 @@ the shark-inclusive arm64 GLES 3 APK builds but awaits stable-device runtime val
 
 `DolphinPod` adds four peaceful animals in bounded authoritative-water homes beyond the western
 reef. Cruise, surface and dive states supply depth pitch, turn bank and an animated tail beat while
-the shared activation policy reduces distant work. `DolphinRenderer` uses a 558-vertex near form
-with a short closed eight-facet beak below the melon, two-facet highlighted eyes, shaped pectoral
-fins, curved dorsal, mouth/blowhole cues and horizontal flukes; the far form is 15 vertices. Thin
-fins use two-sided facet lighting but remain single-surface under `CullNone`. All four animals share
-one dynamic `BasicEffect` draw. A translation-following close camera retains live pose across slow
-audit frames. Native OpenGL 3.3 and focused Chrome/SwiftShader WebGL 2 captures match; current
-Android execution and integrated performance remain open.
+the shared activation policy reduces distant work. `DolphinRenderer` uses a 3,144-vertex near form
+with an extended closed twelve-facet beak fitted below the melon, highlighted eyes, swept closed
+pectoral fins, a lower curved dorsal, mouth/blowhole cues and horizontal flukes; the far form is 15
+vertices. Smooth vertex daylight and a lighter grey dorsal/ventral palette keep the flank readable
+through water tint. All four animals share one dynamic `BasicEffect` draw. The close camera follows
+the heading of a cruise-depth animal broadside, retaining live pose without letting the surface
+plane bisect its head. Native OpenGL 3.3 and focused Chrome/SwiftShader WebGL 2 execute the path;
+current Android execution and integrated performance remain open.
 
 Seven original procedural monkeys exercise CNA's actual skeletal-animation path without an
 external asset or license dependency. `MonkeyTroop` owns deterministic interior homes and a compact

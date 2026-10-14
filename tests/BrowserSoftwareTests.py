@@ -383,13 +383,14 @@ class BrowserSoftwareTests(unittest.TestCase):
         marker = "near dolphins use closed-volume fins and flukes, short beaks, faceted eyes, mouth creases, and a blowhole"
         silhouette = "near dolphins use a nineteen-station closed melon profile, twenty-four-sided body, and vertex-blended countershading"
         stroke = "dolphin tail stock bends vertically through horizontal fluke strokes"
+        profile = "near dolphins use an extended fitted rostrum, lower swept fins, and readable grey countershading"
         geometry = "dolphin near/far geometry 3144/15 vertices, closed fins and CPU faceted daylight"
         def report():
             return {"passed": True, "views": [{"mode": "dolphins", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "dolphins.png", "afterSimulationScreenshot": "dolphins-after.png",
                 "intervals": [16.7] * 60,
-                "result": {"output": marker + "\n" + silhouette + "\n" + stroke + "\n" + geometry
+                "result": {"output": marker + "\n" + silhouette + "\n" + stroke + "\n" + profile + "\n" + geometry
                     + "\ndolphins 1/4 visible (near 1, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_dolphin_report(report()),
                          ("dolphins.png", "dolphins-after.png"))
@@ -400,7 +401,8 @@ class BrowserSoftwareTests(unittest.TestCase):
             lambda value: value["views"][0].update(intervals=[16.7] * 59),
             lambda value: value["views"][0]["result"].update(output=geometry + "\ndolphins 1/4 visible (near 1, far 0), 1 draw"),
             lambda value: value["views"][0]["result"].update(output=marker + "\n" + silhouette + "\n" + geometry + "\ndolphins 1/4 visible (near 1, far 0), 1 draw"),
-            lambda value: value["views"][0]["result"].update(output=marker + "\n" + silhouette + "\n" + stroke + "\n" + geometry + "\ndolphins 0/4 visible (near 0, far 0), 0 draw"),
+            lambda value: value["views"][0]["result"].update(output=marker + "\n" + silhouette + "\n" + stroke + "\n" + geometry + "\ndolphins 1/4 visible (near 1, far 0), 1 draw"),
+            lambda value: value["views"][0]["result"].update(output=marker + "\n" + silhouette + "\n" + stroke + "\n" + profile + "\n" + geometry + "\ndolphins 0/4 visible (near 0, far 0), 0 draw"),
         ):
             invalid = report(); mutate(invalid)
             with self.assertRaises(RuntimeError): gate.validate_dolphin_report(invalid)

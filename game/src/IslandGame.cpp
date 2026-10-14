@@ -860,15 +860,19 @@ namespace island
             pitch_ = std::atan2(toShark.Y, std::hypot(toShark.X, toShark.Z));
         } else if (viewpoint_ == FixedViewpoint::DolphinDetail
                    && !dolphinPod_.Dolphins().empty()) {
-            const DolphinState& dolphin = dolphinPod_.Dolphins()[1U];
-            const Vector3 radial = Vector3::Normalize(Vector3(dolphin.x, 0.0f, dolphin.z));
-            const Vector3 tangent(-radial.Z, 0.0f, radial.X);
+            // Agent zero begins in its ordinary cruise depth. Agent one is the
+            // surfacing animal and the water plane used to bisect its head in QA.
+            const DolphinState& dolphin = dolphinPod_.Dolphins().front();
+            const Vector3 forward(std::cos(dolphin.headingRadians), 0.0f,
+                                  std::sin(dolphin.headingRadians));
+            const Vector3 side(-forward.Z, 0.0f, forward.X);
             cameraPosition_ = Vector3(dolphin.x, dolphin.y, dolphin.z)
-                + radial * 5.2f + tangent * 1.3f + Vector3::Up * 2.0f;
+                + side * 3.7f - forward * .45f + Vector3::Up * .35f;
             const Vector3 toDolphin = Vector3(dolphin.x, dolphin.y, dolphin.z)
-                - cameraPosition_;
+                + forward * .12f - cameraPosition_;
             yaw_ = std::atan2(toDolphin.X, toDolphin.Z);
             pitch_ = std::atan2(toDolphin.Y, std::hypot(toDolphin.X, toDolphin.Z));
+            std::cout << "island-simulator: dolphin QA uses a low moving broadside view\n";
         } else if (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail
             || viewpoint_ == FixedViewpoint::MonkeyClimbDetail) {
             if (viewpoint_ == FixedViewpoint::MonkeyTreeDetail) {
@@ -1803,14 +1807,20 @@ namespace island
                                        subject.y - previousSharkSubject.y,
                                        subject.z - previousSharkSubject.z);
         }
-        const DolphinState previousDolphinSubject = dolphinPod_.Dolphins()[1U];
         dolphinPod_.Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z);
         if (viewpoint_ == FixedViewpoint::DolphinDetail) {
-            // Follow translation only: retain live pitch, bank, fluke beat and state motion.
-            const DolphinState& subject = dolphinPod_.Dolphins()[1U];
-            cameraPosition_ += Vector3(subject.x - previousDolphinSubject.x,
-                                       subject.y - previousDolphinSubject.y,
-                                       subject.z - previousDolphinSubject.z);
+            // Preserve a broadside audit while retaining live pitch, bank, fluke beat and
+            // state motion; translation-only following eventually turned the flank away.
+            const DolphinState& subject = dolphinPod_.Dolphins().front();
+            const Vector3 forward(std::cos(subject.headingRadians), 0.0f,
+                                  std::sin(subject.headingRadians));
+            const Vector3 side(-forward.Z, 0.0f, forward.X);
+            cameraPosition_ = Vector3(subject.x, subject.y, subject.z)
+                + side * 3.7f - forward * .45f + Vector3::Up * .35f;
+            const Vector3 toDolphin = Vector3(subject.x, subject.y, subject.z)
+                + forward * .12f - cameraPosition_;
+            yaw_ = std::atan2(toDolphin.X, toDolphin.Z);
+            pitch_ = std::atan2(toDolphin.Y, std::hypot(toDolphin.X, toDolphin.Z));
         }
         Vector3 monkeyObserver = cameraPosition_;
         if (viewpoint_ == FixedViewpoint::MonkeyDetail) {

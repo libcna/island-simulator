@@ -928,6 +928,8 @@ def main():
                     raise RuntimeError("current dolphin silhouette proportions are missing; check for a stale executable")
                 if "dolphin tail stock bends vertically through horizontal fluke strokes" not in diagnostics:
                     raise RuntimeError("current species-appropriate dolphin tail stroke is missing")
+                if "near dolphins use an extended fitted rostrum, lower swept fins, and readable grey countershading" not in diagnostics:
+                    raise RuntimeError("current dolphin broadside profile is missing; check for a stale executable")
                 if "dolphin near/far geometry 3144/15 vertices, closed fins and CPU faceted daylight" not in diagnostics:
                     raise RuntimeError("current dolphin geometry inventory is missing; check for a stale executable")
                 if not re.search(r"dolphins [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw", diagnostics):
