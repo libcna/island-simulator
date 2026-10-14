@@ -1837,6 +1837,14 @@ int main()
             && std::any_of(a.samples.begin(), a.samples.end(), [](auto s) { return s > 1000; })
             && std::all_of(a.samples.begin(), a.samples.end(), [](auto s) { return std::abs(s) < 21000; }),
             "boar PCM clips are deterministic, distinct, bounded and silent at endpoints");
+        if (kind == island::BoarCallKind::Breath) {
+            int zeroCrossings = 0;
+            for (std::size_t sample = 1; sample < a.samples.size(); ++sample)
+                zeroCrossings += (a.samples[sample - 1] < 0 && a.samples[sample] >= 0)
+                    || (a.samples[sample - 1] > 0 && a.samples[sample] <= 0);
+            Check(zeroCrossings < 4000,
+                "boar breath synthesis regressed into high-frequency hiss");
+        }
         Check(island::BoarCallVolume(kind, 0.0f) > island::BoarCallVolume(kind, 5.0f)
             && island::BoarCallVolume(kind, 50.0f) == 0.0f
             && island::BoarCallVolume(kind, -1.0f) == 0.0f
@@ -1956,6 +1964,14 @@ int main()
             &&std::any_of(a.samples.begin(),a.samples.end(),[](auto sample){return sample>1000;})
             &&std::all_of(a.samples.begin(),a.samples.end(),[](auto sample){return std::abs(sample)<21000;}),
             "goat PCM clips are deterministic, distinct, bounded and silent at endpoints");
+        if(kind==island::GoatCallKind::Breath) {
+            int zeroCrossings=0;
+            for(std::size_t sample=1;sample<a.samples.size();++sample)
+                zeroCrossings+=(a.samples[sample-1]<0&&a.samples[sample]>=0)
+                    ||(a.samples[sample-1]>0&&a.samples[sample]<=0);
+            Check(zeroCrossings<4000,
+                "goat breath synthesis regressed into high-frequency hiss");
+        }
         Check(island::GoatCallVolume(kind,0)>island::GoatCallVolume(kind,5)
             &&island::GoatCallVolume(kind,60)==0&&island::GoatCallVolume(kind,-1)==0
             &&island::GoatCallVolume(kind,std::numeric_limits<float>::quiet_NaN())==0,

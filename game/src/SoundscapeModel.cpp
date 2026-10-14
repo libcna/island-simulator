@@ -945,7 +945,8 @@ namespace island
         double phase = 0.0;
         for (std::size_t i = 0; i < frames; ++i) {
             const float t = static_cast<float>(i) / static_cast<float>(AmbientSampleRate);
-            lowNoise += 0.18f * (noise.Next() - lowNoise);
+            const float rawNoise = noise.Next();
+            lowNoise += 0.18f * (rawNoise - lowNoise);
             slowerNoise += 0.035f * (lowNoise - slowerNoise);
             const float start = alternate ? 0.13f : 0.08f;
             const float duration = kind == BoarCallKind::Breath ? 0.92f : 0.38f;
@@ -967,7 +968,8 @@ namespace island
                 ? voice * (0.70f + slowerNoise) + lowNoise * 0.8f
                 : kind == BoarCallKind::Snuffle
                     ? 3.5f * (lowNoise - slowerNoise) + voice * 0.12f
-                    : 2.8f * lowNoise + voice * 0.025f;
+                    : 2.55f * slowerNoise + 0.34f * (lowNoise - slowerNoise)
+                        + voice * 0.050f;
             samples[i] = envelope * texture;
         }
         return Quantize(samples, kind == BoarCallKind::Grunt ? 0.62f : 0.48f);
@@ -1101,8 +1103,10 @@ namespace island
             } else if (kind == GoatCallKind::Breath) {
                 const float envelope = pulse(t, alternate ? .15f : .09f,
                     alternate ? .70f : .84f);
-                sample = envelope * ((lowNoise - slowNoise) * 2.8f
-                    + rawNoise * .16f);
+                const float airway = 2.15f * slowNoise
+                    + 1.25f * (lowNoise - slowNoise);
+                const float air = .20f * (rawNoise - lowNoise);
+                sample = envelope * (airway + air * .22f);
             } else {
                 const auto knock = [t](const float begin, const float strength) {
                     const float u = t - begin;

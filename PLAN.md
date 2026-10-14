@@ -59,7 +59,26 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
-## Latest visual-audit implementation — readable boar face in wet shade
+## Latest audio-audit implementation — filtered boar and goat breathing
+
+The requested boar/goat sound audit confirmed that positional scheduling, grunts, bleats, mute and
+resume were already functional, then selected the quiet breathing clips as the weakest material.
+Both were dominated by relatively fast noise transitions: the goat path still admitted raw noise
+directly, while the boar path leaned on the faster low-pass stage. The accepted synthesis keeps clip
+lengths, peak levels, attenuation, scheduling, species calls and all voice budgets unchanged, but
+builds breath from slower chest/airway turbulence with only restrained filtered air. Boar breath A
+falls from about 3,545 to 1,300 zero crossings/second and goat breath A from about 4,083 to 2,957;
+their RMS remains 0.0826 and 0.0810 respectively. New core guards prevent either breath from
+regressing into high-frequency hiss.
+
+The 40-clip audio report remains valid at exactly 6,052,724 PCM bytes. Core, audio-report and real-CNA
+soundscape runtime tests pass. Contained SDL disk-backend playback/mute evidence passes for boars at
+`build-consumer/software-boar-audio/20261014T115811.660531Z` and goats at
+`build-consumer/software-goat-audio/20261014T115921.600671Z`, with no new kernel GPU faults. Native,
+WebGL and Android assemble/lint builds pass; Android runtime remains unqualified because no emulator
+or device was used.
+
+## Previous visual-audit implementation — readable boar face in wet shade
 
 The animal comparison inspected fresh goat, boar and dolphin close views. Goat fur and silhouette
 and dolphin anatomy remained readable; the boar still lost its lowered head, eye and nasal disc into
