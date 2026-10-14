@@ -801,6 +801,7 @@ try {
               && log.includes("near fish use capped smooth-lit bodies, caudal peduncles and progressive rear-body bends")
               && /fish [1-9][0-9]*\/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedSharkCheck || (log.includes("near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes")
+              && log.includes("shark retains deep dorsal and pale ventral countershading through water tint")
               && log.includes("near shark uses a smooth-lit blunt head and body, caudal peduncle and heterocercal tail")
               && log.includes("shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight")
               && /shark visible activity \S+, 1 draw/.test(log)))

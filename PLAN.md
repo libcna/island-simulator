@@ -59,7 +59,27 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
-## Latest visual-audit implementation — body-family fish fin pigment
+## Latest visual-audit implementation — retained shark countershading
+
+The shark close audit accepted its blunt head, gill slits, fins and heterocercal tail, but selected
+the near-uniform cyan material as the next weakness: shared water tint compressed the already narrow
+dorsal/ventral palette until the body read as one flat colour. The accepted material-only change
+widens the source palette before the unchanged water absorption and increases the existing vertical
+blend: a deeper cool dorsal surface, neutral flank and pale warm-grey underside now remain distinct
+without making the offshore animal unnaturally high contrast. The far LOD receives matching body
+and belly endpoints. Geometry, one-agent patrol, motion, draw count and vertex budgets are unchanged.
+
+Baseline/final native close evidence is
+`build-consumer/software-captures/20261014T103947.430543Z-shark` and
+`20261014T104217.140491Z-shark`. The final was inspected at full resolution; the lower jaw and belly
+remain readable through haze while the dorsal silhouette stays subdued. Native and focused browser
+gates require the new countershading diagnostic. Focused Chrome/SwiftShader evidence
+`build/browser-software/20261014T104602.079424Z-chrome-shark` passes 60 CPU-rendered frame
+intervals with two distinct inspected poses and a clean graphics context. The Release build,
+focused native tests, WebGL build and Android assemble/lint pass; Android runtime remains
+unqualified because no emulator or device was used.
+
+## Previous visual-audit implementation — body-family fish fin pigment
 
 The underwater wildlife close audit found that fish body volume, eyes, gills and schooling motion
 remained readable, but two palettes used unrelated mustard-grey fins. Their nearly uniform colour

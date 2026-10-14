@@ -898,6 +898,8 @@ def main():
                 if not re.search(r"fish [1-9][0-9]*/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):
                     raise RuntimeError("fish capture did not submit a near detailed school")
             if args.viewpoint == "shark":
+                if "shark retains deep dorsal and pale ventral countershading through water tint" not in diagnostics:
+                    raise RuntimeError("current shark countershading is missing; check for a stale executable")
                 if "shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight" not in diagnostics:
                     raise RuntimeError("current close shark geometry is missing; check for a stale executable")
                 if "near shark uses a smooth-lit blunt head and body, caudal peduncle and heterocercal tail" not in diagnostics:

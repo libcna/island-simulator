@@ -68,6 +68,8 @@ namespace island
         constexpr int BodySegments = 18;
         constexpr std::string_view SharkDetailDiagnostic =
             "island-simulator: near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes";
+        constexpr std::string_view SharkCountershadeDiagnostic =
+            "island-simulator: shark retains deep dorsal and pale ventral countershading through water tint";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -99,9 +101,9 @@ namespace island
         {
             if (vertical < 0.0f)
                 return Color::Lerp(body, belly,
-                                   std::clamp(-vertical * .86f, 0.0f, 1.0f));
+                                   std::clamp(-vertical * .98f, 0.0f, 1.0f));
             return Color::Lerp(body, back,
-                               std::clamp(vertical * .82f, 0.0f, 1.0f));
+                               std::clamp(vertical * .96f, 0.0f, 1.0f));
         }
 
         [[nodiscard]] Color SmoothBodyColor(const Color& back, const Color& body,
@@ -196,11 +198,11 @@ namespace island
             const AquaticLightProfile waterLight = AquaticLightAt(
                 centre.X, centre.Y, centre.Z, timeSeconds);
             const Color body = wildlife_render::ApplyUnderwaterLight(
-                ActivityColor(Color(72, 91, 99, 255), shark.activity), waterLight);
+                ActivityColor(Color(78, 96, 103, 255), shark.activity), waterLight);
             const Color back = wildlife_render::ApplyUnderwaterLight(
-                ActivityColor(Color(43, 61, 70, 255), shark.activity), waterLight);
+                ActivityColor(Color(24, 43, 52, 255), shark.activity), waterLight);
             const Color belly = wildlife_render::ApplyUnderwaterLight(
-                ActivityColor(Color(147, 159, 156, 255), shark.activity), waterLight);
+                ActivityColor(Color(185, 188, 174, 255), shark.activity), waterLight);
             const Color fin = wildlife_render::ApplyUnderwaterLight(
                 ActivityColor(Color(58, 76, 84, 255), shark.activity), waterLight);
             const PoseAxes axes = MakePoseAxes(shark);
@@ -396,9 +398,9 @@ namespace island
             const AquaticLightProfile waterLight = AquaticLightAt(
                 centre.X, centre.Y, centre.Z, timeSeconds);
             const Color body = wildlife_render::ApplyUnderwaterLight(
-                ActivityColor(Color(67, 88, 97, 255), shark.activity), waterLight);
+                ActivityColor(Color(75, 94, 102, 255), shark.activity), waterLight);
             const Color belly = wildlife_render::ApplyUnderwaterLight(
-                ActivityColor(Color(139, 154, 153, 255), shark.activity), waterLight);
+                ActivityColor(Color(174, 180, 169, 255), shark.activity), waterLight);
             const Color fin = wildlife_render::ApplyUnderwaterLight(
                 ActivityColor(Color(54, 72, 81, 255), shark.activity), waterLight);
             const PoseAxes axes = MakePoseAxes(shark);
@@ -444,6 +446,8 @@ namespace island
         stagingVertices_.reserve(MaximumVertexCount);
         std::cout << SharkDetailDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(SharkDetailDiagnostic);
+        std::cout << SharkCountershadeDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(SharkCountershadeDiagnostic);
     }
 
     SharkRenderer::~SharkRenderer() = default;
