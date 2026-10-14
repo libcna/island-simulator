@@ -67,6 +67,8 @@ namespace island
             "island-simulator: coastal sand stays continuous below water with filtered seabed ripples";
         constexpr std::string_view SandMineralDiagnostic =
             "island-simulator: exposed beach sand reuses filtered broad fields for warm and cool mineral patches";
+        constexpr std::string_view WetSandBandDiagnostic =
+            "island-simulator: wet sand uses a broader tide-darkened band with cool grazing sky sheen";
         constexpr std::string_view ReefMacroDiagnostic =
             "island-simulator: reef substrate separates pale lagoon, shared habitat patches, crest, sand channels, and deep drop-off";
         constexpr std::string_view SubstrateDistanceDiagnostic =
@@ -693,9 +695,9 @@ void main()
     color = mix(color, exposedBank, bankFace * 0.52);
 
     float wetHeight = vWorld.y + broad * 0.06 + medium * 0.025;
-    float wetEdge = (1.0 - smoothstep(0.05, 0.42, wetHeight))
+    float wetEdge = (1.0 - smoothstep(0.06, 0.68, wetHeight))
         * smoothstep(-0.12, 0.06, vWorld.y) * sand;
-    color = mix(color, color * vec3(0.76, 0.81, 0.78), wetEdge * 0.42);
+    color = mix(color, color * vec3(0.63, 0.70, 0.68), wetEdge * 0.72);
     if (wetEdge > 0.001) {
         vec3 wetNormal = terrainSurfaceNormal(cross(worldDx, worldDy));
         vec3 toView = normalize(uCameraPosition - vWorld);
@@ -704,8 +706,8 @@ void main()
             * inversesqrt(max(dot(halfVector, halfVector), 0.00000001));
         float sunSheen = pow(max(dot(wetNormal, halfDirection), 0.0), 28.0);
         float grazingSheen = pow(1.0 - max(dot(wetNormal, toView), 0.0), 3.0);
-        float wetSheen = wetEdge * (sunSheen * 0.42 + grazingSheen * 0.035);
-        color += vec3(0.13, 0.17, 0.16) * wetSheen;
+        float wetSheen = wetEdge * (sunSheen * 0.46 + grazingSheen * 0.090);
+        color += vec3(0.14, 0.20, 0.21) * wetSheen;
     }
 
     // Same texel as the cover sample above; retains cool skylight in canopy shade.
@@ -873,6 +875,8 @@ void main()
                     MirrorRuntimeDiagnosticToPlatformLog(CoastalSandDiagnostic);
                     std::cout << SandMineralDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(SandMineralDiagnostic);
+                    std::cout << WetSandBandDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(WetSandBandDiagnostic);
                     std::cout << ReefMacroDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(ReefMacroDiagnostic);
                     std::cout << SubstrateDistanceDiagnostic << '\n';

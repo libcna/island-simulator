@@ -785,6 +785,8 @@ def main():
                     raise RuntimeError("reef camera did not retain spatial outcrop context")
             if "terrain substrate persists at distance with footprint-filtered noise" not in diagnostics:
                 raise RuntimeError("current terrain distance policy is missing; check for a stale executable")
+            if "wet sand uses a broader tide-darkened band with cool grazing sky sheen" not in diagnostics:
+                raise RuntimeError("current wet-sand tide band is missing; check for a stale executable")
             if "terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices" not in diagnostics:
                 raise RuntimeError("current terrain slope lighting is missing; check for a stale executable")
             if "terrain steep faces use dominant-axis rock projection with broken bedding and joints" not in diagnostics:

@@ -874,6 +874,7 @@ try {
             && log.includes("split ground leaves use layered asymmetric lobes, readable midribs, shared LOD knots, and root-anchored wind")
             && log.includes("shrubs use supported shoots and curved individual leaves with shared LOD identities and complete leaf outlines")
             && log.includes("forest-floor colonies retain route footprints; groups=")
+            && (!focusedMaterialsCheck || log.includes("wet sand uses a broader tide-darkened band with cool grazing sky sheen"))
             && log.includes("jungle root origins and culling bounds follow rendered terrain triangles")
             && log.includes("fallen leaves conform to rendered triangles using the shared grass height texture")
             && (mode !== "bush" || log.includes("bush QA target variant 0 at player-eye detail distance"))

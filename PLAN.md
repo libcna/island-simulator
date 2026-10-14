@@ -122,7 +122,24 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — readable low coastal cliffs
+## Latest visual-audit implementation — readable tide-darkened wet sand
+
+The shoreline-material audit found the dedicated wet-sand view reading almost identically to the
+large dry beige beach, with only a faint water-edge cue. The existing height-filtered wet mask now
+uses a broader soft tidal transition, stronger physically plausible darkening, and a restrained
+cool grazing-sky sheen. The mask remains confined to low beach sand; dry upper beach, submerged
+seabed, foam and ocean rendering are unchanged, with no new noise, texture, geometry or draw cost.
+
+Native baseline/final evidence from the identical wet-sand camera is
+`build-consumer/software-captures/20261014T084745.017575Z-wet-sand` and
+`20261014T085022.165205Z-wet-sand`; the final passes with 286 colour bins, 24.95 luminance deviation
+and 97.66 spatial contrast. Inspection shows a broad dark cool foreground tidal surface resolving
+softly into the still-warm upper beach rather than a painted stripe. The four-view
+Chrome/SwiftShader `materials` audit preserves litter, grass and dry bay-ground while qualifying
+the new wet band with 60 clean intervals per view, zero GL error/context loss and inspected frames
+at `build/browser-software/20261014T085245.633365Z-chrome-materials`.
+
+## Previous visual-audit implementation — readable low coastal cliffs
 
 The wide headland audit found the island silhouette, palms and water lighting already coherent,
 but the long low coastal escarpment collapsed into a near-black band despite retaining its projected
