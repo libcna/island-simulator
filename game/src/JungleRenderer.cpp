@@ -503,8 +503,8 @@ void main()
         [[nodiscard]] Color CanopyBarkColor(const int variant)
         {
             constexpr std::array<std::array<std::uint8_t, 3>, CanopyFormCount> barks{{
-                {112, 100, 84}, {128, 122, 110}, {98, 82, 66}, {120, 106, 88},
-                {104, 92, 78}, {136, 128, 114}, {94, 80, 68}, {116, 98, 80},
+                {112, 91, 68}, {142, 134, 118}, {88, 72, 57}, {126, 101, 75},
+                {101, 86, 69}, {151, 141, 122}, {82, 69, 58}, {128, 94, 68},
                 // Sun-bleached grey bark remains legible under the compact colony's shade.
                 {142, 136, 121}}};
             const auto& bark = barks.at(static_cast<std::size_t>(variant));
@@ -1438,6 +1438,10 @@ void main()
             "island-simulator: canopy trunk pigment follows normalized height across LOD tiers";
         std::cout << trunkPigmentDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(trunkPigmentDiagnostic);
+        constexpr const char* trunkPaletteDiagnostic =
+            "island-simulator: canopy bark palette separates pale, warm, and dark fissured tree forms";
+        std::cout << trunkPaletteDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(trunkPaletteDiagnostic);
         constexpr const char* canopyPostureDiagnostic =
             "island-simulator: canopy blades use spatial pitch and roll with identical retained LOD poses";
         std::cout << canopyPostureDiagnostic << '\n';

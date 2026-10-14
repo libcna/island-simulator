@@ -954,6 +954,8 @@ def main():
                 raise RuntimeError("current jungle receiver shader is missing; check for a stale executable")
             if "jungle leaves use smooth normals, filtered veins and restrained wax shading" not in diagnostics:
                 raise RuntimeError("current leaf material is missing; check for a stale executable")
+            if "canopy bark palette separates pale, warm, and dark fissured tree forms" not in diagnostics:
+                raise RuntimeError("current canopy bark palette is missing; check for a stale executable")
             if "boars receive bilinear per-vertex canopy light in their existing batch" not in diagnostics:
                 raise RuntimeError("current boar lighting is missing; check for a stale executable")
             if args.viewpoint in ("snakes","snake-head"):

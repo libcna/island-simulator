@@ -122,7 +122,25 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — bounded sun patches beneath canopy
+## Latest visual-audit implementation — distinct tropical bark families
+
+The next wide-jungle review found the canopy trunks structurally sound but too uniformly grey,
+which made different tree forms read as repeated poles despite their existing lean, bark grain,
+lichen and buttress work. A deliberately material-only pass increases separation between pale
+smooth-bark forms, warmer brown trunks and dark fissured forms. It retains every trunk vertex,
+radius, collision proxy, monkey grip surface, draw and material function; an explored physical
+girth variation was rejected after the long climbing simulation exposed deterministic attachment
+regressions, and that experiment left no source changes.
+
+Native baseline/final evidence is
+`build-consumer/software-captures/20261014T055932.284655Z-jungle` and
+`20261014T063531.250726Z-jungle`; the accepted frame passes with 269 colour bins, 47.84 luminance
+deviation and 213.14 spatial contrast. Full-resolution inspection shows readable warm, pale and
+dark trunks without saturated orange paint or loss of shaded bark detail. Chrome/SwiftShader also
+passes 60 clean intervals with an inspected matching screenshot at
+`build/browser-software/20261014T063906.731411Z-chrome-canopy-light`.
+
+## Previous visual-audit implementation — bounded sun patches beneath canopy
 
 The lighting audit found that the existing porous fixed-sun canopy field correctly separated open
 and shaded habitat, but its broad interpolation could leave the jungle floor, low plants and trunks
