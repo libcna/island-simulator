@@ -785,6 +785,8 @@ def main():
                 raise RuntimeError("current terrain slope lighting is missing; check for a stale executable")
             if "terrain steep faces use dominant-axis rock projection with broken bedding and joints" not in diagnostics:
                 raise RuntimeError("current steep terrain material is missing; check for a stale executable")
+            if "inland ridge rock starts on sustained slopes and retains cool sky fill in fixed-sun shade" not in diagnostics:
+                raise RuntimeError("current ridge exposure and sky fill are missing; check for a stale executable")
             if "canopy per-tree frustum boxes contain both LODs and wind" not in diagnostics:
                 raise RuntimeError("current canopy visibility path is missing; check for a stale executable")
             if "clearing-edge colonies respect full route footprints; bushes=" not in diagnostics:

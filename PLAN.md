@@ -122,7 +122,25 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — grounded mineral boulders
+## Latest visual-audit implementation — readable shaded ridge rock
+
+The terrain audit from the authored east clearing found the large mountain face to be the weakest
+remaining landscape surface: existing projected bedding and joints were present, but the exposed
+rock mask started so late that most of the sustained slope still read as a dark brown soil wall.
+The same bounded material now begins on genuinely inclined, elevated inland ground, reaches a more
+opaque weathered grey-brown surface, and retains a small cool sky-fill term on the fixed-sun shadow
+side. Height, inland and slope gates keep this treatment off level clearings and beaches; mesh,
+collision, vegetation placement, noise count, texture count and draw count are unchanged.
+
+The identical east-clearing camera provides native baseline/final evidence at
+`build-consumer/software-captures/20261014T070130.578971Z-east` and
+`20261014T070504.953941Z-east`; the final frame passes with 245 colour bins, 49.05 luminance
+deviation and 211.01 spatial contrast. Inspection confirms a continuous rock face with visible
+bedding in shade, while the grassy foreground and summit soil remain distinct. The dedicated
+Chrome/SwiftShader `cliffs` run passes 60 clean intervals with a matching inspected screenshot at
+`build/browser-software/20261014T070631.361642Z-chrome-cliffs`.
+
+## Previous visual-audit implementation — grounded mineral boulders
 
 The next terrain/vegetation review found the inland boulders readable in silhouette but overly pale
 and smooth against the much richer jungle floor. Their four existing deterministic families now

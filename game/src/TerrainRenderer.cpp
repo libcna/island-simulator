@@ -75,6 +75,8 @@ namespace island
             "island-simulator: stream terrain uses a compact incised profile and slope-limited exposed bank strata";
         constexpr std::string_view CliffMaterialDiagnostic =
             "island-simulator: terrain steep faces use dominant-axis rock projection with broken bedding and joints";
+        constexpr std::string_view RidgeSkyFillDiagnostic =
+            "island-simulator: inland ridge rock starts on sustained slopes and retains cool sky fill in fixed-sun shade";
 
         const VertexDeclaration& TerrainDeclaration()
         {
@@ -589,10 +591,10 @@ void main()
 
     // Thin soil on steep ridge faces exposes weathered rock instead of the old
     // featureless green vertex palette. Existing filtered fields break the edge.
-    float ridgeRock = smoothstep(0.32, 0.60, slopeRadians + broad * 0.16 + medium * 0.10)
-        * interior * smoothstep(5.0, 13.0, vWorld.y);
+    float ridgeRock = smoothstep(0.19, 0.46, slopeRadians + broad * 0.14 + medium * 0.08)
+        * interior * smoothstep(4.0, 10.0, vWorld.y);
     ridgeRock = max(ridgeRock, coastField.x * smoothstep(-0.25, 0.35, vWorld.y));
-    vec3 weatheredRock = mix(vec3(0.255, 0.245, 0.205), vec3(0.43, 0.365, 0.265),
+    vec3 weatheredRock = mix(vec3(0.285, 0.285, 0.250), vec3(0.455, 0.390, 0.295),
         clamp(0.5 + broad * 0.80 + medium * 0.42, 0.0, 1.0));
     weatheredRock *= 1.0 + medium * 0.27 + fine * 0.045;
     if (ridgeRock > 0.0) {
@@ -636,7 +638,10 @@ void main()
             + bedding * 0.045 - beddingSeam * 0.085 - verticalJoint * 0.075
             - fracture * 0.10 * (1.0 - smoothstep(0.10, 0.35, groundPixelWidth * 0.19));
     }
-    color = mix(color, weatheredRock * vGroundLight, ridgeRock * 0.92);
+    vec3 litRidgeRock = weatheredRock * vGroundLight;
+    float ridgeSkyFill = 1.0 - smoothstep(0.38, 0.72, vGroundLight);
+    litRidgeRock += vec3(0.060, 0.078, 0.084) * ridgeSkyFill;
+    color = mix(color, litRidgeRock, ridgeRock * 0.98);
 
     // One shared environment field darkens the carved drainage and its irregular damp banks.
     // Existing broad/medium fields break the straight surveyed valley without moving water
@@ -856,6 +861,8 @@ void main()
                     MirrorRuntimeDiagnosticToPlatformLog(StreamBankDiagnostic);
                     std::cout << CliffMaterialDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(CliffMaterialDiagnostic);
+                    std::cout << RidgeSkyFillDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(RidgeSkyFillDiagnostic);
                 } else {
                     std::cerr << "island-simulator: terrain material fallback: "
                               << materialEffect_->GetCompileErrorEXT() << '\n';
