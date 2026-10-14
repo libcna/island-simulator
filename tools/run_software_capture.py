@@ -842,7 +842,7 @@ def main():
                 raise RuntimeError("current canopy bark coordinates are missing; check for a stale executable")
             if "canopy bark has instance-stable warped grain and interrupted filtered fissures" not in diagnostics:
                 raise RuntimeError("current canopy bark variation is missing; check for a stale executable")
-            if "canopy trunks use root flare, rounded buttress ridges and grey-brown bark with moss, lichen, contact occlusion and canopy shade" not in diagnostics:
+            if "canopy trunks use root flare, rounded buttress ridges and grey-brown bark with shade-facing moss, lichen, contact occlusion and canopy shade" not in diagnostics:
                 raise RuntimeError("current canopy trunk surface is missing; check for a stale executable")
             if "canopy trunk pigment follows normalized height across LOD tiers" not in diagnostics:
                 raise RuntimeError("current trunk pigment continuity is missing; check for a stale executable")

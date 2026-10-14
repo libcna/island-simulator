@@ -1,5 +1,23 @@
 # Nonuniform ground cover and tree-trunk presentation
 
+## Shade-facing trunk moss completion — 2026-10-15
+
+The existing damp lower-bark stain previously varied only by height and filtered procedural noise,
+so equal-height bark received the same average moss on the fixed-sun and shaded faces. The shared
+trunk material now also consumes the signed surface-to-sun term. Its bounded multiplier transitions
+from 1.18 on the back/shaded side to 0.55 on the sun face; height envelope, moss colour, lichen,
+contact occlusion, draw count, geometry and instance data remain unchanged. The CPU albedo reference
+checks that shaded bark has the stronger green ratio and rejects non-finite or out-of-range light
+directions. Native llvmpipe jungle evidence
+`build-consumer/software-captures/20261014T223900.550238Z-jungle` passes and was inspected: moss
+remains a restrained damp-base cue rather than a uniform green coating. Chrome/SwiftShader
+`build/browser-software/20261014T224129.570260Z-chrome-canopy-light` passes the matching inspected
+jungle view with 60 positive finite intervals, GL error zero, a live context and clean kernel
+delta. ARM64 assemble/lint passes through the two-worker wrapper using the locked Sharp Runtime
+revision (24,025,427-byte APK, SHA-256
+`6f6b1fc413a2e1d6baaeee199232989ab9729ff5cf9197515fc5e77520c463ca`) without starting an emulator
+or touching KVM. The complete 63-case non-display native suite passes.
+
 Pass of 2026-10-10, following the operator's direction that the island must look noticeably
 closer to reality. All runtime evidence is from contained software renderers (llvmpipe, and
 SwiftShader/KVM where noted in `PLAN.md`); the AMD hardware stop latch is unchanged and nothing

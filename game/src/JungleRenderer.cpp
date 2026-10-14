@@ -222,7 +222,9 @@ void main()
     if (wood || liveLeaf) {
         faceNormal = vLeafNormal * inversesqrt(max(dot(vLeafNormal, vLeafNormal), 0.00000001));
     }
-    float twoSidedDiffuse = abs(dot(faceNormal, normalize(uToSun)));
+    vec3 sunDirection = normalize(uToSun);
+    float signedSunFacing = dot(faceNormal, sunDirection);
+    float twoSidedDiffuse = abs(signedSunFacing);
     float upwardFill = abs(faceNormal.y);
     float daylight = 0.78 + twoSidedDiffuse * 0.24 + upwardFill * 0.05;
     vec3 albedo = vColor;
@@ -233,7 +235,8 @@ void main()
     } else if (wood) {
         barkSeed = uint(clamp(floor(-vLeaf.w - 1.0 + 0.5), 0.0, 1023.0));
         float aboveGround = vWorld.y - vGroundHeight;
-        albedo = trunkSurfaceAlbedo(vColor, aboveGround, woodCoordinate, barkSeed);
+        albedo = trunkSurfaceAlbedo(vColor, aboveGround, woodCoordinate, barkSeed,
+                                    signedSunFacing);
         // Wood below and inside crowns receives the shared fixed-sun field in every draw.
         // Direct sun is attenuated; fill and sky light are cooled and reduced in shade.
         vec2 woodReceiver=canopyGroundReceiver(vWorld,vGroundHeight,uToSun);
@@ -241,7 +244,7 @@ void main()
         transmission=canopyDappleTransmission(woodReceiver,transmission);
         vec3 skyFill = mix(uCanopyAmbient, vec3(1.0), transmission);
         daylightColor = (woodDaylightTerms.x + woodDaylightTerms.z * max(faceNormal.y, 0.0)) * skyFill
-            + woodDaylightTerms.y * max(dot(faceNormal, normalize(uToSun)), 0.0) * transmission;
+            + woodDaylightTerms.y * max(signedSunFacing, 0.0) * transmission;
         // Dense crowns can drive red/green bark channels almost to black even though the trunk
         // remains open to diffuse tropical sky. Preserve a restrained chromatic fill floor so
         // grain, moss and lichen remain readable without flattening sunlit faces.
@@ -1574,7 +1577,7 @@ void main()
         std::cout << barkVariationDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(barkVariationDiagnostic);
         constexpr const char* trunkSurfaceDiagnostic =
-            "island-simulator: canopy trunks use root flare, rounded buttress ridges and grey-brown bark with moss, lichen, contact occlusion and canopy shade";
+            "island-simulator: canopy trunks use root flare, rounded buttress ridges and grey-brown bark with shade-facing moss, lichen, contact occlusion and canopy shade";
         std::cout << trunkSurfaceDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(trunkSurfaceDiagnostic);
         constexpr const char* trunkPigmentDiagnostic =

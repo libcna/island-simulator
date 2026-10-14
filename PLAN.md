@@ -3647,9 +3647,20 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   `20261010T180146.003280Z-chrome-full` passes **28/28**. Latch unchanged, 350 GiB free, no
   owned graphics process. Session stopped here at the operator's request; next steps are in
   `handoff.md`.
-- [ ] 10. Continue trunk realism (started 2026-10-10: grey-brown bark, moss, lichen, root flare,
+- [x] 10. Continue trunk realism (started 2026-10-10: grey-brown bark, moss, lichen, root flare,
   slimmer weathered palm stems): irregular thickness, stronger taper and curvature, damaged trunks,
-  stronger buttresses on large trees, moss on shaded sides.
+  stronger buttresses on large trees, moss on shaded sides. Existing twelve-sided near trunks use
+  smooth height/azimuth girth variation and bent centrelines; four/five convex buttress ridges,
+  filtered bark/lichen and standing storm snags cover the remaining structural requirements.
+  2026-10-15 completion makes damp-base moss explicitly shade-facing: its bounded factor falls
+  from 1.18 on the back side to 0.55 on the sun face while retaining filtered breakup. The CPU
+  albedo reference validates the directional ratio and rejects out-of-range/non-finite input. Native
+  jungle evidence `20261014T223900.550238Z-jungle` passes and was inspected; the base treatment is
+  restrained rather than painted green. Chrome/SwiftShader
+  `20261014T224129.570260Z-chrome-canopy-light` passes its inspected jungle frame with 60 positive
+  finite intervals, GL0, a live context and clean kernel delta. ARM64 assemble/lint passes through
+  the two-worker wrapper using the locked Sharp Runtime revision (24,025,427 bytes,
+  `6f6b1fc4...c463ca`), without emulator or KVM. All 63 enabled non-display tests pass.
 - [ ] 11. Lighting: investigate a bounded directional sun shadow map through supported CNA APIs
   (one or two cascades, ~100-150 m, vegetation and large objects, low resolution, soft PCF); at
   minimum extend the canopy light/shadow system to palms and stronger directional shadows.

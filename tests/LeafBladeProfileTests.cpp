@@ -460,17 +460,28 @@ int main() try
                 for (float edge : {0.0f, 0.5f, 1.0f})
                     for (float moss : {0.0f, 1.0f})
                         for (float cover : {0.0f, 1.0f}) {
-                            const auto albedo = Albedo({0.45f, 0.40f, 0.33f}, height, edge, moss, cover);
+                            const auto albedo = Albedo(
+                                {0.45f, 0.40f, 0.33f}, height, edge, moss, cover, 0.2f);
                             for (float channel : albedo)
                                 if (!std::isfinite(channel) || channel < 0 || channel > 1)
                                     throw std::runtime_error("Trunk albedo escaped the unit range");
                         }
             }
             if (StainWeight(0, 0.5f) < 0.99f || StainWeight(3.0f, 1.0f) != 0
-                || Albedo({0.4f, 0.4f, 0.4f}, 0.2f, 0.5f, 1.0f, 0.0f)[1]
-                    <= Albedo({0.4f, 0.4f, 0.4f}, 0.2f, 0.5f, 1.0f, 0.0f)[2]
+                || Albedo({0.4f, 0.4f, 0.4f}, 0.2f, 0.5f, 1.0f, 0.0f, 0.0f)[1]
+                    <= Albedo({0.4f, 0.4f, 0.4f}, 0.2f, 0.5f, 1.0f, 0.0f, 0.0f)[2]
                 || LichenWindow(0.2f) != 0 || LichenWindow(4.0f) != 1 || LichenWindow(9.0f) != 0)
                 throw std::runtime_error("Trunk moss/lichen zones are misplaced");
+            const auto shaded = Albedo({0.45f, 0.40f, 0.33f}, 0.35f, 0.5f, 1.0f, 0.0f, -0.8f);
+            const auto sunlit = Albedo({0.45f, 0.40f, 0.33f}, 0.35f, 0.5f, 1.0f, 0.0f, 0.8f);
+            if (shaded[1] / shaded[0] <= sunlit[1] / sunlit[0]
+                || shaded[0] >= sunlit[0])
+                throw std::runtime_error("Trunk shaded side must carry more green moss than the sun face");
+            for (float invalid : {1.01f, std::numeric_limits<float>::infinity(),
+                                  std::numeric_limits<float>::quiet_NaN()}) {
+                try { (void)MossShadeFactor(invalid); throw std::runtime_error("Invalid moss sunlight accepted"); }
+                catch (const std::invalid_argument&) { }
+            }
             const auto shader = island::TrunkSurface::Shader();
             struct Comma final : std::numpunct<char> { char do_decimal_point() const override { return ','; } };
             const auto original = std::locale();

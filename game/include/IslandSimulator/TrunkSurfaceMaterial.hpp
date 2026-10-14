@@ -18,6 +18,7 @@ namespace island::TrunkSurface
     // Damp lower bark: soil splash plus algae/moss, with a noise-broken upper edge.
     inline constexpr float StainBase = 0.70f, StainRange = 1.10f, StainSoftness = 0.30f;
     inline constexpr float MossStrength = 0.62f;
+    inline constexpr float MossShadeMinimum = 0.55f, MossShadeMaximum = 1.18f;
     // Pale crustose lichen patches on the mid trunk, never at the soil-stained base.
     inline constexpr float LichenStart = 0.66f, LichenEnd = 0.78f, LichenStrength = 0.46f;
     inline constexpr float LichenLow = 1.40f, LichenHigh = 7.50f;
@@ -48,16 +49,26 @@ namespace island::TrunkSurface
             * (1.0f - JungleMaterial::Smooth(LichenHigh - 1.5f, LichenHigh, aboveGround));
     }
 
+    inline float MossShadeFactor(float sunFacing)
+    {
+        if (!std::isfinite(sunFacing) || std::abs(sunFacing) > 1.0f)
+            throw std::invalid_argument("Invalid trunk sunlight direction");
+        return std::lerp(MossShadeMaximum, MossShadeMinimum,
+                         JungleMaterial::Smooth(-0.15f, 0.65f, sunFacing));
+    }
+
     /** @brief CPU reference for the shader's albedo; all noise inputs are already filtered. */
     inline std::array<float, 3> Albedo(std::array<float, 3> bark, float aboveGround,
-                                       float edgeNoise, float mossNoise, float lichenCover)
+                                       float edgeNoise, float mossNoise, float lichenCover,
+                                       float sunFacing)
     {
         for (float value : bark)
             if (!std::isfinite(value) || value < 0 || value > 1) throw std::invalid_argument("Invalid bark albedo");
         if (!std::isfinite(mossNoise) || mossNoise < 0 || mossNoise > 1
             || !std::isfinite(lichenCover) || lichenCover < 0 || lichenCover > 1)
             throw std::invalid_argument("Invalid trunk surface noise");
-        const float moss = StainWeight(aboveGround, edgeNoise) * MossStrength * (0.55f + 0.45f * mossNoise);
+        const float moss = std::clamp(StainWeight(aboveGround, edgeNoise) * MossStrength
+            * (0.55f + 0.45f * mossNoise) * MossShadeFactor(sunFacing), 0.0f, 1.0f);
         const float lichen = lichenCover * LichenWindow(aboveGround) * LichenStrength;
         for (std::size_t i = 0; i < 3; ++i) {
             bark[i] = std::lerp(bark[i], MossAlbedo[i], moss);
@@ -75,6 +86,8 @@ namespace island::TrunkSurface
             << "const vec2 trunkContactTerms=vec2(" << ContactFloor << ',' << ContactHeight << ");\n"
             << "const vec4 trunkStainTerms=vec4(" << StainBase << ',' << StainRange << ','
             << StainSoftness << ',' << MossStrength << ");\n"
+            << "const vec2 trunkMossShadeTerms=vec2(" << MossShadeMinimum << ','
+            << MossShadeMaximum << ");\n"
             << "const vec4 trunkLichenTerms=vec4(" << LichenStart << ',' << LichenEnd << ','
             << LichenStrength << ',' << LichenMean << ");\n"
             << "const vec2 trunkLichenHeights=vec2(" << LichenLow << ',' << LichenHigh << ");\n"
@@ -87,7 +100,7 @@ float trunkContactOcclusion(float aboveGround) {
     return mix(trunkContactTerms.x,1.0,smoothstep(0.0,trunkContactTerms.y,aboveGround));
 }
 // woodCoordinate: angle, local axial metres, radians/pixel, axial metres/pixel.
-vec3 trunkSurfaceAlbedo(vec3 bark,float aboveGround,vec4 woodCoordinate,uint seed) {
+vec3 trunkSurfaceAlbedo(vec3 bark,float aboveGround,vec4 woodCoordinate,uint seed,float sunFacing) {
     float angle=woodCoordinate.x, along=woodCoordinate.y;
     float height=max(aboveGround,0.0);
     float edgeWeight=materialDetailWeight(woodCoordinate.z*(6.0/6.28318530718)+woodCoordinate.w*0.8);
@@ -96,7 +109,9 @@ vec3 trunkSurfaceAlbedo(vec3 bark,float aboveGround,vec4 woodCoordinate,uint see
     float stain=1.0-smoothstep(edge-trunkStainTerms.z,edge+trunkStainTerms.z,height);
     float mossWeight=materialDetailWeight(woodCoordinate.z*(11.0/6.28318530718)+woodCoordinate.w*1.6);
     float mossNoise=mix(0.5,barkNoise(angle,height*1.6,11,seed^753u),mossWeight);
-    float moss=stain*trunkStainTerms.w*(0.55+0.45*mossNoise);
+    float shadeWeight=1.0-smoothstep(-0.15,0.65,sunFacing);
+    float shadeFactor=mix(trunkMossShadeTerms.x,trunkMossShadeTerms.y,shadeWeight);
+    float moss=clamp(stain*trunkStainTerms.w*(0.55+0.45*mossNoise)*shadeFactor,0.0,1.0);
     float lichenWeight=materialDetailWeight(woodCoordinate.z*(9.0/6.28318530718)+woodCoordinate.w*0.7);
     float lichenCover=mix(trunkLichenTerms.w,
         smoothstep(trunkLichenTerms.x,trunkLichenTerms.y,barkNoise(angle,along*0.7,9,seed^1201u)),
