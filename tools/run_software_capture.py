@@ -651,7 +651,8 @@ def main():
                                "helicopter raised tapered engine cowling feeds two rear exhaust outlets behind the rotor mast",
                                "helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber",
                                "helicopter carries four outward-open framed door panels with glazing and handles",
-                               "helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals"):
+                               "helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals",
+                               "helicopter realism pass adds a rounded chin and tail-root fairing, twelve-sided six-station tail boom, maintenance seams, engine intakes, shaped cushions, harnesses, centre pedestal, and overhead console"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"helicopter integration diagnostic missing: {marker}")
                 if not re.search(r"helicopter 2 draw", diagnostics):

@@ -183,3 +183,21 @@ passenger opening remain usable after the exterior reshaping.
 Open work includes richer body anatomy and small mechanical detail, improved interior and
 exterior lighting, door animation, explicit sitting interaction, live free-walk visual review,
 physical performance measurement, and Android runtime/capture qualification.
+
+## Airframe and cabin anatomy pass — 2026-10-14
+
+The next close review found that the technical canopy and open access were sound, but the side
+silhouette still read as an assembly of rectangular frames. The body now has a restrained rounded
+chin fairing and a buried tail-root fairing. The tail boom grows from four broad eight-sided bands
+to six twelve-sided taper stations, with maintenance seams, a dorsal rise, paired engine-intake
+lips and a cleaner transition into the vertical fin. Door glazing retains the four unobstructed
+entry corridors but gains raked belt and roof edges instead of a pure rectangle.
+
+Inside, rounded seat cushions and headrests, crossed webbing harnesses, a centre pedestal,
+glareshield and overhead console provide human and mechanical scale around the existing gauges,
+cyclics, collectives and pedals. These parts reuse the material atlas and the same opaque/glass
+batches. Collision, floor support, doors and the deliberately disabled flight state are unchanged.
+Native Release evidence `20261014T174852.988461Z-helicopter` and
+`20261014T174906.588260Z-helicopter-inside` passed and was inspected; the four-door controller
+test also passes. WebGL and Android compile/runtime qualification for this latest anatomy pass
+remain to be run with the broader bunker integration.

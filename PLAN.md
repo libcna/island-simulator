@@ -2050,6 +2050,14 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   std22.98/spatial102.10. Entry/collision/grounded non-flight behavior is unchanged.
   Richer anatomy/mechanics, interactions, free walking, Android runtime and performance review remain. See
   `docs/helicopter.md`.
+  A further close-view anatomy pass adds a rounded chin and buried tail-root fairing, replaces the
+  four-station eight-sided boom with a six-station twelve-sided taper, and adds maintenance seams,
+  engine intakes and raked door glazing. Rounded cushions, headrests, harnesses, a centre pedestal,
+  glareshield and overhead console make the accessible cockpit read as an aircraft interior rather
+  than a collection of boxes. The same two batches, material atlas, collision and non-flying state
+  remain. Inspected native `20261014T174852.988461Z-helicopter` and
+  `20261014T174906.588260Z-helicopter-inside` pass; four-door traversal remains green. Focused WebGL
+  and Android qualification are intentionally grouped with the coming bunker integration.
 
 All six items remain incomplete or in progress. Stream/cave/helicopter locations should be coordinated with
 hut access and existing wildlife; do not remove vegetation or relocate animals blindly.

@@ -222,9 +222,33 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
                 centre+Vector3(std::cos(next)*radius,std::sin(next)*radius,0),color,surface);
         }
     };
-    const Color olive(101,116,80),oliveLight(136,147,102),oliveDark(61,73,56);
-    const Color glass(56,96,107,142),metal(82,85,81);
-    const Color interior(49,54,50),seat(45,49,43),rubber(30,32,30);
+    const auto ellipsoid=[&](const Vector3& centre,const Vector3& radius,
+                             const int rings,const int slices,const Color& color,
+                             const Surface surface=Surface::Paint) {
+        for(int ring=0;ring<rings;++ring) {
+            const float latitude0=-std::numbers::pi_v<float>*.5f
+                +std::numbers::pi_v<float>*ring/rings;
+            const float latitude1=-std::numbers::pi_v<float>*.5f
+                +std::numbers::pi_v<float>*(ring+1)/rings;
+            for(int slice=0;slice<slices;++slice) {
+                const float longitude0=tau*slice/slices;
+                const float longitude1=tau*(slice+1)/slices;
+                const auto point=[&](const float latitude,const float longitude) {
+                    return centre+Vector3(std::cos(latitude)*std::cos(longitude)*radius.X,
+                        std::sin(latitude)*radius.Y,
+                        std::cos(latitude)*std::sin(longitude)*radius.Z);
+                };
+                const Vector3 a=point(latitude0,longitude0),b=point(latitude1,longitude0),
+                              d=point(latitude1,longitude1),e=point(latitude0,longitude1);
+                if(ring==0)triangle(a,b,d,color,surface);
+                else if(ring==rings-1)triangle(a,b,e,color,surface);
+                else quad(a,b,d,e,color,surface);
+            }
+        }
+    };
+    const Color olive(108,121,82),oliveLight(149,155,105),oliveDark(56,67,49);
+    const Color glass(60,105,120,148),metal(91,96,92);
+    const Color interior(58,64,57),seat(57,61,52),rubber(30,32,30);
 
     // Multi-ring fuselage with actual side openings for separate cockpit and rear doors.
     for(std::size_t band=0;band+1<Fuselage.size();++band) {
@@ -273,6 +297,10 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     for(const float side:{-1.0f,1.0f})
         beam({side*.57f,1.08f,2.45f},{side*.30f,2.08f,2.06f},.052f,oliveDark);
     beam({-.31f,2.08f,2.06f},{.31f,2.08f,2.06f},.050f,oliveDark);
+    // A rounded chin fairing and slim lower windscreen rail keep the otherwise
+    // transparent nose from collapsing into a pointed glass bubble at eye level.
+    ellipsoid({0,.87f,2.36f},{.57f,.23f,.36f},4,16,olive);
+    beam({-.59f,1.03f,2.47f},{.59f,1.03f,2.47f},.055f,oliveDark);
 
     // Flat walkable floor, two-stage door sills and visible frames match collision support.
     box({-.78f,.405f,-1.78f},{.78f,.455f,1.48f},interior,Surface::Rubber);
@@ -295,15 +323,17 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         const auto point=[&](const float across,const float y) {
             return Vector3::Lerp(hingeLow,farLow,across)+Vector3(0,y-.49f,0);
         };
-        quad(point(0,.49f),point(1,.49f),point(1,.98f),point(0,.98f),olive);
-        quad(point(0,1.88f),point(1,1.88f),point(1,2.08f),point(0,2.08f),oliveLight);
-        quad(point(.12f,1.00f),point(.88f,1.00f),point(.88f,1.86f),point(.12f,1.86f),
+        // A subtly raked belt and roof edge avoids a construction-site rectangle.
+        quad(point(0,.49f),point(1,.49f),point(1,.96f),point(0,1.01f),olive);
+        quad(point(0,1.91f),point(.82f,1.98f),point(1,2.04f),point(0,2.08f),oliveLight);
+        quad(point(.12f,1.03f),point(.88f,1.00f),point(.80f,1.82f),point(.18f,1.88f),
              glass,Surface::Glass);
         beam(point(0,.49f),point(0,2.08f),.065f,oliveDark);
-        beam(point(1,.49f),point(1,2.08f),.065f,oliveDark);
+        beam(point(1,.49f),point(1,1.82f),.065f,oliveDark);
+        beam(point(1,1.82f),point(.82f,1.98f),.065f,oliveDark);
+        beam(point(.82f,1.98f),point(0,1.91f),.065f,oliveDark);
         beam(point(0,.49f),point(1,.49f),.065f,oliveDark);
-        beam(point(0,2.08f),point(1,2.08f),.065f,oliveDark);
-        beam(point(.10f,.99f),point(.90f,.99f),.052f,oliveDark);
+        beam(point(.10f,1.01f),point(.90f,.98f),.052f,oliveDark);
         beam(point(.70f,1.12f),point(.87f,1.12f),.034f,metal,Surface::Metal);
     };
     for(const float side:{-1.0f,1.0f}) {
@@ -316,6 +346,14 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     for(const float x:{-.46f,.46f}) {
         box({x-.27f,.46f,.08f},{x+.27f,.76f,.66f},seat,Surface::Upholstery);
         box({x-.28f,.72f,.08f},{x+.28f,1.43f,.25f},seat,Surface::Upholstery);
+        ellipsoid({x,.77f,.43f},{.29f,.13f,.31f},4,10,
+                  Color(72,76,64),Surface::Upholstery);
+        ellipsoid({x,1.42f,.17f},{.20f,.16f,.12f},4,10,
+                  Color(65,69,59),Surface::Upholstery);
+        // Muted harness webbing provides human scale without turning the empty
+        // aircraft into an occupied vehicle.
+        beam({x-.15f,1.37f,.06f},{x+.02f,.83f,.31f},.028f,Color(151,140,96),Surface::Upholstery);
+        beam({x+.15f,1.37f,.06f},{x-.02f,.83f,.31f},.028f,Color(151,140,96),Surface::Upholstery);
         tube({x,.58f,.79f},{x,.74f,.91f},.026f,metal,Surface::Metal);
         tube({x,.74f,.91f},{x,.94f,1.03f},.026f,metal,Surface::Metal);
         tube({x-.085f,.95f,1.03f},{x+.085f,.95f,1.03f},.039f,rubber,Surface::Rubber);
@@ -333,6 +371,11 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     box({-.72f,.48f,-1.72f},{.72f,.79f,-1.43f},seat,Surface::Upholstery);
     box({-.72f,.75f,-1.70f},{.72f,1.38f,-1.52f},seat,Surface::Upholstery);
     box({-.72f,1.05f,1.30f},{.72f,1.39f,1.52f},rubber,Surface::Rubber);
+    // The central pedestal and glareshield break up the former single black slab.
+    box({-.17f,.47f,.87f},{.17f,1.02f,1.28f},Color(43,48,44),Surface::Rubber);
+    quad({-.73f,1.38f,1.33f},{.73f,1.38f,1.33f},{.61f,1.48f,1.15f},
+         {-.61f,1.48f,1.15f},Color(37,42,38),Surface::Rubber);
+    box({-.29f,1.91f,.42f},{.29f,1.99f,1.03f},Color(54,60,54),Surface::Rubber);
     // Recessed round gauges, contrasting bezels and individual needles replace the
     // former grid of twelve coloured squares. Their layered planes face the cabin.
     constexpr std::array<float,4> gaugeX{{-.47f,-.16f,.16f,.47f}};
@@ -375,10 +418,11 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         }
 
     // Tail boom, empennage and clearly horizontal tail-rotor disc.
-    constexpr int tailSides=8;
-    constexpr std::array<FuselageStation,4> tail{{
-        {-2.02f,1.53f,.46f,.43f},{-3.55f,1.62f,.35f,.32f},
-        {-5.25f,1.78f,.25f,.24f},{-6.85f,1.92f,.14f,.15f}}};
+    constexpr int tailSides=12;
+    constexpr std::array<FuselageStation,6> tail{{
+        {-1.98f,1.50f,.50f,.46f},{-2.42f,1.52f,.45f,.40f},
+        {-3.55f,1.62f,.35f,.32f},{-4.55f,1.70f,.29f,.27f},
+        {-5.55f,1.81f,.22f,.21f},{-6.85f,1.92f,.14f,.15f}}};
     for(std::size_t band=0;band+1<tail.size();++band)for(int slice=0;slice<tailSides;++slice) {
         const int next=(slice+1)%tailSides;const float a=tau*slice/tailSides,b=tau*next/tailSides;
         const auto point=[](const FuselageStation& station,const float angle){return Vector3(
@@ -386,6 +430,15 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
             station.z);};
         quad(point(tail[band],a),point(tail[band+1],a),point(tail[band+1],b),
              point(tail[band],b),(slice%3==0)?oliveLight:olive);
+    }
+    // Raised dorsal and ventral seams make the boom a manufactured tapered shell,
+    // while a buried fairing blends it into the cabin instead of meeting it as a bar.
+    ellipsoid({0,1.55f,-1.92f},{.61f,.55f,.68f},5,14,olive);
+    for(const float z:{-2.44f,-3.56f,-4.56f,-5.56f}) {
+        const float interpolation=std::clamp((-z-2.0f)/4.85f,0.0f,1.0f);
+        const float halfWidth=std::lerp(.47f,.15f,interpolation);
+        beam({-halfWidth,1.53f+.39f*interpolation,z},
+             {halfWidth,1.53f+.39f*interpolation,z},.022f,oliveDark);
     }
     // Vertical fin and horizontal stabilizer.
     quad({-.06f,1.82f,-6.35f},{-.06f,3.18f,-6.72f},{-.06f,1.93f,-6.94f},
@@ -498,6 +551,16 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     // Exhausts, navigation lights and a small belly lamp improve exterior scale cues.
     beam({-.36f,2.18f,-1.54f},{-.48f,2.25f,-1.98f},.15f,Color(55,55,52),Surface::Metal);
     beam({ .36f,2.18f,-1.54f},{ .48f,2.25f,-1.98f},.15f,Color(55,55,52),Surface::Metal);
+    // Paired dark intake lips, access-panel seams and fastener heads add real
+    // maintenance anatomy without another material batch.
+    for(const float side:{-1.0f,1.0f}) {
+        ellipsoid({side*.40f,2.35f,-.75f},{.20f,.105f,.30f},3,10,
+                  Color(35,39,36),Surface::Rubber);
+        beam({side*.76f,1.02f,-.26f},{side*.76f,1.93f,-.26f},.022f,oliveDark);
+        for(const float y:{.72f,1.15f,1.58f})
+            ellipsoid({side*.985f,y,-.24f},{.018f,.018f,.018f},2,6,
+                      Color(178,179,153),Surface::Metal);
+    }
     box({-1.10f,1.50f,-.20f},{-1.04f,1.61f,-.08f},Color(188,54,43),Surface::Emissive);
     box({ 1.04f,1.50f,-.20f},{ 1.10f,1.61f,-.08f},Color(55,162,91),Surface::Emissive);
     box({-.08f,.30f,.92f},{.08f,.39f,1.08f},Color(221,211,161),Surface::Emissive);
@@ -540,6 +603,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<cowling<<'\n';MirrorRuntimeDiagnosticToPlatformLog(cowling);
     const std::string cockpit="island-simulator: helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals";
     std::cout<<cockpit<<'\n';MirrorRuntimeDiagnosticToPlatformLog(cockpit);
+    const std::string anatomy="island-simulator: helicopter realism pass adds a rounded chin and tail-root fairing, twelve-sided six-station tail boom, maintenance seams, engine intakes, shaped cushions, harnesses, centre pedestal, and overhead console";
+    std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
 }
 
 HelicopterRenderer::~HelicopterRenderer()=default;
