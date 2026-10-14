@@ -60,6 +60,21 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — swept fish tails
+
+The renewed aquatic-school audit found that the detailed bodies still ended in tall, short caudal
+lobes whose overlap read as a thick cross. The last three body stations and cap now extend the
+narrow peduncle by 60 mm. Both closed lobes are lower and sweep farther aft around a deeper notch,
+forming a shallow fork. The 12-vertex distant silhouette receives the same proportion correction.
+
+This coordinate-only pass preserves exact 1,362/12-vertex budgets, closed fin topology, 48-agent
+schools, animation, habitat, family patterns/palettes and one draw. Native baseline
+`20261014T172131.861383Z-fish` and accepted `20261014T172946.135210Z-fish` were inspected at
+original resolution; the accepted tails read as thinner rearward forks instead of plus signs.
+Focused Chrome/SwiftShader `20261014T173744.712303Z-chrome-fish` passes two inspected animated
+frames, 60 finite positive intervals, GL error zero, intact context and empty kernel delta. Default
+arm64 assemble/lint passes through the two-worker wrapper without emulator execution.
+
 ## Latest visual-audit implementation — muted monkey face skin
 
 The portable movement audit after the body-proportion repair selected the face as the next weak

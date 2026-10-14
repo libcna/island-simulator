@@ -83,9 +83,9 @@ namespace island
             {-0.04f, 0.195f, 0.185f},
             {-0.18f, 0.174f, 0.165f},
             {-0.30f, 0.135f, 0.123f},
-            {-0.40f, 0.085f, 0.078f},
-            {-0.47f, 0.048f, 0.045f},
-            {-0.50f, 0.025f, 0.026f},
+            {-0.43f, 0.085f, 0.078f},
+            {-0.52f, 0.048f, 0.045f},
+            {-0.56f, 0.025f, 0.026f},
         }};
         constexpr int BodySegments = 16;
         constexpr std::string_view FishDetailDiagnostic =
@@ -94,6 +94,8 @@ namespace island
             "island-simulator: fish fins inherit body-family pigment with dark fitted root edges";
         constexpr std::string_view FishPatternDiagnostic =
             "island-simulator: near fish use softly interpolated family flank lines, bars, and caudal marks";
+        constexpr std::string_view FishTailDiagnostic =
+            "island-simulator: fish use narrow caudal peduncles and shallow swept forked tails";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -336,21 +338,21 @@ namespace island
                 }
             };
             appendBodyCap(0U, .562f, true);
-            appendBodyCap(BodySections.size() - 1U, -.515f, false);
+            appendBodyCap(BodySections.size() - 1U, -.575f, false);
 
             const float bend = fish.bodyWave * 0.105f;
-            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.49f, scale);
+            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.56f, scale);
 
             const float tailBend = fish.bodyWave * 0.17f;
             const auto tailPoint = [&](const float y, const float z, const float wave) {
                 return LocalPoint(centre, axes, tailBend * wave, y, z, scale);
             };
-            const std::array upperTail{rear, tailPoint(.075f,-.60f,1.02f),
-                tailPoint(.18f,-.73f,1.08f), tailPoint(.15f,-.81f,1.10f),
-                tailPoint(0,-.66f,1.07f)};
-            const std::array lowerTail{rear, tailPoint(0,-.66f,1.07f),
-                tailPoint(-.15f,-.81f,1.10f), tailPoint(-.18f,-.73f,1.08f),
-                tailPoint(-.075f,-.60f,1.02f)};
+            const std::array upperTail{rear, tailPoint(.055f,-.64f,1.02f),
+                tailPoint(.14f,-.77f,1.08f), tailPoint(.12f,-.90f,1.10f),
+                tailPoint(0,-.80f,1.07f)};
+            const std::array lowerTail{rear, tailPoint(0,-.80f,1.07f),
+                tailPoint(-.12f,-.90f,1.10f), tailPoint(-.14f,-.77f,1.08f),
+                tailPoint(-.055f,-.64f,1.02f)};
             AppendClosedPolygon(vertices, upperTail, axes.right * (0.004f * scale),
                                 palette.fin, palette.back);
             AppendClosedPolygon(vertices, lowerTail, axes.right * (0.004f * scale),
@@ -437,13 +439,13 @@ namespace island
             const Vector3 nose = LocalPoint(centre, axes, 0.0f, 0.0f, 0.46f, scale);
             const Vector3 top = LocalPoint(centre, axes, 0.0f, 0.17f, 0.0f, scale);
             const Vector3 bottom = LocalPoint(centre, axes, 0.0f, -0.14f, 0.0f, scale);
-            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.43f, scale);
+            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.49f, scale);
             const Vector3 tailTop = LocalPoint(
-                centre, axes, bend * 1.5f, 0.21f, -0.72f, scale);
+                centre, axes, bend * 1.5f, 0.15f, -0.82f, scale);
             const Vector3 tailNotch = LocalPoint(
-                centre, axes, bend * 1.62f, 0.0f, -0.62f, scale);
+                centre, axes, bend * 1.62f, 0.0f, -0.73f, scale);
             const Vector3 tailBottom = LocalPoint(
-                centre, axes, bend * 1.5f, -0.21f, -0.72f, scale);
+                centre, axes, bend * 1.5f, -0.15f, -0.82f, scale);
             AddLitTriangle(vertices, nose, top, rear, palette.body, true);
             AddLitTriangle(vertices, nose, rear, bottom, palette.belly, true);
             AddTriangle(vertices, rear, tailTop, tailNotch, palette.fin);
@@ -475,6 +477,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(FishFinDiagnostic);
         std::cout << FishPatternDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(FishPatternDiagnostic);
+        std::cout << FishTailDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(FishTailDiagnostic);
     }
 
     FishRenderer::~FishRenderer() = default;

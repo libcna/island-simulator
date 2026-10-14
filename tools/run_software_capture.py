@@ -913,6 +913,8 @@ def main():
                     raise RuntimeError("current fish flank pattern is missing; check for a stale executable")
                 if "fish fins inherit body-family pigment with dark fitted root edges" not in diagnostics:
                     raise RuntimeError("current fish fin pigment is missing; check for a stale executable")
+                if "fish use narrow caudal peduncles and shallow swept forked tails" not in diagnostics:
+                    raise RuntimeError("current fish tail proportions are missing; check for a stale executable")
                 if "near fish use capped smooth-lit bodies, caudal peduncles and progressive rear-body bends" not in diagnostics:
                     raise RuntimeError("current close fish form is missing; check for a stale executable")
                 if "near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes" not in diagnostics:

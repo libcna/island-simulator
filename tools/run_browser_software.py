@@ -300,6 +300,7 @@ def validate_fish_report(report):
         or len(set(frames)) != 2
         or "near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes" not in log
         or "near fish use softly interpolated family flank lines, bars, and caudal marks" not in log
+        or "fish use narrow caudal peduncles and shallow swept forked tails" not in log
         or "near fish use capped smooth-lit bodies, caudal peduncles and progressive rear-body bends" not in log
         or not re.search(r"fish [1-9][0-9]*/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):

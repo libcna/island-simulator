@@ -1,5 +1,23 @@
 # Shallow-water fish form
 
+## Swept caudal silhouette (2026-10-14)
+
+The renewed school audit found that otherwise readable bodies ended in tall, short caudal lobes
+that overlapped into a cross-shaped silhouette. The last three body stations and rear cap now
+extend the narrow peduncle by 60 mm. Both closed tail lobes are lower and sweep farther aft around
+a deeper notch, producing a shallow fork rather than a plus sign. The 12-vertex distant silhouette
+receives matching peduncle, lobe-height and aft-sweep corrections.
+
+This coordinate-only pass preserves the exact 1,362/12-vertex budgets, closed-volume fin topology,
+48-agent schools, animation, habitat, patterns, palettes and one draw. Native baseline
+`20261014T172131.861383Z-fish` and accepted `20261014T172946.135210Z-fish` were inspected at
+original resolution. The accepted school retains all four body families while each tail reads as
+a thinner rearward fork.
+Focused Chrome/SwiftShader evidence `20261014T173744.712303Z-chrome-fish` passes with two
+inspected different live poses, 60 finite positive intervals, GL error zero, an intact context
+and no new kernel GPU fault. The default arm64 APK assembles and application lint passes through
+the two-worker wrapper without starting an emulator; Android runtime appearance remains unqualified.
+
 ## Family-specific flank pigment (2026-10-14)
 
 A fresh fish/dolphin/goat/bear matrix confirmed that the revised fish geometry is active,
