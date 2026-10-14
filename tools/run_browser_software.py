@@ -267,7 +267,9 @@ def validate_shark_report(report):
                    and math.isfinite(value) and value > 0 for value in intervals)
         or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
         or len(set(frames)) != 2
-        or "near shark uses a rounded ten-facet body, closed-volume fins, five paired gill slits, and faceted eyes" not in log
+        or "shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight" not in log
+        or "near shark uses a smooth-lit blunt head and body, caudal peduncle and heterocercal tail" not in log
+        or "near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes" not in log
         or not re.search(r"shark visible activity \S+, 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("shark view lacks current anatomy, frames or clean graphics state")

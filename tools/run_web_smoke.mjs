@@ -788,7 +788,9 @@ try {
             && (!focusedFishCheck || (log.includes("near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes")
               && log.includes("near fish use capped smooth-lit bodies, caudal peduncles and progressive rear-body bends")
               && /fish [1-9][0-9]*\/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
-            && (!focusedSharkCheck || (log.includes("near shark uses a rounded ten-facet body, closed-volume fins, five paired gill slits, and faceted eyes")
+            && (!focusedSharkCheck || (log.includes("near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes")
+              && log.includes("near shark uses a smooth-lit blunt head and body, caudal peduncle and heterocercal tail")
+              && log.includes("shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight")
               && /shark visible activity \S+, 1 draw/.test(log)))
             && (!focusedDolphinCheck || (log.includes("near dolphins use closed-volume fins and flukes, short beaks, faceted eyes, mouth creases, and a blowhole")
               && log.includes("near dolphins use a nineteen-station closed melon profile, twenty-four-sided body, and vertex-blended countershading")
@@ -1086,7 +1088,7 @@ try {
     && result.output?.includes(
       "island-simulator: fish near/far geometry 1362/12 vertices, closed fins and CPU faceted daylight")
     && result.output?.includes(
-      "island-simulator: shark near/far geometry 834/15 vertices, closed fins and CPU faceted daylight")
+      "island-simulator: shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && result.output?.includes(
       "island-simulator: keyboard run/walk toggle uses a transient mode confirmation")
@@ -2316,9 +2318,11 @@ try {
     && sharkResult.output?.includes(
       "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
     && sharkResult.output?.includes(
-      "island-simulator: shark near/far geometry 834/15 vertices, closed fins and CPU faceted daylight")
+      "island-simulator: shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight")
     && sharkResult.output?.includes(
-      "island-simulator: near shark uses a rounded ten-facet body, closed-volume fins, five paired gill slits, and faceted eyes")
+      "island-simulator: near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes")
+    && sharkResult.output?.includes(
+      "island-simulator: near shark uses a smooth-lit blunt head and body, caudal peduncle and heterocercal tail")
     && /shark visible activity/.test(sharkResult.output ?? "")
     && !sharkResult.error;
 

@@ -122,7 +122,20 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — monkey joint continuity
+## Latest visual-audit implementation — shark body continuity
+
+After the turtle, monkey, dolphin and fish passes, the next weakest inspected aquatic close form
+was the shark's visibly ten-sided torso. The close model now uses fourteen longitudinal stations,
+eighteen radial samples, closed nose/rear transitions, smooth radial daylight and blended
+countershading. The exact near/far budget is 1,896/15 vertices; the patrol, eight closed fin/lobe
+forms, anatomy cues, simulation and one draw remain unchanged. Native evidence
+`20261014T030010.513058Z-shark` passes with 289 colour bins, 31.47 luminance deviation and 134.33
+spatial contrast. Focused Chrome/SwiftShader evidence
+`20261014T030558.932289Z-chrome-shark` passes two inspected animated frames,60finite intervals,
+GL0/context intact/kernel[]. ARM64 assemble/lint pass without emulator execution. The
+continuous audit proceeds next to the visually coarse beach crab.
+
+## Previous visual-audit implementation — monkey joint continuity
 
 The next weakest audited animal after the turtle was the monkey in rear/side views. Its
 textured body and quadrupedal behavior were already present, but the four limbs still read as
@@ -545,8 +558,14 @@ docs/stream-course.md and docs/environment-field-design.md.
   `20261013T113920.218101Z-shark` passes266bins/std31.43/spatial133.04/kernel[]. Focused
   Chrome/SwiftShader `20261013T114307.083425Z-chrome-shark` passes two inspected different-hash
   patrol poses,60finite intervals,GL0/context intact/kernel[]. Current Android qualification
-  remains pending; see
-  `docs/shark-form.md`. These procedural forms remain visibly faceted; current Android and sustained
+  remains pending. A fourth audit pass replaces the ten-sided torso with a fourteen-station,
+  eighteen-sided capped surface, smooth radial daylight and blended countershading while preserving
+  the patrol, marks, closed fins, far tier and one draw. Near/far geometry is1896/15vertices.
+  Inspected native `20261014T030010.513058Z-shark` passes289bins/std31.47/spatial134.33/kernel[].
+  Focused Chrome/SwiftShader `20261014T030558.932289Z-chrome-shark` passes two inspected animated
+  frames/60finite intervals/GL0/context intact/kernel[]. ARM64 assemble/lint pass without emulator
+  execution; see
+  `docs/shark-form.md`. Current Android and sustained
   performance review remain open. Turtle review retained the
   existing detailed shell/paddle foundation but enlarged the
   four-ring head/beak, surface-fitted the eyes, added nostril/mouth cues and narrowed/lightened the
@@ -6719,11 +6738,12 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 - [x] Add one occasional offshore shark with credible silhouette, patrol variation, swimming
   animation, and no hostile behaviour. A single original procedural model uses near/far geometry,
   CPU body/tail motion plus smoothed dive pitch and turn banking, frustum/distance culling, and one
-  portable dynamic-buffer draw. Both LODs have a forked tail; the 594-vertex near tier uses an
-  eight-station/ten-facet rounded body, heterocercal tail, lit shaped fins, two-facet highlighted
+  portable dynamic-buffer draw. Both LODs have a forked tail; the 1,896-vertex near tier uses a
+  fourteen-station/eighteen-sided capped body, heterocercal tail, lit shaped fins, fitted highlighted
   eyes, nostril/mouth marks and five swept gill slits per side. Shared fixed-sun CPU facet lighting,
   restrained depth tint/moving shallow sunlight and cull-none single-surface fins remain within one
-  draw; the distant silhouette remains 15 vertices.
+  draw; the distant silhouette remains 15 vertices. Smooth radial daylight and blended
+  countershading replace the former whole-facet body colour bands.
 - [x] Keep the shark out of immediate beach shallows and tune rarity for atmosphere, not tension.
   It patrols 34--88 m offshore for roughly 42--66 seconds, then remains below the presentation
   layer for roughly 92--160 seconds before the next appearance.

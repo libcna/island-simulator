@@ -57,3 +57,20 @@ frames retain the close patrol in different body/tail poses and their SHA-256 id
 All 60 intervals are finite, `glError` is zero, the context remains live and the kernel delta is
 empty. Android execution, continuous interactive observation, curved skin transitions and
 texture/scars remain open.
+
+## Smooth body pass (2026-10-14)
+
+The next visual audit found the eight-station/ten-facet torso readable but conspicuously angular
+beside the revised fish, dolphin and turtle. The close shark now uses fourteen longitudinal
+stations and eighteen radial samples, with capped nose and rear-peduncle transitions. Per-vertex
+radial daylight and blended dorsal/flank/ventral countershading replace the former whole-face
+colour bands. The peaceful patrol, live body wave, closed fin set, anatomy marks, far silhouette
+and one-draw batch are unchanged.
+
+The exact close budget is 1,896 vertices / 632 triangles (30,336 bytes for the single animal).
+Inspected llvmpipe/pixman evidence
+`build-consumer/software-captures/20261014T030010.513058Z-shark` passes with 289 colour bins, 31.47
+luminance deviation and 134.33 spatial contrast. Focused Chrome/SwiftShader evidence
+`build/browser-software/20261014T030558.932289Z-chrome-shark` passes with two inspected animated
+frames, 60 finite intervals, GL error zero, an intact context and no new kernel GPU fault. The
+ARM64 debug APK assembles and lint passes without starting an emulator.

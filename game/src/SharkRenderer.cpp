@@ -49,19 +49,25 @@ namespace island
             float halfHeight;
         };
 
-        constexpr std::array<BodySection, 8> BodySections = {{
-            {0.72f, 0.100f, 0.080f},
-            {0.62f, 0.200f, 0.145f},
-            {0.45f, 0.270f, 0.205f},
-            {0.18f, 0.320f, 0.250f},
-            {-0.10f, 0.310f, 0.250f},
-            {-0.34f, 0.230f, 0.190f},
-            {-0.54f, 0.130f, 0.110f},
-            {-0.68f, 0.055f, 0.055f},
+        constexpr std::array<BodySection, 14> BodySections = {{
+            {0.74f, 0.070f, 0.055f},
+            {0.68f, 0.145f, 0.105f},
+            {0.58f, 0.220f, 0.165f},
+            {0.44f, 0.280f, 0.215f},
+            {0.28f, 0.320f, 0.250f},
+            {0.10f, 0.330f, 0.260f},
+            {-0.08f, 0.315f, 0.250f},
+            {-0.24f, 0.280f, 0.225f},
+            {-0.38f, 0.225f, 0.185f},
+            {-0.50f, 0.170f, 0.140f},
+            {-0.59f, 0.115f, 0.100f},
+            {-0.65f, 0.075f, 0.068f},
+            {-0.69f, 0.045f, 0.045f},
+            {-0.71f, 0.025f, 0.027f},
         }};
-        constexpr int BodySegments = 10;
+        constexpr int BodySegments = 18;
         constexpr std::string_view SharkDetailDiagnostic =
-            "island-simulator: near shark uses a rounded ten-facet body, closed-volume fins, five paired gill slits, and faceted eyes";
+            "island-simulator: near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -86,6 +92,40 @@ namespace island
         {
             AddLitTriangle(vertices, a, b, c, color);
             AddLitTriangle(vertices, a, c, d, color);
+        }
+
+        [[nodiscard]] Color BodyColor(const Color& back, const Color& body,
+                                      const Color& belly, const float vertical)
+        {
+            if (vertical < 0.0f)
+                return Color::Lerp(body, belly,
+                                   std::clamp(-vertical * .86f, 0.0f, 1.0f));
+            return Color::Lerp(body, back,
+                               std::clamp(vertical * .82f, 0.0f, 1.0f));
+        }
+
+        [[nodiscard]] Color SmoothBodyColor(const Color& back, const Color& body,
+                                            const Color& belly, const PoseAxes& axes,
+                                            const float angle)
+        {
+            const Vector3 normal = Vector3::Normalize(
+                axes.right * std::cos(angle) + axes.up * std::sin(angle));
+            const float direct = std::max(
+                0.0f, Vector3::Dot(normal, wildlife_render::FixedSunDirection));
+            const float sky = std::max(0.0f, normal.Y);
+            return wildlife_render::ScaleColor(
+                BodyColor(back, body, belly, std::sin(angle)),
+                .76f + .25f * direct + .05f * sky);
+        }
+
+        void AddGradientTriangle(std::vector<VertexPositionColor>& vertices,
+                                 const Vector3& a, const Vector3& b, const Vector3& c,
+                                 const Color& colorA, const Color& colorB,
+                                 const Color& colorC)
+        {
+            vertices.emplace_back(a, colorA);
+            vertices.emplace_back(b, colorB);
+            vertices.emplace_back(c, colorC);
         }
 
         void AppendClosedFin(std::vector<VertexPositionColor>& vertices,
@@ -178,28 +218,50 @@ namespace island
                         section.halfHeight * std::sin(angle), section.z, scale);
                 }
             }
-            const Vector3 nose = LocalPoint(centre, axes, 0.0f, -0.010f, 0.79f, scale);
+            const Vector3 nose = LocalPoint(centre, axes, 0.0f, -0.010f, 0.80f, scale);
             for (int segment = 0; segment < BodySegments; ++segment) {
-                AddLitTriangle(vertices, nose, rings.front()[segment],
-                               rings.front()[(segment + 1) % BodySegments], body);
+                const int next = (segment + 1) % BodySegments;
+                const float angle = 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(segment) / static_cast<float>(BodySegments);
+                const float nextAngle = 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(next) / static_cast<float>(BodySegments);
+                AddGradientTriangle(vertices, nose, rings.front()[segment],
+                                    rings.front()[next], body,
+                                    SmoothBodyColor(back, body, belly, axes, angle),
+                                    SmoothBodyColor(back, body, belly, axes, nextAngle));
             }
             for (std::size_t row = 0; row + 1U < BodySections.size(); ++row) {
                 for (int segment = 0; segment < BodySegments; ++segment) {
                     const int next = (segment + 1) % BodySegments;
                     const float angle = 2.0f * std::numbers::pi_v<float>
-                        * (static_cast<float>(segment) + 0.5f)
-                        / static_cast<float>(BodySegments);
-                    const Color color = std::sin(angle) > 0.30f ? back
-                        : (std::sin(angle) < -0.22f ? belly : body);
-                    AddLitTriangle(vertices, rings[row][segment], rings[row + 1U][segment],
-                                   rings[row + 1U][next], color);
-                    AddLitTriangle(vertices, rings[row][segment], rings[row + 1U][next],
-                                   rings[row][next], color);
+                        * static_cast<float>(segment) / static_cast<float>(BodySegments);
+                    const float nextAngle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(next) / static_cast<float>(BodySegments);
+                    const Color color = SmoothBodyColor(back, body, belly, axes, angle);
+                    const Color nextColor = SmoothBodyColor(back, body, belly, axes, nextAngle);
+                    AddGradientTriangle(vertices, rings[row][segment], rings[row + 1U][segment],
+                                        rings[row + 1U][next], color, color, nextColor);
+                    AddGradientTriangle(vertices, rings[row][segment], rings[row + 1U][next],
+                                        rings[row][next], color, nextColor, nextColor);
                 }
             }
 
+            const float rearBend = shark.bodyWave * 0.125f;
+            const Vector3 rearCap = LocalPoint(centre, axes, rearBend, 0.0f, -0.725f, scale);
+            for (int segment = 0; segment < BodySegments; ++segment) {
+                const int next = (segment + 1) % BodySegments;
+                const float angle = 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(segment) / static_cast<float>(BodySegments);
+                const float nextAngle = 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(next) / static_cast<float>(BodySegments);
+                AddGradientTriangle(vertices, rings.back()[segment], rearCap,
+                                    rings.back()[next],
+                                    SmoothBodyColor(back, body, belly, axes, angle), body,
+                                    SmoothBodyColor(back, body, belly, axes, nextAngle));
+            }
+
             const float bend = shark.bodyWave * 0.125f;
-            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.68f, scale);
+            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.71f, scale);
 
             const float tailBend = shark.bodyWave * 0.21f;
             const Vector3 upperKnee = LocalPoint(

@@ -1107,14 +1107,15 @@ system. A deterministic schedule alternates roughly 42--66 second visible patrol
 tail stroke, vertical-velocity pitch, and heading-error bank prevent rigid motion. The shared
 observer-distance policy reduces or suspends
 updates when appropriate. `SharkRenderer` uses a recognizable original low-poly silhouette, a
-594-vertex eight-station/ten-facet near body and a 15-vertex far body. Both LODs retain a forked
-tail; the near model adds two-facet highlighted eyes, five swept gill slits per side, nostril/mouth
-marks and shaped pectoral/pelvic fins. Fixed-sun CPU face colours and two-sided fin lighting share
+1,896-vertex fourteen-station/eighteen-sided capped near body and a 15-vertex far body. Both LODs
+retain a forked tail; the near model adds fitted highlighted eyes, five swept gill slits per side,
+nostril/mouth marks and shaped pectoral/pelvic fins. Smooth radial fixed-sun CPU body colours,
+countershading and two-sided fin lighting share
 the same depth/sun-band profile as the fish. Individual
 frustum/distance rejection, and one portable `BasicEffect` dynamic
 batch. The shared `WildlifeRenderLighting` helper keeps fish and shark facet treatment identical.
-Because culling is disabled for the thin fins, they are emitted once rather than as coincident
-closed near-fin volumes; near/far geometry is 834/15 vertices. The batch renders before the ocean.
+Because culling is disabled for the thin fins, they are emitted once as closed near-fin volumes;
+near/far geometry is 1,896/15 vertices. The batch renders before the ocean.
 A translation-following close-review camera retains live patrol pose across slow audit frames.
 Native OpenGL 3.3 and focused Chrome/SwiftShader WebGL 2 captures match;
 the shark-inclusive arm64 GLES 3 APK builds but awaits stable-device runtime validation.

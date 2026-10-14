@@ -347,13 +347,15 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn("shark", gate.SCOPES)
         self.assertIn('["shark", ["--viewpoint", "shark", "--debug-overlay"]]',
                       (ROOT / "tools/web_smoke.html.in").read_text())
-        marker = "near shark uses a rounded ten-facet body, closed-volume fins, five paired gill slits, and faceted eyes"
+        marker = "near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes"
+        profile = "near shark uses a smooth-lit blunt head and body, caudal peduncle and heterocercal tail"
+        geometry = "shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight"
         def report():
             return {"passed": True, "views": [{"mode": "shark", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "shark.png", "afterSimulationScreenshot": "shark-after.png",
                 "intervals": [16.7] * 60,
-                "result": {"output": marker + "\nshark visible activity 1, 1 draw"}}]}
+                "result": {"output": marker + "\n" + profile + "\n" + geometry + "\nshark visible activity 1, 1 draw"}}]}
         self.assertEqual(gate.validate_shark_report(report()), ("shark.png", "shark-after.png"))
         for mutate in (
             lambda value: value.update(passed=False),

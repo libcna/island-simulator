@@ -1460,7 +1460,7 @@ namespace island
                   << "island-simulator: shark near/far geometry "
                   << SharkRenderer::NearVertexCount << '/' << SharkRenderer::FarVertexCount
                   << " vertices, closed fins and CPU faceted daylight\n"
-                  << "island-simulator: near shark uses an eight-station body, blunt snout, "
+                  << "island-simulator: near shark uses a smooth-lit blunt head and body, "
                      "caudal peduncle and heterocercal tail\n"
                   << "island-simulator: monkeys " << monkeyTroop_.Monkeys().size()
                   << " agents with portable GPU skeletal animation, "

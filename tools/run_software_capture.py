@@ -868,9 +868,11 @@ def main():
                 if not re.search(r"fish [1-9][0-9]*/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):
                     raise RuntimeError("fish capture did not submit a near detailed school")
             if args.viewpoint == "shark":
-                if "near shark uses an eight-station body, blunt snout, caudal peduncle and heterocercal tail" not in diagnostics:
+                if "shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight" not in diagnostics:
+                    raise RuntimeError("current close shark geometry is missing; check for a stale executable")
+                if "near shark uses a smooth-lit blunt head and body, caudal peduncle and heterocercal tail" not in diagnostics:
                     raise RuntimeError("current close shark form is missing; check for a stale executable")
-                if "near shark uses a rounded ten-facet body, closed-volume fins, five paired gill slits, and faceted eyes" not in diagnostics:
+                if "near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes" not in diagnostics:
                     raise RuntimeError("current close shark anatomy is missing; check for a stale executable")
                 if not re.search(r"shark visible activity \S+, 1 draw", diagnostics):
                     raise RuntimeError("shark capture did not submit the near detailed animal")

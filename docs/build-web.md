@@ -713,7 +713,7 @@ requires the exact 1362/12-vertex, closed-fin, CPU-faceted daylight diagnostic, 
 eleven-station/sixteen-sided anatomy marker, and the shared depth/sun-band lighting diagnostic. A
 focused `--scope fish` run additionally requires two different-hash separated-time frames, 60
 positive intervals, SwiftShader, an intact context and GL error zero. The shark view must report
-the active offshore patrol, exact 834/15-vertex inventory, eight-station/ten-facet anatomy marker
+the active offshore patrol, exact 1896/15-vertex inventory, fourteen-station/eighteen-sided capped anatomy marker
 and the same lighting diagnostic. A focused `--scope shark` run additionally requires two
 different-hash separated-time frames, 60 positive intervals, SwiftShader, an intact context and GL
 error zero. A focused `--scope dolphins` run requires the 708/15-vertex inventory and current
