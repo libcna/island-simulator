@@ -60,6 +60,29 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — directional palm-crown shade
+
+The lighting audit confirmed a long-documented discontinuity: broadleaf crowns cast into the
+shared fixed-sun transmission field, while all living palm groves left terrain, grass and low
+plants fully lit. The same offline field now adds one flat porous ellipsoid for each of the 313
+living palm crowns. Its centre follows the rendered variant height, curved stem anchor, instance
+yaw/scale and bounded trade-wind lean; its average frond envelope is deliberately smaller than the
+longest leaflet tips. Overlapping grove crowns naturally deepen the result. Fallen and broken palms
+do not contribute a suspended crown. The 1024-square texture, CPU copy, receivers, draw count and
+runtime update cost are unchanged; only startup baking grows from 2,088 to 2,401 bounded casters.
+Grass placement now also respects palm shade through its existing transmission input.
+
+The focused CPU oracle proves a measurable ground shadow on the side opposite the fixed sun and
+rejects invalid palm scale, variant, state and coordinates. Native palms evidence
+`build-consumer/software-captures/20261014T224751.642899Z-palms` passes and was inspected.
+Chrome/SwiftShader `build/browser-software/20261014T225144.636863Z-chrome-palms` passes the living,
+fallen and broken views with 60 positive finite intervals each, GL0, live contexts and a clean
+kernel delta; the living-grove image was inspected. ARM64 assemble/lint passes through the
+two-worker wrapper using the locked Sharp Runtime revision (24,044,611 bytes,
+`cfedd615...fc0ba8`), without emulator or KVM. All 63 enabled non-display tests pass. This closes
+the palm part of lighting item 11; large-object directional shadows and a supported bounded shadow
+map investigation remain open.
+
 ## Latest visual-audit implementation — juvenile canopy age structure
 
 The wide overview/jungle/east audit found that the eight mature crown forms and their near/far
@@ -3661,9 +3684,14 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   finite intervals, GL0, a live context and clean kernel delta. ARM64 assemble/lint passes through
   the two-worker wrapper using the locked Sharp Runtime revision (24,025,427 bytes,
   `6f6b1fc4...c463ca`), without emulator or KVM. All 63 enabled non-display tests pass.
-- [ ] 11. Lighting: investigate a bounded directional sun shadow map through supported CNA APIs
+- [~] 11. Lighting: investigate a bounded directional sun shadow map through supported CNA APIs
   (one or two cascades, ~100-150 m, vegetation and large objects, low resolution, soft PCF); at
   minimum extend the canopy light/shadow system to palms and stronger directional shadows.
+  2026-10-15: the shared fixed-sun field now includes one renderer-aligned porous caster for each
+  of 313 living palm crowns (2,401 total casters), while fallen/broken palms correctly add none.
+  Terrain, grass and low plants therefore receive coherent grove shade with no new texture, pass,
+  draw or per-frame work. Native/WebGL/ARM64 evidence is recorded in the latest audit section.
+  The supported shadow-map investigation and large-object directional coverage remain open.
 - [~] 12. Sky with volume but no weather: stronger horizon haze, 5-15 distant cumulus masses
   (some low on the horizon), warmer sun surroundings, softer zenith gradient, bright sunlit cloud
   tops with blue-grey undersides. 2026-10-10 first pass done (`docs/sky-atmosphere.md`): haze

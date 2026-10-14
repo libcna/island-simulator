@@ -1027,7 +1027,7 @@ def main():
                 raise RuntimeError("current shoreline foam is missing; check for a stale executable")
             if "shoreline foam follows bounded east-to-west coastal wind exposure" not in diagnostics:
                 raise RuntimeError("current wind-aware shoreline foam is missing; check for a stale executable")
-            if "shared fixed-sun canopy transmission lights terrain and grass" not in diagnostics:
+            if "shared fixed-sun tree and palm crown transmission lights terrain and grass" not in diagnostics:
                 raise RuntimeError("current canopy-light feature is missing; check for a stale executable")
             if "canopy shade adds bounded world-anchored low-frequency sun patches" not in diagnostics:
                 raise RuntimeError("current canopy dapple lighting is missing; check for a stale executable")

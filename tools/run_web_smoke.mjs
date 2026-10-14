@@ -972,7 +972,7 @@ try {
             && log.includes("canopy trunks retain diffuse sky fill and readable bark detail in deep crown shade")
             && log.includes("canopy blades use spatial pitch and roll with identical retained LOD poses")
             && log.includes("curved canopy blades retain source identities within original triangle budgets")
-            && log.includes("shared fixed-sun canopy transmission lights terrain and grass")
+            && log.includes("shared fixed-sun tree and palm crown transmission lights terrain and grass")
             && log.includes("canopy shade adds bounded world-anchored low-frequency sun patches")
             && log.includes("jungle ground layers receive shared canopy shade; crowns excluded")
             && log.includes("jungle leaves use smooth normals, filtered veins and restrained wax shading")

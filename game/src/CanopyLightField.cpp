@@ -1,5 +1,6 @@
 #include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/CanopyProfile.hpp"
+#include "IslandSimulator/PrevailingWind.hpp"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -85,6 +86,64 @@ namespace island
                 result.push_back(caster);
             }
         }
+        return result;
+    }
+
+    std::vector<CanopyOccluder> MakePalmCanopyOccluders(
+        const std::span<const PalmPlacement> palms)
+    {
+        std::vector<CanopyOccluder> result;
+        result.reserve(palms.size());
+        for (const auto& palm : palms) {
+            if (!std::isfinite(palm.x) || !std::isfinite(palm.y) || !std::isfinite(palm.z)
+                || !std::isfinite(palm.yawRadians) || !std::isfinite(palm.scale)
+                || !std::isfinite(palm.shoreDistance) || palm.scale < 0.1f || palm.scale > 4.0f
+                || palm.variant >= VegetationLayout::PalmVariantCount
+                || (palm.condition != PalmCondition::Living
+                    && palm.condition != PalmCondition::Fallen
+                    && palm.condition != PalmCondition::Broken)) {
+                throw std::invalid_argument("Invalid palm placement for light baking");
+            }
+            if (palm.condition != PalmCondition::Living) continue;
+
+            // Match the rendered stem's crown anchor before the small wind lean. A single flat,
+            // porous ellipse represents the average leaflet coverage, not the full frond tips;
+            // overlapping palms in a grove naturally deepen the fixed directional shadow.
+            const float variant = static_cast<float>(palm.variant);
+            const float height = 9.4f + variant * 0.55f;
+            const float curveAngle = 0.72f + variant * 1.37f;
+            const float internalLean = 0.55f
+                + static_cast<float>((palm.variant * 5U) % 3U) * 0.25f;
+            const float localX = std::cos(curveAngle) * internalLean;
+            const float localZ = std::sin(curveAngle) * internalLean;
+            const float cosine = std::cos(palm.yawRadians), sine = std::sin(palm.yawRadians);
+            const float windLean = wind::PalmLeanRadians(
+                wind::Exposure(palm.x, palm.z, palm.shoreDistance));
+            CanopyOccluder caster{
+                palm.x + (localX * cosine + localZ * sine) * palm.scale
+                    + wind::DirectionX * std::sin(windLean) * height * palm.scale,
+                palm.y + std::cos(windLean) * height * palm.scale,
+                palm.z + (-localX * sine + localZ * cosine) * palm.scale
+                    + wind::DirectionZ * std::sin(windLean) * height * palm.scale,
+                (3.65f + 0.12f * static_cast<float>(palm.variant % 2U)) * palm.scale,
+                0.95f * palm.scale,
+                (3.45f + 0.10f * static_cast<float>((palm.variant + 1U) % 2U)) * palm.scale,
+                palm.yawRadians + variant * 0.41f,
+                0.14f};
+            if (!Valid(caster)) throw std::invalid_argument("Invalid palm crown for light baking");
+            result.push_back(caster);
+        }
+        return result;
+    }
+
+    std::vector<CanopyOccluder> MakeCanopyOccluders(
+        const std::span<const CanopyPlacement> trees,
+        const std::span<const PalmPlacement> palms)
+    {
+        auto result = MakeCanopyOccluders(trees);
+        auto palmCasters = MakePalmCanopyOccluders(palms);
+        result.reserve(result.size() + palmCasters.size());
+        result.insert(result.end(), palmCasters.begin(), palmCasters.end());
         return result;
     }
 

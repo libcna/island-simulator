@@ -379,7 +379,10 @@ is material-only and remains separate from the larger instanced shell/pebble pro
 
 Terrain, grass and low jungle layers share a static canopy transmission texture, replacing the earlier noise-only
 floor-dapple approximation. `CanopyProfile` supplies the same eight crown lobes used by each
-near tree mesh. `CanopyLightField` integrates forward sun-ray lengths through porous ellipsoids
+near tree mesh. Every living palm adds one flatter porous ellipsoid around its average frond
+envelope; the centre follows the rendered variant height, curved stem anchor, yaw, scale and
+trade-wind lean. Fallen and broken palms add no suspended crown. `CanopyLightField` integrates
+forward sun-ray lengths through all 2,401 porous casters
 at terrain-height texel centres; bounded projected caster rectangles avoid an all-pairs bake.
 The 1024-square field covers 600 m and uses linear-clamped sampling. The GPU adapter uploads
 one RGBA8 texture (4 MiB), lives longer than all receivers, and adds no draw submission.
@@ -389,7 +392,7 @@ receiver switch is reset before crown draws every frame and enabled only for und
 bushes and ground plants. The same shared GLSL helper keeps grass/plant projection consistent.
 Ambient cool
 skylight remains in full shade. This is approximate fixed canopy shading, not animated,
-leaf-exact shadows: palms do not cast into it, and wildlife other than boars/monkeys does not yet receive it. Projecting
+leaf-exact shadows, and wildlife other than boars/monkeys does not yet receive it. Projecting
 onto each low receiver's ground-anchor plane is approximate on sloping terrain. Crown
 self-shadowing is deliberately excluded because a ground field cannot represent it correctly.
 Material noise still describes soil variation, but no longer invents independent sun patches.

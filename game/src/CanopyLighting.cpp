@@ -43,7 +43,7 @@ namespace island
         texture_ = std::make_unique<Texture2D>(device, field.Resolution(), field.Resolution());
         texture_->SetData(pixels.data(), static_cast<int>(pixels.size()));
         constexpr const char* diagnostic =
-            "island-simulator: shared fixed-sun canopy transmission lights terrain and grass";
+            "island-simulator: shared fixed-sun tree and palm crown transmission lights terrain and grass";
         std::cout << diagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         constexpr const char* dappleDiagnostic =

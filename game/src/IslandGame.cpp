@@ -176,7 +176,8 @@ namespace island
           vegetationLayout_(terrain_),
           jungleLayout_(terrain_),
           spiderWebSites_(SpiderWebLayout::Propose(jungleLayout_,RenderedTerrainSurface(terrain_))),
-          canopyLightField_(terrain_, MakeCanopyOccluders(jungleLayout_.Canopy())),
+          canopyLightField_(terrain_, MakeCanopyOccluders(
+              jungleLayout_.Canopy(), vegetationLayout_.Palms())),
           grassLayout_(terrain_, canopyLightField_, groundCoverField_),
           naturalPropLayout_(terrain_, vegetationLayout_, jungleLayout_),
           shipwreckLayout_(terrain_),

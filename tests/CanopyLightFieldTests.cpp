@@ -467,6 +467,54 @@ try
     invalidTree[0].scale = 0;
     Invalid([&] { (void)MakeCanopyOccluders(invalidTree); });
 
+    PalmPlacement livingPalm;
+    livingPalm.x = 10.0f;
+    livingPalm.y = 2.0f;
+    livingPalm.z = -8.0f;
+    livingPalm.yawRadians = std::numbers::pi_v<float> * 0.5f;
+    livingPalm.scale = 1.2f;
+    livingPalm.shoreDistance = 24.0f;
+    livingPalm.variant = 2U;
+    PalmPlacement brokenPalm = livingPalm;
+    brokenPalm.condition = PalmCondition::Broken;
+    PalmPlacement fallenPalm = livingPalm;
+    fallenPalm.condition = PalmCondition::Fallen;
+    const std::array palms{livingPalm, brokenPalm, fallenPalm};
+    const auto palmCasters = MakePalmCanopyOccluders(palms);
+    Require(palmCasters.size() == 1U && palmCasters.front().density == 0.14f
+        && palmCasters.front().radiusY == 0.95f * livingPalm.scale
+        && palmCasters.front().y > livingPalm.y + 11.0f,
+        "Only living palms must add one bounded porous crown envelope");
+    Require(MakeCanopyOccluders(rotatedTree, palms).size()
+            == transformed.size() + palmCasters.size(),
+        "Combined crown inventory must retain tree lobes and living palms");
+    const CanopyLightField palmField(terrain, palmCasters, 256);
+    const auto& palmCrown = palmCasters.front();
+    float palmShadowX = palmCrown.x;
+    float palmShadowZ = palmCrown.z;
+    for (int iteration = 0; iteration < 4; ++iteration) {
+        const float ground = terrain.Height(palmShadowX, palmShadowZ);
+        palmShadowX = palmCrown.x - environment::SunDirectionX
+            / environment::SunDirectionY * (palmCrown.y - ground);
+        palmShadowZ = palmCrown.z - environment::SunDirectionZ
+            / environment::SunDirectionY * (palmCrown.y - ground);
+    }
+    Require(palmShadowX > palmCrown.x && palmShadowZ > palmCrown.z
+        && palmField.Sample(palmShadowX, palmShadowZ) < 0.86f,
+        "Palm crown must cast a measurable ground shadow opposite the fixed sun");
+    auto invalidPalm = livingPalm;
+    invalidPalm.variant = static_cast<std::uint8_t>(VegetationLayout::PalmVariantCount);
+    Invalid([&] { (void)MakePalmCanopyOccluders(std::span{&invalidPalm, 1U}); });
+    invalidPalm = livingPalm;
+    invalidPalm.scale = std::numeric_limits<float>::quiet_NaN();
+    Invalid([&] { (void)MakePalmCanopyOccluders(std::span{&invalidPalm, 1U}); });
+    invalidPalm = livingPalm;
+    invalidPalm.x = std::numeric_limits<float>::infinity();
+    Invalid([&] { (void)MakePalmCanopyOccluders(std::span{&invalidPalm, 1U}); });
+    invalidPalm = livingPalm;
+    invalidPalm.condition = static_cast<PalmCondition>(255U);
+    Invalid([&] { (void)MakePalmCanopyOccluders(std::span{&invalidPalm, 1U}); });
+
     // Analytic oracle at every texel for one caster: exercises projected bounds, slopes,
     // sun direction, quantization, half-texel centres and row orientation together.
     auto single = sphere;
@@ -521,7 +569,8 @@ try
 
     const auto start = std::chrono::steady_clock::now();
     const JungleLayout layout(terrain);
-    const auto worldCasters = MakeCanopyOccluders(layout.Canopy());
+    const VegetationLayout vegetation(terrain);
+    const auto worldCasters = MakeCanopyOccluders(layout.Canopy(), vegetation.Palms());
     const CanopyLightField world(terrain, worldCasters);
     const auto baked = std::chrono::steady_clock::now();
     const CanopyLightField repeated(terrain, worldCasters);

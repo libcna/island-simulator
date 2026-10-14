@@ -3,6 +3,7 @@
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
+#include "IslandSimulator/VegetationLayout.hpp"
 #include <cstdint>
 #include <span>
 #include <vector>
@@ -23,6 +24,12 @@ namespace island
 
     [[nodiscard]] std::vector<CanopyOccluder> MakeCanopyOccluders(
         std::span<const CanopyPlacement> trees);
+    /** @brief One porous crown envelope per living palm; fallen/broken stems cast no crown. */
+    [[nodiscard]] std::vector<CanopyOccluder> MakePalmCanopyOccluders(
+        std::span<const PalmPlacement> palms);
+    /** @brief Combined fixed-sun crown inventory used by the game world. */
+    [[nodiscard]] std::vector<CanopyOccluder> MakeCanopyOccluders(
+        std::span<const CanopyPlacement> trees, std::span<const PalmPlacement> palms);
 
     /** @brief Length in metres of the forward unit ray inside the porous ellipsoid. */
     [[nodiscard]] float CanopyRayLength(const CanopyOccluder& caster,
