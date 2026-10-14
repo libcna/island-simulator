@@ -853,6 +853,8 @@ def main():
                 raise RuntimeError("current sky atmosphere is missing; check for a stale executable")
             if "fair-weather cumulus and wisps drift slowly west with prevailing wind" not in diagnostics:
                 raise RuntimeError("current wind-driven cloud drift is missing; check for a stale executable")
+            if "sky cumulus use layered billow silhouettes with blue-grey undersides and sunlit crowns" not in diagnostics:
+                raise RuntimeError("current cumulus silhouette and lighting are missing; check for a stale executable")
             if "sea turtles use domed scute carapaces, beaked heads and bending paddle strokes" not in diagnostics:
                 raise RuntimeError("current sea-turtle form is missing; check for a stale executable")
             if args.viewpoint == "turtles":

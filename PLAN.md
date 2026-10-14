@@ -122,7 +122,29 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — projected steep-slope rock detail
+## Latest visual-audit implementation — cumulus silhouette and light volume
+
+The overall-lighting audit found that the fixed sun, terrain daylight and haze remained coherent,
+but the eleven fair-weather cumulus masses still read as long nearly uniform white bars. The
+accepted bounded sky-shader pass retains the permanent sunny weather, cloud count, one sky draw,
+wind-driven drift and Android-safe eleven literal function calls. Each mass now combines a broad
+flat-bottomed base with three offset upper billows, uses gentler top erosion, and separates a cool
+blue-grey underside from a subtly warm sunlit crown and soft upper rim. No volumetric rendering,
+texture, weather state or time-of-day system was added.
+
+Baseline/final native overview evidence is
+`build-consumer/software-captures/20261014T043749.332245Z-overview` and
+`20261014T045503.438922Z-overview`; the paired headland review is
+`20261014T043922.887090Z-headland` versus `20261014T045225.969297Z-headland`. The inspected result
+keeps the calm horizontal composition but replaces the ruler-flat upper contours and adds readable
+underside depth. A reusable focused `sky` scope passes 60 Chrome/SwiftShader frame intervals with
+zero GL error and no context loss at
+`build/browser-software/20261014T045714.589886Z-chrome-sky`; its overview image matches the native
+material response. Native Release, WebGL, and arm64-v8a debug APK plus lint all compile under the
+four-core constraint. Android appearance and physical-GPU sky cost remain unqualified without an
+emulator or device; no Android emulator or KVM state was changed.
+
+## Previous visual-audit implementation — projected steep-slope rock detail
 
 The post-palm terrain comparison selected the exposed headland and eastern hill faces: their
 height-field x/z noise compressed into broad muddy vertical curtains, making the largest landforms

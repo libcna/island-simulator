@@ -103,14 +103,27 @@ vec3 cumulusMass(vec3 color, vec4 cloud, float seed, float azimuth, float skyEle
     vec2 noiseCoordinate = vec2(dAzimuth * 9.0, skyElevation * 38.0) + vec2(seed * 7.3, seed * 3.1);
     float detail = skyNoise(noiseCoordinate) * 0.62 + skyNoise(noiseCoordinate * 2.3 + 11.0) * 0.38;
     float topErosion = (detail - 0.5) * (0.9 + 0.8 * max(local.y, 0.0));
-    float shape = 1.0 - radial + topErosion * 0.9 - max(-local.y - 0.55, 0.0) * 3.0;
+    // Three overlapping upper lobes prevent the very wide distant masses from reading as
+    // straight white bars. Their bottom halves merge into the original broad base, retaining
+    // the calm tropical horizon and the deliberately flat fair-weather underside.
+    vec2 leftLobe = (local - vec2(-0.43, 0.18)) / vec2(0.68, 0.76);
+    vec2 crownLobe = (local - vec2(0.02, 0.31)) / vec2(0.56, 0.88);
+    vec2 rightLobe = (local - vec2(0.47, 0.15)) / vec2(0.72, 0.70);
+    float billows = max(1.0 - dot(leftLobe, leftLobe),
+        max(1.0 - dot(crownLobe, crownLobe), 1.0 - dot(rightLobe, rightLobe)));
+    float broadBase = 0.72 - dot(local * vec2(0.82, 1.22), local * vec2(0.82, 1.22));
+    float shape = max(broadBase, billows) + topErosion * 0.72
+        - max(-local.y - 0.48, 0.0) * 4.2;
     float coverage = smoothstep(0.0, 0.32, shape);
     if (coverage <= 0.0) return color;
-    float topLight = smoothstep(-1.0, 0.9, local.y + (detail - 0.5) * 0.8);
+    float topLight = smoothstep(-0.62, 0.72, local.y + (detail - 0.5) * 0.65);
     float dSun = azimuth - sunAzimuth;
     dSun -= 6.28318530718 * floor(dSun / 6.28318530718 + 0.5);
     float sunSide = 0.5 + 0.5 * cos(dSun) * 0.6;
-    vec3 cloudColor = mix(vec3(0.60, 0.66, 0.74), vec3(0.98, 0.97, 0.94), topLight * (0.55 + 0.45 * sunSide));
+    vec3 cloudColor = mix(vec3(0.52, 0.61, 0.70), vec3(0.99, 0.975, 0.93),
+        topLight * (0.48 + 0.52 * sunSide));
+    float softRim = smoothstep(0.18, 0.78, shape) * smoothstep(0.02, 0.62, local.y + 0.20);
+    cloudColor += vec3(0.055, 0.047, 0.030) * softRim * sunSide;
     // Far masses sit inside the haze: soften toward the horizon colour.
     cloudColor = mix(cloudColor, hazeColor, 0.30 * (1.0 - smoothstep(0.03, 0.20, skyElevation)));
     return mix(color, cloudColor, coverage * 0.92);
@@ -310,6 +323,10 @@ void main()
                 "island-simulator: fair-weather cumulus and wisps drift slowly west with prevailing wind";
             std::cout << driftDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(driftDiagnostic);
+            constexpr const char* cloudLightDiagnostic =
+                "island-simulator: sky cumulus use layered billow silhouettes with blue-grey undersides and sunlit crowns";
+            std::cout << cloudLightDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(cloudLightDiagnostic);
         } else {
             std::cerr << "island-simulator: gradient sky stock-effect fallback: "
                       << fallbackReason_ << '\n';
