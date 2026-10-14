@@ -58,9 +58,13 @@ void TestSplitGroundLeaf()
                 "Shared split-leaf LOD knots disagree in actual generated positions");
         }
     }
+    std::array<float,5> lengths{},lifts{},pigments{};
     int samples=0;
     for (int index=0;index<5;++index) {
         const auto leaf=SplitGroundLeafForTier(index,false);
+        lengths[index]=leaf.length;
+        lifts[index]=leaf.lift;
+        pigments[index]=leaf.pigment;
         // Check the generated mesh, not merely the continuous profile: a midpoint-only
         // grid misses smoothstep curvature and retains visibly pointed lobe shoulders.
         const float lower=SampleSplitGroundLeaf(leaf,SplitGroundLeafRow(4,false),1).across;
@@ -92,9 +96,15 @@ void TestSplitGroundLeaf()
             ++samples;
         }
         const float peak=SampleSplitGroundLeaf(leaf,0.34f,1).across;
-        for (float valley:{0.45f,0.67f,0.88f}) require(SampleSplitGroundLeaf(leaf,valley,1).across<peak*0.23f,
+        for (float valley:{0.45f,0.67f,0.88f}) require(SampleSplitGroundLeaf(leaf,valley,1).across<peak*0.30f,
             "Split-leaf outline lost its deep connected lobes");
     }
+    const auto spread=[](const auto& values) {
+        const auto [low,high]=std::minmax_element(values.begin(),values.end());
+        return *high-*low;
+    };
+    require(spread(lengths)>0.10f && spread(lifts)>0.06f && spread(pigments)>0.15f,
+        "Split ground leaf rosette lost its layered stature or pigment variation");
     for (bool far:{false,true}) for (int invalid:{-1,far?4:5}) {
         bool rejected=false;
         try { (void)SplitGroundLeafForTier(invalid,far); } catch (const std::invalid_argument&) { rejected=true; }

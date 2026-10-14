@@ -23,11 +23,14 @@ namespace island
     {
         if (index<0 || index>=(far ? 4 : 5)) throw std::invalid_argument("Invalid split ground leaf index");
         constexpr std::array sources{0,1,3,4};
+        constexpr std::array lengths{0.74f,0.65f,0.77f,0.68f,0.72f};
+        constexpr std::array widths{0.29f,0.32f,0.26f,0.31f,0.28f};
+        constexpr std::array lifts{0.49f,0.56f,0.50f,0.53f,0.49f};
         const int source=far ? sources[index] : index;
-        return {source,1.46f+2*std::numbers::pi_v<float>*source/5+0.13f*std::sin(source*2.7f),
-            0.68f+0.045f*((source+2)%3),0.27f+0.022f*((source*2+2)%3),
-            0.49f+0.035f*((source*3+2)%2),std::fmod(source/5.0f+0.54f,1.0f),
-            source%3 == 0 ? 1.10f : 1.0f};
+        return {source,1.46f+2*std::numbers::pi_v<float>*source/5
+                +0.18f*std::sin(source*2.7f), lengths[source],widths[source],lifts[source],
+            std::fmod(source/5.0f+0.54f,1.0f),
+            source%3 == 0 ? 1.10f : (source%3 == 1 ? 0.93f : 1.02f)};
     }
 
     LeafBladePoint SampleSplitGroundLeaf(const SplitGroundLeaf& leaf, float t, float side)
@@ -40,8 +43,8 @@ namespace island
             || !std::isfinite(leaf.phase) || leaf.phase<0 || leaf.phase>1)
             throw std::invalid_argument("Invalid split ground leaf profile or coordinate");
         const std::array spans{SplitGroundPetioleHalfWidth,SplitGroundPetioleHalfWidth,
-            leaf.width,leaf.width*0.18f,leaf.width*0.82f,leaf.width*0.16f,
-            leaf.width*0.61f,leaf.width*0.13f,0.0f};
+            leaf.width,leaf.width*0.27f,leaf.width*0.82f,leaf.width*0.23f,
+            leaf.width*0.61f,leaf.width*0.18f,0.0f};
         const auto upper=std::upper_bound(SplitGroundLeafKnots.begin(),SplitGroundLeafKnots.end(),t);
         const auto interval=static_cast<std::size_t>(std::clamp<std::ptrdiff_t>(
             upper-SplitGroundLeafKnots.begin()-1,0,SplitGroundLeafKnots.size()-2));
@@ -53,7 +56,7 @@ namespace island
         float blade=std::clamp((t-0.22f)/0.12f,0.0f,1.0f);
         blade=blade*blade*(3-2*blade);
         const float arch=t==0 || t==1 ? 0 : std::sin(t*std::numbers::pi_v<float>);
-        return {side*span*(1+0.035f*side*std::sin(t*7+phase)*blade),
+        return {side*span*(1+0.075f*side*std::sin(t*7+phase)*blade),
             leaf.lift*(0.30f*t+0.78f*arch)-0.07f*leaf.length*t*t
                 +span*blade*(0.14f*(1-side*side)+0.075f*side*std::sin(t*4+phase)),
             leaf.length*t};

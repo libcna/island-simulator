@@ -1203,8 +1203,11 @@ void main()
                     const float across=-1+2.0f*column/(columns-1);
                     const auto p=SampleSplitGroundLeaf(leaf,t,across);
                     const auto n=SplitGroundLeafNormal(leaf,t,across);
+                    const float midrib=std::pow(1.0f-std::abs(across),7.0f);
+                    const float margin=std::pow(std::abs(across),4.0f);
                     geometry.vertices.emplace_back(direction*p.along+side*p.across+Vector3::Up*p.height,
-                        ShadeColor(baseColor,0.92f+0.08f*t),Vector2(t*t,leaf.phase));
+                        ShadeColor(baseColor,0.92f+0.06f*t+0.09f*midrib-0.07f*margin),
+                        Vector2(t*t,leaf.phase));
                     geometry.leaves.resize(geometry.vertices.size());
                     geometry.leaves.back()={side*n.across+Vector3::Up*n.height+direction*n.along,
                         Vector4(t,across,leaf.phase,1.0f)};
@@ -1398,7 +1401,7 @@ void main()
         std::cout << groundBroadleafDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(groundBroadleafDiagnostic);
         constexpr const char* splitGroundDiagnostic =
-            "island-simulator: split ground leaves use connected lobed surfaces with shared LOD knots and root-anchored wind";
+            "island-simulator: split ground leaves use layered asymmetric lobes, readable midribs, shared LOD knots, and root-anchored wind";
         std::cout << splitGroundDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(splitGroundDiagnostic);
         constexpr const char* bushDiagnostic =

@@ -305,7 +305,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: juvenile ground broadleaf uses layered arching laminae, readable midribs, and retained near/far leaf identities" \
             "$LOG_FILE" \
-        && grep -q "island-simulator: split ground leaves use connected lobed surfaces with shared LOD knots and root-anchored wind" \
+        && grep -q "island-simulator: split ground leaves use layered asymmetric lobes, readable midribs, shared LOD knots, and root-anchored wind" \
             "$LOG_FILE" \
         && grep -q "island-simulator: shrubs use supported shoots and curved individual leaves with shared LOD identities and complete leaf outlines" \
             "$LOG_FILE" \

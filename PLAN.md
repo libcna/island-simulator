@@ -122,7 +122,26 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — layered juvenile broadleaf rosettes
+## Latest visual-audit implementation — softer layered split-leaf rosettes
+
+The following forest-floor audit found the lobed ground-plant species to be the remaining weakest
+close vegetation: five similarly posed, deeply cut leaves read as a rigid paper star. The bounded
+profile pass retains the five near/four far leaf identities, connected surface topology, shared LOD
+knots, root-anchored wind, placements and batching. Unequal length/width/lift now creates a layered
+rosette, modest side asymmetry breaks the stamped outline, softened but still deep sinuses preserve
+the tropical split-leaf identity, and a restrained midrib/margin colour gradient improves surface
+reading without another material or draw.
+
+Native before/after review is
+`build-consumer/software-captures/20261014T040525.232677Z-ground` versus
+`20261014T054320.490274Z-ground`. Both old and new target views remain below the generic whole-scene
+luminance-deviation threshold (16.39/16.38 against 18) because this fixed camera is almost entirely
+shaded forest floor; the new image was nevertheless inspected and is retained rather than weakening
+the gate. The decisive portable visual/runtime evidence is the dedicated `split-ground` scope at
+`build/browser-software/20261014T054647.160357Z-chrome-split-ground`: 60 SwiftShader intervals,
+zero GL error/context loss, matching target marker and inspected full-resolution screenshot.
+
+## Previous visual-audit implementation — layered juvenile broadleaf rosettes
 
 The next close-ground audit found the juvenile upright broadleaf species readable but still
 shaped like a small flat green star. The bounded follow-up retains all six near/four far leaf
