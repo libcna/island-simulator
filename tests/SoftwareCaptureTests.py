@@ -401,7 +401,8 @@ class SoftwareCaptureTests(unittest.TestCase):
                  "near monkey tails keep a compact muscular hook and thirty-six raised fur clumps\n"
                  "near monkey faces use paired fur cheek ruffs around the skin mask\n"
                  "near monkey faces use a fitted dark nose pad and raised readable corneas\n"
-                 "near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail")
+                 "near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail\n"
+                 "monkey shoulder and hip mantles blend the trunk into all four animated limbs")
         validate_monkey_capture_log(valid)
         validate_monkey_capture_log(valid+"\nmonkey subject paired tree grips 1", True)
         for marker in ("", "monkey subject paired tree grips 0", "monkey subject paired tree grips 10"):

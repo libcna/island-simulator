@@ -154,8 +154,8 @@ namespace island
                     ToVector(rest.limbs[2].root), ToVector(rest.limbs[2].joint),
                     ToVector(rest.limbs[3].root), ToVector(rest.limbs[3].joint),
                     Vector3(0.0f, 0.62f, -0.48f),
-                    Vector3(0.0f, 0.73f, -0.70f),
-                    Vector3(0.0f, 0.88f, -0.88f)},
+                    Vector3(0.0f, 0.70f, -0.65f),
+                    Vector3(0.0f, 0.80f, -0.79f)},
                 .parents = {-1, Pelvis, Spine, Spine, UpperArmLeft, Spine, UpperArmRight,
                             Pelvis, ThighLeft, Pelvis, ThighRight, Pelvis, TailBase,
                             TailMiddle}};
@@ -472,6 +472,20 @@ namespace island
             }
         }
 
+        void AddBlendedEllipsoid(MeshData& mesh, const Vector3& centre,
+                                 const Vector3& radii, const int bodyBone,
+                                 const int limbBone, const float limbWeight,
+                                 const int rings, const int segments)
+        {
+            const std::size_t firstVertex = mesh.vertices.size();
+            AddEllipsoid(mesh, centre, radii, bodyBone, rings, segments);
+            for (std::size_t vertex = firstVertex; vertex < mesh.vertices.size(); ++vertex) {
+                mesh.vertices[vertex].BlendWeight = Vector4(
+                    1.0f - limbWeight, limbWeight, 0.0f, 0.0f);
+                mesh.vertices[vertex].BlendIndices[1] = static_cast<std::uint8_t>(limbBone);
+            }
+        }
+
         void AddTail(MeshData& mesh, const RigDefinition& rig, float length, bool near)
         {
             using MonkeyTailProfile::Point;
@@ -479,7 +493,7 @@ namespace island
             const auto vector = [](Point p) { return Vector3(p.x, p.y, p.z); };
             const std::array<Point, 4> anchors{point(rig.heads[TailBase]),
                 point(rig.heads[TailMiddle]), point(rig.heads[TailTip]),
-                {0, .96f+.12f*length, -.88f+.16f*length}};
+                {0, .91f+.08f*length, -.84f+.19f*length}};
             constexpr std::array<int, 3> bones{TailBase, TailMiddle, TailTip};
             const int rings = near ? 24 : 12, segments = near ? 12 : 8;
             const std::uint16_t base = static_cast<std::uint16_t>(mesh.vertices.size());
@@ -525,9 +539,9 @@ namespace island
                     const Vector3 radial=right*std::cos(angle)+up*std::sin(angle);
                     const Vector3 side=Vector3::Normalize(Vector3::Cross(axis,radial));
                     const Vector3 surface=vector(section.centre)+radial*section.radius;
-                    const std::array<Vector3,4> points{{surface-axis*.031f-side*.013f,
-                        surface+axis*.025f-side*.013f,surface+side*.015f,
-                        surface+radial*(.032f+.003f*(tuft%3))-axis*.007f}};
+                    const std::array<Vector3,4> points{{surface-axis*.027f-side*.010f,
+                        surface+axis*.023f-side*.010f,surface+side*.012f,
+                        surface+radial*(.020f+.002f*(tuft%3))-axis*.005f}};
                     const auto first=static_cast<std::uint16_t>(mesh.vertices.size());
                     for(std::size_t i=0;i<points.size();++i) {
                         AddVertex(mesh,points[i],radial,bones[section.firstBone],
@@ -678,6 +692,20 @@ namespace island
             const auto rest = MonkeyGroundGait::Sample(0, 0);
             constexpr std::array<int, 4> upper{UpperArmLeft, UpperArmRight, ThighLeft, ThighRight};
             constexpr std::array<int, 4> lower{ForearmLeft, ForearmRight, ShinLeft, ShinRight};
+            // Preserve one continuous quadrupedal silhouette around all four sockets.
+            // The mantle centres sit inside the trunk loft and overlap the proximal
+            // sleeve rings, while their two-bone weights follow broad limb motion.
+            for (std::size_t limb = 0; limb < upper.size(); ++limb) {
+                const auto& mantle = limb < 2 ? MonkeyLimbProfile::ShoulderMantle
+                                              : MonkeyLimbProfile::HipMantle;
+                const float side = limb % 2U == 0U ? -1.0f : 1.0f;
+                AddBlendedEllipsoid(mesh,
+                    Vector3(side * mantle.centre.x, mantle.centre.y, mantle.centre.z),
+                    Vector3(mantle.radii.x, mantle.radii.y, mantle.radii.z)
+                        * shape.limbThickness,
+                    limb < 2 ? Spine : Pelvis, upper[limb], mantle.limbWeight,
+                    near ? 6 : 4, near ? 10 : 6);
+            }
             for (std::size_t limb = 0; limb < rest.limbs.size(); ++limb) {
                 AddLimbSkin(mesh, rest.limbs[limb], limb < 2 ? Spine : Pelvis, upper[limb], lower[limb],
                             shape.limbThickness, near ? 10 : 6);

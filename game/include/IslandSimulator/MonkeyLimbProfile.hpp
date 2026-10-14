@@ -4,6 +4,13 @@
 namespace island::MonkeyLimbProfile
 {
     using Point = MonkeyGroundGait::Point;
+    struct Mantle { Point centre, radii; float limbWeight; };
+
+    // Body-rooted volumes bridge the shoulder/hip sockets to the animated
+    // proximal limbs. Most of each mantle follows the trunk, with a restrained
+    // limb influence that avoids the old pipe-emerging-from-a-capsule outline.
+    inline constexpr Mantle ShoulderMantle{{.140f,.655f,.245f},{.105f,.095f,.125f},.16f};
+    inline constexpr Mantle HipMantle{{.140f,.635f,-.335f},{.115f,.105f,.135f},.14f};
     inline constexpr std::array<float,10> Fractions{0,.0625f,.125f,.25f,.375f,.5f,.625f,.75f,.875f,1};
     inline constexpr std::array<float,10> Radii{
         .040f,.080f,.095f,.090f,.073f,.063f,.055f,.048f,.042f,.038f};

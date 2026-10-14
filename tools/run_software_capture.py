@@ -349,6 +349,8 @@ def validate_monkey_capture_log(diagnostics, require_tree_grips=False):
         raise RuntimeError("monkey capture did not retain the current facial features")
     if "near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail" not in diagnostics:
         raise RuntimeError("monkey capture did not retain the current primate proportions")
+    if "monkey shoulder and hip mantles blend the trunk into all four animated limbs" not in diagnostics:
+        raise RuntimeError("monkey capture did not retain the blended anatomical joint mantles")
     if require_tree_grips and not re.search(r"monkey subject paired tree grips 1\b", diagnostics):
         raise RuntimeError("monkey-tree capture subject has no reachable paired bark grips")
 

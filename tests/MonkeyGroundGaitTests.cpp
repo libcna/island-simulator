@@ -23,6 +23,12 @@ static float Distance(gait::Point a, gait::Point b)
 int main()
 try {
     namespace limbProfile = island::MonkeyLimbProfile;
+    for (const auto mantle : {limbProfile::ShoulderMantle,limbProfile::HipMantle}) {
+        Require(mantle.centre.x>0&&mantle.radii.x>=.10f&&mantle.radii.y>=.09f
+            &&mantle.radii.z>=.12f,"monkey joint mantle keeps a broad anatomical volume");
+        Require(mantle.limbWeight>.1f&&mantle.limbWeight<.2f,
+            "monkey joint mantle remains body-rooted with bounded limb following");
+    }
     const auto rest=gait::Sample(0,0);
     for (const auto& limb:rest.limbs) for (float thickness:{.9f,1.0f,1.1f}) {
         for (std::size_t row=0;row<limbProfile::Fractions.size();++row) {
@@ -130,8 +136,8 @@ try {
             &&std::abs(outer.z-mirror.z)<1e-6f,"eyelid profile must mirror bilaterally");
     }
     namespace tail = island::MonkeyTailProfile;
-    const std::array<tail::Point, 4> anchors{{{0,.62f,-.48f}, {0,.73f,-.70f},
-        {0,.88f,-.88f}, {0,1.08f,-.72f}}};
+    const std::array<tail::Point, 4> anchors{{{0,.62f,-.48f}, {0,.70f,-.65f},
+        {0,.80f,-.79f}, {0,.99f,-.65f}}};
     const auto length = [](tail::Point p) { return std::sqrt(p.x*p.x+p.y*p.y+p.z*p.z); };
     float previousRadius=.106f;
     for (int i = 0; i <= 300; ++i) {

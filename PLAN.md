@@ -122,6 +122,24 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
+## Latest visual-audit implementation — monkey joint continuity
+
+The next weakest audited animal after the turtle was the monkey in rear/side views. Its
+textured body and quadrupedal behavior were already present, but the four limbs still read as
+tubes attached to a capsule and the raised tail dominated the rear outline. The accepted pass
+adds low two-bone shoulder/hip mantles inside the existing body draw, shortens and lowers the
+three-bone tail arc, and reduces the height of its retained thirty-six fur clumps. An initially
+taller mantle profile was rendered and rejected because it looked like four separate balls.
+
+The current near/far body is 2,623/937 vertices and 3,928/1,400 triangles with no new bones,
+materials, buffers, draws, animals or behavior. Native nine-stage tree evidence
+`20261014T021133.836452Z-monkey-tree` and Chrome/SwiftShader moving evidence
+`20261014T021453.720843Z-chrome-monkeys` pass and were inspected; WebGL reports 60 finite
+intervals, `glError=0`, no context loss and an empty kernel delta. The frontal face is still
+stylised and remains eligible for a later bounded detail pass. Next visual-audit target is the
+dolphin, whose close model is still visibly more geometric than the newly revised turtle,
+shark and monkey.
+
 ## Latest implementation — turtle nesting traces
 
 Ecosystem item 14 is now `[~]`. One suitable western dry beach contains two deterministic approach

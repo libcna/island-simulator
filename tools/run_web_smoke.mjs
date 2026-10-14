@@ -898,6 +898,7 @@ try {
             && log.includes("monkeys receive footprint-averaged canopy light through 14-bone skinning")
             && log.includes("monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes")
             && log.includes("near monkey faces use a fitted dark nose pad and raised readable corneas")
+            && log.includes("monkey shoulder and hip mantles blend the trunk into all four animated limbs")
             // Curved leaf budgets are unchanged; flared trunks, rounded buttresses and six-sided branches.
             && /canopy mesh variant=0 near-vertices=4818 near-triangles=4640 far-vertices=1071 far-triangles=1120/.test(log)
             && (mode !== "boars" || /boars [1-6]\/6 visible, 2 draw/.test(log))
@@ -1094,6 +1095,8 @@ try {
       "island-simulator: near monkeys use bone-following finger and toe silhouettes")
     && result.output?.includes(
       "island-simulator: near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail")
+    && result.output?.includes(
+      "island-simulator: monkey shoulder and hip mantles blend the trunk into all four animated limbs")
     && result.output?.includes(
       "island-simulator: near monkey tails keep a compact muscular hook and thirty-six raised fur clumps")
     && result.output?.includes(
@@ -2352,6 +2355,8 @@ try {
       "island-simulator: near monkeys use bone-following finger and toe silhouettes")
     && monkeyResult.output?.includes(
       "island-simulator: near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail")
+    && monkeyResult.output?.includes(
+      "island-simulator: monkey shoulder and hip mantles blend the trunk into all four animated limbs")
     && monkeyResult.output?.includes(
       "island-simulator: near monkey tails keep a compact muscular hook and thirty-six raised fur clumps")
     && monkeyResult.output?.includes(

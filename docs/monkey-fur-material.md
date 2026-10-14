@@ -1,5 +1,34 @@
 # Monkey fur material
 
+## Body-rooted joint mantles and compact tail arc — 2026-10-14
+
+The post-turtle visual audit still found the monkey's rear view rodent-like: the four
+limb sleeves emerged abruptly from the lofted trunk and the raised distal tail dominated
+the silhouette. Each shoulder and hip now receives a low, body-rooted ellipsoid that
+overlaps both the trunk and proximal sleeve. Its existing two-bone skin weights remain
+mostly on the spine or pelvis, with only 14--16 percent following the upper limb. The
+result softens the socket transition without adding bones, materials, buffers or draws.
+
+The first rendering used taller joint volumes and was rejected because side lighting
+made them read as separate balls. The accepted profile is vertically flattened and
+buried farther into the body. The three existing tail bones now form a shorter, lower
+arc and the same thirty-six outline clumps rise only 20--24mm instead of 32--38mm. The
+tail retains its muscular 105mm root and forward hook, but no longer produces a tall
+brush-like rear silhouette. Near/far body geometry is 2,623/937 vertices and
+3,928/1,400 triangles; the seven-agent population, three variants, 14-bone palette,
+behavior and three near draws are unchanged.
+
+Native llvmpipe capture `20261014T020931.579243Z-monkeys` exposed the rejected tall
+mantles. The corrected nine-stage tree sequence
+`20261014T021133.836452Z-monkey-tree` passes all image and contact gates; its sampled
+rest, reach and release frames were inspected together and retain continuous shoulder,
+hip and tail silhouettes. Chrome/SwiftShader evidence
+`20261014T021453.720843Z-chrome-monkeys` passes 60 finite intervals with `glError=0`,
+an intact context and an empty kernel delta; its initial, moving and final frames were
+also inspected. The face remains deliberately stylised and close frontal facial
+micro-anatomy is still weaker than the body silhouette, so this is not a photorealism
+claim.
+
 ## Fitted nose and readable corneas — 2026-10-13
 
 The latest fur-framed head still presented one nearly uniform pale mask at ordinary
