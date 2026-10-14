@@ -4,6 +4,30 @@ Status: **200 ground spiders and six branch-attached canopy webs are integrated 
 Ground-spider continuous naturalness and further anatomy polish remain open; the live web batch
 has passed inspected native llvmpipe and Chrome/SwiftShader WebGL2 runs.
 
+## Tiered eye cluster and front-quarter audit — 2026-10-14
+
+The near mesh replaces eight equal-size black eye beads with a tiered cluster: four small anterior
+eyes, a modestly larger posterior median pair and two lateral eyes. The existing low-resolution eye
+facets carry a muted amber upper-forward catchlight; no vertices, texture, draw call or far-LOD work
+was added. The first high-value catchlight study was rejected after inspection because the median
+pair looked artificial. The accepted cluster stays dark and reads as embedded glossy eyes.
+
+The `spiders-bright` camera now orbits the animal's front quarter in its actual heading convention
+and updates its aim as the spider turns. For this inspection mode only, colony activation samples an
+observer three metres above the subject, preventing a camera that continually follows the face from
+causing an endless retreat turn. Gameplay still uses the real player position. Native llvmpipe
+evidence `build-consumer/software-captures/20261014T124838.634321Z-spiders-bright` passes the reviewed
+close-natural-detail image gate and eight-stage motion audit. All stages were inspected; the subject
+rests, turns and crawls while the face remains visible. Focused Chrome/SwiftShader evidence
+`build/browser-software/20261014T125208.907939Z-chrome-spiders` passes the ground and web scenes,
+and its four ground poses plus final web frame were inspected.
+
+The native capture validator now consumes the complete contiguous 0..199 habitat comparison rather
+than the historical twelve rows. Its dedicated close-natural profile keeps hard luminance, colour
+and spatial-contrast floors for the intentionally uniform forest-floor close-up; it is selected by
+viewpoint name, never inferred from a failing image. Android ARM64 assemble/lint passes without
+launching an emulator or device.
+
 ## Live wind-following canopy webs — 2026-10-13
 
 The six previously CPU-only qualified sites now render in `SpiderWebRenderer`. Each retains the

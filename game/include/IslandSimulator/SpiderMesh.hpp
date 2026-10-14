@@ -4,7 +4,7 @@
 
 namespace island {
 enum class SpiderPart { FrontBody,Abdomen,Leg,Palp,Eye,Hair };
-enum class SpiderMaterial { Cuticle,Marking,Eye,Hair };
+enum class SpiderMaterial { Cuticle,Marking,Eye,EyeHighlight,Hair };
 struct SpiderVertex {
     SpiderPoint position,normal;
     SpiderPart part;

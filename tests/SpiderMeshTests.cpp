@@ -34,6 +34,7 @@ int main() {
         }
         (detailed?nearCount:farCount)=mesh.vertices.size();
         std::array<std::size_t,6> parts{};
+        std::array<std::size_t,5> materials{};
         for(const auto& v:mesh.vertices) {
             const auto p=v.position;
             Check(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z),"nonfinite vertex");
@@ -60,6 +61,7 @@ int main() {
                 Check(withinEnvelope,"shaped limb exceeds the collision taper envelope");
             }
             ++parts[static_cast<std::size_t>(v.part)];
+            ++materials[static_cast<std::size_t>(v.material)];
         }
         for(std::size_t i=0;i<mesh.vertices.size();i+=3) {
             const auto& a=mesh.vertices[i];const auto& b=mesh.vertices[i+1];const auto& c=mesh.vertices[i+2];
@@ -81,6 +83,8 @@ int main() {
         }
         for(std::size_t i=0;i<4;++i)Check(parts[i]>0,"missing body/limbs/palps");
         Check((parts[4]>0)==detailed&&(parts[5]>0)==detailed,"eye/hair LOD wrong");
+        Check((materials[static_cast<std::size_t>(SpiderMaterial::EyeHighlight)]>0)==detailed,
+            "eye highlight LOD wrong");
     }
     Check(nearCount>farCount,"far LOD not reduced");
     Check(farCount==1632,"far mesh budget changed");

@@ -1063,7 +1063,9 @@ namespace island
                 std::cout << selected << std::endl;MirrorRuntimeDiagnosticToPlatformLog(selected);
             }
             const auto& spider=spiders_->Spiders()[spiderViewSubject_];
-            cameraPosition_=Vector3(spider.x+.36f,spider.y+.28f,spider.z+.45f);
+            const Vector3 forward(std::cos(spider.heading),0,std::sin(spider.heading));
+            const Vector3 right(forward.Z,0,-forward.X);
+            cameraPosition_=Vector3(spider.x,spider.y+.24f,spider.z)+forward*.38f+right*.30f;
             const auto direction=Vector3(spider.x,spider.y+.035f,spider.z)-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
@@ -1697,13 +1699,25 @@ namespace island
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         }
         const auto previousGoat=goats_->Goats().front();
-        const auto previousSpider=spiders_->Spiders()[spiderViewSubject_];
+        SpiderPoint spiderObserver{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z};
+        if(UsesSpiderViewpoint()) {
+            // The inspection camera follows the animal's front quarter. Keep the
+            // simulation observer overhead so that this capture-only orbit does
+            // not make the spider turn away forever instead of demonstrating gait.
+            const auto& subject=spiders_->Spiders()[spiderViewSubject_];
+            spiderObserver={subject.x,subject.y+3.0f,subject.z};
+        }
         measureWildlife(0, [&] {
-            spiders_->Update(deltaSeconds,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});
+            spiders_->Update(deltaSeconds,spiderObserver);
         });
         if(UsesSpiderViewpoint()) {
             const auto& current=spiders_->Spiders()[spiderViewSubject_];
-            cameraPosition_+=Vector3(current.x-previousSpider.x,current.y-previousSpider.y,current.z-previousSpider.z);
+            const Vector3 forward(std::cos(current.heading),0,std::sin(current.heading));
+            const Vector3 right(forward.Z,0,-forward.X);
+            cameraPosition_=Vector3(current.x,current.y+.24f,current.z)+forward*.38f+right*.30f;
+            const auto direction=Vector3(current.x,current.y+.035f,current.z)-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         }
         measureWildlife(1, [&] {
             goats_->Update(deltaSeconds,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});

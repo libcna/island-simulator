@@ -31,7 +31,8 @@ namespace island {
 namespace {
 constexpr int Capacity=static_cast<int>(SpiderRenderer::MaximumVisibleCount*SpiderMesh::MaximumVertices);
 Vector3 Point(SpiderPoint p){return {p.x,p.y,p.z};}
-const std::array<Color,4> Materials{Color(220,211,195),Color(255,247,223),Color(15,13,11),Color(87,71,51)};
+const std::array<Color,5> Materials{Color(220,211,195),Color(255,247,223),
+    Color(12,10,8),Color(126,111,84),Color(87,71,51)};
 }
 SpiderRenderer::SpiderRenderer(GraphicsDevice& device,const CanopyLightField& canopy)
     :device_(device),canopy_(canopy),effect_(std::make_unique<BasicEffect>(device)),
@@ -46,6 +47,8 @@ SpiderRenderer::SpiderRenderer(GraphicsDevice& device,const CanopyLightField& ca
     }
     const char* message="island-simulator: spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes";
     std::cout<<message<<std::endl;MirrorRuntimeDiagnosticToPlatformLog(message);
+    const char* eyeMessage="island-simulator: near spiders use tiered fitted eyes with upper-forward catchlights";
+    std::cout<<eyeMessage<<std::endl;MirrorRuntimeDiagnosticToPlatformLog(eyeMessage);
     effect_->setVertexColorEnabledProperty(true);effect_->setLightingEnabledProperty(false);
     effect_->setTextureEnabledProperty(false);effect_->setFogEnabledProperty(true);
     effect_->setFogColorProperty(Vector3(environment::FogColorRed,environment::FogColorGreen,environment::FogColorBlue));
@@ -78,7 +81,9 @@ void SpiderRenderer::Draw(const Matrix& view,const Matrix& projection,const Vect
             const auto tint=CanopyTransmissionTint(canopy_.SampleReceiver(p.X,p.Y,p.Z,spider.y));
             const auto color=Materials.at(static_cast<std::size_t>(vertex.material));
             const auto channel=[light](int value,float transmission){return static_cast<int>(std::clamp(std::lround(value*light*transmission),0L,255L));};
-            auto& destination=vertex.material==SpiderMaterial::Eye||vertex.material==SpiderMaterial::Hair?solid_:vertices_;
+            auto& destination=vertex.material==SpiderMaterial::Eye
+                ||vertex.material==SpiderMaterial::EyeHighlight
+                ||vertex.material==SpiderMaterial::Hair?solid_:vertices_;
             destination.emplace_back(p,Color(channel(color.getRProperty(),tint.red),channel(color.getGProperty(),tint.green),channel(color.getBProperty(),tint.blue)),Vector2(vertex.u,vertex.v));
         }
         ++visible_;

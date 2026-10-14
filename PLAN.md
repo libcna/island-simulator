@@ -59,7 +59,30 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
-## Latest visual-audit implementation — branched staghorn growth
+## Latest visual-audit implementation — readable spider eye hierarchy
+
+The animal audit selected the close ground spider as the weakest remaining face treatment. The
+eight eyes were equal black beads spread across a pale carapace, and the old fixed-world audit
+camera lost the face as the animal turned. The accepted near LOD keeps the existing vertex and
+two-draw budgets, but arranges four small anterior eyes, a slightly larger posterior median pair
+and two lateral eyes. Existing eye facets now carry a restrained amber upper-forward catchlight;
+the first bright version was visually rejected as toy-like. The close audit camera follows the
+animal's front quarter using the colony's actual `(cos heading, sin heading)` convention, while a
+capture-only overhead observer prevents the camera from forcing an endless retreat turn. Normal
+gameplay behavior, all 200 homes, habitat, collision, gait and far LOD remain unchanged.
+
+The audit harness now validates all 200 habitat rows rather than the historical first twelve and
+uses an explicitly reviewed close-natural-detail image profile without weakening the ordinary scene
+gate. Final native llvmpipe evidence is
+`build-consumer/software-captures/20261014T124838.634321Z-spiders-bright`: eight inspected stages
+retain the face through a real rest-to-crawl transition, one visible grounded animal, two draws and
+an empty kernel delta. Focused Chrome/SwiftShader WebGL2 evidence at
+`build/browser-software/20261014T125208.907939Z-chrome-spiders` passes both ground-spider and web
+views with four inspected poses, `glError=0`, intact contexts and no new kernel fault. Release and
+WebGL builds, focused native and harness tests, and Android ARM64 assemble/lint pass. Android runtime
+remains unqualified because no emulator or device was used.
+
+## Previous visual-audit implementation — branched staghorn growth
 
 The water/reef audit selected the spatial reef's staghorn colony as the weakest close form. Its
 eleven stems and tip bulbs were recognizable, but long straight single tubes still read as a bundle

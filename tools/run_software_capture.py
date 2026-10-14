@@ -213,6 +213,8 @@ def validate_spider_render_log(text):
         raise RuntimeError("spider capture lacks a live population or grounding shadows")
     if "spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in text:
         raise RuntimeError("spider capture lacks the setae albedo")
+    if "near spiders use tiered fitted eyes with upper-forward catchlights" not in text:
+        raise RuntimeError("spider capture lacks the current fitted eye cluster")
 
 
 def validate_spider_web_render_log(text):

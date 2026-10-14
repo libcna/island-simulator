@@ -70,7 +70,10 @@ struct Builder {
             const float ring=row==0||row==rows?0.0f:std::sin(lat);
             const SpiderPoint unit{ring*std::cos(lon),std::cos(lat),ring*std::sin(lon)};
             auto m=material;
-            if(material==SpiderMaterial::Cuticle&&unit.y>.45f&&std::abs(unit.x)<.40f)m=SpiderMaterial::Marking;
+            if(material==SpiderMaterial::Eye&&unit.y>.15f&&unit.z>.45f)
+                m=SpiderMaterial::EyeHighlight;
+            else if(material==SpiderMaterial::Cuticle&&unit.y>.45f&&std::abs(unit.x)<.40f)
+                m=SpiderMaterial::Marking;
             return SpiderVertex{Add(centre,{unit.x*radii.x,unit.y*radii.y,unit.z*radii.z}),
                 Unit({unit.x/radii.x,unit.y/radii.y,unit.z/radii.z}),part,m,
                 // Fold longitude continuously inside the non-seamless study.
@@ -113,9 +116,19 @@ SpiderMesh BuildSpiderMesh(const std::array<SpiderLegPose,SpiderPose::LegCount>&
         b.Tube(elbow,{side*.011f,.015f,.057f},.002f,.0007f,limbSides,SpiderPart::Palp,SpiderMaterial::Cuticle,detailed);
     }
     if(detailed) {
-        // Eight small embedded eye volumes; four forward, four higher/lateral.
-        for(float side:{-1.0f,1.0f})for(int i=0;i<4;++i) {
-            const float x=side*(i%2==0?.004f:.010f),y=i<2?.040f:.047f;
+        // A wolf-spider-like tiered cluster: four small anterior eyes, a prominent
+        // posterior median pair and two smaller lateral eyes. Equal black beads
+        // read as holes at player distance, so each fitted volume carries a tiny
+        // upper-forward highlight while remaining embedded in the carapace.
+        struct EyeSpec {float x,y,radius;};
+        constexpr std::array<EyeSpec,8> eyes{{
+            {-.0095f,.0360f,.00110f},{-.0032f,.0355f,.00100f},
+            { .0032f,.0355f,.00100f},{ .0095f,.0360f,.00110f},
+            {-.0053f,.0445f,.00185f},{ .0053f,.0445f,.00185f},
+            {-.0122f,.0420f,.00125f},{ .0122f,.0420f,.00125f}
+        }};
+        for(const auto eye:eyes) {
+            const float x=eye.x,y=eye.y;
             // Fit the centre ray to the actual polygon surface, not its enclosing
             // ellipsoid: millimetre-scale eyes would otherwise float above facets.
             float z=-1;
@@ -132,7 +145,8 @@ SpiderMesh BuildSpiderMesh(const std::array<SpiderLegPose,SpiderPose::LegCount>&
                     z=std::max(z,a.position.z+u*d.z+v*e.z);
             }
             if(z<0)throw std::runtime_error("Spider eye has no polygon support");
-            b.Ellipsoid({x,y,z-.0006f},{.0017f,.0017f,.002f},4,6,SpiderPart::Eye,SpiderMaterial::Eye);
+            b.Ellipsoid({x,y,z-.00045f},{eye.radius,eye.radius,eye.radius*1.18f},4,6,
+                SpiderPart::Eye,SpiderMaterial::Eye);
         }
     }
     return std::move(b.mesh);
