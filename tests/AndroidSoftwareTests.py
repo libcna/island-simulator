@@ -298,6 +298,18 @@ LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
             log.write_text(good)
             with self.assertRaisesRegex(RuntimeError, "sea-turtle surface"):
                 gate.validate_game_logs(directory, False, "turtles")
+            crocodile_surface = ("near crocodiles use raised eyes, nostrils, separate jaws, "
+                "teeth, dorsal osteoderms, and wet mottled facet shading\n")
+            crocodile_visible = "crocodiles 1/3 visible (near 1, far 0), 1 draw\n"
+            log.write_text(good + crocodile_surface + crocodile_visible)
+            gate.validate_game_logs(directory, False, "crocodiles")
+            log.write_text(good + crocodile_visible)
+            with self.assertRaisesRegex(RuntimeError, "crocodile surface"):
+                gate.validate_game_logs(directory, False, "crocodiles")
+            log.write_text(good + crocodile_surface
+                           + "crocodiles 0/3 visible (near 0, far 0), 0 draw\n")
+            with self.assertRaisesRegex(RuntimeError, "visible single-batch crocodile"):
+                gate.validate_game_logs(directory, False, "crocodiles")
             log.write_text(good)
             for view in ("hut", "hut-material"):
                 with self.assertRaisesRegex(RuntimeError, "hut material"):

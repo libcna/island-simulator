@@ -19,6 +19,7 @@
 #include "IslandSimulator/ButterflyRenderer.hpp"
 #include "IslandSimulator/ContactShadowRenderer.hpp"
 #include "IslandSimulator/CrabColony.hpp"
+#include "IslandSimulator/CrocodileGroup.hpp"
 #include "IslandSimulator/BoarHerd.hpp"
 #include "IslandSimulator/BoarRenderer.hpp"
 #include "IslandSimulator/GoatRenderer.hpp"
@@ -27,6 +28,7 @@
 #include "IslandSimulator/CanopyLighting.hpp"
 #include "IslandSimulator/RenderedTerrainHeightMap.hpp"
 #include "IslandSimulator/CrabRenderer.hpp"
+#include "IslandSimulator/CrocodileRenderer.hpp"
 #ifndef NDEBUG
 #include "IslandSimulator/DebugFreeCamera.hpp"
 #endif
@@ -155,6 +157,7 @@ namespace island
         HelicopterDetail,
         HelicopterInteriorDetail,
         CrabDetail,
+        CrocodileDetail,
         BoarDetail,
         GoatDetail,
         SpiderDetail,
@@ -273,6 +276,7 @@ namespace island
         BirdFlock birdFlock_;
         ButterflyMeadow butterflyMeadow_;
         CrabColony crabColony_;
+        CrocodileGroup crocodileGroup_;
         BoarHerd boarHerd_;
         std::unique_ptr<SnakePopulation> snakes_;
         std::unique_ptr<GoatHerd> goats_;
@@ -330,6 +334,7 @@ namespace island
         std::unique_ptr<ButterflyRenderer> butterflyRenderer_;
         std::unique_ptr<ContactShadowRenderer> contactShadowRenderer_;
         std::unique_ptr<CrabRenderer> crabRenderer_;
+        std::unique_ptr<CrocodileRenderer> crocodileRenderer_;
         std::unique_ptr<BoarRenderer> boarRenderer_;
         std::unique_ptr<GoatRenderer> goatRenderer_;
         std::unique_ptr<SpiderRenderer> spiderRenderer_;

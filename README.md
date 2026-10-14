@@ -305,6 +305,13 @@ briefly from a nearby player, and use low, laterally broad panelled carapaces, s
 three-segment legs, short eye stalks and enlarged palm-backed solid split claws in one culled
 near/far batch. See the
 [close-form audit](docs/crab-form.md).
+Three non-hostile saltwater crocodiles occupy the stream's mangrove estuary. Two begin basking
+on qualified low banks and one begins in shallow water; their deterministic live simulation
+cycles through basking, crawling and swimming, while a nearby player makes them retreat into the
+water. The one-draw near/far renderer uses a long low armored body, broad jawed head, eyes,
+nostrils, teeth, dorsal osteoderms, four splayed articulated legs and an animated tapering tail.
+Use `--viewpoint crocodiles` for the close inspection camera; current scope and qualification
+status are recorded in [the crocodile implementation notes](docs/crocodiles.md).
 Eighteen butterflies occupy three sunny clearing-edge habitats, alternate rest, flutter, and
 nectar-hover behaviour, and stay inside low terrain-relative altitude and home-range bounds. Five
 palettes, hinged patterned near wings, a reduced far silhouette, and one culled batch make their
@@ -515,7 +522,7 @@ procedural source and export disposable PCM16 WAV previews for focused listening
 The automated browser smoke test verifies renderer initialization, the portable terrain-material,
 animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
 grass wind, a finite first-draw startup timing line, four frames, clean shutdown, active
-overview/beach/jungle/prop/driftwood/reef/shipwreck/crabs/butterflies/turtles/water/
+overview/beach/jungle/prop/driftwood/reef/shipwreck/crabs/crocodiles/butterflies/turtles/water/
 current/grass/frond/distant/bird/fish/shark/monkey screenshots, the transient run-mode confirmation,
 and portable overlay text rendering.
 The close prop view additionally requires a nonzero one-draw contact-shadow batch.

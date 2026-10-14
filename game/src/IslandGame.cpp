@@ -124,6 +124,7 @@ namespace island
             case FixedViewpoint::HelicopterDetail: return "helicopter";
             case FixedViewpoint::HelicopterInteriorDetail: return "helicopter-inside";
             case FixedViewpoint::CrabDetail: return "crabs";
+            case FixedViewpoint::CrocodileDetail: return "crocodiles";
             case FixedViewpoint::BoarDetail: return "boars";
             case FixedViewpoint::GoatDetail: return "goats";
             case FixedViewpoint::SpiderDetail: return "spiders";
@@ -161,6 +162,7 @@ namespace island
           birdFlock_(terrain_),
           butterflyMeadow_(terrain_),
           crabColony_(terrain_),
+          crocodileGroup_(terrain_),
           boarHerd_(terrain_),
           fishSchools_(terrain_),
           seaTurtleGroup_(terrain_),
@@ -210,6 +212,7 @@ namespace island
                               naturalPropLayout_.Obstacles().end());
         worldObstacles.insert(worldObstacles.end(), shipwreckLayout_.Obstacles().begin(),
                               shipwreckLayout_.Obstacles().end());
+        crocodileGroup_.SetObstacles(worldObstacles);
         const auto fireObstacles=campfireLayout_.Obstacles();
         worldObstacles.insert(worldObstacles.end(),fireObstacles.begin(),fireObstacles.end());
         hutPlacement_=HutLayout::FindInWorld(terrain_,jungleLayout_,worldObstacles);
@@ -1175,6 +1178,28 @@ namespace island
             std::cout << "island-simulator: crab QA camera frames one foraging subject without camera-triggered colony retreat\n";
             std::cout << "island-simulator: crab QA isolated subject " << crabViewSubject_
                       << " nearest-neighbour " << bestNearest << "m\n";
+        } else if (viewpoint_ == FixedViewpoint::CrocodileDetail
+                   && !crocodileGroup_.Crocodiles().empty()) {
+            const CrocodileState& crocodile=crocodileGroup_.Crocodiles()[2U];
+            const Vector3 forward(std::cos(crocodile.headingRadians),0,
+                                  std::sin(crocodile.headingRadians));
+            Vector3 side(-forward.Z,0,forward.X);
+            const float firstHeight=terrain_.Height(crocodile.x+side.X*5.5f,
+                                                    crocodile.z+side.Z*5.5f);
+            const float secondHeight=terrain_.Height(crocodile.x-side.X*5.5f,
+                                                     crocodile.z-side.Z*5.5f);
+            // Review from the clearer waterward side. The landward view crosses the dense
+            // mangrove trunks that deliberately shelter this estuary habitat.
+            if(secondHeight<firstHeight)side=-side;
+            const float cameraX=crocodile.x+side.X*5.5f-forward.X*2.0f;
+            const float cameraZ=crocodile.z+side.Z*5.5f-forward.Z*2.0f;
+            cameraPosition_=Vector3(cameraX,std::max(terrain_.Height(cameraX,cameraZ)+1.35f,
+                                                     crocodile.y+1.65f),cameraZ);
+            const Vector3 target(crocodile.x,crocodile.y+.35f,crocodile.z);
+            const Vector3 direction=target-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+            std::cout<<"island-simulator: crocodile QA camera frames an estuary animal broadside\n";
         } else if (viewpoint_ == FixedViewpoint::ButterflyDetail
                    && butterflyMeadow_.Butterflies().size() > 2U) {
             const ButterflyState& butterfly=butterflyMeadow_.Butterflies()[2U];
@@ -1355,6 +1380,8 @@ namespace island
             device, 72.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         crabRenderer_ = std::make_unique<CrabRenderer>(
             device, 92.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        crocodileRenderer_ = std::make_unique<CrocodileRenderer>(
+            device, 220.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         auto boarRenderer = std::make_unique<BoarRenderer>(
             device, terrain_, canopyLighting->Field(), 135.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         auto snakeRenderer = std::make_unique<SnakeRenderer>(device,canopyLighting->Field());
@@ -1511,6 +1538,8 @@ namespace island
                   << " agents in deterministic low-altitude habitats\n"
                   << "island-simulator: beach crabs " << crabColony_.Crabs().size()
                   << " agents in deterministic sand-and-debris-constrained colonies\n"
+                  << "island-simulator: crocodiles " << crocodileGroup_.Crocodiles().size()
+                  << " agents bask, crawl, swim, and retreat within the stream estuary\n"
                   << "island-simulator: fish " << fishSchools_.Fish().size()
                   << " agents in " << FishSchools::SchoolCount
                   << " distance-throttled shallow-water schools\n"
@@ -1782,6 +1811,19 @@ namespace island
             cameraPosition_ += Vector3(subject.x - previousCrabSubject.x,
                                        subject.y - previousCrabSubject.y,
                                        subject.z - previousCrabSubject.z);
+        }
+        const CrocodileState previousCrocodile=crocodileGroup_.Crocodiles()[2U];
+        Vector3 crocodileObserver=cameraPosition_;
+        if(viewpoint_==FixedViewpoint::CrocodileDetail)
+            crocodileObserver=Vector3(previousCrocodile.x,previousCrocodile.y+20.0f,
+                                      previousCrocodile.z);
+        crocodileGroup_.Update(deltaSeconds,crocodileObserver.X,crocodileObserver.Y,
+                               crocodileObserver.Z);
+        if(viewpoint_==FixedViewpoint::CrocodileDetail) {
+            const CrocodileState& subject=crocodileGroup_.Crocodiles()[2U];
+            cameraPosition_+=Vector3(subject.x-previousCrocodile.x,
+                                     subject.y-previousCrocodile.y,
+                                     subject.z-previousCrocodile.z);
         }
         const auto previousBoar=boarHerd_.Boars().front();
         boarHerd_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
@@ -2631,6 +2673,7 @@ namespace island
             + contactShadowRenderer_->DrawCallCount()
             + birdRenderer_->DrawCallCount() + butterflyRenderer_->DrawCallCount()
             + crabRenderer_->DrawCallCount()
+            + crocodileRenderer_->DrawCallCount()
             + boarRenderer_->DrawCallCount()
             + goatRenderer_->DrawCallCount()
             + spiderRenderer_->DrawCallCount()
@@ -3162,6 +3205,12 @@ namespace island
         }
 
         {
+            GpuDiagnosticScope gpuPass("crocodiles");
+            crocodileRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,
+                                     crocodileGroup_.Crocodiles());
+        }
+
+        {
             GpuDiagnosticScope gpuPass("shark");
             sharkRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                  sharkPatrol_.State(), timeSeconds);
@@ -3670,7 +3719,12 @@ namespace island
                       << seaTurtleGroup_.Turtles().size() << " visible (near "
                       << seaTurtleRenderer_->VisibleNearTurtleCount() << ", far "
                       << seaTurtleRenderer_->VisibleFarTurtleCount() << "), "
-                      << seaTurtleRenderer_->DrawCallCount() << " draw; shark "
+                      << seaTurtleRenderer_->DrawCallCount() << " draw; crocodiles "
+                      << crocodileRenderer_->VisibleCount() << '/'
+                      << crocodileGroup_.Crocodiles().size() << " visible (near "
+                      << crocodileRenderer_->VisibleNearCount() << ", far "
+                      << crocodileRenderer_->VisibleFarCount() << "), "
+                      << crocodileRenderer_->DrawCallCount() << " draw; shark "
                       << (sharkRenderer_->IsVisible() ? "visible" : "culled")
                       << " activity " << sharkPatrol_.State().activity << ", "
                       << sharkRenderer_->DrawCallCount() << " draw; dolphins "

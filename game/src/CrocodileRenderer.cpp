@@ -1,0 +1,403 @@
+#include "IslandSimulator/CrocodileRenderer.hpp"
+
+#include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
+#include "IslandSimulator/WildlifeRenderLighting.hpp"
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <iostream>
+#include <numbers>
+#include <stdexcept>
+#include <string_view>
+
+#include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
+#include "Microsoft/Xna/Framework/BoundingSphere.hpp"
+#include "Microsoft/Xna/Framework/Color.hpp"
+#include "Microsoft/Xna/Framework/Graphics/BasicEffect.hpp"
+#include "Microsoft/Xna/Framework/Graphics/BlendState.hpp"
+#include "Microsoft/Xna/Framework/Graphics/BufferUsage.hpp"
+#include "Microsoft/Xna/Framework/Graphics/DepthStencilState.hpp"
+#include "Microsoft/Xna/Framework/Graphics/DynamicVertexBuffer.hpp"
+#include "Microsoft/Xna/Framework/Graphics/GraphicsDevice.hpp"
+#include "Microsoft/Xna/Framework/Graphics/PrimitiveType.hpp"
+#include "Microsoft/Xna/Framework/Graphics/RasterizerState.hpp"
+#include "Microsoft/Xna/Framework/Graphics/SetDataOptions.hpp"
+#include "Microsoft/Xna/Framework/Graphics/VertexPositionColor.hpp"
+
+using namespace Microsoft::Xna::Framework;
+using namespace Microsoft::Xna::Framework::Graphics;
+
+namespace island
+{
+    namespace
+    {
+        constexpr float NearLodDistance = 86.0f;
+        constexpr int MaximumVerticesPerCrocodile = 5200;
+        constexpr int MaximumVertexCount = static_cast<int>(CrocodileGroup::CrocodileCount)
+            * MaximumVerticesPerCrocodile;
+        constexpr std::string_view FormDiagnostic =
+            "island-simulator: crocodiles use long low armored bodies, broad skulls, muscular tails, and planted splayed limbs";
+        constexpr std::string_view DetailDiagnostic =
+            "island-simulator: near crocodiles use raised eyes, nostrils, separate jaws, teeth, dorsal osteoderms, and wet mottled facet shading";
+
+        struct Palette
+        {
+            Color back, side, belly, scute, jaw, mouth, tooth, eye, pupil;
+        };
+
+        const std::array<Palette, 3> Palettes = {{
+            {Color(74, 83, 48), Color(86, 91, 55), Color(150, 142, 92),
+             Color(53, 61, 36), Color(105, 104, 63), Color(87, 37, 29),
+             Color(224, 212, 166), Color(184, 157, 78), Color(18, 16, 10)},
+            {Color(65, 76, 43), Color(82, 87, 49), Color(143, 133, 83),
+             Color(45, 55, 31), Color(98, 98, 57), Color(81, 34, 27),
+             Color(218, 207, 165), Color(171, 143, 70), Color(15, 14, 9)},
+            {Color(82, 78, 44), Color(98, 91, 51), Color(157, 139, 83),
+             Color(57, 55, 30), Color(113, 101, 57), Color(91, 38, 28),
+             Color(225, 213, 169), Color(190, 159, 76), Color(17, 15, 8)}
+        }};
+
+        struct Axes { Vector3 right, up, forward; };
+
+        [[nodiscard]] Axes MakeAxes(const CrocodileState& crocodile)
+        {
+            const Vector3 forward(std::cos(crocodile.headingRadians), 0.0f,
+                                  std::sin(crocodile.headingRadians));
+            return Axes{Vector3(-forward.Z, 0.0f, forward.X), Vector3::Up, forward};
+        }
+
+        [[nodiscard]] Vector3 Local(const Vector3& centre, const Axes& axes,
+                                    const float x, const float y, const float z,
+                                    const float scale)
+        {
+            return centre + axes.right * (x * scale) + axes.up * (y * scale)
+                + axes.forward * (z * scale);
+        }
+
+        void AddTriangle(std::vector<VertexPositionColor>& vertices,
+                         const Vector3& a, const Vector3& b, const Vector3& c,
+                         const Color& color, const bool twoSided = false)
+        {
+            const Color lit = wildlife_render::FacetColor(a, b, c, color, twoSided);
+            vertices.emplace_back(a, lit);
+            vertices.emplace_back(b, lit);
+            vertices.emplace_back(c, lit);
+        }
+
+        void AddQuad(std::vector<VertexPositionColor>& vertices,
+                     const Vector3& a, const Vector3& b,
+                     const Vector3& c, const Vector3& d, const Color& color)
+        {
+            AddTriangle(vertices, a, b, c, color);
+            AddTriangle(vertices, a, c, d, color);
+        }
+
+        void AddDoubleTriangle(std::vector<VertexPositionColor>& vertices,
+                               const Vector3& a, const Vector3& b, const Vector3& c,
+                               const Color& color)
+        {
+            AddTriangle(vertices, a, b, c, color, true);
+            AddTriangle(vertices, c, b, a, color, true);
+        }
+
+        void AppendWedge(std::vector<VertexPositionColor>& vertices,
+                         const Vector3& centre,const Axes& axes,const float scale,
+                         const float rearZ,const float frontZ,
+                         const float rearHalfWidth,const float frontHalfWidth,
+                         const float bottomY,const float rearTopY,const float frontTopY,
+                         const Color& top,const Color& side,const Color& bottom)
+        {
+            const auto p=[&](const float x,const float y,const float z) {
+                return Local(centre,axes,x,y,z,scale);
+            };
+            const Vector3 rlb=p(-rearHalfWidth,bottomY,rearZ);
+            const Vector3 rrb=p(rearHalfWidth,bottomY,rearZ);
+            const Vector3 rlt=p(-rearHalfWidth,rearTopY,rearZ);
+            const Vector3 rrt=p(rearHalfWidth,rearTopY,rearZ);
+            const Vector3 flb=p(-frontHalfWidth,bottomY,frontZ);
+            const Vector3 frb=p(frontHalfWidth,bottomY,frontZ);
+            const Vector3 flt=p(-frontHalfWidth,frontTopY,frontZ);
+            const Vector3 frt=p(frontHalfWidth,frontTopY,frontZ);
+            AddQuad(vertices,rlt,flt,frt,rrt,top);
+            AddQuad(vertices,rlb,rlt,flt,flb,side);
+            AddQuad(vertices,frb,frt,rrt,rrb,side);
+            AddQuad(vertices,flb,flt,frt,frb,side);
+            AddQuad(vertices,rrb,rrt,rlt,rlb,side);
+            AddQuad(vertices,rlb,flb,frb,rrb,bottom);
+        }
+
+        void AppendEllipsoid(std::vector<VertexPositionColor>& vertices,
+                             const Vector3& centre, const Axes& axes, const float scale,
+                             const float radiusX, const float radiusY, const float radiusZ,
+                             const Color& upper, const Color& lower,
+                             const int rings = 5, const int segments = 12)
+        {
+            for (int ring=0; ring<rings; ++ring) {
+                const float v0=-.5f*std::numbers::pi_v<float>
+                    +std::numbers::pi_v<float>*static_cast<float>(ring)/static_cast<float>(rings);
+                const float v1=-.5f*std::numbers::pi_v<float>
+                    +std::numbers::pi_v<float>*static_cast<float>(ring+1)/static_cast<float>(rings);
+                for(int segment=0;segment<segments;++segment) {
+                    const float u0=2.0f*std::numbers::pi_v<float>*static_cast<float>(segment)
+                        /static_cast<float>(segments);
+                    const float u1=2.0f*std::numbers::pi_v<float>*static_cast<float>(segment+1)
+                        /static_cast<float>(segments);
+                    const auto surface=[&](const float u,const float v) {
+                        return Local(centre,axes,std::cos(v)*std::cos(u)*radiusX,
+                            std::sin(v)*radiusY,std::cos(v)*std::sin(u)*radiusZ,scale);
+                    };
+                    const Color color=(v0+v1)*.5f>0?upper:lower;
+                    AddQuad(vertices,surface(u0,v0),surface(u0,v1),surface(u1,v1),
+                            surface(u1,v0),color);
+                }
+            }
+        }
+
+        void AppendTaperedSegment(std::vector<VertexPositionColor>& vertices,
+                                  const Vector3& a, const Vector3& b,
+                                  const float radiusA, const float radiusB,
+                                  const Color& color, const int sides = 7)
+        {
+            Vector3 axis=b-a;
+            if(axis.LengthSquared()<1.0e-8f)return;
+            axis.Normalize();
+            Vector3 side=Vector3::Cross(axis,Vector3::Up);
+            if(side.LengthSquared()<1.0e-6f)side=Vector3::Right;
+            else side.Normalize();
+            Vector3 up=Vector3::Normalize(Vector3::Cross(side,axis));
+            for(int i=0;i<sides;++i) {
+                const float a0=2.0f*std::numbers::pi_v<float>*static_cast<float>(i)/static_cast<float>(sides);
+                const float a1=2.0f*std::numbers::pi_v<float>*static_cast<float>(i+1)/static_cast<float>(sides);
+                const Vector3 r0=side*std::cos(a0)+up*std::sin(a0);
+                const Vector3 r1=side*std::cos(a1)+up*std::sin(a1);
+                AddQuad(vertices,a+r0*radiusA,a+r1*radiusA,b+r1*radiusB,b+r0*radiusB,color);
+            }
+        }
+
+        void AppendTailSegment(std::vector<VertexPositionColor>& vertices,
+                               const Vector3& a,const Vector3& b,const Axes& axes,
+                               const float widthA,const float heightA,
+                               const float widthB,const float heightB,
+                               const Color& color)
+        {
+            constexpr int Sides=12;
+            for(int i=0;i<Sides;++i) {
+                const float angle0=2.0f*std::numbers::pi_v<float>*static_cast<float>(i)
+                    /static_cast<float>(Sides);
+                const float angle1=2.0f*std::numbers::pi_v<float>*static_cast<float>(i+1)
+                    /static_cast<float>(Sides);
+                const Vector3 a0=a+axes.right*(std::cos(angle0)*widthA)
+                    +axes.up*(std::sin(angle0)*heightA);
+                const Vector3 a1=a+axes.right*(std::cos(angle1)*widthA)
+                    +axes.up*(std::sin(angle1)*heightA);
+                const Vector3 b0=b+axes.right*(std::cos(angle0)*widthB)
+                    +axes.up*(std::sin(angle0)*heightB);
+                const Vector3 b1=b+axes.right*(std::cos(angle1)*widthB)
+                    +axes.up*(std::sin(angle1)*heightB);
+                AddQuad(vertices,a0,a1,b1,b0,color);
+            }
+        }
+
+        void AppendNearCrocodile(std::vector<VertexPositionColor>& vertices,
+                                 const CrocodileState& crocodile)
+        {
+            const Palette& palette=Palettes[crocodile.colorVariant%Palettes.size()];
+            const Axes axes=MakeAxes(crocodile);
+            const Vector3 centre(crocodile.x,crocodile.y-.04f*crocodile.submerged,crocodile.z);
+            const float scale=crocodile.scale;
+            // Low barrel torso and heavy shoulder mass.
+            AppendEllipsoid(vertices,Local(centre,axes,0,.34f,-.18f,scale),axes,scale,
+                            .68f,.37f,1.28f,palette.back,palette.belly,7,14);
+            AppendEllipsoid(vertices,Local(centre,axes,0,.35f,.72f,scale),axes,scale,
+                            .63f,.32f,.72f,palette.back,palette.side,5,14);
+
+            // The tapering tail bends visibly during swimming instead of reading as a rigid cone.
+            Vector3 previous=Local(centre,axes,0,.27f,-1.18f,scale);
+            float previousWidth=.48f*scale,previousHeight=.29f*scale;
+            for(int section=1;section<=12;++section) {
+                const float t=static_cast<float>(section)/12.0f;
+                const float wave=std::sin(t*4.2f+crocodile.gaitPhase)*crocodile.bodyWave
+                    *t*t*.55f;
+                const Vector3 next=Local(centre,axes,wave,.22f-.17f*t,
+                                         -1.10f-2.55f*t,scale);
+                const float width=(.47f*(1.0f-t)+.025f)*scale;
+                const float height=(.28f*(1.0f-t)+.018f)*scale;
+                AppendTailSegment(vertices,previous,next,axes,previousWidth,previousHeight,
+                                  width,height,palette.side);
+                previous=next;previousWidth=width;previousHeight=height;
+            }
+
+            // Broad, shallow saltwater-crocodile skull and independently opening lower jaw.
+            const Vector3 skull=Local(centre,axes,0,.39f,1.25f,scale);
+            AppendEllipsoid(vertices,skull,axes,scale,.58f,.29f,.70f,
+                            palette.back,palette.jaw,5,14);
+            AppendWedge(vertices,centre,axes,scale,1.35f,2.45f,.50f,.37f,
+                        .22f,.56f,.45f,palette.back,palette.side,palette.jaw);
+            AppendEllipsoid(vertices,Local(centre,axes,0,.335f,2.42f,scale),axes,scale,
+                            .37f,.16f,.18f,palette.side,palette.jaw,4,12);
+            const float gape=crocodile.jawOpen;
+            const Axes jawAxes{axes.right,axes.up,axes.forward};
+            const Vector3 lowerJawCentre=centre-axes.up*(gape*.18f*scale);
+            AppendWedge(vertices,lowerJawCentre,jawAxes,scale,1.20f,2.43f,.48f,.36f,
+                        .13f,.27f,.26f,palette.jaw,palette.jaw,palette.belly);
+            if(gape>.012f) {
+                const auto mouthPoint=[&](const float x,const float z) {
+                    return Local(centre,axes,x,.295f-gape*.04f,z,scale);
+                };
+                AddQuad(vertices,mouthPoint(-.41f,1.19f),mouthPoint(-.41f,2.38f),
+                        mouthPoint(.41f,2.38f),mouthPoint(.41f,1.19f),palette.mouth);
+            }
+            for(int sideIndex=-1;sideIndex<=1;sideIndex+=2) {
+                const float side=static_cast<float>(sideIndex);
+                const Vector3 rear=Local(centre,axes,side*.493f,.285f,1.28f,scale);
+                const Vector3 front=Local(centre,axes,side*.365f,.285f-gape*.04f,2.40f,scale);
+                const Vector3 rearLow=rear-axes.up*(.025f*scale);
+                const Vector3 frontLow=front-axes.up*(.025f*scale);
+                AddQuad(vertices,rear,rearLow,frontLow,front,palette.mouth);
+            }
+            for(int sideIndex=-1;sideIndex<=1;sideIndex+=2) {
+                const float side=static_cast<float>(sideIndex);
+                for(int tooth=0;tooth<6;++tooth) {
+                    const float z=1.32f+static_cast<float>(tooth)*.19f;
+                    const Vector3 root=Local(centre,axes,side*(.44f-.025f*tooth),
+                                             .29f-gape*.04f,z,scale);
+                    const Vector3 tip=Local(centre,axes,side*(.42f-.024f*tooth),
+                                            .19f-gape*.13f,z+.025f,scale);
+                    AddDoubleTriangle(vertices,root-axes.forward*.035f*scale,
+                                      root+axes.forward*.035f*scale,tip,palette.tooth);
+                }
+                const Vector3 eye=Local(centre,axes,side*.38f,.66f,1.22f,scale);
+                AppendEllipsoid(vertices,eye,axes,scale,.082f,.074f,.092f,
+                                palette.scute,palette.side,3,8);
+                const Vector3 iris=eye+axes.forward*.082f*scale+axes.up*.010f*scale;
+                AppendEllipsoid(vertices,iris,axes,scale,.038f,.036f,.018f,
+                                palette.eye,palette.eye,3,8);
+                const Vector3 pupil=iris+axes.forward*.017f*scale;
+                AppendEllipsoid(vertices,pupil,axes,scale,.012f,.027f,.009f,
+                                palette.pupil,palette.pupil,2,7);
+                const Vector3 nostril=Local(centre,axes,side*.21f,.505f,2.32f,scale);
+                AppendEllipsoid(vertices,nostril,axes,scale,.040f,.018f,.028f,
+                                palette.pupil,palette.pupil,2,7);
+            }
+
+            // Paired rows of raised osteoderms break the smooth body silhouette.
+            for(int row=0;row<9;++row) {
+                const float z=-.88f+static_cast<float>(row)*.23f;
+                const float width=.24f+.08f*std::sin(static_cast<float>(row)*.55f);
+                for(int sideIndex=-1;sideIndex<=1;sideIndex+=2) {
+                    const float x=static_cast<float>(sideIndex)*width;
+                    const Vector3 left=Local(centre,axes,x-.085f,.67f,z-.07f,scale);
+                    const Vector3 right=Local(centre,axes,x+.085f,.67f,z-.07f,scale);
+                    const Vector3 back=Local(centre,axes,x,.67f,z+.09f,scale);
+                    const Vector3 peak=Local(centre,axes,x,.79f,z,scale);
+                    AddTriangle(vertices,left,right,peak,palette.scute);
+                    AddTriangle(vertices,right,back,peak,palette.scute);
+                    AddTriangle(vertices,back,left,peak,palette.scute);
+                }
+            }
+
+            // Four short, muscular, splayed legs with alternating planted gait.
+            for(int pair=0;pair<2;++pair) {
+                const float rootZ=pair==0?.64f:-.66f;
+                for(int sideIndex=-1;sideIndex<=1;sideIndex+=2) {
+                    const float side=static_cast<float>(sideIndex);
+                    const float stride=std::sin(crocodile.gaitPhase
+                        +(pair*2+(sideIndex>0?1:0))*std::numbers::pi_v<float>)*.13f
+                        *(1.0f-crocodile.submerged);
+                    const Vector3 shoulder=Local(centre,axes,side*.52f,.34f,rootZ,scale);
+                    const Vector3 elbow=Local(centre,axes,side*.83f,.18f,rootZ+stride,scale);
+                    const Vector3 wrist=Local(centre,axes,side*.91f,.02f,rootZ+.24f+stride,scale);
+                    AppendTaperedSegment(vertices,shoulder,elbow,.15f*scale,.12f*scale,palette.side,7);
+                    AppendTaperedSegment(vertices,elbow,wrist,.12f*scale,.075f*scale,palette.side,7);
+                    for(int toe=0;toe<3;++toe) {
+                        const float toeSide=(static_cast<float>(toe)-1.0f)*.075f;
+                        const Vector3 toeTip=wrist+axes.forward*(.25f*scale)
+                            +axes.right*(toeSide*scale)+axes.up*(.015f*scale);
+                        AppendTaperedSegment(vertices,wrist,toeTip,.035f*scale,.012f*scale,
+                                             palette.scute,5);
+                    }
+                }
+            }
+
+            if(static_cast<int>(vertices.size())>MaximumVertexCount)
+                throw std::logic_error("Crocodile geometry exceeded its shared vertex budget");
+        }
+
+        void AppendFarCrocodile(std::vector<VertexPositionColor>& vertices,
+                                const CrocodileState& crocodile)
+        {
+            const Palette& palette=Palettes[crocodile.colorVariant%Palettes.size()];
+            const Axes axes=MakeAxes(crocodile);
+            const Vector3 centre(crocodile.x,crocodile.y,crocodile.z);
+            const float s=crocodile.scale;
+            const Vector3 nose=Local(centre,axes,0,.35f,2.35f,s);
+            const Vector3 headLeft=Local(centre,axes,-.50f,.34f,1.25f,s);
+            const Vector3 headRight=Local(centre,axes,.50f,.34f,1.25f,s);
+            const Vector3 hipLeft=Local(centre,axes,-.55f,.30f,-.82f,s);
+            const Vector3 hipRight=Local(centre,axes,.55f,.30f,-.82f,s);
+            const Vector3 tail=Local(centre,axes,crocodile.bodyWave*.22f,.12f,-3.45f,s);
+            AddDoubleTriangle(vertices,nose,headLeft,headRight,palette.back);
+            AddDoubleTriangle(vertices,headLeft,hipLeft,hipRight,palette.back);
+            AddDoubleTriangle(vertices,headLeft,hipRight,headRight,palette.back);
+            AddDoubleTriangle(vertices,hipLeft,tail,hipRight,palette.side);
+        }
+    }
+
+    CrocodileRenderer::CrocodileRenderer(GraphicsDevice& device,const float maximumDistance)
+        :device_(device),effect_(std::make_unique<BasicEffect>(device)),
+         vertices_(std::make_unique<DynamicVertexBuffer>(device,
+             VertexPositionColor::getVertexDeclarationStatic(),MaximumVertexCount,
+             BufferUsage::WriteOnly)),maximumDistance_(maximumDistance)
+    {
+        if(!std::isfinite(maximumDistance_)||maximumDistance_<=0)
+            throw std::invalid_argument("Crocodile maximum draw distance must be finite and positive");
+        effect_->setVertexColorEnabledProperty(true);
+        effect_->setLightingEnabledProperty(false);
+        effect_->setFogEnabledProperty(true);
+        effect_->setFogColorProperty(Vector3(environment::FogColorRed,environment::FogColorGreen,
+                                              environment::FogColorBlue));
+        effect_->setFogStartProperty(135.0f);
+        effect_->setFogEndProperty(260.0f);
+        stagingVertices_.reserve(MaximumVertexCount);
+        std::cout<<FormDiagnostic<<'\n'<<DetailDiagnostic<<'\n';
+        MirrorRuntimeDiagnosticToPlatformLog(FormDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(DetailDiagnostic);
+    }
+
+    CrocodileRenderer::~CrocodileRenderer()=default;
+
+    void CrocodileRenderer::Draw(const Matrix& view,const Matrix& projection,
+                                  const Vector3& cameraPosition,
+                                  const std::span<const CrocodileState> crocodiles)
+    {
+        stagingVertices_.clear();visibleCount_=visibleNearCount_=visibleFarCount_=drawCallCount_=0;
+        const BoundingFrustum frustum(view*projection);
+        for(const CrocodileState& crocodile:crocodiles) {
+            const Vector3 centre(crocodile.x,crocodile.y+.35f*crocodile.scale,crocodile.z);
+            const float distanceSquared=Vector3::DistanceSquared(centre,cameraPosition);
+            if(distanceSquared>maximumDistance_*maximumDistance_
+               ||!frustum.Intersects(BoundingSphere(centre,4.3f*crocodile.scale)))continue;
+            const std::size_t first=stagingVertices_.size();
+            if(distanceSquared<=NearLodDistance*NearLodDistance) {
+                AppendNearCrocodile(stagingVertices_,crocodile);++visibleNearCount_;
+            } else {AppendFarCrocodile(stagingVertices_,crocodile);++visibleFarCount_;}
+            if(stagingVertices_.size()-first>MaximumVerticesPerCrocodile)
+                throw std::logic_error("One crocodile exceeded its vertex budget");
+            ++visibleCount_;
+        }
+        if(stagingVertices_.empty())return;
+        device_.setRasterizerStateProperty(RasterizerState::CullNone);
+        device_.setBlendStateProperty(BlendState::Opaque);
+        device_.setDepthStencilStateProperty(DepthStencilState::Default);
+        vertices_->SetData(stagingVertices_.data(),0,static_cast<int>(stagingVertices_.size()),
+                           SetDataOptions::Discard);
+        device_.SetVertexBuffer(vertices_.get());device_.setIndicesProperty(nullptr);
+        effect_->setWorldProperty(Matrix::getIdentityProperty());effect_->setViewProperty(view);
+        effect_->setProjectionProperty(projection);effect_->Apply();
+        device_.DrawPrimitives(PrimitiveType::TriangleList,0,
+                               static_cast<int>(stagingVertices_.size()/3U));
+        ++drawCallCount_;
+    }
+}

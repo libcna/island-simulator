@@ -361,6 +361,40 @@ class BrowserSoftwareTests(unittest.TestCase):
             invalid = report(); mutate(invalid)
             with self.assertRaises(RuntimeError): gate.validate_crab_report(invalid)
 
+    def test_crocodile_scope_requires_current_anatomy_two_frames_and_live_context(self):
+        self.assertIn("crocodiles", gate.SCOPES)
+        self.assertIn('["crocodiles", ["--viewpoint", "crocodiles", "--debug-overlay"]]',
+                      (ROOT / "tools/web_smoke.html.in").read_text())
+        silhouette = ("crocodiles use long low armored bodies, broad skulls, muscular tails, "
+                      "and planted splayed limbs")
+        surface = ("near crocodiles use raised eyes, nostrils, separate jaws, teeth, dorsal "
+                   "osteoderms, and wet mottled facet shading")
+        camera = "crocodile QA camera frames an estuary animal broadside"
+        def report():
+            return {"passed": True, "views": [{"mode": "crocodiles", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": "crocodiles.png",
+                "afterSimulationScreenshot": "crocodiles-after.png",
+                "intervals": [16.7] * 60,
+                "result": {"output": silhouette + "\n" + surface + "\n" + camera
+                    + "\ncrocodiles 1/3 visible (near 1, far 0), 1 draw"}}]}
+        self.assertEqual(gate.validate_crocodile_report(report()),
+                         ("crocodiles.png", "crocodiles-after.png"))
+        for mutate in (
+            lambda value: value.update(passed=False),
+            lambda value: value["views"][0].update(glError=1282),
+            lambda value: value["views"][0].update(contextLost=True),
+            lambda value: value["views"][0].update(intervals=[16.7] * 59),
+            lambda value: value["views"][0]["result"].update(output=surface + "\n" + camera
+                + "\ncrocodiles 1/3 visible (near 1, far 0), 1 draw"),
+            lambda value: value["views"][0]["result"].update(output=silhouette + "\n" + camera
+                + "\ncrocodiles 1/3 visible (near 1, far 0), 1 draw"),
+            lambda value: value["views"][0]["result"].update(output=silhouette + "\n" + surface
+                + "\n" + camera + "\ncrocodiles 0/3 visible (near 0, far 0), 0 draw"),
+        ):
+            invalid = report(); mutate(invalid)
+            with self.assertRaises(RuntimeError): gate.validate_crocodile_report(invalid)
+
     def test_fish_scope_requires_current_anatomy_two_frames_and_live_context(self):
         self.assertIn("fish", gate.SCOPES)
         self.assertIn('["fish", ["--viewpoint", "fish", "--debug-overlay"]]',

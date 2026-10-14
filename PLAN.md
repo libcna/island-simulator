@@ -3120,7 +3120,17 @@ progress or require player interaction; dangerous species keep their distance li
   portable build/runtime qualification and no live population/world-report change.
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)
-- [ ] Crocodiles (saltwater crocodile in a suitable estuary/shore area, basking, keeps away)
+- [~] Crocodiles (saltwater crocodile in a suitable estuary/shore area, basking, keeps away).
+  Three deterministic non-hostile animals now occupy the stream/mangrove estuary and cycle
+  between bask, crawl and swim states; a player inside 14m makes them retreat toward shallow
+  water. The one-batch near model has a long low torso, broad separate jaws, visible teeth,
+  raised eyes and nostrils, paired dorsal osteoderms, four articulated splayed legs and an
+  animated tapering tail; a reduced distant silhouette is retained. The 120s deterministic
+  habitat test passes and the native Release llvmpipe view renders an unobstructed near animal
+  in one draw. Native Release and Chrome/SwiftShader WebGL views pass with finite frames, zero
+  GL error and no context loss. The ARM64 Android APK builds and contains the implementation;
+  Android runtime/device capture remains open because the emulator is intentionally untouched.
+  Sound is not part of the current crocodile requirement. See docs/crocodiles.md.
 - [ ] Frogs (near damp ground/water, calls)
 - [ ] Bats (fruit bats roosting/flying; the fixed daytime limits active flight)
 - [ ] Mice

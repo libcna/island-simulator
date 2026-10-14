@@ -50,6 +50,7 @@ add_library(island_core STATIC
     game/src/CanopyLightField.cpp
     game/src/CanopyProfile.cpp
     game/src/CrabColony.cpp
+    game/src/CrocodileGroup.cpp
     game/src/BunkerLayout.cpp
     game/src/CaveLayout.cpp
     game/src/CaveGroundPatch.cpp
@@ -229,6 +230,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_bunker_tests)
     island_enable_first_party_sanitizers(island_bunker_tests)
     add_test(NAME IslandBunkerLayoutTests COMMAND island_bunker_tests)
+    add_executable(island_crocodile_tests tests/CrocodileGroupTests.cpp)
+    target_link_libraries(island_crocodile_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_crocodile_tests)
+    island_enable_first_party_sanitizers(island_crocodile_tests)
+    add_test(NAME IslandCrocodileGroupTests COMMAND island_crocodile_tests)
     add_executable(island_diagnostic_stream_tests tests/DiagnosticStreamMirrorTests.cpp)
     target_include_directories(island_diagnostic_stream_tests PRIVATE game/include)
     target_compile_features(island_diagnostic_stream_tests PRIVATE cxx_std_20)
@@ -584,6 +590,7 @@ if(ISLAND_BUILD_GAME)
         game/src/ButterflyRenderer.cpp
         game/src/ContactShadowRenderer.cpp
         game/src/CrabRenderer.cpp
+        game/src/CrocodileRenderer.cpp
         game/src/BoarRenderer.cpp
         game/src/SnakeRenderer.cpp
         game/src/GoatRenderer.cpp
@@ -1087,6 +1094,15 @@ if(ISLAND_BUILD_GAME)
             LABELS display
             PASS_REGULAR_EXPRESSION
                 "beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch.*beach crabs 30 agents.*crabs [1-9][0-9]*/30 visible.*1 draw")
+        add_test(NAME IslandGameCrocodileCapture
+            COMMAND island-simulator
+                    --capture "${CMAKE_BINARY_DIR}/island-crocodile-capture.ppm"
+                    --viewpoint crocodiles)
+        set_tests_properties(IslandGameCrocodileCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "crocodiles use long low armored bodies, broad skulls, muscular tails, and planted splayed limbs.*crocodiles 3 agents.*crocodiles [1-3]/3 visible.*1 draw")
         add_test(NAME IslandGameButterflyCapture
             COMMAND island-simulator
                     --capture "${CMAKE_BINARY_DIR}/island-butterfly-capture.ppm"
