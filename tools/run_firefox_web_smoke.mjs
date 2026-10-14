@@ -359,6 +359,7 @@ try {
     "island-simulator: sky horizon locks to shared aerial haze above the below-horizon skirt",
     "island-simulator: distant wooded islets use rounded stepped ridges, clustered low crowns, and broader palm silhouettes",
     "island-simulator: coastal sand stays continuous below water with filtered seabed ripples",
+    "island-simulator: exposed beach sand reuses filtered broad fields for warm and cool mineral patches",
     "island-simulator: startup world ",
     "island-simulator: visible terrain cells ",
   ];

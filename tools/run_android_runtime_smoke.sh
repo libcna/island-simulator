@@ -420,6 +420,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: coastal sand stays continuous below water with filtered seabed ripples" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: exposed beach sand reuses filtered broad fields for warm and cool mineral patches" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: coastal contact patches follow rendered seabed triangles in the existing batch" \
             "$LOG_FILE" \
         && grep -q "island-simulator: land prop shadows match model yaw and rendered terrain triangles" \

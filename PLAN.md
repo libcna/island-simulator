@@ -122,7 +122,24 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — retained far-palm crown volume
+## Latest visual-audit implementation — broad dry-sand mineral variation
+
+The bay-ground terrain audit found good driftwood, shell/pebble flecks and close ripple relief, but
+the broad exposed areas between them still read as one pale colour. Dry beach sand now reuses the
+already evaluated, footprint-filtered broad and medium terrain fields for restrained warm ochre and
+cool mineral patches, with slightly stronger macro variation. Height and shore-distance gates keep
+the treatment out of wet sand, submerged seabed and inland soil; no noise evaluation, texture,
+geometry, draw or simulation work was added.
+
+Native baseline/final evidence from the identical bay-ground camera is
+`build-consumer/software-captures/20261014T073205.579954Z-bay-ground` and
+`20261014T074158.625117Z-bay-ground`; the final frame passes with 308 colour bins, 38.72 luminance
+deviation and 168.62 spatial contrast. The wider Chrome/SwiftShader `materials` audit passes all
+four litter/grass/dry-sand/wet-sand views with 60 clean intervals each, zero GL error or context
+loss, and inspected dry/wet frames at
+`build/browser-software/20261014T074414.240002Z-chrome-materials`.
+
+## Previous visual-audit implementation — retained far-palm crown volume
 
 The beach/bay vegetation review found the detailed nearby palms strong, but the cheaper palms
 across the bay collapsed into nine sparse curved ribs and lost the crown volume already established

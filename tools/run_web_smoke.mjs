@@ -885,6 +885,7 @@ try {
             && log.includes("distant grazing ocean converges on shared sky haze without a horizon seam")
             && log.includes("sky horizon locks to shared aerial haze above the below-horizon skirt")
             && log.includes("coastal sand stays continuous below water with filtered seabed ripples")
+            && log.includes("exposed beach sand reuses filtered broad fields for warm and cool mineral patches")
             && log.includes("reef substrate separates pale lagoon, shared habitat patches, crest, sand channels, and deep drop-off")
             && log.includes("coastal contact patches follow rendered seabed triangles in the existing batch")
             && log.includes("land prop shadows match model yaw and rendered terrain triangles")

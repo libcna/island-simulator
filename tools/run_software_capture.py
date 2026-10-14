@@ -950,6 +950,8 @@ def main():
             if "ocean shallow attenuation uses interpolated bed depth and contact fade" not in diagnostics \
                     or "coastal sand stays continuous below water with filtered seabed ripples" not in diagnostics:
                 raise RuntimeError("current coastal materials are missing; check for a stale executable")
+            if "exposed beach sand reuses filtered broad fields for warm and cool mineral patches" not in diagnostics:
+                raise RuntimeError("current dry-sand mineral patches are missing; check for a stale executable")
             if "distant grazing ocean converges on shared sky haze without a horizon seam" not in diagnostics:
                 raise RuntimeError("current ocean horizon haze is missing; check for a stale executable")
             if "ocean shared nine-wave spectrum uses filtered short-wave normals" not in diagnostics:

@@ -65,6 +65,8 @@ namespace island
             "island-simulator: forest soil separates humus and moss with footprint-filtered fallen leaves";
         constexpr std::string_view CoastalSandDiagnostic =
             "island-simulator: coastal sand stays continuous below water with filtered seabed ripples";
+        constexpr std::string_view SandMineralDiagnostic =
+            "island-simulator: exposed beach sand reuses filtered broad fields for warm and cool mineral patches";
         constexpr std::string_view ReefMacroDiagnostic =
             "island-simulator: reef substrate separates pale lagoon, shared habitat patches, crest, sand channels, and deep drop-off";
         constexpr std::string_view SubstrateDistanceDiagnostic =
@@ -278,12 +280,20 @@ void main()
     }
 
     vec3 color = vBaseColor;
-    float sandVariation = (broad * 0.190 + medium * 0.125 + fine * 0.026)
+    float sandVariation = (broad * 0.255 + medium * 0.165 + fine * 0.030)
         * sand * detailFade;
     color *= vec3(1.0 + sandVariation * 0.92,
                   1.0 + sandVariation * 0.72,
                   1.0 + sandVariation * 0.43);
     color += vec3(0.043, 0.026, -0.011) * medium * sand * detailFade * vGroundLight;
+    float exposedBeach = sand * smoothstep(0.8, 4.5, signedShoreDistance)
+        * smoothstep(0.10, 0.62, vWorld.y);
+    float sandMineralField = broad * 0.74 + medium * 0.38;
+    float warmMineral = smoothstep(0.055, 0.255, sandMineralField) * exposedBeach;
+    float coolMineral = (1.0 - smoothstep(-0.255, -0.055, sandMineralField))
+        * exposedBeach;
+    color = mix(color, color * vec3(1.065, 1.025, 0.925), warmMineral * 0.34);
+    color = mix(color, color * vec3(0.900, 0.955, 0.975), coolMineral * 0.24);
 
     float closeSand = sand * (1.0 - smoothstep(28.0, 92.0, distanceToCamera));
     if (closeSand > 0.0) {
@@ -851,6 +861,8 @@ void main()
                     MirrorRuntimeDiagnosticToPlatformLog(FallenLeafDiagnostic);
                     std::cout << CoastalSandDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(CoastalSandDiagnostic);
+                    std::cout << SandMineralDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(SandMineralDiagnostic);
                     std::cout << ReefMacroDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(ReefMacroDiagnostic);
                     std::cout << SubstrateDistanceDiagnostic << '\n';
