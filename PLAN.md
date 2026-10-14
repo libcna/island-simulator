@@ -605,7 +605,10 @@ terrain triangles and share the replacement surface with movement/grounding.
   `20261013T214043.021426Z-campfire` passes365bins/std39.05/spatial172.00/kernel[] and was inspected;
   Chrome/SwiftShader `20261013T214342.603885Z-chrome-campfire` passes60 intervals,GL0/context
   intact/kernel[] and both images were inspected. Android, speaker listening, continuous moving view and performance
-  remain. See `docs/campfire.md`.
+  remain. The site is now corrected to the broad southern dry-sand beach at(-6.52,-223.35),
+  with the separate stack5.90m away; construction enforces DrySand/shore-distance/beach-suitability
+  for both centres. Wide native `20261014T003928.816157Z-campfire-wide` passes412bins/std18.46/
+  spatial125.23 and was inspected with shoreline, fire and wood simultaneously visible. See `docs/campfire.md`.
   Adding fuel/crafting mechanics was not requested.
 
 - [~] Add underwater diving: while in water and not flying, Space ascends toward
@@ -871,6 +874,10 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   fault. Chrome/SwiftShader144700.369686Z-chrome-hut PASS both views/60intervals each/
   GL0/contexts intact/no new GPU kernel fault; all4 images inspected. Android ARM64
   assemble/lint PASS without emulator. Android runtime and full-route visual review remain.
+  A material follow-up replaces walking-distance-flat wood with resolvable coarse warped grain,
+  vessels, knot bands, recessed fibres and sun bleaching, without geometry/draw changes. Native
+  `20261014T003703.590742Z-hut-material` passes247bins/std44.68/spatial239.15 and was inspected;
+  wider inland overview `20261014T011246.266672Z-hut` passes249bins/std41.86/spatial215.14.
   Android current-source visuals, route walk and further realism remain,
   so this stays in progress. Details `docs/island-hut.md`.
 - [~] Add a river or stream. Initial implementation choice: a small inland-to-coast
@@ -969,6 +976,15 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   Chrome/SwiftShader211636.896127Z-chrome-cave PASS both views/60intervals each/four inspected
   images/GL0/contexts intact/kernel[]. Release+Debug cave/asset,33 browser-runner tests and ARM64
   assemble/lint pass. Android runtime, free-walk moving review and broader geology remain open.
+  The cave is now relocated from the coastal headland to the main-ridge south-eastern mountain
+  slope: entrance(108.005,14.032,-73.890),100m inland, with terrain rising7.50m across its20m
+  depth. Construction requires >90m shore distance and >5.5m back rise; the replacement patch
+  preserves a fully excavated corridor. Native `20261014T004021.580610Z-cave` overview and
+  `20261014T004118.743382Z-cave-inside` entrance detail pass and were inspected; focused collision
+  tests again walk to depth19.6592 and exit. Live llvmpipe keyboard evidence
+  `software-cave/20261014T011438.261480Z` repeats entry/back-wall/ceiling/floor/exit with no new
+  kernel fault; Chrome/SwiftShader `20261014T005636.229249Z-chrome-cave` renders both inspected
+  views with an intact context. The entrance no longer stands on beach ground.
   See `docs/cave.md`.
 
 - [~] Add a realistic grounded helicopter near the centre of the island. It cannot
@@ -1039,9 +1055,14 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   first201141.581953Z rear-cabin view passed technically but was rejected as control evidence
   because seat backs hid the new parts. Chrome/SwiftShader201903.851542Z-chrome-helicopter
   PASS both views/60intervals each/GL0/contexts intact/four inspected images/kernel[].
-  Release+Debug layout/asset,33 browser-runner tests and ARM64 assemble/lint pass. Richer
-  anatomy/mechanics,
-  interactions, free walking, Android runtime and performance review remain. See
+  Release+Debug layout/asset,33 browser-runner tests and ARM64 assemble/lint pass. A further
+  silhouette pass raises the canopy to32 circumferential sides and15
+  longitudinal profiles, removes alternating glass wedges, adds a tapered engine cowling and gives
+  the parked rotor visible grips/pitch links/mast cap/tip bands. It remains two draws at2780
+  triangles. Native `20261014T004417.223126Z-helicopter` passes297bins/std55.08/spatial237.29
+  and was inspected; cockpit `20261014T011306.734195Z-helicopter-inside` passes170bins/
+  std22.98/spatial102.10. Entry/collision/grounded non-flight behavior is unchanged.
+  Richer anatomy/mechanics, interactions, free walking, Android runtime and performance review remain. See
   `docs/helicopter.md`.
 
 All six items remain incomplete or in progress. Stream/cave/helicopter locations should be coordinated with
@@ -2297,6 +2318,14 @@ Human character backlog requested by the operator:
   `20261013T221102.938781Z-resident` passes213bins/std35.47/spatial134.29/kernel[] and was inspected;
   Chrome/SwiftShader `20261013T221420.747958Z-chrome-resident` passes two distinct inspected images,
   60 intervals,GL0/context intact/kernel[]. ARM64 assemble/lint passes without emulator/KVM.
+  A close-audit repair now uses a ten-ring chest/shoulder transition, arm-axis cap sleeves, shaped
+  biceps/two-stage forearms, a five-ring trapezius neck and separate cheeks/jaw/nostril wings/
+  eyelids. It preserves exactly one peaceful walking resident and all grounded animation states;
+  the body is7122 triangles. Native eight-stage `20261014T004313.678113Z-resident` passes353bins/
+  std47.65/spatial186.44 and was inspected. The relocated beach fire produces a new deterministic
+  32-point/901.845m safe tour without changing the gait controller.
+  Current-source Debug focused tests, the complete deterministic core test,112 portable gate tests,
+  and Android ARM64 assemble/lint all pass; no emulator/KVM was touched.
   Skin response, sidestepping, continuous gait, Android runtime and representative performance remain.
 
 Landmark backlog requested by the operator:

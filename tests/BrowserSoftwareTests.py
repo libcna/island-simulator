@@ -19,8 +19,10 @@ from gpu_incident_qualification import contained_command
 class BrowserSoftwareTests(unittest.TestCase):
     def test_helicopter_scope_requires_closed_rotor_blades_in_both_views(self):
         markers = "\n".join((
-            "helicopter uses rounded twenty-sided cockpit glazing, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane",
+            "helicopter uses a smoothly tapered thirty-two-sided cockpit canopy, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane",
             "helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges",
+            "helicopter rotor head adds four blade grips, pitch links, a mast cap, and muted yellow tip bands",
+            "helicopter raised tapered engine cowling feeds two rear exhaust outlets behind the rotor mast",
             "helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber",
             "helicopter carries four outward-open framed door panels with glazing and handles",
             "helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals",
@@ -39,6 +41,10 @@ class BrowserSoftwareTests(unittest.TestCase):
             gate.validate_helicopter_report(report)
         report["views"][1]["result"]["output"] = markers.replace(
             "helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals\n", "")
+        with self.assertRaises(RuntimeError):
+            gate.validate_helicopter_report(report)
+        report["views"][1]["result"]["output"] = markers.replace(
+            "helicopter raised tapered engine cowling feeds two rear exhaust outlets behind the rotor mast\n", "")
         with self.assertRaises(RuntimeError):
             gate.validate_helicopter_report(report)
 
@@ -194,7 +200,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                           (ROOT / "tools/web_smoke.html.in").read_text())
         def report():
             return {"passed":True,"views":[{"mode":mode,"passed":True,"glError":0,"contextLost":False,
-                "result":{"output":f"hut beam-aligned weathered grain and filtered thatch fibres\nhut four-pane muted glazing and braced plank door\nhut raised veranda uses full-height outer posts, split rails, fascia, and three steps\nhut enclosed slatted gable, framed attic light, and four knee-braced veranda supports\nhut 1 draw, {7 if mode == 'hut' else 6} contact patches\nhut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes"}}
+                "result":{"output":f"hut beam-aligned weathered grain and filtered thatch fibres\nhut timber material uses coarse warped grain, recessed dark fibres, knot bands, and sun-bleached board variation\nhut four-pane muted glazing and braced plank door\nhut raised veranda uses full-height outer posts, split rails, fascia, and three steps\nhut enclosed slatted gable, framed attic light, and four knee-braced veranda supports\nhut 1 draw, {7 if mode == 'hut' else 6} contact patches\nhut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes"}}
                 for mode in ("hut","hut-material")]}
         self.assertEqual(gate.validate_hut_report(report()),["hut","hut-material"])
         missing_texture=report()
@@ -204,6 +210,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             bad=report()
             bad["views"][index]["result"]["output"] = (
                 "hut beam-aligned weathered grain and filtered thatch fibres\n"
+                "hut timber material uses coarse warped grain, recessed dark fibres, knot bands, and sun-bleached board variation\n"
                 "hut four-pane muted glazing and braced plank door\n"
                 "hut raised veranda uses full-height outer posts, split rails, fascia, and three steps\n"
                 "hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports\n"
@@ -215,6 +222,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             bad=report();bad["views"][1][key]=value
             with self.subTest(key=key),self.assertRaises(RuntimeError): gate.validate_hut_report(bad)
         for text in ("", "hut 1 draw, 7 contact patches", "hut beam-aligned weathered grain and filtered thatch fibres",
+                     "hut timber material uses coarse warped grain, recessed dark fibres, knot bands, and sun-bleached board variation",
                      "hut four-pane muted glazing and braced plank door",
                      "hut raised veranda uses full-height outer posts, split rails, fascia, and three steps",
                      "hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports",
@@ -235,6 +243,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             "cave terrain shoulders use an irregular rock apron around the open corridor",
             "cave connected shell strips share smooth lighting normals while portal breaks stay sharp",
             "cave adds six high-clearance eroded ceiling pendants in the existing draw",
+            "cave mouth is embedded in a rising inland mountain slope",
             "cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling")
         def report():
             return {"passed": True, "views": [{"mode": mode, "passed": True,
@@ -470,6 +479,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         log = ("resident QA camera frames and follows one peaceful adult\n"
                "resident uses a shoulder-sloped woven tunic with open cap sleeves and anatomically tapered calves\n"
                "resident uses buried deltoid shoulders, split hands, and layered facial anatomy\n"
+               "resident anatomy uses a tapered trapezius neck, rounded sleeve-deltoid transitions, shaped forearms, cheeks, jaw, eyelids, and nostril wings\n"
                "resident woven clothing adds a bound V neckline and split thigh-following wrap\n"
                "resident 1/1 visible, 2 draws, 5154 body triangles")
         report = {"passed":True,"views":[{"mode":"resident","passed":True,"glError":0,
@@ -529,6 +539,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                "campfire 1992 solid triangles, 42 flame/smoke/spark triangles in two culled draws\n"
                "campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke\n"
                "campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal\n"
+               "campfire and stored firewood stand on qualified broad dry-sand beach\n"
                "campfire first visible animated draw")
         report = {"passed":True,"views":[{"mode":"campfire","passed":True,"glError":0,
             "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,

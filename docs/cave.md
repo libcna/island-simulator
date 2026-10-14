@@ -1,4 +1,4 @@
-# Small headland cave — implementation in progress
+# Small inland mountain cave — implementation in progress
 
 This is a project-owned procedural mesh, without imported assets or licence dependencies.
 The native game now constructs and renders the cave and terrain replacement.
@@ -70,8 +70,9 @@ quality budget.
 
 ## Geometry and siting
 
-Entrance approximately `(184.04, 7.63779, 115.384)`, east/northeast headland,38m inland
-from the radial shore. Axis points inland. Interior20m, outer shell22m; usable width
+Entrance approximately `(108.005,14.0317,-73.8899)`, on the south-eastern face of the main
+ridge,100m inland from the radial shore. Axis points farther into the rising mountain.
+Interior20m, outer shell22m; usable width
 roughly5m, ceiling roughly3.4m above the floor. The floor rises0.5m toward the back.
 The tide-pool footprints do not overlap the cave reserve.
 
@@ -227,3 +228,25 @@ mesh; it is portability evidence, not a cave-view visual acceptance. The outcrop
 intentionally marked in progress: its exposed
 mantle still reads more procedural than a naturally weathered headland and needs future contact
 and moving-view polish.
+
+## Inland mountain relocation — 2026-10-14
+
+The former38m-inland headland site still read as a freestanding tunnel beside the coast. The
+entrance is now100m inland at `(108.005,14.0317,-73.8899)`. The unmodified slope rises about
+3.67m over the first10m behind the portal and7.50m over20m, so the closed shell terminates inside
+the mountain rather than on the beach. Construction and tests require more than90m signed shore
+distance and at least5.5m terrain rise at the back. The replacement patch now has2597 vertices /
+4992 triangles; a widened full-excavation interval prevents steep original terrain from bleeding
+through the interpolated walkable floor.
+
+Inspected llvmpipe evidence is `20261014T004021.580610Z-cave` (overview:250 colour bins,
+46.99 deviation,243.05 contrast) and `20261014T004118.743382Z-cave-inside` (entrance from
+inside:157 bins,26.56 deviation,115.36 contrast). The overview shows the portal attached to a
+forested rising slope with no beach beneath it; the interior image shows an unobstructed opening.
+`IslandCaveLayoutTests` walks from outside to depth19.6592, blocks at the back/roof, lands on the
+floor and exits, while all cave footprint surveys remain zero.
+The live llvmpipe keyboard run `software-cave/20261014T011438.261480Z` independently repeats
+entry, back-wall, ceiling, landing and exit stages and finishes without a new kernel GPU fault.
+Chrome/SwiftShader evidence `20261014T005636.229249Z-chrome-cave` also renders both the wooded
+mountain overview and the unobstructed view out of the entrance with its WebGL context intact.
+The relocated complete world validates with fingerprint `a33aa6c2913b5796`.

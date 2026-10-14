@@ -82,12 +82,18 @@ CavePoint CaveLayout::Local(CavePoint point) const noexcept {
 }
 
 CaveLayout::CaveLayout(const IslandTerrain& terrain) {
-    // South of the eastern tide pools, on the shoulder of the rocky headland.
+    // On the south-eastern face of the main ridge, opening outward from a mountain
+    // whose terrain rises around and above the deep end of the rock shell.
     constexpr float angle=CaveSite::Angle;
     cosine_=std::cos(angle);sine_=std::sin(angle);
     const float radial=terrain.ShoreRadius(angle)-CaveSite::Inset;
     entrance_={cosine_*radial,0,sine_*radial};
     entrance_.y=terrain.Height(entrance_.x,entrance_.z);
+    const float deepTerrain=terrain.Height(entrance_.x-cosine_*Length,
+                                          entrance_.z-sine_*Length);
+    if(terrain.SignedShoreDistance(entrance_.x,entrance_.z)<90.0f
+        ||deepTerrain<entrance_.y+5.5f)
+        throw std::runtime_error("Cave site is not embedded in a rising inland mountain slope");
     using Ring=std::array<CavePoint,ArchSegments+1>;
     std::array<Ring,DepthSegments+1> inner{},outer{};
     for(int row=0;row<=DepthSegments;++row) {
@@ -180,8 +186,12 @@ float CaveLayout::GroundTarget(float x,float z,float original) const noexcept {
     if(!std::isfinite(x)||!std::isfinite(z)||!std::isfinite(original)) return original;
     const auto p=Local({x,entrance_.y,z});
     const float across=std::abs(p.x-Centre(p.z));
-    const float influence=(1-Smooth((across-Width(p.z))/2.5f))*Smooth((p.z+6)/6)
-        *(1-Smooth((p.z-Length)/3));
+    // Hold the whole emitted centre corridor at full excavation across adjacent
+    // replacement-grid vertices.  On a real mountain slope, beginning the fade at
+    // the exact portal/back planes lets steep original ground bleed through the
+    // interpolated floor and can seal the otherwise valid walkable centreline.
+    const float influence=(1-Smooth((across-Width(p.z))/2.5f))*Smooth((p.z+6)/4.5f)
+        *(1-Smooth((p.z-(Length+1.5f))/3));
     // A modest buried shoulder ties the broad outcrop into the hill. The cavity stays
     // excavated, while all patch-border samples remain exactly the original terrain.
     // Carry the surrounding ground up both portal shoulders instead of exposing the

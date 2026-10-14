@@ -406,3 +406,17 @@ remaining procedural roof/self-shadow limitations stay open.
    collider if needed. No inventory, crafting, quests or unrelated systems.
 4. Complete portable image audits and budget checks; hut world-report data is now included.
    Android/Web QA routing is now implemented. Build success is not runtime qualification.
+
+## Readable weathered timber material — 2026-10-14
+
+The earlier210/970-radian procedural fibres correctly antialiased almost entirely to their mean
+at walking distance, leaving the otherwise detailed walls visually flat. Timber now uses coarser
+warped grain, secondary vessels, knot bands, recessed dark fibres and restrained sun-bleached
+variation; end grain uses similarly resolvable rings. Thatch, geometry, placement, collision and
+the single-draw budget are unchanged. Inspected close llvmpipe evidence
+`20261014T003703.590742Z-hut-material` passes with247 colour bins,44.68 luminance deviation and
+239.15 spatial contrast. Individual wall, door, deck and gable boards retain visible depth and
+directional grain instead of reading as uniform brown panels.
+The wider native overview `20261014T011246.266672Z-hut` passes with249 colour bins,41.86
+deviation and215.14 contrast and confirms that the revised material remains legible at ordinary
+approach distance in the inland forest clearing.

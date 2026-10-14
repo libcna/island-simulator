@@ -34,16 +34,19 @@ using namespace Microsoft::Xna::Framework::Graphics;
 
 namespace island {
 namespace {
-constexpr int FuselageSides=20;
+constexpr int FuselageSides=32;
 enum class Surface : std::uint8_t { Paint,Metal,Upholstery,Rubber,Glass,Emissive };
 struct Texel{std::uint8_t r,g,b,a;};
 struct FuselageStation{float z,centreY,radiusX,radiusY;};
-constexpr std::array<FuselageStation,9> Fuselage{{
+constexpr std::array<FuselageStation,15> Fuselage{{
     {-2.10f,1.35f,.68f,.64f},{-1.78f,1.38f,.94f,.82f},
     {-.30f,1.43f,1.07f,.98f},{.18f,1.44f,1.08f,.99f},
-    {1.48f,1.42f,.98f,.93f},{1.92f,1.35f,.82f,.78f},
-    {2.42f,1.25f,.51f,.57f},{2.63f,1.21f,.34f,.43f},
-    {2.78f,1.18f,.16f,.27f}}};
+    {.62f,1.45f,1.075f,.985f},{1.02f,1.45f,1.05f,.97f},
+    {1.34f,1.43f,1.00f,.94f},{1.62f,1.40f,.94f,.88f},
+    {1.86f,1.36f,.84f,.81f},{2.08f,1.32f,.73f,.73f},
+    {2.30f,1.28f,.61f,.64f},{2.48f,1.24f,.49f,.55f},
+    {2.64f,1.21f,.35f,.44f},{2.76f,1.19f,.22f,.33f},
+    {2.84f,1.17f,.10f,.20f}}};
 
 bool OpenDoorBand(const float z) {
     return (z>=.18f&&z<=1.48f)||(z>=-1.70f&&z<=-.30f);
@@ -220,7 +223,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         }
     };
     const Color olive(101,116,80),oliveLight(136,147,102),oliveDark(61,73,56);
-    const Color glass(42,78,91,132),glassLight(94,145,159,150),metal(82,85,81);
+    const Color glass(56,96,107,142),metal(82,85,81);
     const Color interior(49,54,50),seat(45,49,43),rubber(30,32,30);
 
     // Multi-ring fuselage with actual side openings for separate cockpit and rear doors.
@@ -235,10 +238,13 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
                 return Vector3(std::cos(angle)*station.radiusX,
                     station.centreY+std::sin(angle)*station.radiusY,station.z);
             };
-            Color color=(slice%4==0)?oliveLight:olive;
+            Color color=olive;
             Surface surface=Surface::Paint;
             if(midZ>1.50f&&std::sin(mid)>-.08f) {
-                color=(slice%2)?glass:glassLight;surface=Surface::Glass;
+                // Consistent glazing pigment lets the denser curved shell and its
+                // lighting describe the canopy instead of alternating dark/light
+                // wedges that made the cockpit look deliberately polygonal.
+                color=glass;surface=Surface::Glass;
             }
             if(std::sin(mid)<-.72f)color=oliveDark;
             quad(point(Fuselage[band],a),point(Fuselage[band+1],a),
@@ -251,7 +257,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         return Vector3(std::cos(angle)*station.radiusX,
             station.centreY+std::sin(angle)*station.radiusY,station.z);
     };
-    const Vector3 noseTip(0,1.17f,2.88f);
+    const Vector3 noseTip(0,1.16f,2.92f);
     for(int slice=0;slice<FuselageSides;++slice) {
         const float a=tau*slice/FuselageSides;
         const float b=tau*((slice+1)%FuselageSides)/FuselageSides;
@@ -348,6 +354,26 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
             {-.44f+column*.18f,1.14f,1.291f},lamp,Surface::Emissive);
     }
 
+    // A low faceted engine cowling fills the previously flat/skeletal roof behind
+    // the mast and visually explains the paired exhaust outlets. Its lower half is
+    // buried in the existing cabin shell, so it adds no false interior obstruction.
+    constexpr std::array<FuselageStation,3> engineCowling{{
+        {-.30f,2.26f,.58f,.30f},{-1.18f,2.31f,.53f,.35f},
+        {-1.76f,2.23f,.40f,.27f}}};
+    constexpr int cowlingSides=10;
+    const auto cowlingPoint=[](const FuselageStation& station,const float angle) {
+        return Vector3(std::cos(angle)*station.radiusX,
+            station.centreY+std::sin(angle)*station.radiusY,station.z);
+    };
+    for(std::size_t band=0;band+1<engineCowling.size();++band)
+        for(int slice=0;slice<cowlingSides;++slice) {
+            const int next=(slice+1)%cowlingSides;
+            const float a=tau*slice/cowlingSides,b=tau*next/cowlingSides;
+            quad(cowlingPoint(engineCowling[band],a),cowlingPoint(engineCowling[band+1],a),
+                 cowlingPoint(engineCowling[band+1],b),cowlingPoint(engineCowling[band],b),
+                 slice%3==0?oliveLight:olive);
+        }
+
     // Tail boom, empennage and clearly horizontal tail-rotor disc.
     constexpr int tailSides=8;
     constexpr std::array<FuselageStation,4> tail{{
@@ -423,28 +449,51 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         if(segment%2==0)
             beam(a,{a.X*.74f,3.02f,(a.Z+.12f)*.74f-.12f},.045f,oliveDark);
     }
+    const Vector3 rotorCentre(0,3.02f,-.12f);
+    // The fixed parked head still exposes real scale cues: a projecting mast cap,
+    // four radial grip housings and paired-height pitch links from the lower hub.
+    // These are purely static mechanical detail and do not imply a flight state.
+    tube({0,2.74f,-.12f},{0,3.17f,-.12f},.075f,metal,Surface::Metal);
     for(int blade=0;blade<4;++blade) {
         const float angle=.18f+blade*std::numbers::pi_v<float>*.5f;
         const Vector3 radial(std::cos(angle),0,std::sin(angle));
         const Vector3 perpendicular(-radial.Z,0,radial.X);
-        const Vector3 centre(0,3.02f,-.12f);
-        const Vector3 inner=radial*.25f+centre;
-        const Vector3 outer=radial*HelicopterLayout::MainRotorRadius+centre
-            +perpendicular*.055f-Vector3(0,.012f,0);
-        const float rootHalf=.16f,tipHalf=.105f,halfDepth=.034f;
-        const Vector3 lift(0,halfDepth,0);
-        const std::array<Vector3,4> outline{{inner-perpendicular*rootHalf,
-            outer-perpendicular*tipHalf,outer+perpendicular*tipHalf,
-            inner+perpendicular*rootHalf}};
-        const Color upper=blade%2?Color(55,59,54):Color(69,74,67);
-        const Color lower=blade%2?Color(39,42,39):Color(47,51,46);
-        quad(outline[0]+lift,outline[1]+lift,outline[2]+lift,outline[3]+lift,upper);
-        quad(outline[3]-lift,outline[2]-lift,outline[1]-lift,outline[0]-lift,lower);
-        for(std::size_t edge=0;edge<outline.size();++edge) {
-            const std::size_t next=(edge+1U)%outline.size();
-            quad(outline[edge]-lift,outline[next]-lift,outline[next]+lift,
-                 outline[edge]+lift,edge==1U?Color(31,34,32):Color(43,47,43));
-        }
+        beam(rotorCentre+radial*.18f,rotorCentre+radial*.53f,.13f,
+             Color(72,76,70),Surface::Metal);
+        tube({radial.X*.24f,2.82f,radial.Z*.24f-.12f},
+             {radial.X*.47f,3.045f,radial.Z*.47f-.12f},.020f,
+             Color(104,108,98),Surface::Metal);
+        const auto bladePoint=[&](const float distance,const float fraction) {
+            return rotorCentre+radial*distance+perpendicular*(.055f*fraction)
+                -Vector3(0,.012f*fraction,0);
+        };
+        const auto closedBlade=[&](const float innerDistance,const float outerDistance,
+            const float innerHalf,const float outerHalf,const float innerFraction,
+            const float outerFraction,const Color& upper,const Color& lower) {
+            constexpr float halfDepth=.034f;
+            const Vector3 lift(0,halfDepth,0);
+            const Vector3 inner=bladePoint(innerDistance,innerFraction);
+            const Vector3 outer=bladePoint(outerDistance,outerFraction);
+            const std::array<Vector3,4> outline{{inner-perpendicular*innerHalf,
+                outer-perpendicular*outerHalf,outer+perpendicular*outerHalf,
+                inner+perpendicular*innerHalf}};
+            quad(outline[0]+lift,outline[1]+lift,outline[2]+lift,outline[3]+lift,upper);
+            quad(outline[3]-lift,outline[2]-lift,outline[1]-lift,outline[0]-lift,lower);
+            for(std::size_t edge=0;edge<outline.size();++edge) {
+                const std::size_t next=(edge+1U)%outline.size();
+                quad(outline[edge]-lift,outline[next]-lift,outline[next]+lift,
+                     outline[edge]+lift,edge==1U?Color(31,34,32):Color(43,47,43));
+            }
+        };
+        const float tipStart=HelicopterLayout::MainRotorRadius-.28f;
+        const float tipFraction=(tipStart-.48f)/(HelicopterLayout::MainRotorRadius-.48f);
+        closedBlade(.48f,tipStart,.155f,.110f,0,tipFraction,
+            blade%2?Color(62,67,60):Color(76,82,73),
+            blade%2?Color(42,46,42):Color(50,55,49));
+        // Muted yellow parked-blade tips improve scale/readability without suggesting
+        // illuminated or moving rotors.
+        closedBlade(tipStart,HelicopterLayout::MainRotorRadius,.110f,.098f,
+            tipFraction,1.0f,Color(177,154,62),Color(119,101,42));
     }
     // Exhausts, navigation lights and a small belly lamp improve exterior scale cues.
     beam({-.36f,2.18f,-1.54f},{-.48f,2.25f,-1.98f},.15f,Color(55,55,52),Surface::Metal);
@@ -477,7 +526,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     const std::string message="island-simulator: grounded helicopter original procedural shell, open pilot/rear doors, interior and stationary rotors; triangles="
         +std::to_string(triangles_);
     std::cout<<message<<'\n';MirrorRuntimeDiagnosticToPlatformLog(message);
-    const std::string detail="island-simulator: helicopter uses rounded twenty-sided cockpit glazing, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane";
+    const std::string detail="island-simulator: helicopter uses a smoothly tapered thirty-two-sided cockpit canopy, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane";
     std::cout<<detail<<'\n';MirrorRuntimeDiagnosticToPlatformLog(detail);
     const std::string material="island-simulator: helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber";
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
@@ -485,6 +534,10 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<doors<<'\n';MirrorRuntimeDiagnosticToPlatformLog(doors);
     const std::string rotor="island-simulator: helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges";
     std::cout<<rotor<<'\n';MirrorRuntimeDiagnosticToPlatformLog(rotor);
+    const std::string rotorDetail="island-simulator: helicopter rotor head adds four blade grips, pitch links, a mast cap, and muted yellow tip bands";
+    std::cout<<rotorDetail<<'\n';MirrorRuntimeDiagnosticToPlatformLog(rotorDetail);
+    const std::string cowling="island-simulator: helicopter raised tapered engine cowling feeds two rear exhaust outlets behind the rotor mast";
+    std::cout<<cowling<<'\n';MirrorRuntimeDiagnosticToPlatformLog(cowling);
     const std::string cockpit="island-simulator: helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals";
     std::cout<<cockpit<<'\n';MirrorRuntimeDiagnosticToPlatformLog(cockpit);
 }

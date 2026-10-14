@@ -252,6 +252,8 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
         if(!material_->IsEffectValid()) throw std::runtime_error(material_->GetCompileErrorEXT());
         const char* message="island-simulator: hut beam-aligned weathered grain and filtered thatch fibres";
         std::cout<<message<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(message);
+        const char* timberMessage="island-simulator: hut timber material uses coarse warped grain, recessed dark fibres, knot bands, and sun-bleached board variation";
+        std::cout<<timberMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(timberMessage);
         const char* facadeMessage="island-simulator: hut four-pane muted glazing and braced plank door";
         std::cout<<facadeMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(facadeMessage);
         const char* verandaMessage="island-simulator: hut raised veranda uses full-height outer posts, split rails, fascia, and three steps";

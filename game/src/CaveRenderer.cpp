@@ -227,6 +227,7 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
     std::cout<<"island-simulator: cave narrow eroded lip grows into an irregular closed rock mantle\n";
     std::cout<<"island-simulator: cave connected shell strips share smooth lighting normals while portal breaks stay sharp\n";
     std::cout<<"island-simulator: cave adds six high-clearance eroded ceiling pendants in the existing draw\n";
+    std::cout<<"island-simulator: cave mouth is embedded in a rising inland mountain slope\n";
     const char* material="island-simulator: cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling";
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
 }

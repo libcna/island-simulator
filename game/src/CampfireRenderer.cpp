@@ -157,6 +157,7 @@ CampfireRenderer::CampfireRenderer(GraphicsDevice& device,const CampfireLayout& 
         <<" flame/smoke/spark triangles in two culled draws; 11 stored logs six metres away\n";
     std::cout<<"island-simulator: campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke\n";
     std::cout<<"island-simulator: campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal\n";
+    std::cout<<"island-simulator: campfire and stored firewood stand on qualified broad dry-sand beach\n";
 }
 CampfireRenderer::~CampfireRenderer()=default;
 void CampfireRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector3& camera,float seconds,bool effects) {

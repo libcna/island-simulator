@@ -78,6 +78,7 @@ def validate_cave_report(report):
             or "cave terrain shoulders use an irregular rock apron around the open corridor" not in log
             or "cave connected shell strips share smooth lighting normals while portal breaks stay sharp" not in log
             or "cave adds six high-clearance eroded ceiling pendants in the existing draw" not in log
+            or "cave mouth is embedded in a rising inland mountain slope" not in log
             or "cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling" not in log
             or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
             raise RuntimeError("cave view lacks current material, terrain blend or clean graphics state")
@@ -102,8 +103,10 @@ def validate_helicopter_report(report):
             or not all(isinstance(value, (int, float)) and not isinstance(value, bool)
                        and math.isfinite(value) and value > 0 for value in intervals)
             or not isinstance(frame, str) or not frame.endswith(".png")
-            or "helicopter uses rounded twenty-sided cockpit glazing, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane" not in log
+            or "helicopter uses a smoothly tapered thirty-two-sided cockpit canopy, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane" not in log
             or "helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges" not in log
+            or "helicopter rotor head adds four blade grips, pitch links, a mast cap, and muted yellow tip bands" not in log
+            or "helicopter raised tapered engine cowling feeds two rear exhaust outlets behind the rotor mast" not in log
             or "helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber" not in log
             or "helicopter carries four outward-open framed door panels with glazing and handles" not in log
             or "helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals" not in log
@@ -134,6 +137,7 @@ def validate_campfire_report(report):
         or "campfire first visible animated draw" not in log
         or "campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke" not in log
         or "campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal" not in log
+        or "campfire and stored firewood stand on qualified broad dry-sand beach" not in log
         or "campfire 1992 solid triangles, 42 flame/smoke/spark triangles in two culled draws" not in log
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("campfire view lacks current moving material, frames or clean graphics state")
@@ -187,6 +191,7 @@ def validate_resident_report(report):
         or "resident QA camera frames and follows one peaceful adult" not in log
         or "resident uses a shoulder-sloped woven tunic with open cap sleeves and anatomically tapered calves" not in log
         or "resident uses buried deltoid shoulders, split hands, and layered facial anatomy" not in log
+        or "resident anatomy uses a tapered trapezius neck, rounded sleeve-deltoid transitions, shaped forearms, cheeks, jaw, eyelids, and nostril wings" not in log
         or "resident woven clothing adds a bound V neckline and split thigh-following wrap" not in log
         or not re.search(r"resident 1/1 visible, 2 draws, [1-9][0-9]* body triangles", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
@@ -423,6 +428,7 @@ def validate_hut_report(report):
         # Counts are after frustum culling: the close camera sees six of seven patches.
         if (not view.get("passed") or view.get("glError") != 0 or view.get("contextLost") is not False
             or "hut beam-aligned weathered grain and filtered thatch fibres" not in log
+            or "hut timber material uses coarse warped grain, recessed dark fibres, knot bands, and sun-bleached board variation" not in log
             or "hut four-pane muted glazing and braced plank door" not in log
             or "hut raised veranda uses full-height outer posts, split rails, fascia, and three steps" not in log
             or "hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports" not in log

@@ -2,10 +2,10 @@
 #include <algorithm>
 #include <cmath>
 namespace island {
-// Authored in the already open eastern clearing, well away from the stream channel.
+// Authored on a broad, level dry-sand beach, well away from the stream channel.
 struct CampfireSite final {
-    static constexpr float X=46.0f,Z=-16.0f;
-    static constexpr float WoodX=51.5f,WoodZ=-18.5f;
+    static constexpr float X=-6.52f,Z=-223.35f;
+    static constexpr float WoodX=-.62f,WoodZ=-223.45f;
     static constexpr float PitRadius=1.25f,WoodRadius=1.40f;
     static constexpr float VegetationClearance=5.5f,WoodClearance=2.0f;
     [[nodiscard]] static bool Reserves(float x,float z,float margin=0) noexcept {

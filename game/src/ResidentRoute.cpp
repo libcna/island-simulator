@@ -117,7 +117,7 @@ private:
 }
 ResidentRoute::ResidentRoute(const IslandTerrain& terrain,const RenderedTerrainSurface& ground,const WorldCollisionGrid& solids) {
     Search search(terrain,ground,solids);
-    const std::array authored{ResidentPoint{CampfireSite::X-5,0,CampfireSite::Z+5},
+    const std::array authored{ResidentPoint{CampfireSite::X+6,0,CampfireSite::Z+5},
         ResidentPoint{VegetationLayout::PrimaryPathCenterX(135),0,135},
         ResidentPoint{VegetationLayout::WestClearing.x,0,VegetationLayout::WestClearing.z},
         ResidentPoint{VegetationLayout::PrimaryPathCenterX(-165),0,-165},

@@ -1,7 +1,7 @@
-# Eastern clearing campfire — native first pass
+# Broad-beach campfire — native first pass
 
-One continuously burning fire is placed at `(46,24.7219,-16)` in the existing eastern
-clearing. A separate stack of11 gathered logs is at `(51.5,groundY,-18.5)`, about6.04m
+One continuously burning fire is placed at `(-6.52,1.03898,-223.35)` on the broad southern
+dry-sand beach. A separate stack of11 gathered logs is at `(-0.62,1.02629,-223.45)`, about5.90m
 away. Twelve irregular stones surround five burning logs, a layered ash bed, four bright
 embers and six darker charcoal chunks.
 The woodpile's log ends follow the actual rendered slope, rather than hovering on a
@@ -41,7 +41,7 @@ An original19s mono PCM16 loop combines soft ember hiss, lower fire noise and173
 wood crackles/pops. It is generated at22050Hz, mean centred and loop checked. It adds
 837900 PCM bytes; the current audio inventory is32 clips/5576444 bytes. No new playing voice is
 added: fire, stream and player-water playback share the fourth persistent slot. This
-clearing lies beyond the stream's audible region. Swimming takes priority, and fire
+beach lies beyond the stream's audible region. Swimming takes priority, and fire
 audibility uses a bounded3D24m distance with smoothed gain and transition hysteresis.
 Spatial mode is configured before the first Play, preserving the prior dropout fix.
 
@@ -124,3 +124,14 @@ the coal bed no longer reads as ten identical red stones. Chrome/SwiftShader evi
 GL0, intact context and empty live/final kernel reports; the final image was inspected. Release
 core/campfire tests and88 focused Python gate tests pass. The deterministic world fingerprint is
 `0ecd98ad6f56b15b`.
+
+## Dry-beach relocation and visual audit — 2026-10-14
+
+The fire and stored wood were moved from the inland eastern clearing to the broad southern
+beach. Construction now fails closed unless both centres sample `DrySand`, lie 7–23m inside
+the shoreline and retain beach suitability above0.70. The shared vegetation/grass reserve,
+collision proxies, crackle emitter and the resident's nearby tour approach follow the new site.
+The wide llvmpipe evidence `20261014T003928.816157Z-campfire-wide` was inspected: shoreline,
+shallow water, fire ring and separate wood stack are simultaneously visible on sand. It passes
+at1280x720 with412 colour bins,18.46 luminance deviation and125.23 spatial contrast.
+The rebuilt world report records the new centres and fingerprint `a33aa6c2913b5796`.

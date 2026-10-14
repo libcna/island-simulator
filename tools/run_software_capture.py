@@ -598,7 +598,8 @@ def main():
                 for marker in ("campfire first visible animated draw",
                                "1992 solid triangles, 42 flame/smoke/spark triangles",
                                "campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke",
-                               "campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal"):
+                               "campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal",
+                               "campfire and stored firewood stand on qualified broad dry-sand beach"):
                     if marker not in diagnostics:raise RuntimeError(f"campfire integration diagnostic missing: {marker}")
             if args.viewpoint == "stream":
                 metadata["stream_stages"]=validate_stream_stages(log)
@@ -618,6 +619,7 @@ def main():
             if args.viewpoint in ("hut", "hut-material"):
                 for marker in ("hut raised veranda uses full-height outer posts, split rails, fascia, and three steps",
                                "hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports",
+                               "hut timber material uses coarse warped grain, recessed dark fibres, knot bands, and sun-bleached board variation",
                                "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"hut integration diagnostic missing: {marker}")
@@ -627,8 +629,10 @@ def main():
                                "helicopter QA camera frames grounded exterior and open doors")
                 for marker in (camera_marker,
                                "grounded helicopter original procedural shell, open pilot/rear doors, interior and stationary rotors",
-                               "helicopter uses rounded twenty-sided cockpit glazing, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane",
+                               "helicopter uses a smoothly tapered thirty-two-sided cockpit canopy, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane",
                                "helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges",
+                               "helicopter rotor head adds four blade grips, pitch links, a mast cap, and muted yellow tip bands",
+                               "helicopter raised tapered engine cowling feeds two rear exhaust outlets behind the rotor mast",
                                "helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber",
                                "helicopter carries four outward-open framed door panels with glazing and handles",
                                "helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals"):
@@ -675,6 +679,7 @@ def main():
                 for marker in ("one adult resident uses original articulated human geometry",
                                "resident uses a shoulder-sloped woven tunic with open cap sleeves and anatomically tapered calves",
                                "resident uses buried deltoid shoulders, split hands, and layered facial anatomy",
+                               "resident anatomy uses a tapered trapezius neck, rounded sleeve-deltoid transitions, shaped forearms, cheeks, jaw, eyelids, and nostril wings",
                                "resident woven clothing adds a bound V neckline and split thigh-following wrap",
                                "resident QA camera frames and follows one peaceful adult",
                                "resident capture visible 1; draws 2"):
@@ -746,6 +751,7 @@ def main():
                                "cave narrow eroded lip grows into an irregular closed rock mantle",
                                "cave connected shell strips share smooth lighting normals while portal breaks stay sharp",
                                "cave adds six high-clearance eroded ceiling pendants in the existing draw",
+                               "cave mouth is embedded in a rising inland mountain slope",
                                "cave terrain shoulders use an irregular rock apron around the open corridor",
                                "cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling"):
                     if marker not in diagnostics:

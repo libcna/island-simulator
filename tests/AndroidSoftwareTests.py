@@ -294,6 +294,9 @@ LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
                 with self.assertRaisesRegex(RuntimeError, "hut material"):
                     gate.validate_game_logs(directory, False, view)
                 log.write_text(good+"hut beam-aligned weathered grain and filtered thatch fibres\n")
+                with self.assertRaisesRegex(RuntimeError, "hut timber relief"):
+                    gate.validate_game_logs(directory, False, view)
+                log.write_text(log.read_text()+"hut timber material uses coarse warped grain, recessed dark fibres, knot bands, and sun-bleached board variation\n")
                 with self.assertRaisesRegex(RuntimeError, "hut facade details"):
                     gate.validate_game_logs(directory, False, view)
                 log.write_text(log.read_text()+"hut four-pane muted glazing and braced plank door\n")

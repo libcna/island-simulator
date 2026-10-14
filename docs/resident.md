@@ -160,3 +160,23 @@ Chrome/SwiftShader `20261013T221420.747958Z-chrome-resident` passes two differen
 passes without emulator/KVM; Release and Debug resident motion tests and88 focused Python gate
 tests pass. Skin response, sidestepping, continuous gait, Android runtime and representative
 hardware performance remain open.
+
+## Shoulder, neck and facial-volume repair — 2026-10-14
+
+The close audit still showed a cylindrical neck, abrupt shoulder corners and facial marks on a
+single oval. The retained body now has a ten-ring shoulder/chest transition; each cap sleeve is
+an arm-axis-aligned oval joined to a shaped biceps and two-stage forearm. A five-ring unequal-oval
+trapezius/neck loft broadens below the collar and narrows under the jaw. Separate cheek pads, jaw
+corners, nostril wings and upper eyelids augment the existing bridge, tip, eyes, brows, lips and
+chin. One peaceful actor, the deterministic route, grounded gait, pauses/yielding and two-draw
+body/shadow contract are unchanged.
+
+Relocating the campfire to the southern beach changes the generated safe tour, not its movement
+rules: the current route has32 simplified points and901.845m total length, with an inland-safe
+approach behind the fire and woodpile.
+
+The current body is7122 triangles and remains under the fixed40000-vertex stream allocation.
+Inspected llvmpipe evidence `20261014T004313.678113Z-resident` passes all eight ordered gait
+stages at1280x720 with353 colour bins,47.65 luminance deviation and186.44 spatial contrast.
+The final and stride frames show sloping shoulders, a tapered neck and the same walking actor;
+the new beach route also places the resident near, but outside, the campfire/wood collisions.

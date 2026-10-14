@@ -6,8 +6,11 @@
 namespace island {
 // Lightweight authored footprint for placement queries: no mesh allocation or terrain recursion.
 struct CaveSite final {
-    static constexpr float Angle=.56f;
-    static constexpr float Inset=38.0f;
+    // The entrance is cut into the south-eastern main-ridge slope.  Twenty metres
+    // inward the unmodified mountain rises well above the shell crown, so the cave
+    // reads as excavated rock rather than a freestanding coastal tunnel.
+    static constexpr float Angle=-.60f;
+    static constexpr float Inset=100.0f;
     static constexpr float Length=20.0f;
     static constexpr float OuterLength=22.0f;
     // The compact outer rings remain below this conservative width. Reserve the whole

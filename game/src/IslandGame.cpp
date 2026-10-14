@@ -300,8 +300,8 @@ namespace island
             const CaveLayout cave(terrain_);
             const bool inside=viewpoint_==FixedViewpoint::CaveInterior;
             const auto p=inside?cave.World(.6f,CaveLayout::Floor(12)+PlayerMotion::EyeHeight,12)
-                :cave.World(7,5,-15);
-            const auto target=inside?cave.World(0,1.6f,-3):cave.World(0,1.8f,4);
+                :cave.World(12,8,-24);
+            const auto target=inside?cave.World(0,1.6f,-3):cave.World(0,2.1f,7);
             cameraPosition_=Vector3(p.x,p.y,p.z);
             yaw_=std::atan2(target.x-p.x,target.z-p.z);
             pitch_=std::atan2(target.y-p.y,std::hypot(target.x-p.x,target.z-p.z));

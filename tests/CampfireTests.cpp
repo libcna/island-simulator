@@ -3,6 +3,7 @@
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/StreamSoundField.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/AudioAnalysis.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/WorldCollisionGrid.hpp"
@@ -17,7 +18,13 @@ int main() {
     const CampfireLayout fire(terrain),repeat(terrain);
     const RenderedTerrainSurface ground(terrain);
     const auto centre=fire.Centre(),wood=fire.WoodCentre();
-    Check(terrain.SignedShoreDistance(centre.x,centre.z)>50&&centre.y>2,"fire is not on dry inland ground");
+    for(const auto point:{centre,wood}) {
+        const auto sample=terrain.Sample(point.x,point.z);
+        Check(sample.surface==TerrainSurface::DrySand
+            &&sample.signedShoreDistance>=7&&sample.signedShoreDistance<=23
+            &&sample.beachSuitability>.70f&&point.y>.25f,
+            "fire or stored wood is not on qualified dry beach sand");
+    }
     Check(std::hypot(wood.x-centre.x,wood.z-centre.z)>5.5f,"stored firewood is too close to flames");
     Check(StreamSoundField::Sample(centre.x,centre.z).distance>58,"fire/stream audible regions overlap");
     Check(fire.Vertices().size()==5976&&fire.Vertices().size()==repeat.Vertices().size(),"fire geometry budget changed");

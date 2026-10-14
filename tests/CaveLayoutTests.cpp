@@ -81,8 +81,10 @@ int main() {
                       "flight ground tracing missed a patch edge or triangle diagonal");
         }
     }
-    Check(entrance.y>2&&terrain.SignedShoreDistance(entrance.x,entrance.z)>30,
-          "cave entrance is not on dry headland ground");
+    const auto mountainBack=cave.World(0,0,CaveLayout::Length);
+    Check(entrance.y>10&&terrain.SignedShoreDistance(entrance.x,entrance.z)>90
+          &&terrain.Height(mountainBack.x,mountainBack.z)>entrance.y+5.5f,
+          "cave entrance is not embedded in a rising inland mountain slope");
     for(std::size_t i=0;i<TidePoolLayout::Definitions.size();++i) {
         const auto [x,z]=TidePoolLayout::Centre(terrain,i);
         Check(!cave.ReservesHabitat(x,z,TidePoolLayout::Definitions[i].radius),

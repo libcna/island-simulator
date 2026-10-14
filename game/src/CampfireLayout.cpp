@@ -21,6 +21,12 @@ CampfireLayout::CampfireLayout(const IslandTerrain& terrain) {
     const RenderedTerrainSurface ground(terrain);
     centre_={CampfireSite::X,ground.Sample(CampfireSite::X,CampfireSite::Z).height,CampfireSite::Z};
     woodCentre_={CampfireSite::WoodX,ground.Sample(CampfireSite::WoodX,CampfireSite::WoodZ).height,CampfireSite::WoodZ};
+    for(const auto point:{centre_,woodCentre_}) {
+        const auto sample=terrain.Sample(point.x,point.z);
+        if(sample.surface!=TerrainSurface::DrySand||sample.signedShoreDistance<7.0f
+            ||sample.signedShoreDistance>23.0f||sample.beachSuitability<.70f)
+            throw std::runtime_error("Campfire site is not on qualified dry beach sand");
+    }
     obstacles_={CircularObstacle{centre_.x,centre_.z,CampfireSite::PitRadius},
                 CircularObstacle{woodCentre_.x,woodCentre_.z,CampfireSite::WoodRadius}};
     const auto emit=[&](FirePoint a,FirePoint b,FirePoint c,FirePoint desired,FireMaterial material,

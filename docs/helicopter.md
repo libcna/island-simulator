@@ -163,6 +163,23 @@ fault; all four separated-time images have distinct hashes and were inspected.
 Release and Debug layout/asset tests, all 33 browser-runner tests and Android ARM64 assemble/lint
 pass without an emulator or KVM.
 
+## Rounded canopy and rotor-head silhouette — 2026-10-14
+
+The cockpit shell now uses32 circumferential sides and15 progressively tapered longitudinal
+stations instead of20 sides and9 widely spaced rings. Alternating dark/light windshield wedges
+were removed; consistent glazing pigment lets the denser curved normals describe the canopy.
+A raised tapered engine cowling feeds the paired exhausts. The parked rotor gains a mast cap,
+four grip housings, pitch links and separate muted-yellow tip sections without adding motion.
+The complete procedural model is2780 triangles in the existing two opaque/glass draws; floor,
+doors, entry corridors, collision and the non-flying contract are unchanged.
+
+Inspected llvmpipe evidence `20261014T004417.223126Z-helicopter` passes at1280x720 with297
+colour bins,55.08 luminance deviation,237.29 spatial contrast and no captured kernel fault.
+The nose/canopy contour is smoother while open doors and structural frames retain hard edges.
+The matching cockpit view `20261014T011306.734195Z-helicopter-inside` passes with170 colour
+bins,22.98 deviation and102.10 contrast and confirms that both pilot controls and the rear
+passenger opening remain usable after the exterior reshaping.
+
 Open work includes richer body anatomy and small mechanical detail, improved interior and
 exterior lighting, door animation, explicit sitting interaction, live free-walk visual review,
 physical performance measurement, and Android runtime/capture qualification.
