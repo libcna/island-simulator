@@ -805,6 +805,8 @@ def main():
                 raise RuntimeError("current cliff macrocolour projection is missing; check for a stale executable")
             if "inland ridge rock starts on sustained slopes and retains cool sky fill in fixed-sun shade" not in diagnostics:
                 raise RuntimeError("current ridge exposure and sky fill are missing; check for a stale executable")
+            if "inland ridge outcrops follow measured steepness with broken medium-scale exposure" not in diagnostics:
+                raise RuntimeError("current ridge outcrop breakup is missing; check for a stale executable")
             if "low coastal cliffs retain salt-worn mineral colour and cool open-sky fill" not in diagnostics:
                 raise RuntimeError("current coastal cliff fill is missing; check for a stale executable")
             if "canopy per-tree frustum boxes contain both LODs and wind" not in diagnostics:

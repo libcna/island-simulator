@@ -60,6 +60,24 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — measured-slope ridge outcrops
+
+The current overview/headland audit found that broad noise still moved the inland rock threshold
+enough to stamp large dark outcrops onto gentle ridge shoulders. Rock exposure now follows measured
+slope more closely, with only restrained broad/medium perturbation. The existing face-projected
+medium mottle contributes more strongly to breakup, and minimum inland mineral coverage falls from
+16% to 4.5%. The unchanged coastal field still raises minimum coverage to 88%, preserving the
+continuous salt-worn headland. No texture/noise evaluation, geometry, collision or draw is added.
+
+Identical native overview baseline/final evidence is `20261014T161807.844403Z-overview` and
+`20261014T162029.661645Z-overview`; the coastal guard is `20261014T161833.419961Z-headland` and
+`20261014T162057.573757Z-headland`. All were inspected. The final overview keeps more soil/turf
+continuity on moderate shoulders and confines stronger rock to the high face, while the headland
+retains its mineral wall, bedding and sky fill. Focused Chrome/SwiftShader
+`20261014T162348.342986Z-chrome-cliffs` passes inspected east/headland views, 60 finite positive
+intervals each, GL error zero, intact context and empty kernel delta. Default arm64 assemble/lint
+passes through the two-worker wrapper without emulator execution.
+
 ## Latest visual-audit implementation — streamlined shark proportions
 
 The renewed side-on aquatic audit selected the shark silhouette: its smoothed torso was still too

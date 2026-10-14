@@ -83,6 +83,8 @@ namespace island
             "island-simulator: steep terrain rock macrocolour follows the cliff face instead of top-down curtains";
         constexpr std::string_view RidgeSkyFillDiagnostic =
             "island-simulator: inland ridge rock starts on sustained slopes and retains cool sky fill in fixed-sun shade";
+        constexpr std::string_view RidgeOutcropDiagnostic =
+            "island-simulator: inland ridge outcrops follow measured steepness with broken medium-scale exposure";
         constexpr std::string_view CoastalCliffFillDiagnostic =
             "island-simulator: low coastal cliffs retain salt-worn mineral colour and cool open-sky fill";
 
@@ -607,7 +609,7 @@ void main()
 
     // Thin soil on steep ridge faces exposes weathered rock instead of the old
     // featureless green vertex palette. Existing filtered fields break the edge.
-    float ridgeRock = smoothstep(0.19, 0.46, slopeRadians + broad * 0.14 + medium * 0.08)
+    float ridgeRock = smoothstep(0.27, 0.54, slopeRadians + broad * 0.055 + medium * 0.035)
         * interior * smoothstep(4.0, 10.0, vWorld.y);
     float coastalCliff = coastField.x * smoothstep(0.26, 0.58, slopeRadians)
         * smoothstep(-0.25, 0.35, vWorld.y)
@@ -647,12 +649,12 @@ void main()
             + sin(faceAcross * 0.11 + projectedMottle * 1.4) * 0.30;
         // Thin soil leaves connected but irregular outcrops, rather than tinting an entire
         // inland hillside as one dark muddy curtain. Low coastal cliffs remain more exposed.
-        float outcropField = projectedMacro * 0.86 + projectedMottle * 0.42
-            + sin(beddingPhase * 0.47 + faceAcross * 0.035) * 0.10;
-        float outcropBreakup = smoothstep(-0.24, 0.26, outcropField);
+        float outcropField = projectedMacro * 0.62 + projectedMottle * 0.60
+            + sin(beddingPhase * 0.47 + faceAcross * 0.035) * 0.12;
+        float outcropBreakup = smoothstep(-0.02, 0.30, outcropField);
         // The coastal ground field keeps salt-worn headlands continuously mineral; only
         // inland ridge soil breaks strongly between exposed rock patches.
-        float minimumExposure = mix(0.16, 0.88, coastField.x);
+        float minimumExposure = mix(0.045, 0.88, coastField.x);
         rockCoverage *= mix(minimumExposure, 1.0,
                             max(outcropBreakup, coastalCliff * 0.72));
         float beddingWave = sin(beddingPhase) + 0.34 * sin(beddingPhase * 2.07 + 0.8);
@@ -918,6 +920,8 @@ void main()
                     MirrorRuntimeDiagnosticToPlatformLog(CliffMacroProjectionDiagnostic);
                     std::cout << RidgeSkyFillDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(RidgeSkyFillDiagnostic);
+                    std::cout << RidgeOutcropDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(RidgeOutcropDiagnostic);
                     std::cout << CoastalCliffFillDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(CoastalCliffFillDiagnostic);
                 } else {

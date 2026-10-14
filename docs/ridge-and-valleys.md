@@ -1,5 +1,25 @@
 # Asymmetric interior ridges and drainage
 
+## 2026-10-14 measured-slope outcrop refinement
+
+The high overview audit found that the preceding outcrop breakup still let broad noise move the
+rock threshold far enough to produce large dark spots on gentle interior shoulders. Exposure now
+follows measured slope more closely: broad and medium fields perturb the threshold only lightly,
+and a stronger share of the existing medium projected mottle breaks each truly steep outcrop into
+smaller connected mineral regions. Minimum inland exposure falls from 16% to 4.5%; the coastal
+field still raises that same value to 88%, so the salt-worn headland remains a continuous cliff.
+
+No texture, noise evaluation, vertex, terrain cell, collision shape or draw is added. Identical
+native overview baseline/final evidence is `20261014T161807.844403Z-overview` and
+`20261014T162029.661645Z-overview`; coastal regression evidence is
+`20261014T161833.419961Z-headland` and `20261014T162057.573757Z-headland`. All four were inspected.
+The revised overview keeps more soil/turf continuity on the ridge shoulders while retaining rock
+on the actual high face; the close headland preserves its mineral wall, bedding and open-sky fill.
+Focused Chrome/SwiftShader evidence `20261014T162348.342986Z-chrome-cliffs` passes inspected east
+and headland frames, 60 finite positive intervals per view, GL error zero, an intact context and
+an empty kernel delta. The default arm64 APK assembles and application lint passes through the
+two-worker wrapper without starting an emulator; Android runtime appearance remains unqualified.
+
 ## 2026-10-14 irregular exposed-rock follow-up
 
 A fresh overview/east/headland audit selected the broad inland ridge face as the weakest
