@@ -1,5 +1,30 @@
 # Monkey fur material
 
+## Lower compact torso and restrained tail root — 2026-10-14
+
+A renewed close side audit found that the fur and quadrupedal gait were working, but the trunk
+still read as one oversized level capsule: its shoulder crown hid much of the head, the rump was
+too deep, and the 105 mm tail root overpowered the rear silhouette. The same thirteen loft
+stations now use a lower, narrower rump, pinched waist and restrained shoulder crown. The final
+three neck rings taper earlier and lower, separating the existing cranium and short face from the
+body in profile. Limb roots, mantles, bone positions and grounded gait remain unchanged.
+
+The tail surface now starts at 85 mm and retains a 40 mm base term through the hook, versus the
+former 105/45 mm profile. It remains furry, monotonic, closed, forward-hooked and considerably
+thicker than a rat tail. This is a coordinate-only pass: near/far vertices and triangles, the
+fourteen-bone palette, three silhouettes, fur atlas, seven-agent behaviour, tree contacts and draw
+count are unchanged. Native baseline `20261014T163309.185140Z-monkeys` and accepted unobscured
+`20261014T163843.925205Z-monkeys` were inspected. A first after image at `163723.540083Z` passed
+technical checks but was rejected as visual evidence because a foreground leaf occluded the body.
+The nine-frame tree/contact sequence `20261014T163942.103326Z-monkey-tree` was inspected as a
+montage and keeps the smaller trunk, head separation, tail taper, hand contacts and connected limbs
+through the complete scripted cycle.
+Focused Chrome/SwiftShader evidence `20261014T164321.751230Z-chrome-monkeys` passes its initial,
+four intermediate and final frames, all inspected together. Sixty intervals are finite and
+positive, GL error is zero, the context remains live and the kernel delta is empty. The default
+arm64 APK assembles and application lint passes through the two-worker wrapper without starting an
+emulator; Android runtime appearance remains unqualified.
+
 ## Body-rooted joint mantles and compact tail arc — 2026-10-14
 
 The post-turtle visual audit still found the monkey's rear view rodent-like: the four

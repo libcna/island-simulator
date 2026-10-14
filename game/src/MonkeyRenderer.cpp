@@ -657,18 +657,18 @@ namespace island
             const float w = shape.width;
             const std::array<BodySection, 13> body{{
                 {Vector3(0, .60f, -.50f), .008f, .015f, Pelvis, Spine, 0},
-                {Vector3(0, .61f, -.45f), .170f*w, .195f, Pelvis, Spine, 0},
-                {Vector3(0, .63f, -.36f), .235f*w, .245f, Pelvis, Spine, .05f},
-                {Vector3(0, .65f, -.25f), .250f*w, .265f, Pelvis, Spine, .18f},
-                {Vector3(0, .66f, -.13f), .230f*w, .250f, Pelvis, Spine, .42f},
-                {Vector3(0, .67f, -.01f), .195f*w, .218f, Pelvis, Spine, .72f},
-                {Vector3(0, .68f, .11f), .215f*w, .238f, Pelvis, Spine, 1},
-                {Vector3(0, .70f, .21f), .255f*w, .272f, Spine, Head, .03f},
-                {Vector3(0, .73f, .30f), .245f*w, .260f, Spine, Head, .27f},
-                {Vector3(0, .77f, .37f), .205f*w, .220f, Spine, Head, .56f},
-                {Vector3(0, .80f, .42f), .145f*w, .170f, Spine, Head, .86f},
-                {Vector3(0, .82f, .46f), .080f*w, .100f, Spine, Head, 1},
-                {Vector3(0, .83f, .49f), .008f, .015f, Spine, Head, 1}}};
+                {Vector3(0, .61f, -.45f), .145f*w, .160f, Pelvis, Spine, 0},
+                {Vector3(0, .63f, -.36f), .205f*w, .205f, Pelvis, Spine, .05f},
+                {Vector3(0, .65f, -.25f), .220f*w, .220f, Pelvis, Spine, .18f},
+                {Vector3(0, .66f, -.13f), .200f*w, .205f, Pelvis, Spine, .42f},
+                {Vector3(0, .67f, -.01f), .170f*w, .190f, Pelvis, Spine, .72f},
+                {Vector3(0, .68f, .11f), .185f*w, .205f, Pelvis, Spine, 1},
+                {Vector3(0, .69f, .21f), .225f*w, .225f, Spine, Head, .03f},
+                {Vector3(0, .71f, .30f), .215f*w, .215f, Spine, Head, .27f},
+                {Vector3(0, .74f, .37f), .175f*w, .180f, Spine, Head, .56f},
+                {Vector3(0, .77f, .42f), .110f*w, .130f, Spine, Head, .86f},
+                {Vector3(0, .79f, .45f), .055f*w, .075f, Spine, Head, 1},
+                {Vector3(0, .80f, .47f), .008f, .015f, Spine, Head, 1}}};
             AddBodyLoft(mesh, body, segments);
             const auto centre=MonkeyFaceProfile::CraniumCentre;
             const auto radii=MonkeyFaceProfile::CraniumRadii;

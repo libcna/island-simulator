@@ -1504,6 +1504,7 @@ namespace island
                   << "island-simulator: monkey tree routes reject isolated canopy and mangroves\n"
                   << "island-simulator: near monkeys use bone-following finger and toe silhouettes\n"
                   << "island-simulator: near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail\n"
+                  << "island-simulator: near monkeys use a lower tapered trunk, separated crown, and restrained furry tail root\n"
                   << "island-simulator: monkey shoulder and hip mantles blend the trunk into all four animated limbs\n"
                   << "island-simulator: near monkey tails keep a compact muscular hook and thirty-six raised fur clumps\n"
                   << "island-simulator: near monkey faces use paired fur cheek ruffs around the skin mask\n"

@@ -60,6 +60,27 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — compact monkey body silhouette
+
+The renewed close animal audit found that the monkey's fur and quadrupedal motion worked, but its
+thirteen-ring trunk remained too deep and level: the shoulder crown hid the head, the rump dominated
+the profile and the 105 mm tail root was oversized. The same loft now uses a lower/narrower rump,
+pinched waist, restrained shoulder crown and an earlier, lower neck taper that separates the
+existing cranium from the body. The tail root falls to 85 mm while retaining a 40 mm base term,
+monotonic furry taper, forward hook and closed tip. Limb roots, joint mantles, bones and gait are
+unchanged.
+
+This coordinate-only pass preserves all near/far geometry budgets, fourteen-bone palette, three
+silhouettes, fur atlas, seven-agent behaviour, tree contacts and draw counts. Native baseline
+`20261014T163309.185140Z-monkeys` and accepted clear side view
+`20261014T163843.925205Z-monkeys` were inspected. The first after image at `163723.540083Z` is
+technical-only because a foreground leaf occludes the subject. The full nine-frame
+`20261014T163942.103326Z-monkey-tree` sequence was inspected as a montage and retains connected
+hands/limbs, the compact body and restrained tail throughout the scripted contact cycle.
+Focused Chrome/SwiftShader `20261014T164321.751230Z-chrome-monkeys` passes six inspected movement
+frames, 60 finite positive intervals, GL error zero, intact context and empty kernel delta. Default
+arm64 assemble/lint passes through the two-worker wrapper without emulator execution.
+
 ## Latest visual-audit implementation — measured-slope ridge outcrops
 
 The current overview/headland audit found that broad noise still moved the inland rock threshold
