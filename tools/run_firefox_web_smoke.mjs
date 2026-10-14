@@ -337,6 +337,7 @@ try {
     "island-simulator: selected near canopy variants include hanging leafy lianas",
     "island-simulator: palm per-instance frond tint reuses existing transforms",
     "island-simulator: selected palm near crowns include sparse hanging dry fronds",
+    "island-simulator: palm far crowns retain twelve arched ribbons and two narrow emerging spears",
     "island-simulator: near fallen logs use irregular broken end contours",
     "island-simulator: near fallen-log end grain uses restrained radial cracks",
     "island-simulator: rock per-instance tint reuses existing transforms",

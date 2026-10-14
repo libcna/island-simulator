@@ -853,6 +853,8 @@ def main():
                 raise RuntimeError("current prevailing wind is missing; check for a stale executable")
             if "palm crowns use dense narrow leaflets, irregular arcs, and emerging spear fronds" not in diagnostics:
                 raise RuntimeError("current palm crown refinement is missing; check for a stale executable")
+            if "palm far crowns retain twelve arched ribbons and two narrow emerging spears" not in diagnostics:
+                raise RuntimeError("current palm far-crown silhouette is missing; check for a stale executable")
             if "sky adds shared-haze horizon, warm sun glow and eleven fixed distant cumulus masses" not in diagnostics:
                 raise RuntimeError("current sky atmosphere is missing; check for a stale executable")
             if "sky horizon locks to shared aerial haze above the below-horizon skirt" not in diagnostics:

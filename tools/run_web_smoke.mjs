@@ -841,6 +841,7 @@ try {
               && /snakes (?:[1-9]|[1-4][0-9]|50)\/50 visible, 1 draw/.test(log)))
             && (!focusedClimbCheck || log.includes("monkey climb held summit presented after eight cycle stages"))
             && (!focusedPalmCheck || (log.includes("palm crowns use dense narrow leaflets, irregular arcs, and emerging spear fronds")
+              && log.includes("palm far crowns retain twelve arched ribbons and two narrow emerging spears")
               && /palms [1-9][0-9]*\/327 \(near [1-9][0-9]*, far [0-9]+\)/.test(log)))
             && (!focusedCliffCheck || (log.includes("terrain steep faces use dominant-axis rock projection with broken bedding and joints")
               && log.includes("inland ridge rock starts on sustained slopes and retains cool sky fill in fixed-sun shade")))
@@ -1100,6 +1101,8 @@ try {
       "island-simulator: palm near leaflets use staggered asymmetric silhouettes")
     && result.output?.includes(
       "island-simulator: palm crowns use dense narrow leaflets, irregular arcs, and emerging spear fronds")
+    && result.output?.includes(
+      "island-simulator: palm far crowns retain twelve arched ribbons and two narrow emerging spears")
     && result.output?.includes(
       "island-simulator: palm near geometry uses fixed-sun facet shading")
     && result.output?.includes("palm near root ridges ground flared trunk bases")
@@ -1691,6 +1694,8 @@ try {
       "island-simulator: palm near leaflets use staggered asymmetric silhouettes")
     && palmResult.output?.includes(
       "island-simulator: palm crowns use dense narrow leaflets, irregular arcs, and emerging spear fronds")
+    && palmResult.output?.includes(
+      "island-simulator: palm far crowns retain twelve arched ribbons and two narrow emerging spears")
     && palmResult.output?.includes(
       "island-simulator: palm near geometry uses fixed-sun facet shading")
     && palmResult.output?.includes("palm near root ridges ground flared trunk bases")

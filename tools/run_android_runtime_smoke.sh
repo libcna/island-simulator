@@ -378,6 +378,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: palm near leaflets use staggered asymmetric silhouettes" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: palm far crowns retain twelve arched ribbons and two narrow emerging spears" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: palm near geometry uses fixed-sun facet shading" \
             "$LOG_FILE" \
         && grep -q "island-simulator: selected palm near crowns include sparse hanging dry fronds" \

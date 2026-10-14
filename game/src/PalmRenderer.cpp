@@ -483,8 +483,8 @@ void main()
         void AppendFronds(PalmGeometry& geometry, const int variant, const bool farMesh,
                           const float crownX, const float crownY, const float crownZ)
         {
-            const int segments = farMesh ? 4 : 9;
-            const int frondCount = farMesh ? 9 : 12 + variant % 3;
+            const int segments = farMesh ? 5 : 9;
+            const int frondCount = farMesh ? 12 : 12 + variant % 3;
             const float rotation = static_cast<float>(variant) * 0.41f;
             for (int frond = 0; frond < frondCount; ++frond) {
                 const float angleJitter = 0.12f * std::sin(
@@ -494,8 +494,9 @@ void main()
                     * static_cast<float>(frond) / static_cast<float>(frondCount) + angleJitter;
                 const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
                 const Vector3 side(-direction.Z, 0.0f, direction.X);
-                const bool emerging = !farMesh
-                    && (frond == variant % 3 || frond == frondCount / 2 + variant % 2);
+                const bool emerging = farMesh
+                    ? frond >= frondCount - 2
+                    : (frond == variant % 3 || frond == frondCount / 2 + variant % 2);
                 const float matureLength = 3.85f + 0.31f
                     * static_cast<float>((frond * 3 + variant) % 5);
                 const float length = matureLength * (emerging ? 0.76f : 1.0f);
@@ -528,7 +529,7 @@ void main()
                     const float width = segment == segments
                         ? (farMesh ? 0.035f : 0.018f)
                         : (farMesh
-                               ? 0.12f + 0.61f
+                               ? (emerging ? 0.055f : 0.12f) + (emerging ? 0.22f : 0.61f)
                                    * std::pow(std::sin(t * std::numbers::pi_v<float>), 0.62f)
                                : 0.035f + 0.075f
                                    * std::pow(std::sin(t * std::numbers::pi_v<float>), 0.70f));
@@ -833,6 +834,10 @@ void main()
                 "island-simulator: palm crowns use dense narrow leaflets, irregular arcs, and emerging spear fronds";
             std::cout << crownDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(crownDiagnostic);
+            constexpr const char* farCrownDiagnostic =
+                "island-simulator: palm far crowns retain twelve arched ribbons and two narrow emerging spears";
+            std::cout << farCrownDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(farCrownDiagnostic);
             constexpr const char* lightingDiagnostic =
                 "island-simulator: palm near geometry uses fixed-sun facet shading";
             std::cout << lightingDiagnostic << '\n';

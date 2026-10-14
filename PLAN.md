@@ -122,7 +122,23 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — wooded distant-islet silhouettes
+## Latest visual-audit implementation — retained far-palm crown volume
+
+The beach/bay vegetation review found the detailed nearby palms strong, but the cheaper palms
+across the bay collapsed into nine sparse curved ribs and lost the crown volume already established
+by the near LOD. The shared far mesh now retains twelve five-segment arched ribbons, including two
+narrow upright emerging spears. Near geometry, placement, wind, instance transforms, LOD distance,
+collision, culling and draw count are unchanged; the bounded addition is 48 triangles per visible
+far instance rather than another renderer or texture.
+
+Native before/after evidence from the identical palm camera is
+`build-consumer/software-captures/20261014T072721.206711Z-palms` and
+`20261014T073321.194250Z-palms`; the final frame passes with 274 colour bins, 38.26 luminance
+deviation and 139.17 spatial contrast. The matching Chrome/SwiftShader `palms` scope passes 60
+clean intervals with zero GL error or context loss and an inspected frame at
+`build/browser-software/20261014T073528.337237Z-chrome-palms`.
+
+## Previous visual-audit implementation — wooded distant-islet silhouettes
 
 The distant-landscape audit found the two visible horizon islets reading as low triangular plates
 with only one to three stick-like palms. Their existing single portable batch now uses an 18-sided,
