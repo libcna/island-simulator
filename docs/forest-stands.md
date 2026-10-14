@@ -1,4 +1,4 @@
-# Forest stands, emergent trees and saplings
+# Forest stands, emergent trees, saplings and standing deadwood
 
 2026-10-10, from the macro-geography analysis items 7 and 8: the canopy was an even 14.5 m
 jittered lattice with mild cluster noise, so from above the forest read as a park of separate
@@ -20,6 +20,14 @@ trees of one height.
   neighbour within 18 m. The default world contains 16; no tree, mesh, buffer or draw is added.
   Their root collision shrinks conservatively with the trunk. Monkeys do not select them as
   closed-canopy climbing trees, and the seven qualified climbing-home indices remain adult.
+- Standing deadwood: twelve separate deterministic placements are selected only after every live
+  vegetation layer is complete. Each must be on dry stable inland ground, have at least two mature
+  canopy neighbours within 25 m, keep the complete route/clearing envelope open, avoid living
+  trunks and the full authored bush/forest-floor footprints, and stay separated from other snags.
+  Their obstacles are appended after the canopy prefix so canopy-index consumers stay stable.
+  Two shared silhouettes use bent tapered stems, asymmetric thick broken branches, a short lower
+  scar, desaturated sun-bleached bark and pale uneven fracture caps. Near/far meshes are instanced,
+  cell-culled and bounded by the same terrain-grounded renderer path as living jungle plants.
 
 Resulting default population: 277 canopy trees (was 281), 22 emergents, 223 trees with at least
 three neighbours within 20 m, 9 solitary. Downstream layouts that avoid trunks shifted slightly:
@@ -49,4 +57,14 @@ sapling passes in both forced tiers at `20261014T204128.524263Z-canopy` and
 60 positive finite intervals, GL error zero and no context loss. The ARM64 debug APK assembles and
 contains the diagnostic; device runtime remains unclaimed. The core regression first caught, then
 prevented, loss of the ordinary monkey climb path. Standing dead and broken trunks remain outside
-this pass.
+the sapling pass but are now covered by the later native detail evidence
+`build-consumer/software-captures/20261014T211429.632358Z-snags`. The first image exposed a dark,
+thin-armed pole silhouette; the inspected final image has thicker asymmetric stubs, a blunter
+broken crown and lighter deadwood separation. Core regressions pin all twelve placements, habitat,
+route clearance, living-trunk separation, collision extent and determinism. Chrome/SwiftShader
+subsequently passes the dedicated
+`build/browser-software/20261014T212223.406022Z-chrome-snags` view: the inspected frame matches
+native, all 60 intervals are positive and finite, GL error is zero, the context remains live and
+the kernel delta is empty. The ARM64 debug APK assembles to 24,012,115 bytes with SHA-256
+`2c20f565aca42f90d424ca393f87841ae7c8e57e5d5d872de8726547b658ea01`; no emulator or KVM was
+started, so physical GLES runtime evidence is still not claimed.

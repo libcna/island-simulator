@@ -269,6 +269,7 @@ namespace
         }
 
         HashScaledPlacements(hash, std::span(world.jungle.Canopy()));
+        HashScaledPlacements(hash, std::span(world.jungle.StandingSnags()));
         HashScaledPlacements(hash, std::span(world.jungle.Understory()));
         HashScaledPlacements(hash, std::span(world.jungle.Bushes()));
         HashScaledPlacements(hash, std::span(world.jungle.GroundPlants()));
@@ -596,6 +597,8 @@ namespace
             && world.grass.Patches().size() <= 40000U
             && world.jungle.Canopy().size() >= 100U
             && world.jungle.Canopy().size() <= 600U
+            && world.jungle.StandingSnags().size()
+                == static_cast<std::size_t>(island::JungleLayout::StandingSnagTargetCount)
             && world.jungle.Understory().size() >= 800U
             && world.jungle.Understory().size() <= 4000U
             && world.jungle.Bushes().size() >= 150U
@@ -615,7 +618,8 @@ namespace
             && world.props.ReefHabitat().size() >= 180U
             && world.props.ReefHabitat().size() <= 380U;
         const bool derivedCountsAgree = world.palms.Obstacles().size() == world.palms.Palms().size()
-            && world.jungle.Obstacles().size() == world.jungle.Canopy().size()
+            && world.jungle.Obstacles().size()
+                == world.jungle.Canopy().size() + world.jungle.StandingSnags().size()
             && world.collisionGrid.Obstacles().size() == world.worldObstacles.size()
             && world.wildlifeCollisionGrid.Obstacles().size() == world.worldObstacles.size()+1U
             && world.birds.Birds().size() == island::BirdFlock::BirdCount
@@ -648,6 +652,7 @@ namespace
         const bool finitePlacements = ScaledPlacementsAreFinite(
                 std::span(world.palms.Palms()))
             && ScaledPlacementsAreFinite(std::span(world.jungle.Canopy()))
+            && ScaledPlacementsAreFinite(std::span(world.jungle.StandingSnags()))
             && ScaledPlacementsAreFinite(std::span(world.jungle.Understory()))
             && ScaledPlacementsAreFinite(std::span(world.jungle.Bushes()))
             && ScaledPlacementsAreFinite(std::span(world.jungle.GroundPlants()))
@@ -1012,6 +1017,8 @@ namespace
         const island::RenderedTerrainSurface renderedSurface(world.terrain);
         output << "    \"canopy\": ";
         WriteRootGaps(output, world.jungle.Canopy(), renderedSurface);
+        output << ",\n    \"standingSnags\": ";
+        WriteRootGaps(output, world.jungle.StandingSnags(), renderedSurface);
         output << ",\n    \"understory\": ";
         WriteRootGaps(output, world.jungle.Understory(), renderedSurface);
         output << ",\n    \"bushes\": ";
@@ -1020,6 +1027,8 @@ namespace
         WriteRootGaps(output, world.jungle.GroundPlants(), renderedSurface);
         output << "\n  },\n  \"renderedJungleRootGaps\": {\n    \"canopy\": ";
         WriteRootGaps(output, world.jungle.Canopy(), renderedSurface, true);
+        output << ",\n    \"standingSnags\": ";
+        WriteRootGaps(output, world.jungle.StandingSnags(), renderedSurface, true);
         output << ",\n    \"understory\": ";
         WriteRootGaps(output, world.jungle.Understory(), renderedSurface, true);
         output << ",\n    \"bushes\": ";
@@ -1031,6 +1040,7 @@ namespace
                << "    \"palms\": " << world.palms.Palms().size() << ",\n"
                << "    \"grassPatches\": " << world.grass.Patches().size() << ",\n"
                << "    \"canopyTrees\": " << world.jungle.Canopy().size() << ",\n";
+        output << "    \"standingSnags\": " << world.jungle.StandingSnags().size() << ",\n";
         output << "    \"mangroves\": " << world.jungle.MangroveCount() << ",\n";
         output << "    \"reefHabitat\": " << world.props.ReefHabitat().size() << ",\n";
         // Outermost representatives reduce foreground canopy obstruction for the explicit

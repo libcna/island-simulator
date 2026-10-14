@@ -80,6 +80,7 @@
       ["palms", ["--viewpoint", "palms", "--debug-overlay"]],
       ["mangroves", ["--viewpoint", "mangroves", "--debug-overlay"]],
       ["jungle", ["--viewpoint", "jungle", "--debug-overlay"]],
+      ["snags", ["--viewpoint", "snags", "--debug-overlay"]],
       ["east", ["--viewpoint", "east", "--debug-overlay"]],
       ["clearing-edge", ["--viewpoint", "clearing-edge", "--debug-overlay"]],
       ["west", ["--viewpoint", "west", "--debug-overlay"]],

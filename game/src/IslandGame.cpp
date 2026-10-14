@@ -88,6 +88,7 @@ namespace island
             case FixedViewpoint::BearDetail: return "bear";
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
+            case FixedViewpoint::StandingSnagDetail: return "snags";
             case FixedViewpoint::EastClearingDetail: return "east";
             case FixedViewpoint::ClearingEdgeDetail: return "clearing-edge";
             case FixedViewpoint::CanopyInspection: return "canopy";
@@ -393,6 +394,24 @@ namespace island
                                       pathZ);
             yaw_ = std::numbers::pi_v<float> * 0.5f;
             pitch_ = -0.065f;
+        } else if (viewpoint_ == FixedViewpoint::StandingSnagDetail) {
+            if (jungleLayout_.StandingSnags().empty())
+                throw std::runtime_error("Standing-snag QA camera found no target");
+            const auto& snag = jungleLayout_.StandingSnags().front();
+            const Vector3 forward(std::sin(snag.yawRadians), 0.0f,
+                                  std::cos(snag.yawRadians));
+            const Vector3 right(forward.Z, 0.0f, -forward.X);
+            const float cameraX = snag.x + forward.X * 7.2f + right.X * 2.8f;
+            const float cameraZ = snag.z + forward.Z * 7.2f + right.Z * 2.8f;
+            cameraPosition_ = Vector3(cameraX,
+                terrain_.Height(cameraX, cameraZ) + 3.0f, cameraZ);
+            const Vector3 target(snag.x, snag.y + 5.7f * snag.scale, snag.z);
+            const Vector3 direction = target - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+            std::cout << "island-simulator: standing-snag QA target variant="
+                      << static_cast<int>(snag.variant) << " scale=" << snag.scale
+                      << " position=" << snag.x << ',' << snag.y << ',' << snag.z << '\n';
         } else if (viewpoint_ == FixedViewpoint::EastClearingDetail) {
             const ClearingDefinition& clearing = VegetationLayout::EastClearing;
             cameraPosition_ = Vector3(clearing.x, terrain_.Height(clearing.x, clearing.z)
@@ -3627,6 +3646,8 @@ namespace island
                       << jungleRenderer_->TotalCanopyCount() << " canopy (near "
                       << jungleRenderer_->VisibleCanopyNearCount() << ", far "
                       << jungleRenderer_->VisibleCanopyFarCount() << "), "
+                      << jungleRenderer_->VisibleStandingSnagCount() << '/'
+                      << jungleRenderer_->TotalStandingSnagCount() << " standing snags, "
                       << jungleRenderer_->VisibleUnderstoryCount() << '/'
                       << jungleRenderer_->TotalUnderstoryCount() << " understory (near "
                       << jungleRenderer_->VisibleUnderstoryNearCount() << ", far "

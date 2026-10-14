@@ -74,6 +74,8 @@ namespace island
     namespace
     {
         constexpr float CanopyMaximumDistance = 475.0f;
+        constexpr float StandingSnagNearDistance = 74.0f;
+        constexpr float StandingSnagMaximumDistance = 310.0f;
         constexpr float UnderstoryNearDistance = 58.0f;
         constexpr float UnderstoryMaximumDistance = 128.0f;
         constexpr float BushNearDistance = 44.0f;
@@ -633,6 +635,138 @@ void main()
                 }
             }
             FinishWoodNormals(geometry, base, firstIndex, outwardDirections, false);
+        }
+
+        void AppendStandingSnagSection(PlantGeometry& geometry, const Vector3& start,
+                                       const Vector3& end, const Vector3& bow,
+                                       const float startRadius, const float endRadius,
+                                       const Color& bark, const bool farMesh,
+                                       const float phase, const bool jaggedTip)
+        {
+            const int rings = farMesh ? 4 : 7;
+            const int sides = farMesh ? 6 : 10;
+            const Vector3 axis = Vector3::Normalize(end - start);
+            Vector3 right = Vector3::Cross(Vector3::Up, axis);
+            if (right.LengthSquared() < 1.0e-6f) right = Vector3::Right;
+            else right = Vector3::Normalize(right);
+            const Vector3 aroundUp = Vector3::Normalize(Vector3::Cross(right, axis));
+            const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+            const auto firstIndex = geometry.indices.size();
+            std::vector<Vector3> outwardDirections;
+            float along = 0.0f;
+            Vector3 previous = start;
+            for (int ring = 0; ring < rings; ++ring) {
+                const float t = static_cast<float>(ring) / static_cast<float>(rings - 1);
+                const Vector3 centre = start + (end - start) * t
+                    + bow * std::sin(t * std::numbers::pi_v<float>);
+                if (ring > 0) along += Vector3::Distance(previous, centre);
+                previous = centre;
+                const float rootFlare = 1.0f + .27f * std::pow(1.0f - t, 5.0f);
+                const float radius = std::lerp(startRadius, endRadius, t) * rootFlare;
+                for (int side = 0; side < sides; ++side) {
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(side) / static_cast<float>(sides);
+                    const Vector3 outward = right * std::cos(angle)
+                        + aroundUp * std::sin(angle);
+                    const float split = jaggedTip && ring + 1 == rings
+                        ? .075f * std::sin(angle * 3.0f + phase * 7.0f)
+                            + .035f * std::cos(angle * 5.0f - phase * 4.0f)
+                        : 0.0f;
+                    geometry.vertices.emplace_back(
+                        centre + outward * radius + axis * split,
+                        ShadeColor(bark, .72f + .22f * std::max(0.0f, outward.Y)
+                            + .05f * std::cos(angle - .4f)),
+                        Vector2(0.0f, phase));
+                    SetWoodAlbedo(geometry, bark, angle, along + split);
+                    outwardDirections.push_back(outward);
+                }
+            }
+            for (int ring = 0; ring + 1 < rings; ++ring) {
+                for (int side = 0; side < sides; ++side) {
+                    const int next = (side + 1) % sides;
+                    const auto lower = static_cast<std::uint16_t>(base + ring * sides + side);
+                    const auto lowerNext = static_cast<std::uint16_t>(base + ring * sides + next);
+                    const auto upper = static_cast<std::uint16_t>(lower + sides);
+                    const auto upperNext = static_cast<std::uint16_t>(lowerNext + sides);
+                    geometry.indices.insert(geometry.indices.end(),
+                        {lower, upper, lowerNext, lowerNext, upper, upperNext});
+                }
+            }
+            FinishWoodNormals(geometry, base, firstIndex, outwardDirections, false);
+
+            // A pale, uneven fracture plane keeps the silhouette recognisably storm-broken
+            // instead of reading as a pole whose crown failed to render.
+            const Color fracture(171, 157, 128, 255);
+            const auto capCentre = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(end - axis * .025f, fracture, Vector2(0.0f, phase));
+            SetWoodAlbedo(geometry, fracture, 0.0f, along);
+            geometry.leaves.back().normal = axis;
+            for (int side = 0; side < sides; ++side) {
+                const float angle = 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(side) / static_cast<float>(sides);
+                const Vector3 outward = right * std::cos(angle) + aroundUp * std::sin(angle);
+                const float split = jaggedTip
+                    ? .075f * std::sin(angle * 3.0f + phase * 7.0f)
+                        + .035f * std::cos(angle * 5.0f - phase * 4.0f)
+                    : 0.0f;
+                geometry.vertices.emplace_back(
+                    end + outward * endRadius + axis * split,
+                    ShadeColor(fracture, .90f + .08f * std::cos(angle)),
+                    Vector2(0.0f, phase));
+                SetWoodAlbedo(geometry, fracture, angle, along + split);
+                geometry.leaves.back().normal = axis;
+            }
+            for (int side = 0; side < sides; ++side) {
+                const auto current = static_cast<std::uint16_t>(capCentre + 1 + side);
+                const auto next = static_cast<std::uint16_t>(
+                    capCentre + 1 + (side + 1) % sides);
+                geometry.indices.insert(geometry.indices.end(), {capCentre, next, current});
+            }
+        }
+
+        [[nodiscard]] PlantGeometry CreateStandingSnagGeometry(const int variant,
+                                                               const bool farMesh)
+        {
+            PlantGeometry geometry;
+            geometry.vertices.reserve(farMesh ? 150U : 330U);
+            geometry.indices.reserve(farMesh ? 500U : 1050U);
+            // Standing dead wood is sun-bleached and desaturated; it must separate from the
+            // almost-black live trunks even under dense canopy transmission.
+            const Color bark = variant == 0 ? Color(139, 130, 112, 255)
+                                             : Color(114, 106, 92, 255);
+            const float height = variant == 0 ? 10.6f : 8.8f;
+            AppendStandingSnagSection(geometry, Vector3::Zero,
+                Vector3(.20f, height, -.16f),
+                Vector3(variant == 0 ? .23f : -.30f, 0.0f,
+                        variant == 0 ? .14f : .24f),
+                variant == 0 ? .52f : .58f, variant == 0 ? .28f : .30f,
+                bark, farMesh, .13f + .31f * variant, true);
+            AppendStandingSnagSection(geometry,
+                Vector3(.08f, variant == 0 ? 5.0f : 4.35f, -.06f),
+                Vector3(variant == 0 ? 2.05f : -1.75f,
+                        variant == 0 ? 7.15f : 6.25f,
+                        variant == 0 ? .72f : 1.15f),
+                Vector3(0.0f, .12f, variant == 0 ? .18f : -.16f),
+                .25f, .12f, bark, farMesh, .51f + .11f * variant, true);
+            if (!farMesh || variant == 1) {
+                AppendStandingSnagSection(geometry,
+                    Vector3(.14f, variant == 0 ? 7.15f : 5.85f, -.10f),
+                    Vector3(variant == 0 ? -1.23f : 1.34f,
+                            variant == 0 ? 8.38f : 7.35f,
+                            variant == 0 ? 1.32f : -.86f),
+                    Vector3(variant == 0 ? -.10f : .14f, .08f, .08f),
+                    .20f, .10f, bark, farMesh, .73f + .09f * variant, true);
+            }
+            if (!farMesh) {
+                AppendStandingSnagSection(geometry,
+                    Vector3(.04f, variant == 0 ? 3.25f : 3.55f, -.03f),
+                    Vector3(variant == 0 ? -.72f : .82f,
+                            variant == 0 ? 4.04f : 4.38f,
+                            variant == 0 ? -.82f : .56f),
+                    Vector3(.05f, .04f, variant == 0 ? -.08f : .09f),
+                    .16f, .078f, bark, false, .34f + .17f * variant, true);
+            }
+            return geometry;
         }
 
         void AppendLeafCluster(PlantGeometry& geometry, const Vector3& centre,
@@ -1390,6 +1524,11 @@ void main()
                   << '\n';
         std::cout << "island-simulator: jungle ground layer " << totalGroundPlantCount_
                   << " small plants\n";
+        const std::string snagDiagnostic = "island-simulator: forest age structure includes "
+            + std::to_string(totalStandingSnagCount_)
+            + " standing dead/broken trunks with fracture caps, branch stubs and two-tier LOD";
+        std::cout << snagDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(snagDiagnostic);
         constexpr const char* understoryProfileDiagnostic =
             "island-simulator: understory leaf identities share asymmetric posture and curled profiles across LOD";
         std::cout << understoryProfileDiagnostic << '\n';
@@ -1688,6 +1827,20 @@ void main()
             std::cout << diagnostic.str() << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(diagnostic.str());
         }
+        for (std::size_t variant = 0; variant < standingSnagNearMeshes_.size(); ++variant) {
+            upload(CreateStandingSnagGeometry(static_cast<int>(variant), false),
+                   standingSnagNearMeshes_[variant], "standing snag near LOD");
+            upload(CreateStandingSnagGeometry(static_cast<int>(variant), true),
+                   standingSnagFarMeshes_[variant], "standing snag far LOD");
+            std::ostringstream diagnostic;
+            diagnostic << "island-simulator: standing snag variant=" << variant
+                       << " near-vertices=" << standingSnagNearMeshes_[variant].vertexCount
+                       << " near-triangles=" << standingSnagNearMeshes_[variant].primitiveCount
+                       << " far-vertices=" << standingSnagFarMeshes_[variant].vertexCount
+                       << " far-triangles=" << standingSnagFarMeshes_[variant].primitiveCount;
+            std::cout << diagnostic.str() << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(diagnostic.str());
+        }
         for (std::size_t variant = 0; variant < understoryNearMeshes_.size(); ++variant) {
             upload(CreateUnderstoryGeometry(static_cast<int>(variant), false),
                    understoryNearMeshes_[variant], "understory near LOD");
@@ -1777,6 +1930,19 @@ void main()
             extendBounds(cell, bounds.Min, bounds.Max);
             ++totalCanopyCount_;
         }
+        for (const StandingSnagPlacement& source : layout.StandingSnags()) {
+            const auto snag = GroundJunglePlacement(source, *surface);
+            JungleCell& cell = cells_[CellIndex(snag.x, snag.z)];
+            cell.standingSnags.push_back({Matrix::CreateScale(snag.scale)
+                                              * Matrix::CreateRotationY(snag.yawRadians)
+                                              * Matrix::CreateTranslation(snag.x, snag.y, snag.z),
+                                          snag.variant, snag.x, snag.z,
+                                          StandingSnagNearDistance * StandingSnagNearDistance});
+            extendMeshBounds(cell, snag.x, snag.y, snag.z, snag.scale,
+                             standingSnagNearMeshes_[snag.variant],
+                             standingSnagFarMeshes_[snag.variant]);
+            ++totalStandingSnagCount_;
+        }
         for (const UnderstoryPlacement& source : layout.Understory()) {
             const auto plant = GroundJunglePlacement(source, *surface);
             JungleCell& cell = cells_[CellIndex(plant.x, plant.z)];
@@ -1823,6 +1989,10 @@ void main()
         }
         for (auto& transforms : visibleCanopyNear_) transforms.reserve(layout.Canopy().size());
         for (auto& transforms : visibleCanopyFar_) transforms.reserve(layout.Canopy().size());
+        for (auto& transforms : visibleStandingSnagNear_)
+            transforms.reserve(layout.StandingSnags().size());
+        for (auto& transforms : visibleStandingSnagFar_)
+            transforms.reserve(layout.StandingSnags().size());
         for (auto& transforms : visibleUnderstoryNear_) transforms.reserve(layout.Understory().size());
         for (auto& transforms : visibleUnderstoryFar_) transforms.reserve(layout.Understory().size());
         for (auto& transforms : visibleBushNear_) transforms.reserve(layout.Bushes().size());
@@ -1876,6 +2046,8 @@ void main()
     {
         for (auto& transforms : visibleCanopyNear_) transforms.clear();
         for (auto& transforms : visibleCanopyFar_) transforms.clear();
+        for (auto& transforms : visibleStandingSnagNear_) transforms.clear();
+        for (auto& transforms : visibleStandingSnagFar_) transforms.clear();
         for (auto& transforms : visibleUnderstoryNear_) transforms.clear();
         for (auto& transforms : visibleUnderstoryFar_) transforms.clear();
         for (auto& transforms : visibleBushNear_) transforms.clear();
@@ -1883,6 +2055,7 @@ void main()
         for (auto& transforms : visibleGroundPlantNear_) transforms.clear();
         for (auto& transforms : visibleGroundPlantFar_) transforms.clear();
         visibleCanopyCount_ = 0;
+        visibleStandingSnagCount_ = 0;
         canopyFrustumRejectedCount_ = 0;
         visibleCanopyNearCount_ = 0;
         visibleCanopyFarCount_ = 0;
@@ -1901,6 +2074,8 @@ void main()
         int inspectionSubmissions = 0;
         const BoundingFrustum frustum(view * projection);
         const float canopyMaximumDistance = CanopyMaximumDistance * maximumDistanceScale_;
+        const float standingSnagMaximumDistance = StandingSnagMaximumDistance
+            * maximumDistanceScale_;
         const float understoryMaximumDistance = UnderstoryMaximumDistance * maximumDistanceScale_;
         const float bushMaximumDistance = BushMaximumDistance * maximumDistanceScale_;
         const float groundPlantMaximumDistance = GroundPlantMaximumDistance * maximumDistanceScale_;
@@ -1950,6 +2125,23 @@ void main()
                         ++visibleCanopyFarCount_;
                     }
                     ++visibleCanopyCount_;
+                    cellVisible = true;
+                }
+            }
+            if (cellDistanceSquared
+                <= standingSnagMaximumDistance * standingSnagMaximumDistance) {
+                for (const DrawInstance& instance : cell.standingSnags) {
+                    const float instanceDeltaX = instance.x - cameraPosition.X;
+                    const float instanceDeltaZ = instance.z - cameraPosition.Z;
+                    const float instanceDistanceSquared = instanceDeltaX * instanceDeltaX
+                        + instanceDeltaZ * instanceDeltaZ;
+                    if (instanceDistanceSquared
+                        > standingSnagMaximumDistance * standingSnagMaximumDistance) continue;
+                    const bool nearLod = instanceDistanceSquared
+                        <= instance.nearLodDistanceSquared;
+                    (nearLod ? visibleStandingSnagNear_ : visibleStandingSnagFar_)
+                        [instance.variant].push_back(instance.transform);
+                    ++visibleStandingSnagCount_;
                     cellVisible = true;
                 }
             }
@@ -2056,6 +2248,10 @@ void main()
             DrawInstances(canopyFarMeshes_[variant], visibleCanopyFar_[variant]);
         }
         if (customShaderReady_) customEffect_->SetUniformFloat("uReceiveCanopyLight", 1.0f);
+        for (std::size_t variant = 0; variant < standingSnagNearMeshes_.size(); ++variant) {
+            DrawInstances(standingSnagNearMeshes_[variant], visibleStandingSnagNear_[variant]);
+            DrawInstances(standingSnagFarMeshes_[variant], visibleStandingSnagFar_[variant]);
+        }
         for (std::size_t variant = 0; variant < understoryNearMeshes_.size(); ++variant) {
             DrawInstances(understoryNearMeshes_[variant], visibleUnderstoryNear_[variant]);
             DrawInstances(understoryFarMeshes_[variant], visibleUnderstoryFar_[variant]);

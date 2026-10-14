@@ -56,10 +56,18 @@ namespace island
         [[nodiscard]] bool UsesInstancing() const noexcept { return instancingSupported_; }
         [[nodiscard]] bool UsesCustomShader() const noexcept { return customShaderReady_; }
         [[nodiscard]] int TotalCanopyCount() const noexcept { return totalCanopyCount_; }
+        [[nodiscard]] int TotalStandingSnagCount() const noexcept
+        {
+            return totalStandingSnagCount_;
+        }
         [[nodiscard]] int TotalUnderstoryCount() const noexcept { return totalUnderstoryCount_; }
         [[nodiscard]] int TotalBushCount() const noexcept { return totalBushCount_; }
         [[nodiscard]] int TotalGroundPlantCount() const noexcept { return totalGroundPlantCount_; }
         [[nodiscard]] int VisibleCanopyCount() const noexcept { return visibleCanopyCount_; }
+        [[nodiscard]] int VisibleStandingSnagCount() const noexcept
+        {
+            return visibleStandingSnagCount_;
+        }
         [[nodiscard]] int CanopyFrustumRejectedCount() const noexcept { return canopyFrustumRejectedCount_; }
         [[nodiscard]] int VisibleCanopyNearCount() const noexcept
         {
@@ -132,6 +140,7 @@ namespace island
         {
             Microsoft::Xna::Framework::BoundingBox bounds;
             std::vector<CanopyInstance> canopy;
+            std::vector<DrawInstance> standingSnags;
             std::vector<DrawInstance> understory;
             std::vector<DrawInstance> bushes;
             std::vector<DrawInstance> groundPlants;
@@ -154,6 +163,8 @@ namespace island
         std::unique_ptr<LeafSurfaceMaterial> leafMaterial_;
         std::array<PlantMesh, JungleLayout::CanopyVariantCount> canopyNearMeshes_;
         std::array<PlantMesh, JungleLayout::CanopyVariantCount> canopyFarMeshes_;
+        std::array<PlantMesh, JungleLayout::StandingSnagVariantCount> standingSnagNearMeshes_;
+        std::array<PlantMesh, JungleLayout::StandingSnagVariantCount> standingSnagFarMeshes_;
         std::array<PlantMesh, JungleLayout::UnderstoryVariantCount> understoryNearMeshes_;
         std::array<PlantMesh, JungleLayout::UnderstoryVariantCount> understoryFarMeshes_;
         std::array<PlantMesh, JungleLayout::BushVariantCount> bushNearMeshes_;
@@ -165,6 +176,10 @@ namespace island
                    JungleLayout::CanopyVariantCount> visibleCanopyNear_;
         std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
                    JungleLayout::CanopyVariantCount> visibleCanopyFar_;
+        std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
+                   JungleLayout::StandingSnagVariantCount> visibleStandingSnagNear_;
+        std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
+                   JungleLayout::StandingSnagVariantCount> visibleStandingSnagFar_;
         std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
                    JungleLayout::UnderstoryVariantCount> visibleUnderstoryNear_;
         std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
@@ -182,10 +197,12 @@ namespace island
         bool customShaderReady_ = false;
         float maximumDistanceScale_ = 1.0f;
         int totalCanopyCount_ = 0;
+        int totalStandingSnagCount_ = 0;
         int totalUnderstoryCount_ = 0;
         int totalBushCount_ = 0;
         int totalGroundPlantCount_ = 0;
         int visibleCanopyCount_ = 0;
+        int visibleStandingSnagCount_ = 0;
         int canopyFrustumRejectedCount_ = 0;
         int visibleCanopyNearCount_ = 0;
         int visibleCanopyFarCount_ = 0;

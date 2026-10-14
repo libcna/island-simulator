@@ -121,6 +121,7 @@ namespace island
         BearDetail,
         BeachPath,
         JungleTrail,
+        StandingSnagDetail,
         EastClearingDetail,
         ClearingEdgeDetail,
         CanopyInspection,

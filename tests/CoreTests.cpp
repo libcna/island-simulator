@@ -5109,8 +5109,9 @@ int main()
               && jungle.Bushes().size() == repeatedJungle.Bushes().size()
               && jungle.GroundPlants().size() == repeatedJungle.GroundPlants().size(),
           "jungle populations are deterministic");
-    Check(jungle.Obstacles().size() == jungle.Canopy().size(),
-          "every broadleaf canopy trunk has one collision proxy");
+    Check(jungle.Obstacles().size()
+              == jungle.Canopy().size() + jungle.StandingSnags().size(),
+          "every broadleaf canopy and standing snag has one collision proxy");
     std::array<std::size_t, island::JungleLayout::CanopyVariantCount> canopyFormCounts{};
     std::size_t emergentCount = 0U;
     std::size_t juvenileCount = 0U;
@@ -5193,6 +5194,55 @@ int main()
     Check(mangroveCount == jungle.MangroveCount() && mangroveCount >= 15
               && mangroveCount <= 30,
           "one localized mangrove colony stays inside its requested population budget");
+    Check(jungle.StandingSnags().size()
+              == static_cast<std::size_t>(island::JungleLayout::StandingSnagTargetCount)
+              && jungle.StandingSnags().size() == repeatedJungle.StandingSnags().size(),
+          "standing dead and broken trunks meet their bounded deterministic population");
+    for (std::size_t index = 0; index < jungle.StandingSnags().size(); ++index) {
+        const auto& snag = jungle.StandingSnags()[index];
+        const auto& repeated = repeatedJungle.StandingSnags()[index];
+        const auto sample = terrain.Sample(snag.x, snag.z);
+        const auto environment = island::IslandEnvironmentField::SampleInland(
+            snag.x, snag.z, sample.signedShoreDistance);
+        const float rootRadius = .76f * snag.scale;
+        Check(snag.x == repeated.x && snag.y == repeated.y && snag.z == repeated.z
+                  && snag.yawRadians == repeated.yawRadians && snag.scale == repeated.scale
+                  && snag.variant == repeated.variant,
+              "standing snag placement is bitwise deterministic for one seed");
+        Check(snag.variant < island::JungleLayout::StandingSnagVariantCount
+                  && snag.scale >= island::JungleLayout::StandingSnagMinimumScale
+                  && snag.scale <= island::JungleLayout::StandingSnagMaximumScale,
+              "standing snag silhouette and scale remain inside the authored range");
+        Check(sample.signedShoreDistance >= 58.0f && sample.signedShoreDistance <= 232.0f
+                  && sample.height >= 4.0f && sample.slopeRadians <= .42f
+                  && sample.coastalRockiness <= .46f && environment.drainage <= .67f,
+              "standing snags remain on stable dry inland forest ground");
+        Check(!island::VegetationLayout::OverlapsReservedRoute(
+                  snag.x, snag.z, rootRadius),
+              "standing snag collision footprint leaves routes and clearings open");
+        int matureNeighbours = 0;
+        for (const auto& tree : jungle.Canopy()) {
+            const float distance = std::hypot(snag.x - tree.x, snag.z - tree.z);
+            if (tree.variant != island::MangroveCanopyVariant
+                && tree.scale >= island::JungleLayout::CanopyMinimumScale
+                && distance >= 3.0f && distance <= 25.0f) ++matureNeighbours;
+        }
+        Check(matureNeighbours >= 2,
+              "standing snags occur inside established multi-tree stands");
+        for (std::size_t treeIndex = 0; treeIndex < jungle.Canopy().size(); ++treeIndex) {
+            const auto& treeObstacle = jungle.Obstacles()[treeIndex];
+            Check(std::hypot(snag.x - treeObstacle.x, snag.z - treeObstacle.z)
+                      >= rootRadius + treeObstacle.radius + .85f,
+                  "standing snag roots do not intersect living canopy trunks");
+        }
+        const auto& obstacle = jungle.Obstacles()[jungle.Canopy().size() + index];
+        CheckNear(obstacle.x, snag.x, .0001f,
+                  "standing snag obstacle shares its visual x coordinate");
+        CheckNear(obstacle.z, snag.z, .0001f,
+                  "standing snag obstacle shares its visual z coordinate");
+        CheckNear(obstacle.radius, rootRadius, .0001f,
+                  "standing snag collision covers its visible root flare");
+    }
     {
         // Forest masses, not a park: most trees stand in closed groups, a few stand alone.
         std::size_t grouped = 0U, solitary = 0U;

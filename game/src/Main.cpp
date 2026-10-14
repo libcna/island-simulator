@@ -40,6 +40,7 @@ namespace
         case FixedViewpoint::BearDetail: return "bear";
         case FixedViewpoint::BeachPath: return "beach";
         case FixedViewpoint::JungleTrail: return "jungle";
+        case FixedViewpoint::StandingSnagDetail: return "snags";
         case FixedViewpoint::EastClearingDetail: return "east";
         case FixedViewpoint::ClearingEdgeDetail: return "clearing-edge";
         case FixedViewpoint::CanopyInspection: return "canopy";
@@ -145,7 +146,7 @@ int main(const int argc, char* argv[])
             viewpoint = island::FixedViewpoint::Overview;
         } else if (argument == "--viewpoint") {
             if (++index >= argc) {
-                std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, "
+                std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, snags, "
                              "east, headland, tide-pools, turtle-nest, cave, cave-inside, bunker, bunker-corridor, bunker-computers, bunker-reactor, bunker-service, bunker-end, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
                              "wet-sand, current, distant, props, driftwood, reef, reef-habitat, fronds, birds, fish, "
                              "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, helicopter, helicopter-inside, crabs, crocodiles, boars, goats, spiders, spiders-bright, spider-web, snakes, snake-head, butterflies, turtles, or traversal\n";
@@ -192,6 +193,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::BeachPath;
             } else if (name == "jungle") {
                 viewpoint = island::FixedViewpoint::JungleTrail;
+            } else if (name == "snags") {
+                viewpoint = island::FixedViewpoint::StandingSnagDetail;
             } else if (name == "east") {
                 viewpoint = island::FixedViewpoint::EastClearingDetail;
             } else if (name == "clearing-edge") {

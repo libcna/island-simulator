@@ -571,5 +571,78 @@ namespace island
             }
             ++clearingIndex;
         }
+
+        // A few upright remnants complete the forest age structure without replacing healthy
+        // canopy trees. Choose them only after every living layer has been composed, so their
+        // solid bases cannot silently intersect an existing plant root or change the established
+        // deterministic vegetation populations. Collision proxies are appended after the canopy
+        // prefix: callers that associate obstacle i with canopy i retain that stable mapping.
+        standingSnags_.reserve(StandingSnagTargetCount);
+        for (int candidate = 0;
+             candidate < StandingSnagCandidateCount
+                 && standingSnags_.size() < StandingSnagTargetCount;
+             ++candidate) {
+            const auto random = [&](const std::uint32_t channel) {
+                return UnitRandom(Hash(candidate, static_cast<std::int32_t>(channel),
+                    seed ^ (0x4f1bbcdcU + channel * 0x9e3779b9U)));
+            };
+            StandingSnagPlacement snag;
+            snag.x = (random(0) * 2.0f - 1.0f) * 198.0f;
+            snag.z = (random(1) * 2.0f - 1.0f) * 198.0f;
+            const auto sample = terrain.Sample(snag.x, snag.z);
+            const auto environment = IslandEnvironmentField::SampleInland(
+                snag.x, snag.z, sample.signedShoreDistance);
+            snag.scale = StandingSnagMinimumScale
+                + (StandingSnagMaximumScale - StandingSnagMinimumScale) * random(2);
+            const float rootRadius = .76f * snag.scale;
+            if (sample.signedShoreDistance < 58.0f || sample.signedShoreDistance > 232.0f
+                || sample.height < 4.0f || sample.slopeRadians > .42f
+                || sample.coastalRockiness > .46f || environment.drainage > .67f
+                || VegetationLayout::OverlapsReservedRoute(snag.x, snag.z, rootRadius)
+                || HutLayout::ReservesDecorativeClearing(snag.x, snag.z, rootRadius)) continue;
+
+            int matureNeighbours = 0;
+            for (const auto& tree : canopy_) {
+                if (tree.variant == MangroveCanopyVariant
+                    || tree.scale < CanopyMinimumScale) continue;
+                const float distance = std::hypot(snag.x - tree.x, snag.z - tree.z);
+                matureNeighbours += distance >= 3.0f && distance <= 25.0f ? 1 : 0;
+            }
+            if (matureNeighbours < 2) continue;
+            const bool clearOfSolidTrees = std::none_of(
+                obstacles_.begin(), obstacles_.end(), [&](const CircularObstacle& tree) {
+                    return std::hypot(snag.x - tree.x, snag.z - tree.z)
+                        < rootRadius + tree.radius + .85f;
+                });
+            const bool clearOfSnags = std::none_of(
+                standingSnags_.begin(), standingSnags_.end(), [&](const auto& other) {
+                    return std::hypot(snag.x - other.x, snag.z - other.z)
+                        < 7.0f + rootRadius + .76f * other.scale;
+                });
+            const bool clearOfUnderstory = std::none_of(
+                understory_.begin(), understory_.end(), [&](const auto& plant) {
+                    return std::hypot(snag.x - plant.x, snag.z - plant.z)
+                        < rootRadius + .30f * plant.scale;
+                });
+            const bool clearOfBushes = std::none_of(
+                bushes_.begin(), bushes_.end(), [&](const auto& bush) {
+                    return std::hypot(snag.x - bush.x, snag.z - bush.z)
+                        < rootRadius + BushFootprintRadius * bush.scale;
+                });
+            const bool clearOfFloor = std::none_of(
+                groundPlants_.begin(), groundPlants_.end(), [&](const auto& plant) {
+                    return std::hypot(snag.x - plant.x, snag.z - plant.z)
+                        < rootRadius + GroundPlantFootprintRadius * plant.scale;
+                });
+            if (!clearOfSolidTrees || !clearOfSnags || !clearOfUnderstory
+                || !clearOfBushes || !clearOfFloor) continue;
+            snag.y = sample.height;
+            snag.yawRadians = random(3) * 2.0f * std::numbers::pi_v<float>;
+            snag.variant = static_cast<std::uint8_t>(
+                candidate % StandingSnagVariantCount);
+            standingSnags_.push_back(snag);
+        }
+        for (const auto& snag : standingSnags_)
+            obstacles_.push_back({snag.x, snag.z, .76f * snag.scale});
     }
 }

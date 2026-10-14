@@ -3604,7 +3604,18 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   and broken trunks. 2026-10-10: 22 emergents (scale 1.60-1.85) promoted only inside closed
   stands. 2026-10-14: sixteen deterministic 3-6m saplings reuse the shared crown forms at
   scale 0.38-0.58 beside established stands without increasing population or draw count; monkey
-  climbing excludes them and remains regression-covered. Dead and broken trunks remain open.
+  climbing excludes them and remains regression-covered. The same day, twelve upright dead and
+  storm-broken trunks were added inside established multi-tree stands: two asymmetric silhouettes,
+  tapered bent stems, thick branch stubs, pale irregular fracture planes, sun-bleached bark,
+  root-covering collision proxies, cell culling and two-tier instanced LOD. Their placement is
+  generated only after living layers and excludes complete plant/route footprints, so it neither
+  changes the existing populations nor creates hidden collisions. Native `snags` detail capture
+  `20261014T211429.632358Z-snags` passes and was inspected after one silhouette refinement.
+  Chrome/SwiftShader `20261014T212223.406022Z-chrome-snags` then passes its dedicated view with
+  60 positive finite intervals, GL0, an intact context and clean kernel delta; its frame was
+  inspected. The ARM64 debug APK builds (24,012,115 bytes,
+  `2c20f565...58ea01`) without starting an emulator. Physical GLES runtime qualification and
+  bringing saplings down to the literal 2-5m band remain.
 - [~] 9. Palm distribution: large coconut groves at a few beaches, a few old solitary palms, fewer
   palms deep in the forest, young palms near adults, varied lean, some fallen or broken palms.
   2026-10-10 (`docs/palm-groves.md`): coastal grove field, juveniles beside adults, 370 palms
