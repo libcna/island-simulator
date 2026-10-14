@@ -414,6 +414,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: sky horizon locks to shared aerial haze above the below-horizon skirt" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: distant wooded islets use rounded stepped ridges, clustered low crowns, and broader palm silhouettes" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: coastal sand stays continuous below water with filtered seabed ripples" \
             "$LOG_FILE" \
         && grep -q "island-simulator: coastal contact patches follow rendered seabed triangles in the existing batch" \

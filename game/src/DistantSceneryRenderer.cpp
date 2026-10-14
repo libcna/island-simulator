@@ -2,6 +2,7 @@
 #include "IslandSimulator/DistantSceneryRenderer.hpp"
 
 #include "IslandSimulator/DistantSceneryLayout.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 
 #include <algorithm>
 #include <array>
@@ -9,6 +10,7 @@
 #include <cstddef>
 #include <iostream>
 #include <numbers>
+#include <string_view>
 #include <vector>
 
 #include "Microsoft/Xna/Framework/Color.hpp"
@@ -30,9 +32,11 @@ namespace island
 {
     namespace
     {
-        constexpr int RockSegments = 14;
-        constexpr std::array<float, 4> RingRadius = {1.0f, 0.94f, 0.70f, 0.39f};
-        constexpr std::array<float, 4> RingHeight = {-0.18f, 0.03f, 0.38f, 0.74f};
+        constexpr int RockSegments = 18;
+        constexpr std::array<float, 5> RingRadius = {1.0f, 0.96f, 0.78f, 0.53f, 0.24f};
+        constexpr std::array<float, 5> RingHeight = {-0.18f, 0.03f, 0.28f, 0.58f, 0.88f};
+        constexpr std::string_view IsletSilhouetteDiagnostic =
+            "island-simulator: distant wooded islets use rounded stepped ridges, clustered low crowns, and broader palm silhouettes";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& first, const Vector3& second,
@@ -156,7 +160,7 @@ namespace island
             const float leanX = std::cos(phase + 0.8f) * 0.62f;
             const float leanZ = std::sin(phase + 0.8f) * 0.62f;
             const Vector3 crown = base + Vector3(leanX, trunkHeight, leanZ);
-            const float halfWidth = 0.35f;
+            const float halfWidth = 0.42f;
             const Color trunkColor = Hazed(Color(92, 79, 54, 255), islet);
             AddTriangle(vertices, base + Vector3(-halfWidth, 0.0f, 0.0f),
                         crown + Vector3(-halfWidth * 0.45f, 0.0f, 0.0f),
@@ -181,10 +185,10 @@ namespace island
                     * static_cast<float>(segment) / static_cast<float>(crownSegments);
                 const float nextAngle = phase + 2.0f * std::numbers::pi_v<float>
                     * static_cast<float>(segment + 1) / static_cast<float>(crownSegments);
-                const Vector3 edge = crown + Vector3(std::cos(angle) * 2.05f, 0.0f,
-                                                      std::sin(angle) * 2.05f);
-                const Vector3 nextEdge = crown + Vector3(std::cos(nextAngle) * 2.05f, 0.0f,
-                                                          std::sin(nextAngle) * 2.05f);
+                const Vector3 edge = crown + Vector3(std::cos(angle) * 2.55f, 0.0f,
+                                                      std::sin(angle) * 2.55f);
+                const Vector3 nextEdge = crown + Vector3(std::cos(nextAngle) * 2.55f, 0.0f,
+                                                          std::sin(nextAngle) * 2.55f);
                 AddTriangle(vertices, crownTop, edge, nextEdge, frondColor);
                 AddTriangle(vertices, crownBottom, nextEdge, edge, frondColor);
             }
@@ -194,12 +198,46 @@ namespace island
                     * static_cast<float>(frond) / static_cast<float>(frondCount);
                 const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
                 const Vector3 side(-direction.Z, 0.0f, direction.X);
-                const float length = 4.8f + 0.60f * static_cast<float>((frond + palmIndex) % 3);
+                const float length = 5.4f + 0.65f * static_cast<float>((frond + palmIndex) % 3);
                 const Vector3 root = crown + Vector3::Up * 0.25f;
                 const Vector3 tip = crown + direction * length
                     - Vector3::Up * (0.82f + 0.16f * static_cast<float>(frond % 2));
                 AddTriangle(vertices, root - side * 0.75f, tip,
                             root + side * 0.75f, frondColor);
+            }
+        }
+
+        void AppendLowCrown(std::vector<VertexPositionColor>& vertices,
+                            const DistantIsletPlacement& islet, const int crownIndex)
+        {
+            const float phase = islet.yawRadians * 1.7f
+                + static_cast<float>(crownIndex) * 2.39996323f
+                + static_cast<float>(islet.variant) * 0.61f;
+            const float offsetScale = 0.22f + 0.075f * static_cast<float>(crownIndex % 5);
+            const Vector3 centre(
+                islet.x + std::cos(phase) * islet.radiusX * offsetScale,
+                islet.height * (0.78f - offsetScale * 0.26f)
+                    + 0.85f + 0.18f * static_cast<float>(crownIndex % 3),
+                islet.z + std::sin(phase) * islet.radiusZ * offsetScale);
+            const float radius = 2.15f + 0.30f * static_cast<float>(crownIndex % 4);
+            const float verticalRadius = 0.82f
+                + 0.12f * static_cast<float>((crownIndex + 1) % 3);
+            const Color foliage = Hazed(islet.variant == 1U
+                ? Color(51, 101, 65, 255) : Color(42, 105, 60, 255), islet);
+            constexpr int segments = 7;
+            const Vector3 top = centre + Vector3::Up * verticalRadius;
+            const Vector3 bottom = centre - Vector3::Up * verticalRadius * 0.72f;
+            for (int segment = 0; segment < segments; ++segment) {
+                const float angle = phase + 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(segment) / static_cast<float>(segments);
+                const float nextAngle = phase + 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(segment + 1) / static_cast<float>(segments);
+                const Vector3 edge = centre + Vector3(std::cos(angle) * radius, 0.0f,
+                                                       std::sin(angle) * radius);
+                const Vector3 nextEdge = centre + Vector3(std::cos(nextAngle) * radius, 0.0f,
+                                                           std::sin(nextAngle) * radius);
+                AddTriangle(vertices, top, edge, nextEdge, foliage);
+                AddTriangle(vertices, bottom, nextEdge, edge, foliage);
             }
         }
     }
@@ -213,9 +251,14 @@ namespace island
         for (const DistantIsletPlacement& islet : layout.Islets()) {
             AppendRock(vertices, islet);
             const int palmCount = islet.variant == DistantSceneryLayout::SandbarVariant
-                ? 0 : 1 + static_cast<int>(islet.variant % 3U);
+                ? 0 : 3 + static_cast<int>(islet.variant);
             for (int palm = 0; palm < palmCount; ++palm) {
                 AppendPalm(vertices, islet, palm);
+            }
+            const int crownCount = islet.variant == DistantSceneryLayout::SandbarVariant
+                ? 0 : 4 + static_cast<int>(islet.variant) * 2;
+            for (int crown = 0; crown < crownCount; ++crown) {
+                AppendLowCrown(vertices, islet, crown);
             }
         }
 
@@ -236,6 +279,8 @@ namespace island
         std::cout << "island-simulator: distant scenery " << isletCount_
                   << " unreachable low islets, one portable batch, "
                   << primitiveCount_ << " triangles\n";
+        std::cout << IsletSilhouetteDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(IsletSilhouetteDiagnostic);
     }
 
     DistantSceneryRenderer::~DistantSceneryRenderer() = default;

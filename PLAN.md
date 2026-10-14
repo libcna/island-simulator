@@ -122,7 +122,26 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — shared ocean/sky horizon haze
+## Latest visual-audit implementation — wooded distant-islet silhouettes
+
+The distant-landscape audit found the two visible horizon islets reading as low triangular plates
+with only one to three stick-like palms. Their existing single portable batch now uses an 18-sided,
+five-ring rounded ridge profile, three to five broader palm silhouettes per wooded variant, and a
+small deterministic cluster of faceted low crowns. The treeless sandbar remains treeless, all five
+placements and unreachable bounds are unchanged, aerial haze remains distance ordered, and the
+extra geometry stays in the same one draw with no simulation or texture cost.
+
+The identical native distant camera provides baseline/final evidence at
+`build-consumer/software-captures/20261014T071821.619286Z-distant` and
+`20261014T072116.723103Z-distant`; both pass the image gate, with the final retaining 345 colour
+bins, 25.57 luminance deviation and 150.98 spatial contrast. Full-resolution inspection shows five
+readable palms and a lower clustered crown line on the nearest islet instead of the former three
+isolated stems, while its silhouette remains correctly low and hazed rather than competing with the
+playable island. A new bounded `distant` browser scope passes 60 Chrome/SwiftShader intervals with
+zero GL error or context loss and an inspected matching frame at
+`build/browser-software/20261014T072502.946571Z-chrome-distant`.
+
+## Previous visual-audit implementation — shared ocean/sky horizon haze
 
 The overview lighting audit found a hard horizontal colour boundary where the distant ocean met the
 sky. Although both renderers named the same aerial-haze colour, ocean fog depended only on distance
