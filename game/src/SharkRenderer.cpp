@@ -50,26 +50,28 @@ namespace island
         };
 
         constexpr std::array<BodySection, 14> BodySections = {{
-            {0.74f, 0.070f, 0.055f},
-            {0.68f, 0.145f, 0.105f},
-            {0.58f, 0.220f, 0.165f},
-            {0.44f, 0.280f, 0.215f},
-            {0.28f, 0.320f, 0.250f},
-            {0.10f, 0.330f, 0.260f},
-            {-0.08f, 0.315f, 0.250f},
-            {-0.24f, 0.280f, 0.225f},
-            {-0.38f, 0.225f, 0.185f},
-            {-0.50f, 0.170f, 0.140f},
-            {-0.59f, 0.115f, 0.100f},
-            {-0.65f, 0.075f, 0.068f},
-            {-0.69f, 0.045f, 0.045f},
-            {-0.71f, 0.025f, 0.027f},
+            {0.80f, 0.060f, 0.045f},
+            {0.74f, 0.140f, 0.090f},
+            {0.64f, 0.215f, 0.145f},
+            {0.50f, 0.280f, 0.185f},
+            {0.34f, 0.320f, 0.205f},
+            {0.15f, 0.330f, 0.215f},
+            {-0.05f, 0.315f, 0.208f},
+            {-0.24f, 0.280f, 0.190f},
+            {-0.42f, 0.225f, 0.160f},
+            {-0.57f, 0.170f, 0.120f},
+            {-0.68f, 0.125f, 0.088f},
+            {-0.76f, 0.090f, 0.065f},
+            {-0.81f, 0.065f, 0.050f},
+            {-0.84f, 0.052f, 0.040f},
         }};
         constexpr int BodySegments = 18;
         constexpr std::string_view SharkDetailDiagnostic =
             "island-simulator: near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes";
         constexpr std::string_view SharkCountershadeDiagnostic =
             "island-simulator: shark retains deep dorsal and pale ventral countershading through water tint";
+        constexpr std::string_view SharkProportionDiagnostic =
+            "island-simulator: shark uses a long low spindle, reinforced caudal peduncle, and swept restrained fins";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -220,7 +222,7 @@ namespace island
                         section.halfHeight * std::sin(angle), section.z, scale);
                 }
             }
-            const Vector3 nose = LocalPoint(centre, axes, 0.0f, -0.010f, 0.80f, scale);
+            const Vector3 nose = LocalPoint(centre, axes, 0.0f, -0.008f, 0.88f, scale);
             for (int segment = 0; segment < BodySegments; ++segment) {
                 const int next = (segment + 1) % BodySegments;
                 const float angle = 2.0f * std::numbers::pi_v<float>
@@ -249,7 +251,7 @@ namespace island
             }
 
             const float rearBend = shark.bodyWave * 0.125f;
-            const Vector3 rearCap = LocalPoint(centre, axes, rearBend, 0.0f, -0.725f, scale);
+            const Vector3 rearCap = LocalPoint(centre, axes, rearBend, 0.0f, -0.87f, scale);
             for (int segment = 0; segment < BodySegments; ++segment) {
                 const int next = (segment + 1) % BodySegments;
                 const float angle = 2.0f * std::numbers::pi_v<float>
@@ -263,44 +265,44 @@ namespace island
             }
 
             const float bend = shark.bodyWave * 0.125f;
-            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.71f, scale);
+            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.84f, scale);
 
             const float tailBend = shark.bodyWave * 0.21f;
             const Vector3 upperKnee = LocalPoint(
-                centre, axes, tailBend, 0.31f, -0.86f, scale);
+                centre, axes, tailBend, 0.24f, -0.98f, scale);
             const Vector3 upperTip = LocalPoint(
-                centre, axes, tailBend, 0.57f, -1.12f, scale);
+                centre, axes, tailBend, 0.50f, -1.28f, scale);
             const Vector3 tailNotch = LocalPoint(
-                centre, axes, tailBend * 1.05f, 0.02f, -0.92f, scale);
+                centre, axes, tailBend * 1.05f, 0.02f, -1.05f, scale);
             const Vector3 lowerKnee = LocalPoint(
-                centre, axes, tailBend, -0.20f, -0.87f, scale);
+                centre, axes, tailBend, -0.18f, -0.99f, scale);
             const Vector3 lowerTip = LocalPoint(
-                centre, axes, tailBend, -0.34f, -1.04f, scale);
+                centre, axes, tailBend, -0.30f, -1.19f, scale);
             AppendClosedFin(vertices, rear, upperKnee, upperTip, tailNotch,
                             axes.right * (0.007f * scale), body, fin);
             AppendClosedFin(vertices, rear, tailNotch, lowerTip, lowerKnee,
                             axes.right * (0.006f * scale), body, fin);
 
             const Vector3 dorsalFront = LocalPoint(
-                centre, axes, 0.0f, 0.14f, 0.23f, scale);
+                centre, axes, 0.0f, 0.18f, 0.25f, scale);
             const Vector3 dorsalTip = LocalPoint(
-                centre, axes, 0.0f, 0.57f, -0.08f, scale);
+                centre, axes, 0.0f, 0.47f, -0.02f, scale);
             const Vector3 dorsalBack = LocalPoint(
-                centre, axes, bend * 0.35f, 0.12f, -0.34f, scale);
+                centre, axes, bend * 0.35f, 0.13f, -0.38f, scale);
             const Vector3 dorsalKnee = LocalPoint(
-                centre, axes, bend * 0.17f, 0.38f, -0.18f, scale);
+                centre, axes, bend * 0.17f, 0.33f, -0.22f, scale);
             AppendClosedFin(vertices, dorsalFront, dorsalTip, dorsalKnee, dorsalBack,
                             axes.right * (0.012f * scale), body, fin);
 
             for (const float side : {-1.0f, 1.0f}) {
                 const Vector3 pectoralFront = LocalPoint(
-                    centre, axes, side * 0.27f, -0.015f, 0.20f, scale);
+                    centre, axes, side * 0.27f, -0.015f, 0.19f, scale);
                 const Vector3 pectoralTip = LocalPoint(
-                    centre, axes, side * 0.77f, -0.17f, -0.10f, scale);
+                    centre, axes, side * 0.66f, -0.13f, -0.13f, scale);
                 const Vector3 pectoralElbow = LocalPoint(
-                    centre, axes, side * 0.55f, -0.16f, -0.19f, scale);
+                    centre, axes, side * 0.51f, -0.13f, -0.23f, scale);
                 const Vector3 pectoralBack = LocalPoint(
-                    centre, axes, side * 0.23f, -0.10f, -0.23f, scale);
+                    centre, axes, side * 0.23f, -0.09f, -0.27f, scale);
                 AppendClosedFin(vertices, pectoralFront, pectoralTip,
                                 pectoralElbow, pectoralBack,
                                 axes.up * (0.010f * scale), body, fin);
@@ -308,9 +310,9 @@ namespace island
                 const Vector3 pelvicFront = LocalPoint(
                     centre, axes, side * 0.17f, -0.08f, -0.32f, scale);
                 const Vector3 pelvicTip = LocalPoint(
-                    centre, axes, side * 0.37f, -0.13f, -0.52f, scale);
+                    centre, axes, side * 0.32f, -0.12f, -0.54f, scale);
                 const Vector3 pelvicElbow = LocalPoint(
-                    centre, axes, side * 0.28f, -0.13f, -0.57f, scale);
+                    centre, axes, side * 0.26f, -0.12f, -0.59f, scale);
                 const Vector3 pelvicBack = LocalPoint(
                     centre, axes, side * 0.12f, -0.09f, -0.56f, scale);
                 AppendClosedFin(vertices, pelvicFront, pelvicTip,
@@ -406,18 +408,18 @@ namespace island
             const PoseAxes axes = MakePoseAxes(shark);
             const float scale = shark.scale;
             const float bend = shark.bodyWave * 0.12f;
-            const Vector3 nose = LocalPoint(centre, axes, 0.0f, 0.0f, 0.68f, scale);
-            const Vector3 top = LocalPoint(centre, axes, 0.0f, 0.18f, 0.06f, scale);
-            const Vector3 bottom = LocalPoint(centre, axes, 0.0f, -0.14f, 0.06f, scale);
-            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.55f, scale);
+            const Vector3 nose = LocalPoint(centre, axes, 0.0f, 0.0f, 0.77f, scale);
+            const Vector3 top = LocalPoint(centre, axes, 0.0f, 0.16f, 0.06f, scale);
+            const Vector3 bottom = LocalPoint(centre, axes, 0.0f, -0.12f, 0.06f, scale);
+            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.65f, scale);
             const Vector3 tailTop = LocalPoint(
-                centre, axes, bend * 1.5f, 0.30f, -0.91f, scale);
+                centre, axes, bend * 1.5f, 0.27f, -1.01f, scale);
             const Vector3 tailNotch = LocalPoint(
-                centre, axes, bend * 1.62f, 0.0f, -0.76f, scale);
+                centre, axes, bend * 1.62f, 0.0f, -0.84f, scale);
             const Vector3 tailBottom = LocalPoint(
-                centre, axes, bend * 1.5f, -0.30f, -0.91f, scale);
+                centre, axes, bend * 1.5f, -0.23f, -0.95f, scale);
             const Vector3 dorsal = LocalPoint(
-                centre, axes, 0.0f, 0.49f, -0.06f, scale);
+                centre, axes, 0.0f, 0.41f, -0.09f, scale);
             AddLitTriangle(vertices, nose, top, rear, body, true);
             AddLitTriangle(vertices, nose, rear, bottom, belly, true);
             AddTriangle(vertices, rear, tailTop, tailNotch, fin);
@@ -448,6 +450,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(SharkDetailDiagnostic);
         std::cout << SharkCountershadeDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(SharkCountershadeDiagnostic);
+        std::cout << SharkProportionDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(SharkProportionDiagnostic);
     }
 
     SharkRenderer::~SharkRenderer() = default;

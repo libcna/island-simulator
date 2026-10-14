@@ -363,13 +363,14 @@ class BrowserSoftwareTests(unittest.TestCase):
                       (ROOT / "tools/web_smoke.html.in").read_text())
         marker = "near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes"
         profile = "near shark uses a smooth-lit blunt head and body, caudal peduncle and heterocercal tail"
+        proportions = "shark uses a long low spindle, reinforced caudal peduncle, and swept restrained fins"
         geometry = "shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight"
         def report():
             return {"passed": True, "views": [{"mode": "shark", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "shark.png", "afterSimulationScreenshot": "shark-after.png",
                 "intervals": [16.7] * 60,
-                "result": {"output": marker + "\n" + profile + "\n" + geometry + "\nshark visible activity 1, 1 draw"}}]}
+                "result": {"output": marker + "\n" + profile + "\n" + proportions + "\n" + geometry + "\nshark visible activity 1, 1 draw"}}]}
         self.assertEqual(gate.validate_shark_report(report()), ("shark.png", "shark-after.png"))
         for mutate in (
             lambda value: value.update(passed=False),
@@ -378,6 +379,8 @@ class BrowserSoftwareTests(unittest.TestCase):
             lambda value: value["views"][0].update(intervals=[16.7] * 59),
             lambda value: value["views"][0]["result"].update(output="shark visible activity 1, 1 draw"),
             lambda value: value["views"][0]["result"].update(output=marker + "\nshark culled activity 1, 0 draw"),
+            lambda value: value["views"][0]["result"].update(output=marker + "\n" + profile
+                + "\n" + geometry + "\nshark visible activity 1, 1 draw"),
         ):
             invalid = report(); mutate(invalid)
             with self.assertRaises(RuntimeError): gate.validate_shark_report(invalid)

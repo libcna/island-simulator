@@ -922,6 +922,8 @@ def main():
                     raise RuntimeError("current close shark form is missing; check for a stale executable")
                 if "near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes" not in diagnostics:
                     raise RuntimeError("current close shark anatomy is missing; check for a stale executable")
+                if "shark uses a long low spindle, reinforced caudal peduncle, and swept restrained fins" not in diagnostics:
+                    raise RuntimeError("current shark proportions are missing; check for a stale executable")
                 if not re.search(r"shark visible activity \S+, 1 draw", diagnostics):
                     raise RuntimeError("shark capture did not submit the near detailed animal")
             if args.viewpoint == "dolphins":

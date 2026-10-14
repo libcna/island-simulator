@@ -60,6 +60,24 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — streamlined shark proportions
+
+The renewed side-on aquatic audit selected the shark silhouette: its smoothed torso was still too
+tall and oval, and the primary dorsal and pectorals overpowered the otherwise detailed anatomy.
+The existing fourteen body stations now form a longer, lower spindle with a slightly extended nose
+and a reinforced terminal caudal peduncle. Both caudal lobes extend farther aft while retaining the
+larger upper lobe; primary dorsal, pectoral and pelvic outlines are lower, shorter and swept farther
+rearward. The 15-vertex distant silhouette receives corresponding corrections.
+
+This is a coordinate-only change. Exact 1,896/15-vertex budgets, one draw, fitted eyes/gills/mouth,
+countershading, patrol, habitat, pitch/bank and body-wave behaviour are unchanged. Baseline
+`20261014T160824.660204Z-shark` and accepted `20261014T161128.829015Z-shark` were inspected at
+original resolution. The accepted frame passes at 291 colour bins, 27.69 luminance deviation and
+116.76 spatial contrast and makes the low fusiform profile and tail transition visibly clearer.
+Focused Chrome/SwiftShader `20261014T161411.521717Z-chrome-shark` passes two inspected animated
+frames, 60 finite positive intervals, GL error zero, intact context and empty kernel delta. The
+default arm64 APK assembles and lints with the two-worker wrapper without emulator execution.
+
 ## Latest visual-audit implementation — separated beach-crab colonies
 
 The renewed close audit found that the low broad crab model itself was being misread because all

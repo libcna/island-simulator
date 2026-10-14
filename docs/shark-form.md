@@ -74,3 +74,23 @@ luminance deviation and 134.33 spatial contrast. Focused Chrome/SwiftShader evid
 `build/browser-software/20261014T030558.932289Z-chrome-shark` passes with two inspected animated
 frames, 60 finite intervals, GL error zero, an intact context and no new kernel GPU fault. The
 ARM64 debug APK assembles and lint passes without starting an emulator.
+
+## Streamlined proportion pass (2026-10-14)
+
+A renewed side-on audit found the smooth body recognisable but too tall and oval, with a primary
+dorsal and pectorals that dominated the silhouette. The same fourteen stations now trace a longer,
+lower spindle from a slightly extended nose through a thicker terminal caudal peduncle. Both tail
+lobes extend farther aft with the larger upper lobe retained. The primary dorsal is lower and more
+swept, while the pectoral and pelvic outlines are shorter and angle rearward. The 15-vertex far
+silhouette receives the same length, height and fin corrections.
+
+This is a coordinate-only revision: the exact 1,896/15-vertex budgets, one dynamic draw, patrol,
+body wave, banking, depth behaviour, fitted face details, countershading and water lighting are
+unchanged. Baseline `build-consumer/software-captures/20261014T160824.660204Z-shark` and accepted
+`build-consumer/software-captures/20261014T161128.829015Z-shark` were inspected at original
+resolution. The accepted frame passes with 291 colour bins, 27.69 luminance deviation and 116.76
+spatial contrast and visibly retains a cleaner low fusiform outline. Focused Chrome/SwiftShader
+evidence `build/browser-software/20261014T161411.521717Z-chrome-shark` passes with two inspected
+different live poses, 60 finite positive intervals, GL error zero, an intact context and no new
+kernel GPU fault. The default arm64 APK assembles and application lint passes with the two-worker
+wrapper without starting an emulator; this compilation is not an Android runtime claim.
