@@ -59,7 +59,30 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
-## Latest sound-audit implementation — grounded bear airway voice and loop recovery
+## Latest visual-audit implementation — readable canopy trunks in deep shade
+
+The jungle-floor audit rejected grass geometry as the next target: its unequal tufts, ground
+contact and soil transition remained coherent. The weakest visible material was instead the nearby
+broadleaf trunk under dense crowns, where the shared canopy field could reduce dark bark to an
+almost black smooth column and hide the existing grain, moss and lichen. The accepted fragment-only
+change applies a restrained chromatic diffuse-sky floor to tagged canopy wood before the unchanged
+root-contact occlusion. It does not alter direct sun, palettes, geometry, foliage, LOD, buffers or
+draw counts. A first 0.29/0.31/0.34 floor was visually rejected as ineffective; the retained
+0.38/0.40/0.44 floor recovers the near bark striations while keeping the trunk clearly shaded.
+
+Baseline/final native grass/jungle-floor evidence is
+`build-consumer/software-captures/20261014T100559.763056Z-grass` and
+`20261014T101014.608525Z-grass`; the rejected intermediate is
+`20261014T100843.032277Z-grass`. The final was inspected at full resolution and retains dark root
+contact, readable ground cover and canopy contrast. Native capture, browser and Android smoke gates
+now require the new shaded-bark diagnostic. Release, focused tests, WebGL and Android assemble/lint
+pass under the four-core constraint. The focused Chrome/SwiftShader canopy-light evidence is
+`build/browser-software/20261014T102415.945087Z-chrome-canopy-light`. The broader vegetation suite
+at `20261014T101355.463662Z-chrome-vegetation` passed its first 60-frame grass scene but exceeded
+the ten-minute suite timeout in later scenes; it reported no GL/context/kernel fault and is not used
+as acceptance evidence. Android runtime appearance remains unqualified without a device/emulator.
+
+## Previous sound-audit implementation — grounded bear airway voice and loop recovery
 
 The full 40-clip procedural audio report remained valid, but its objective spectrum proxy exposed
 the weakest animal voice: bear breath variants crossed zero roughly 7,634--7,678 times per second,

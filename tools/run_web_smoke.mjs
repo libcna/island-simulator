@@ -925,6 +925,7 @@ try {
             && log.includes("canopy bark has instance-stable warped grain and interrupted filtered fissures")
             && log.includes("canopy trunk pigment follows normalized height across LOD tiers")
             && log.includes("canopy bark palette separates pale, warm, and dark fissured tree forms")
+            && log.includes("canopy trunks retain diffuse sky fill and readable bark detail in deep crown shade")
             && log.includes("canopy blades use spatial pitch and roll with identical retained LOD poses")
             && log.includes("curved canopy blades retain source identities within original triangle budgets")
             && log.includes("shared fixed-sun canopy transmission lights terrain and grass")

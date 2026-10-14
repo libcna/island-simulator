@@ -297,6 +297,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         && grep -q "island-simulator: canopy shade adds bounded world-anchored low-frequency sun patches" \
         && grep -q "island-simulator: canopy bark palette separates pale, warm, and dark fissured tree forms" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: canopy trunks retain diffuse sky fill and readable bark detail in deep crown shade" \
+            "$LOG_FILE" \
         && grep -q "monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes" \
             "$LOG_FILE" \
         && grep -Eq "forest-floor filter (anisotropic, requested maximum 4x, device-clamped|trilinear, anisotropy unavailable)" \

@@ -240,6 +240,10 @@ void main()
         vec3 skyFill = mix(uCanopyAmbient, vec3(1.0), transmission);
         daylightColor = (woodDaylightTerms.x + woodDaylightTerms.z * max(faceNormal.y, 0.0)) * skyFill
             + woodDaylightTerms.y * max(dot(faceNormal, normalize(uToSun)), 0.0) * transmission;
+        // Dense crowns can drive red/green bark channels almost to black even though the trunk
+        // remains open to diffuse tropical sky. Preserve a restrained chromatic fill floor so
+        // grain, moss and lichen remain readable without flattening sunlit faces.
+        daylightColor = max(daylightColor, vec3(0.38, 0.40, 0.44));
         daylightColor *= trunkContactOcclusion(aboveGround);
     }
     vec3 litColor = albedo * daylightColor;
@@ -1442,6 +1446,10 @@ void main()
             "island-simulator: canopy bark palette separates pale, warm, and dark fissured tree forms";
         std::cout << trunkPaletteDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(trunkPaletteDiagnostic);
+        constexpr const char* trunkShadeDiagnostic =
+            "island-simulator: canopy trunks retain diffuse sky fill and readable bark detail in deep crown shade";
+        std::cout << trunkShadeDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(trunkShadeDiagnostic);
         constexpr const char* canopyPostureDiagnostic =
             "island-simulator: canopy blades use spatial pitch and roll with identical retained LOD poses";
         std::cout << canopyPostureDiagnostic << '\n';
