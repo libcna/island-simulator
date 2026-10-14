@@ -362,6 +362,7 @@ def validate_stream_report(report):
         or len(set(frames))!=2
         or "route-following downstream ripple and translucent current streaks" not in log
         or "stream water uses bank-edge sheen and broken shallow riffles" not in log
+        or "stream water uses depth-graded colour and braided moving current threads" not in log
         or "stream channel uses shared low-frequency pools and pinches" not in log
         or not re.search(r"stream-bank stones (?:1[0-8]), non-solid existing rock variants beyond the carved bank", log)
         or "stream terrain uses a compact incised profile and slope-limited exposed bank strata" not in log

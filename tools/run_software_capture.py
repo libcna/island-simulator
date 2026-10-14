@@ -612,6 +612,8 @@ def main():
                     raise RuntimeError("current stream flow material is missing")
                 if "stream water uses bank-edge sheen and broken shallow riffles" not in diagnostics:
                     raise RuntimeError("current stream edge/riffle material is missing")
+                if "stream water uses depth-graded colour and braided moving current threads" not in diagnostics:
+                    raise RuntimeError("current stream depth/current material is missing")
                 if "stream channel uses shared low-frequency pools and pinches" not in diagnostics:
                     raise RuntimeError("current irregular stream-width profile is missing")
                 if not re.search(r"stream-bank stones (?:1[0-8]), non-solid existing rock variants beyond the carved bank", diagnostics):

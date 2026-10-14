@@ -1,5 +1,27 @@
 # Western stream course — live bed and first water pass
 
+## Depth-graded water and broken current threads — 2026-10-14
+
+The environment audit found that the complete stream still read as a muted grey-green strip from
+ordinary eye height. The geometry, incised banks and exposed bed were already sound, so this pass
+changes only the existing portable water fragment shader. Centre depth now biases the translucent
+water toward a cooler green-blue while the shallows retain warmer bed influence. Narrow moving
+current threads, irregularly gated along the course, complement the existing sparse riffles and
+broken bank sheen. A first restrained tuning was rendered and rejected because it remained nearly
+indistinguishable; a stronger version was then broken into larger gaps to avoid a regular ladder
+pattern.
+
+Geometry remains 3,429 vertices / 6,080 triangles in one culled transparent draw, with no new
+texture, attribute, simulation or collision work. Inspected four-phase llvmpipe evidence
+`build-consumer/software-captures/20261014T032331.834177Z-stream` passes with 356 colour bins,
+54.24 luminance deviation and 249.45 spatial contrast. The bed remains visible while moving
+current/riffle accents make the water surface materially distinct from the damp ground.
+Focused Chrome/SwiftShader evidence
+`build/browser-software/20261014T032735.069130Z-chrome-stream` passes with two inspected
+different-time frames, 60 finite intervals, GL error zero, an intact context and no new kernel GPU
+fault. Stream survey, Core tests and 112 harness unit tests pass. The ARM64 debug APK assembles and
+lint passes without starting an emulator.
+
 ## Embedded bank stones — 2026-10-13
 
 The ordinary eye-height stream view still exposed long smooth stretches beside the newly incised

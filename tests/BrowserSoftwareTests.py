@@ -92,6 +92,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn('focusedStreamCheck ? ["stream"]', source)
         self.assertIn("route-following downstream ripple and translucent current streaks", source)
         self.assertIn("stream water uses bank-edge sheen and broken shallow riffles", source)
+        self.assertIn("stream water uses depth-graded colour and braided moving current threads", source)
         self.assertIn("stream channel uses shared low-frequency pools and pinches", source)
         self.assertIn("stream-bank stones", source)
         self.assertIn("stream terrain uses a compact incised profile and slope-limited exposed bank strata", source)
@@ -104,6 +105,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             "result":{"error":"","exited":False,"output":
                 "route-following downstream ripple and translucent current streaks\n"
                 "stream water uses bank-edge sheen and broken shallow riffles\n"
+                "stream water uses depth-graded colour and braided moving current threads\n"
                 "stream channel uses shared low-frequency pools and pinches\n"
                 "stream-bank stones 14, non-solid existing rock variants beyond the carved bank\n"
                 "stream terrain uses a compact incised profile and slope-limited exposed bank strata\n"

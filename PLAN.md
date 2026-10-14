@@ -122,7 +122,21 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — crab shell and leg continuity
+## Latest visual-audit implementation — stream surface readability
+
+After the aquatic-animal cycle, the environment comparison selected the stream as the weakest
+surface: despite a physical bed and banks, it still read as a muted grey-green strip. The existing
+portable shader now grades warm translucent shallows into a cooler centre and adds narrow moving
+current threads with irregular longitudinal gaps, while retaining exposed substrate, broken bank
+sheen and shallow riffles. One too-subtle tuning and one overly regular tuning were rendered and
+rejected. Geometry remains 3,429 vertices / 6,080 triangles in one draw. Four-phase native
+evidence `20261014T032331.834177Z-stream` passes with 356 colour bins, 54.24 luminance deviation
+and 249.45 spatial contrast. Focused Chrome/SwiftShader evidence
+`20261014T032735.069130Z-chrome-stream` passes two inspected different-time frames,60finite
+intervals,GL0/context intact/kernel[]. Stream survey/Core/112 harness tests and ARM64 assemble/lint
+pass without emulator execution.
+
+## Previous visual-audit implementation — crab shell and leg continuity
 
 After the shark pass, the next weakest inspected animal was the beach crab: ten large carapace
 panels and crossed leg sheets remained conspicuous. One high-dome revision was rendered and
@@ -1000,7 +1014,14 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   irregular and do not form a crossing. Chrome/SwiftShader174218.337615Z-chrome-stream PASS60
   intervals/two distinct inspected images/GL0/context intact/kernel[]. Current ARM64 assemble/lint
   again PASS without emulator. Android runtime, longer free traversal and final visual/audio
-  review remain, so the stream stays in progress. See `docs/stream-course.md`.
+  review remain. A surface-readability pass adds depth-graded colour and irregularly gated moving
+  current threads to the existing bank sheen/riffles; geometry remains3429vertices/6080triangles/
+  one draw with no new attribute, texture or simulation. Four-phase native
+  `20261014T032331.834177Z-stream` passes356bins/std54.24/spatial249.45/kernel[] and was inspected.
+  Focused Chrome/SwiftShader `20261014T032735.069130Z-chrome-stream` passes two inspected
+  different-time frames,60finite intervals/GL0/context intact/kernel[]. Stream survey/Core/112
+  harness tests and ARM64 assemble/lint pass without emulator, so the stream stays in progress.
+  See `docs/stream-course.md`.
 - [~] Add an accessible cave and adapt the island terrain around it. Choose a rocky
   hillside/headland, model a real entrance, interior floor/walls/ceiling and surrounding
   rock/terrain transition, with player clearance and no terrain sheet sealing the

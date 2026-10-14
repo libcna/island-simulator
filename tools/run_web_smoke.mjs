@@ -823,6 +823,7 @@ try {
               && /resident 1\/1 visible, 2 draws, [1-9][0-9]* body triangles/.test(log)))
             && (!focusedStreamCheck || (log.includes("route-following downstream ripple and translucent current streaks")
               && log.includes("stream water uses bank-edge sheen and broken shallow riffles")
+              && log.includes("stream water uses depth-graded colour and braided moving current threads")
               && log.includes("stream channel uses shared low-frequency pools and pinches")
               && /stream-bank stones (?:1[0-8]), non-solid existing rock variants beyond the carved bank/.test(log)
               && log.includes("stream terrain uses a compact incised profile and slope-limited exposed bank strata")

@@ -68,14 +68,28 @@ void main(){
     float broad=.5+.5*sin(courseDistance*.57+sin(across*1.9-uTime*.12));
     float streakWave=.5+.5*sin(courseDistance*8.3-uTime*2.45+sin(across*5.2)*.45);
     float streak=smoothstep(.76,.98,streakWave)*(.45+.55*broad);
-    float bankBand=smoothstep(.55,.75,abs(lateral))*(1.0-smoothstep(.91,.99,abs(lateral)));
+    float centreDepth=1.0-smoothstep(.12,.96,abs(lateral));
+    float braidedWave=.5+.5*sin(courseDistance*11.6-uTime*2.15
+        +sin(across*10.1+courseDistance*.31)*.42);
+    float braidBreak=smoothstep(.38,.76,.5+.5*sin(courseDistance*.71+across*3.9
+        +sin(courseDistance*.19)*1.7));
+    float braided=smoothstep(.80,.985,braidedWave)*smoothstep(.16,.72,centreDepth)
+        *(.46+.34*sin(courseDistance*.39+1.4))*braidBreak;
+    float bankBreak=.62+.38*(.5+.5*sin(courseDistance*.83+sin(across*5.4)*.55));
+    float bankBand=smoothstep(.53,.73,abs(lateral))
+        *(1.0-smoothstep(.90,.99,abs(lateral)))*bankBreak;
     float riffleCarrier=.5+.5*sin(courseDistance*1.17+sin(across*4.1)*.7);
     float riffle=smoothstep(.78,.95,riffleCarrier)*(.5+.5*sin(courseDistance*12.4-uTime*3.0+across*7.0));
-    vec3 water=mix(vec3(.105,.285,.235),vec3(.42,.68,.72),fresnel);
-    water*=mix(.91,1.055,broad);
-    water+=vec3(.20,.28,.25)*streak*.24+vec3(.38,.38,.31)*glint*.38;
-    water+=vec3(.36,.43,.35)*(bankBand*(.15+.12*streak)+riffle*.11);
-    float alpha=opacity*(.47+fresnel*.46+streak*.065+bankBand*.14+riffle*.08);
+    vec3 shallow=vec3(.205,.430,.315);
+    vec3 deep=vec3(.055,.315,.285);
+    vec3 water=mix(shallow,deep,centreDepth*.82);
+    water=mix(water,vec3(.38,.68,.72),fresnel*.78);
+    water*=mix(.93,1.07,broad);
+    water+=vec3(.22,.36,.32)*streak*.30+vec3(.48,.45,.33)*glint*.44;
+    water+=vec3(.52,.60,.46)*(bankBand*(.24+.14*streak)+riffle*.24);
+    water+=vec3(.40,.68,.59)*braided*.29;
+    float alpha=opacity*(.57+fresnel*.36+streak*.065+bankBand*.17+riffle*.11
+        +centreDepth*.055+braided*.055);
     fragColor=vec4(water*alpha,alpha);
 }
 )";
@@ -105,8 +119,10 @@ StreamWaterRenderer::StreamWaterRenderer(GraphicsDevice& device,const IslandTerr
     indices_=std::make_unique<IndexBuffer>(device,IndexElementSize::SixteenBits,static_cast<int>(mesh.indices.size()),BufferUsage::WriteOnly);
     indices_->SetData(mesh.indices.data(),static_cast<int>(mesh.indices.size()));
     std::cout<<"island-simulator: stream water "<<count_<<" vertices, "<<triangles_
-        <<" triangles, route-following downstream ripple and translucent current streaks\n";
+        <<" triangles in one route-following transparent draw\n";
+    std::cout<<"island-simulator: route-following downstream ripple and translucent current streaks\n";
     std::cout<<"island-simulator: stream water uses bank-edge sheen and broken shallow riffles\n";
+    std::cout<<"island-simulator: stream water uses depth-graded colour and braided moving current threads\n";
     std::cout<<"island-simulator: stream channel uses shared low-frequency pools and pinches\n";
 }
 StreamWaterRenderer::~StreamWaterRenderer()=default;
