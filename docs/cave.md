@@ -250,3 +250,19 @@ entry, back-wall, ceiling, landing and exit stages and finishes without a new ke
 Chrome/SwiftShader evidence `20261014T005636.229249Z-chrome-cave` also renders both the wooded
 mountain overview and the unobstructed view out of the entrance with its WebGL context intact.
 The relocated complete world validates with fingerprint `a33aa6c2913b5796`.
+
+## Earth and grass crown — 2026-10-14
+
+The inland location solved the beach placement, but an elevated exterior review still exposed the
+complete stone mantle as a rounded freestanding tunnel. A terrain heightfield cannot supply both
+the excavated floor and a second surface above it at the same horizontal coordinate. Instead, the
+existing closed collision shell is also the visual upper land surface: upward exterior normals
+blend out of entrance rock into procedural brown earth and restrained turf after the portal. Steep
+portal faces and all interior faces remain the existing triplanar fractured rock.
+
+The one existing static batch adds 186 deterministic crossed grass tufts on qualified upward crown
+triangles. They add 1,116 vertices / 372 triangles, bringing the rendered inventory to 1,882
+triangles. They use a private material selector in the existing local-material field and the same
+shader, buffer and draw; no texture, collision, simulation or update work is added. Exterior and
+interior native evidence is recorded in `PLAN.md`. The interior path/capsule contract and the 1,424
+authoritative collision triangles are unchanged.

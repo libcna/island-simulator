@@ -59,6 +59,24 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
+## Latest landmark repair — earth-covered cave crown
+
+The operator's overhead review correctly found that the cave entrance was in the mountain but its
+entire outer stone shell still read as a freestanding pair of tunnel humps. A heightfield cannot
+represent both the walkable cave floor and a second terrain surface above the same X/Z coordinate,
+so the existing collision shell now provides that upper surface visually: upward exterior facets
+transition from portal rock into procedural earth and restrained turf, while steep entrance faces
+and every interior facet remain stone. The same static cave draw adds 186 deterministic crossed
+grass tufts on qualified crown facets. This adds 372 triangles (1,116 vertices), taking the renderer
+from 1,510 to 1,882 triangles without a new texture, draw, collision shape or update loop.
+
+Native exterior baseline `20261014T150343.776171Z-cave` and final overhead/entrance evidence
+`20261014T151139.529465Z-cave` were inspected; the final shell is earth/grass-covered and blended
+into the rising slope while the compact rocky portal remains readable. Interior guard
+`20261014T151154.758001Z-cave-inside` confirms the 20 m passage, floor, exit sightline and ceiling
+pendants remain intact. Both final views pass the ordinary image gate; cave topology, capsule
+clearance and terrain-target tests pass unchanged.
+
 ## Latest landmark repair — closed hut wall and gables
 
 The operator correctly identified regular see-through stripes on two opposite hut walls. The
