@@ -354,6 +354,8 @@ try {
     "island-simulator: shoreline advancing wash uses footprint-filtered porous foam",
     "island-simulator: ocean shared nine-wave spectrum uses filtered short-wave normals",
     "island-simulator: ocean shallow attenuation uses interpolated bed depth and contact fade",
+    "island-simulator: distant grazing ocean converges on shared sky haze without a horizon seam",
+    "island-simulator: sky horizon locks to shared aerial haze above the below-horizon skirt",
     "island-simulator: coastal sand stays continuous below water with filtered seabed ripples",
     "island-simulator: startup world ",
     "island-simulator: visible terrain cells ",

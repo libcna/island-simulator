@@ -880,6 +880,8 @@ try {
             && log.includes("shoreline advancing wash uses footprint-filtered porous foam")
             && log.includes("ocean shared nine-wave spectrum uses filtered short-wave normals")
             && log.includes("ocean shallow attenuation uses interpolated bed depth and contact fade")
+            && log.includes("distant grazing ocean converges on shared sky haze without a horizon seam")
+            && log.includes("sky horizon locks to shared aerial haze above the below-horizon skirt")
             && log.includes("coastal sand stays continuous below water with filtered seabed ripples")
             && log.includes("reef substrate separates pale lagoon, shared habitat patches, crest, sand channels, and deep drop-off")
             && log.includes("coastal contact patches follow rendered seabed triangles in the existing batch")

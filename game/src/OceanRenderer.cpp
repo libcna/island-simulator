@@ -58,6 +58,8 @@ namespace island
             "island-simulator: windward ocean waves and foam strengthen east and calm in the west bay";
         constexpr const char* ReefBreakerDiagnostic =
             "island-simulator: broken reef-crest foam follows the shared 62-86m habitat field without new draws";
+        constexpr const char* HorizonHazeDiagnostic =
+            "island-simulator: distant grazing ocean converges on shared sky haze without a horizon seam";
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
@@ -276,7 +278,10 @@ void main()
     foam = clamp(foam, 0.0, 0.86);
     water = mix(water, vec3(0.82, 0.94, 0.91), foam);
 
-    float fog = smoothstep(300.0, 760.0, distanceToCamera);
+    float distanceFog = smoothstep(300.0, 760.0, distanceToCamera);
+    float grazingHaze = smoothstep(0.45, 0.88, 1.0 - viewFacing)
+        * smoothstep(240.0, 650.0, distanceToCamera);
+    float fog = max(distanceFog, grazingHaze);
     water = mix(water, vec3(0.53, 0.78, 0.88), fog);
 
     float alpha = uCoastalOptics.w * (1.0 - exp(-waterDepth * uCoastalOptics.x));
@@ -384,6 +389,7 @@ void main()
                       << WindPacketDiagnostic << '\n'
                       << CoastalWindDiagnostic << '\n'
                       << ReefBreakerDiagnostic << '\n'
+                      << HorizonHazeDiagnostic << '\n'
                       << "island-simulator: ocean shoreline foam uses broken continuity mask\n";
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: ocean sunward ripple crests reuse analytic slope field");
@@ -394,6 +400,7 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(WindPacketDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(CoastalWindDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(ReefBreakerDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(HorizonHazeDiagnostic);
         } else {
             std::cerr << "island-simulator: ocean stock-effect fallback: " << fallbackReason_
                       << '\n';

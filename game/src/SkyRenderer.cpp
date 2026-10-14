@@ -142,8 +142,9 @@ void main()
     vec3 zenith = vec3(0.12, 0.42, 0.74);
     vec3 color = mix(horizon, zenith, verticalBlend);
     float haze = exp(-max(direction.y, 0.0) * 9.0);
-    color = mix(color, hazeColor, haze * 0.85);
-    color = mix(color, vec3(0.80, 0.86, 0.88), smoothstep(0.03, -0.02, direction.y) * 0.5);
+    color = mix(color, hazeColor, haze * 0.96);
+    float belowHorizon = 1.0 - smoothstep(-0.08, -0.015, direction.y);
+    color = mix(color, vec3(0.80, 0.86, 0.88), belowHorizon * 0.5);
 
     float sunDot = max(dot(direction, sun), 0.0);
     float glow = pow(sunDot, 5.0);
@@ -319,6 +320,10 @@ void main()
                 "island-simulator: sky adds shared-haze horizon, warm sun glow and eleven fixed distant cumulus masses";
             std::cout << volumeDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(volumeDiagnostic);
+            constexpr const char* horizonDiagnostic =
+                "island-simulator: sky horizon locks to shared aerial haze above the below-horizon skirt";
+            std::cout << horizonDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(horizonDiagnostic);
             constexpr const char* driftDiagnostic =
                 "island-simulator: fair-weather cumulus and wisps drift slowly west with prevailing wind";
             std::cout << driftDiagnostic << '\n';

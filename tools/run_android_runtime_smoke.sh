@@ -410,6 +410,10 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: ocean shallow attenuation uses interpolated bed depth and contact fade" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: distant grazing ocean converges on shared sky haze without a horizon seam" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: sky horizon locks to shared aerial haze above the below-horizon skirt" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: coastal sand stays continuous below water with filtered seabed ripples" \
             "$LOG_FILE" \
         && grep -q "island-simulator: coastal contact patches follow rendered seabed triangles in the existing batch" \

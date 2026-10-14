@@ -855,6 +855,8 @@ def main():
                 raise RuntimeError("current palm crown refinement is missing; check for a stale executable")
             if "sky adds shared-haze horizon, warm sun glow and eleven fixed distant cumulus masses" not in diagnostics:
                 raise RuntimeError("current sky atmosphere is missing; check for a stale executable")
+            if "sky horizon locks to shared aerial haze above the below-horizon skirt" not in diagnostics:
+                raise RuntimeError("current sky horizon lock is missing; check for a stale executable")
             if "fair-weather cumulus and wisps drift slowly west with prevailing wind" not in diagnostics:
                 raise RuntimeError("current wind-driven cloud drift is missing; check for a stale executable")
             if "sky cumulus use layered billow silhouettes with blue-grey undersides and sunlit crowns" not in diagnostics:
@@ -944,6 +946,8 @@ def main():
             if "ocean shallow attenuation uses interpolated bed depth and contact fade" not in diagnostics \
                     or "coastal sand stays continuous below water with filtered seabed ripples" not in diagnostics:
                 raise RuntimeError("current coastal materials are missing; check for a stale executable")
+            if "distant grazing ocean converges on shared sky haze without a horizon seam" not in diagnostics:
+                raise RuntimeError("current ocean horizon haze is missing; check for a stale executable")
             if "ocean shared nine-wave spectrum uses filtered short-wave normals" not in diagnostics:
                 raise RuntimeError("current ocean spectrum is missing; check for a stale executable")
             if "shoreline advancing wash uses footprint-filtered porous foam" not in diagnostics:

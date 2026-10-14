@@ -122,7 +122,25 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — readable shaded ridge rock
+## Latest visual-audit implementation — shared ocean/sky horizon haze
+
+The overview lighting audit found a hard horizontal colour boundary where the distant ocean met the
+sky. Although both renderers named the same aerial-haze colour, ocean fog depended only on distance
+and the sky blended only 85 percent toward that colour before an undefined reversed-edge
+`smoothstep` mixed in its below-horizon skirt. The ocean now adds a bounded distance-and-grazing
+haze term, while the sky converges much more closely on the shared haze immediately above a
+separately defined lower skirt. Nearby lagoon clarity, waves, reflection, weather, geometry and draw
+counts are unchanged.
+
+The identical native overview camera provides baseline/final evidence at
+`build-consumer/software-captures/20261014T070955.216140Z-overview` and
+`20261014T071328.599980Z-overview`; the final frame passes with 364 colour bins, 38.39 luminance
+deviation and 203.31 spatial contrast. Inspection confirms a softer aerial transition without
+washing out the shallow reef or island silhouette. Chrome/SwiftShader also passes 60 clean
+intervals in the dedicated `sky` scope with an inspected matching frame at
+`build/browser-software/20261014T071513.283615Z-chrome-sky`.
+
+## Previous visual-audit implementation — readable shaded ridge rock
 
 The terrain audit from the authored east clearing found the large mountain face to be the weakest
 remaining landscape surface: existing projected bedding and joints were present, but the exposed
