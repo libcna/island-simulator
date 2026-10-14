@@ -816,8 +816,9 @@ namespace island
                                         std::sin(bird.headingRadians));
             const Vector3 flightRight(-flightForward.Z, 0.0f, flightForward.X);
             cameraPosition_ = Vector3(bird.x, bird.y, bird.z)
-                - flightForward * 5.0f + flightRight * 1.6f + Vector3::Up * 0.45f;
-            const Vector3 toBird = Vector3(bird.x, bird.y, bird.z) - cameraPosition_;
+                + flightForward * 1.55f + flightRight * 1.10f + Vector3::Up * 0.30f;
+            const Vector3 toBird = Vector3(bird.x, bird.y + bird.scale*.06f, bird.z)
+                - cameraPosition_;
             yaw_ = std::atan2(toBird.X, toBird.Z);
             pitch_ = std::atan2(toBird.Y, std::hypot(toBird.X, toBird.Z));
         } else if (viewpoint_ == FixedViewpoint::FishDetail

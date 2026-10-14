@@ -59,7 +59,27 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
-## Latest visual-audit implementation — readable spider eye hierarchy
+## Latest visual-audit implementation — volumetric perched birds
+
+The fresh overview/butterfly/bird comparison selected the perched bird as the weakest remaining
+silhouette. Its live wreck perch and folded-wing state worked, but the five-metre audit camera was
+partly blocked by the mast and reduced the bird to a small flat grey-and-white triangle with no
+head, beak or eye. The accepted near LOD replaces the eight-triangle body wedge with a closed
+twelve-sided longitudinal loft, adds a multi-ring head, a fitted ochre beak and two lateral eyes,
+and applies CPU fixed-sun variation to the body and head facets. Existing layered flight feathers,
+folded perch wings, feet, 24-agent simulation, far LOD and one-draw batching remain unchanged.
+
+The first closer model study was rejected because its eight-sided head enlarged the old origami
+body and looked toy-like. The final three-quarter camera is 1.9m from the seeded wreck bird, avoids
+the mast occlusion and shows the bird standing on the actual spar. Native baseline, rejected and
+accepted evidence is respectively
+`build-consumer/software-captures/20261014T130525.972281Z-birds`,
+`20261014T131127.467822Z-birds` and `20261014T131932.005299Z-birds`; all were inspected at full
+resolution and the accepted frame passes the ordinary scene image gate. Release and WebGL builds,
+syntax/diagnostic guards and Android ARM64 assemble/lint pass. A portable bird runtime and a flying
+close-pose audit remain for a consolidated wildlife pass; no emulator or device was used.
+
+## Previous visual-audit implementation — readable spider eye hierarchy
 
 The animal audit selected the close ground spider as the weakest remaining face treatment. The
 eight eyes were equal black beads spread across a pale carapace, and the old fixed-world audit

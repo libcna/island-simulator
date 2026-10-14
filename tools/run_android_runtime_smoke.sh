@@ -402,6 +402,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: near birds use layered trailing flight-feather silhouettes" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: fallen fronds use curved asymmetric leaflet silhouettes" \
             "$LOG_FILE" \
         && grep -q "island-simulator: fallen frond leaflets use geometric central folds" \

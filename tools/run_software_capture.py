@@ -941,6 +941,8 @@ def main():
                     raise RuntimeError("current crab shell anatomy is missing; check for a stale executable")
                 if not re.search(r"crabs [1-9][0-9]*/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):
                     raise RuntimeError("crab capture did not submit a near detailed colony")
+            if args.viewpoint == "birds" and "near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes" not in diagnostics:
+                raise RuntimeError("current near-bird anatomy is missing; check for a stale executable")
             if args.viewpoint == "bush" and "bush QA target variant 0 at player-eye detail distance" not in diagnostics:
                 raise RuntimeError("bush camera did not select the intended shrub")
             if args.viewpoint == "ground-broadleaf" and "ground-broadleaf QA target variant 1 at player-eye detail distance" not in diagnostics:

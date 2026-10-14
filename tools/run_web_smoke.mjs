@@ -1262,6 +1262,8 @@ try {
       "island-simulator: grass sparse near seed heads share blade wind and instancing")
     && result.output?.includes(
       "island-simulator: near birds use layered trailing flight-feather silhouettes")
+    && result.output?.includes(
+      "island-simulator: near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes")
     && /birds [1-9][0-9]*\/24 visible/.test(result.output ?? "")
     && result.output?.includes("island-simulator: smoke test rendered 4 frames")
     && !result.error;
@@ -2281,6 +2283,8 @@ try {
       "island-simulator: bird flight uses slow radial drift, banking, and intermittent glide")
     && birdResult.output?.includes(
       "island-simulator: near birds use layered trailing flight-feather silhouettes")
+    && birdResult.output?.includes(
+      "island-simulator: near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes")
     && /birds [1-9][0-9]*\/24 visible/.test(birdResult.output ?? "")
     && !birdResult.error;
 
