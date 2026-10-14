@@ -100,19 +100,21 @@ vec3 cumulusMass(vec3 color, vec4 cloud, float seed, float azimuth, float skyEle
     vec2 local = vec2(dAzimuth / cloud.z, (skyElevation - cloud.y) / cloud.w);
     float radial = dot(local, local);
     if (radial > 2.6) return color;
-    vec2 noiseCoordinate = vec2(dAzimuth * 9.0, skyElevation * 38.0) + vec2(seed * 7.3, seed * 3.1);
+    // Work in normalized cloud space so narrow and wide masses receive comparable edge
+    // breakup instead of the widest authored masses becoming smooth horizontal ribbons.
+    vec2 noiseCoordinate = local * vec2(3.8, 2.9) + vec2(seed * 7.3, seed * 3.1);
     float detail = skyNoise(noiseCoordinate) * 0.62 + skyNoise(noiseCoordinate * 2.3 + 11.0) * 0.38;
     float topErosion = (detail - 0.5) * (0.9 + 0.8 * max(local.y, 0.0));
     // Three overlapping upper lobes prevent the very wide distant masses from reading as
     // straight white bars. Their bottom halves merge into the original broad base, retaining
     // the calm tropical horizon and the deliberately flat fair-weather underside.
-    vec2 leftLobe = (local - vec2(-0.43, 0.18)) / vec2(0.68, 0.76);
-    vec2 crownLobe = (local - vec2(0.02, 0.31)) / vec2(0.56, 0.88);
-    vec2 rightLobe = (local - vec2(0.47, 0.15)) / vec2(0.72, 0.70);
+    vec2 leftLobe = (local - vec2(-0.48, 0.13)) / vec2(0.52, 0.71);
+    vec2 crownLobe = (local - vec2(-0.05, 0.34)) / vec2(0.43, 0.84);
+    vec2 rightLobe = (local - vec2(0.43, 0.17)) / vec2(0.55, 0.65);
     float billows = max(1.0 - dot(leftLobe, leftLobe),
         max(1.0 - dot(crownLobe, crownLobe), 1.0 - dot(rightLobe, rightLobe)));
-    float broadBase = 0.72 - dot(local * vec2(0.82, 1.22), local * vec2(0.82, 1.22));
-    float shape = max(broadBase, billows) + topErosion * 0.72
+    float broadBase = 0.60 - dot(local * vec2(1.08, 1.24), local * vec2(1.08, 1.24));
+    float shape = max(broadBase, billows) + topErosion * 0.78
         - max(-local.y - 0.48, 0.0) * 4.2;
     float coverage = smoothstep(0.0, 0.32, shape);
     if (coverage <= 0.0) return color;
@@ -179,14 +181,14 @@ void main()
     float skyElevation = asin(clamp(direction.y, -1.0, 1.0));
     float sunAzimuth = atan(sun.z, sun.x);
     if (direction.y > -0.02 && direction.y < 0.45) {
-        color = cumulusMass(color, vec4(0.35, 0.075, 0.36, 0.060), 0.0, azimuth, skyElevation, sunAzimuth, hazeColor);
+        color = cumulusMass(color, vec4(0.35, 0.075, 0.27, 0.060), 0.0, azimuth, skyElevation, sunAzimuth, hazeColor);
         color = cumulusMass(color, vec4(1.10, 0.060, 0.22, 0.042), 1.0, azimuth, skyElevation, sunAzimuth, hazeColor);
-        color = cumulusMass(color, vec4(1.95, 0.090, 0.42, 0.075), 2.0, azimuth, skyElevation, sunAzimuth, hazeColor);
+        color = cumulusMass(color, vec4(1.95, 0.090, 0.30, 0.075), 2.0, azimuth, skyElevation, sunAzimuth, hazeColor);
         color = cumulusMass(color, vec4(2.60, 0.055, 0.19, 0.036), 3.0, azimuth, skyElevation, sunAzimuth, hazeColor);
-        color = cumulusMass(color, vec4(3.30, 0.110, 0.30, 0.058), 4.0, azimuth, skyElevation, sunAzimuth, hazeColor);
-        color = cumulusMass(color, vec4(3.95, 0.070, 0.46, 0.068), 5.0, azimuth, skyElevation, sunAzimuth, hazeColor);
+        color = cumulusMass(color, vec4(3.30, 0.110, 0.25, 0.058), 4.0, azimuth, skyElevation, sunAzimuth, hazeColor);
+        color = cumulusMass(color, vec4(3.95, 0.070, 0.31, 0.068), 5.0, azimuth, skyElevation, sunAzimuth, hazeColor);
         color = cumulusMass(color, vec4(4.70, 0.085, 0.24, 0.048), 6.0, azimuth, skyElevation, sunAzimuth, hazeColor);
-        color = cumulusMass(color, vec4(5.25, 0.060, 0.34, 0.050), 7.0, azimuth, skyElevation, sunAzimuth, hazeColor);
+        color = cumulusMass(color, vec4(5.25, 0.060, 0.27, 0.050), 7.0, azimuth, skyElevation, sunAzimuth, hazeColor);
         color = cumulusMass(color, vec4(5.90, 0.100, 0.26, 0.052), 8.0, azimuth, skyElevation, sunAzimuth, hazeColor);
         color = cumulusMass(color, vec4(0.80, 0.230, 0.17, 0.040), 9.0, azimuth, skyElevation, sunAzimuth, hazeColor);
         color = cumulusMass(color, vec4(4.20, 0.260, 0.20, 0.046), 10.0, azimuth, skyElevation, sunAzimuth, hazeColor);
@@ -332,6 +334,10 @@ void main()
                 "island-simulator: sky cumulus use layered billow silhouettes with blue-grey undersides and sunlit crowns";
             std::cout << cloudLightDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(cloudLightDiagnostic);
+            constexpr const char* cloudScaleDiagnostic =
+                "island-simulator: sky cumulus use compact normalized breakup instead of horizon-spanning ribbons";
+            std::cout << cloudScaleDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(cloudScaleDiagnostic);
         } else {
             std::cerr << "island-simulator: gradient sky stock-effect fallback: "
                       << fallbackReason_ << '\n';

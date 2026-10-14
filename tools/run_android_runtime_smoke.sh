@@ -287,6 +287,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: sky cumulus use layered billow silhouettes with blue-grey undersides and sunlit crowns" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: sky cumulus use compact normalized breakup instead of horizon-spanning ribbons" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: shrubs use early radial spread, crooked shoots, cupped leaf pitch, and wider pigment variation" \
             "$LOG_FILE" \
         && grep -q "forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows" \
@@ -409,6 +411,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         && grep -q "island-simulator: shoreline advancing wash uses footprint-filtered porous foam" \
             "$LOG_FILE" \
         && grep -q "island-simulator: ocean shared nine-wave spectrum uses filtered short-wave normals" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: shallow ocean uses filtered crossing ripple cells with restrained sky flecks" \
             "$LOG_FILE" \
         && grep -q "island-simulator: ocean shallow attenuation uses interpolated bed depth and contact fade" \
             "$LOG_FILE" \

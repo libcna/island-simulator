@@ -59,6 +59,66 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
+## Latest visual-audit implementation — low broad crab carapaces
+
+The renewed wildlife close audit selected the beach crabs: their palettes, jointed motion and
+thirty-agent colony remained coherent, but the near shell still read as a rounded beetle body from
+several angles. The accepted geometry-only refinement lowers the crown and shoulder, broadens the
+lateral rim, refits the existing surface marks, enlarges the claw palms and fitted eyes, and adds
+two low shell-corner facets so the characteristic crab width survives foreshortening. Population,
+simulation, one-batch rendering and far LOD are unchanged; the near inventory rises only from 1326
+to 1338 vertices per visible crab.
+
+Baseline/final native close evidence is
+`build-consumer/software-captures/20261014T093044.386836Z-crabs` and
+`20261014T093426.553112Z-crabs`. The inspected result has a lower shell, stronger lateral corners,
+and better-integrated claw volume while retaining ground contact and palette variation. The exact
+near inventory and anatomy diagnostic are required by native and focused browser capture gates.
+The focused Chrome/SwiftShader close audit passes with separated-time frames at
+`build/browser-software/20261014T094345.443432Z-chrome-crabs`. Native Release, four focused CTest
+targets, 112 capture harness tests, WebGL, and Android arm64-v8a assemble/lint pass under the
+four-core constraint. Android runtime appearance remains unqualified without a device/emulator.
+
+## Previous visual-audit implementation — shallow-water crossing ripple cells
+
+The water-level coast audit selected the broad near-shore surface as the next weakest element: its
+depth colour and transparency were coherent, but the existing analytic carriers often projected as
+several calm horizontal bands. The accepted fragment-only refinement reuses the two already
+filtered crossing phases, forming bounded closed ripple cells where their directions meet. Their
+trough/crest colour is restrained and only the positive near-field crests borrow a small amount of
+the existing reflected sky. It adds no texture, geometry, lookup, draw or unfiltered high-frequency
+signal, and retains depth attenuation, Fresnel, wind exposure, player ripples and foam behavior.
+
+Baseline/final native water evidence is
+`build-consumer/software-captures/20261014T092446.709157Z-water` and
+`20261014T092805.670194Z-water`; the independent dry bay-ground guard is
+`20261014T092841.495516Z-bay-ground`. The inspected result remains calm and transparent while
+breaking up the broad shallow foreground with subtle crossing surface variation, without affecting
+the adjoining beach material. The feature has an explicit runtime diagnostic required by native,
+browser and Android smoke gates. The rebuilt shader and diagnostic pass the shared Chrome/SwiftShader gate
+at `build/browser-software/20261014T093931.025253Z-chrome-sky`; the native tests and Android
+arm64-v8a assemble/lint also pass under the four-core constraint.
+
+## Previous visual-audit implementation — compact fair-weather cumulus masses
+
+The renewed whole-island overview selected the sky as the weakest remaining large-scale element:
+the widest cumulus presets still occupied long uninterrupted horizontal spans even after their
+earlier crown and lighting refinement. The accepted bounded shader pass keeps eleven clouds, one
+sky draw, the sunny fixed atmosphere, wind drift, lit crowns and cool undersides. It narrows only
+the oversized presets, tightens the common base, separates the three crown lobes and evaluates
+erosion in normalized cloud space so every preset receives comparable irregular edge breakup.
+No weather, texture, volumetric pass or additional draw was introduced.
+
+Baseline/final native overview evidence is
+`build-consumer/software-captures/20261014T091846.271785Z-overview` and
+`20261014T092007.899287Z-overview`. The inspected final retains the calm tropical composition while
+replacing the horizon-spanning white ribbons with distinct, asymmetrical masses. The new compact
+scale has an explicit runtime diagnostic and is required by native capture, focused browser sky
+and Android runtime smoke gates. Native Release, focused tests, Chrome/SwiftShader, and Android
+assemble/lint close-out checks pass under the four-core constraint. The focused browser evidence is
+`build/browser-software/20261014T093931.025253Z-chrome-sky`. Android runtime appearance remains
+unqualified without a device/emulator.
+
 ## Resolved native frame-rate regression
 
 `[x]` Operator confirms the Release version holds approximately 59.3 FPS. Runtime

@@ -35,7 +35,7 @@ namespace island
     {
         constexpr float NearLodDistance = 38.0f;
         constexpr int CarapaceSegments = 18;
-        constexpr int NearCrabVertexCount = 1326;
+        constexpr int NearCrabVertexCount = 1338;
         constexpr int FarCrabVertexCount = 12;
         constexpr int MaximumVerticesPerCrab = NearCrabVertexCount;
         constexpr int MaximumVertexCount = static_cast<int>(CrabColony::CrabCount)
@@ -48,6 +48,8 @@ namespace island
             "island-simulator: near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms";
         constexpr std::string_view CrabSurfaceDiagnostic =
             "island-simulator: near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs";
+        constexpr std::string_view CrabAnatomyDiagnostic =
+            "island-simulator: near crabs use low broad shells with retained lateral carapace corners";
 
         struct CrabPalette
         {
@@ -192,9 +194,9 @@ namespace island
         [[nodiscard]] float CarapaceSurfaceHeight(const float x, const float z)
         {
             const float ellipse = std::clamp(
-                1.0f - (x * x) / (.39f * .39f) - (z * z) / (.215f * .215f),
+                1.0f - (x * x) / (.44f * .44f) - (z * z) / (.215f * .215f),
                 0.0f, 1.0f);
-            return .096f + .070f * std::sqrt(ellipse);
+            return .070f + .058f * std::sqrt(ellipse);
         }
 
         void AppendOctahedron(std::vector<VertexPositionColor>& vertices,
@@ -245,7 +247,7 @@ namespace island
             const Vector3 up = Vector3::Up;
             const float scale = crab.scale;
             const Vector3 top = LocalPoint(
-                centre, right, up, forward, 0.0f, 0.166f, -0.01f, scale);
+                centre, right, up, forward, 0.0f, 0.134f, -0.01f, scale);
             std::array<Vector3, CarapaceSegments> crown{};
             std::array<Vector3, CarapaceSegments> shoulder{};
             std::array<Vector3, CarapaceSegments> rim{};
@@ -257,14 +259,14 @@ namespace island
                 const float sine = std::sin(angle);
                 const float frontTaper = sine > 0.0f ? 0.94f : 1.0f;
                 crown[index] = LocalPoint(centre, right, up, forward,
-                    cosine * 0.240f, 0.160f, sine * 0.090f - 0.01f, scale);
+                    cosine * 0.275f, 0.130f, sine * 0.086f - 0.01f, scale);
                 shoulder[index] = LocalPoint(centre, right, up, forward,
-                    cosine * 0.390f, 0.140f,
+                    cosine * 0.435f, 0.112f,
                     sine * 0.155f * frontTaper - 0.005f, scale);
                 rim[index] = LocalPoint(centre, right, up, forward,
-                    cosine * 0.475f, 0.095f, sine * 0.198f * frontTaper, scale);
+                    cosine * 0.515f, 0.078f, sine * 0.198f * frontTaper, scale);
                 lower[index] = LocalPoint(
-                    centre, right, up, forward, cosine * 0.440f, 0.040f,
+                    centre, right, up, forward, cosine * 0.480f, 0.040f,
                     sine * 0.178f * frontTaper, scale);
             }
             for (std::size_t index = 0; index < crown.size(); ++index) {
@@ -328,6 +330,22 @@ namespace island
                         point(mark.x, mark.z - mark.halfZ), markColor);
             }
 
+            // A crab's lateral shell corners remain characteristic even when its broad axis is
+            // foreshortened by the camera. Keep these low and integrated with the rim rather than
+            // turning them into decorative spikes.
+            for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
+                const float side = static_cast<float>(sideIndex);
+                AddDoubleSidedTriangle(
+                    vertices,
+                    LocalPoint(centre, right, up, forward, side * .38f, .088f,
+                               .135f, scale),
+                    LocalPoint(centre, right, up, forward, side * .585f, .072f,
+                               .015f, scale),
+                    LocalPoint(centre, right, up, forward, side * .39f, .080f,
+                               -.135f, scale),
+                    palette.shellSide);
+            }
+
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
                 const float side = static_cast<float>(sideIndex);
                 for (int leg = 0; leg < 4; ++leg) {
@@ -365,7 +383,7 @@ namespace island
                 const Vector3 palm = LocalPoint(
                     centre, right, up, forward, side * 0.49f, 0.15f, 0.350f, scale);
                 AppendOctahedron(vertices, palm, right, up, forward,
-                                 0.090f * scale, 0.060f * scale, 0.095f * scale,
+                                 0.105f * scale, 0.075f * scale, 0.110f * scale,
                                  palette.claw, palette.shellSide);
                 const Vector3 outerTip = LocalPoint(
                     centre, right, up, forward, side * (0.46f + clawSpread),
@@ -386,14 +404,14 @@ namespace island
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
                 const float side = static_cast<float>(sideIndex);
                 const Vector3 eyeRoot = LocalPoint(
-                    centre, right, up, forward, side * 0.12f, 0.19f, 0.19f, scale);
+                    centre, right, up, forward, side * 0.12f, 0.155f, 0.19f, scale);
                 const Vector3 eyeCentre = LocalPoint(
                     centre, right, up, forward, side * 0.12f,
-                    0.255f, 0.225f, scale);
+                    0.225f, 0.225f, scale);
                 AppendCrossedSegment(vertices, eyeRoot, eyeCentre,
                                      0.012f * scale, palette.shellSide);
                 AppendOctahedron(vertices, eyeCentre, right, up, forward,
-                                 0.024f * scale, 0.021f * scale, 0.022f * scale,
+                                 0.027f * scale, 0.024f * scale, 0.025f * scale,
                                  palette.shellHighlight, palette.shellSide);
                 const Vector3 pupilCentre = eyeCentre + forward * (0.014f * scale)
                     + up * (0.006f * scale);
@@ -478,6 +496,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(CrabSilhouetteDiagnostic);
         std::cout << CrabSurfaceDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CrabSurfaceDiagnostic);
+        std::cout << CrabAnatomyDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(CrabAnatomyDiagnostic);
     }
 
     CrabRenderer::~CrabRenderer() = default;

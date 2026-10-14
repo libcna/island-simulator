@@ -873,6 +873,8 @@ def main():
                 raise RuntimeError("current wind-driven cloud drift is missing; check for a stale executable")
             if "sky cumulus use layered billow silhouettes with blue-grey undersides and sunlit crowns" not in diagnostics:
                 raise RuntimeError("current cumulus silhouette and lighting are missing; check for a stale executable")
+            if "sky cumulus use compact normalized breakup instead of horizon-spanning ribbons" not in diagnostics:
+                raise RuntimeError("current compact cumulus scale is missing; check for a stale executable")
             if "sea turtles use domed scute carapaces, beaked heads and bending paddle strokes" not in diagnostics:
                 raise RuntimeError("current sea-turtle form is missing; check for a stale executable")
             if args.viewpoint == "turtles":
@@ -922,6 +924,8 @@ def main():
                     raise RuntimeError("current crab silhouette proportions are missing; check for a stale executable")
                 if "near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs" not in diagnostics:
                     raise RuntimeError("current crab shell surface is missing; check for a stale executable")
+                if "near crabs use low broad shells with retained lateral carapace corners" not in diagnostics:
+                    raise RuntimeError("current crab shell anatomy is missing; check for a stale executable")
                 if not re.search(r"crabs [1-9][0-9]*/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):
                     raise RuntimeError("crab capture did not submit a near detailed colony")
             if args.viewpoint == "bush" and "bush QA target variant 0 at player-eye detail distance" not in diagnostics:
@@ -964,6 +968,8 @@ def main():
                 raise RuntimeError("current ocean horizon haze is missing; check for a stale executable")
             if "ocean shared nine-wave spectrum uses filtered short-wave normals" not in diagnostics:
                 raise RuntimeError("current ocean spectrum is missing; check for a stale executable")
+            if "shallow ocean uses filtered crossing ripple cells with restrained sky flecks" not in diagnostics:
+                raise RuntimeError("current shallow crossing-ripple detail is missing; check for a stale executable")
             if "shoreline advancing wash uses footprint-filtered porous foam" not in diagnostics:
                 raise RuntimeError("current shoreline foam is missing; check for a stale executable")
             if "shoreline foam follows bounded east-to-west coastal wind exposure" not in diagnostics:
