@@ -82,16 +82,19 @@ entire outer stone shell still read as a freestanding pair of tunnel humps. A he
 represent both the walkable cave floor and a second terrain surface above the same X/Z coordinate,
 so the existing collision shell now provides that upper surface visually: upward exterior facets
 transition from portal rock into procedural earth and restrained turf, while steep entrance faces
-and every interior facet remain stone. The same static cave draw adds 186 deterministic crossed
-grass tufts on qualified crown facets. This adds 372 triangles (1,116 vertices), taking the renderer
-from 1,510 to 1,882 triangles without a new texture, draw, collision shape or update loop.
+and every interior facet remain stone. A follow-up overhead review found the first 186 sparse
+crossed tufts still revealed the regular arch silhouette. The same static draw now covers every
+qualified crown facet with 371 irregular three-blade tufts and brings the ground colour closer to
+the surrounding turf. The vegetation adds 1,113 triangles (3,339 vertices), taking the renderer
+from 1,510 to 2,623 triangles without a new texture, draw, collision shape or update loop.
 
-Native exterior baseline `20261014T150343.776171Z-cave` and final overhead/entrance evidence
-`20261014T151139.529465Z-cave` were inspected; the final shell is earth/grass-covered and blended
-into the rising slope while the compact rocky portal remains readable. Interior guard
-`20261014T151154.758001Z-cave-inside` confirms the 20 m passage, floor, exit sightline and ceiling
-pendants remain intact. Both final views pass the ordinary image gate; cave topology, capsule
-clearance and terrain-target tests pass unchanged.
+Native exterior baseline `20261014T150343.776171Z-cave`, first cover
+`20261014T151139.529465Z-cave` and denser final overhead/entrance evidence
+`20261014T152840.308496Z-cave` were inspected. The final shell is earth/grass-covered and blended
+into the rising slope while the compact rocky portal remains readable; it passes at 263 colour
+bins, 44.11 luminance deviation and 236.00 spatial contrast. Interior guard
+`20261014T152904.642266Z-cave-inside` confirms the 20 m passage, floor, exit sightline and ceiling
+pendants remain intact. Cave topology, capsule clearance and terrain-target tests pass unchanged.
 
 ## Latest landmark repair — closed hut wall and gables
 

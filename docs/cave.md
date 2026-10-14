@@ -260,9 +260,14 @@ existing closed collision shell is also the visual upper land surface: upward ex
 blend out of entrance rock into procedural brown earth and restrained turf after the portal. Steep
 portal faces and all interior faces remain the existing triplanar fractured rock.
 
-The one existing static batch adds 186 deterministic crossed grass tufts on qualified upward crown
-triangles. They add 1,116 vertices / 372 triangles, bringing the rendered inventory to 1,882
-triangles. They use a private material selector in the existing local-material field and the same
-shader, buffer and draw; no texture, collision, simulation or update work is added. Exterior and
-interior native evidence is recorded in `PLAN.md`. The interior path/capsule contract and the 1,424
-authoritative collision triangles are unchanged.
+The first pass added 186 deterministic crossed grass tufts. An overhead re-review found that cover
+too sparse to break the regular arch outline, so the final one-batch crown places 371 irregular
+three-blade tufts on every qualified upward facet and uses a greener earth/turf blend matching the
+surrounding hill. They add 3,339 vertices / 1,113 triangles, bringing the rendered inventory to
+2,623 triangles. They use a private material selector in the existing local-material field and the
+same shader, buffer and draw; no texture, collision, simulation or update work is added.
+
+Final exterior `20261014T152840.308496Z-cave` passes at 263 colour bins, 44.11 luminance
+deviation and 236.00 spatial contrast. Interior `20261014T152904.642266Z-cave-inside` passes at
+168 / 26.37 / 113.45 and confirms that the cover does not intrude into the entrance or tunnel.
+The interior path/capsule contract and the 1,424 authoritative collision triangles are unchanged.

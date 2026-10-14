@@ -74,12 +74,12 @@ def validate_cave_report(report):
             or not isinstance(frame, str) or not frame.endswith(".png")
             or f"cave QA camera {side}" not in log
             or "cave rock first visible draw" not in log
-            or "cave rock 1882 triangles in one culled draw; 20m walkable interior" not in log
+            or "cave rock 2623 triangles in one culled draw; 20m walkable interior" not in log
             or "cave terrain shoulders use an irregular rock apron around the open corridor" not in log
             or "cave connected shell strips share smooth lighting normals while portal breaks stay sharp" not in log
             or "cave adds six high-clearance eroded ceiling pendants in the existing draw" not in log
             or "cave mouth is embedded in a rising inland mountain slope" not in log
-            or "cave crown carries an earth-and-grass cap with 186 sparse blade tufts in the existing draw" not in log
+            or "cave crown is concealed from above by blended earth and 371 irregular three-blade tufts in the existing draw" not in log
             or "cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling" not in log
             or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
             raise RuntimeError("cave view lacks current material, terrain blend or clean graphics state")

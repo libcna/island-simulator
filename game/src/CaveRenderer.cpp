@@ -105,9 +105,9 @@ void main(){
     // while the portal lip and steep side rock remain exposed and readable.
     float cap=exterior*smoothstep(-.05,.38,normal.y)*smoothstep(-.35,1.35,local.z);
     float earthNoise=noise(local*vec3(.38,.24,.41)+vec3(4.2,1.7,8.3));
-    vec3 earth=mix(vec3(.285,.225,.125),vec3(.365,.305,.175),earthNoise);
+    vec3 earth=mix(vec3(.265,.235,.125),vec3(.335,.295,.160),earthNoise);
     float turf=smoothstep(.47,.69,noise(local*.52+vec3(9.1,3.0,2.4)));
-    vec3 covered=mix(earth,vec3(.205,.315,.095),turf*.38);
+    vec3 covered=mix(earth,vec3(.215,.295,.085),.22+turf*.43);
     stone=mix(stone,covered,cap*.985);
     if(grassBlade>0.5)
         stone=mix(vec3(.13,.225,.055),vec3(.225,.345,.085),
@@ -170,7 +170,7 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
                 {local.x,local.y,local.z,material}});
         }
     }
-    // Sparse crossed blades give the earth-toned crown a real grass silhouette from
+    // Dense, irregular three-way tufts conceal the mathematical arch silhouette from
     // above. They reuse this draw/shader and sit only on upward outer-shell triangles.
     int capCandidate=0,grassTuftCount=0;
     for(const auto& triangle:cave.Triangles()) {
@@ -181,11 +181,13 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
         }
         const auto local=cave.Local(centre);
         if(local.z<.35f||local.z>CaveLayout::OuterLength-1.0f)continue;
-        if(capCandidate++%2!=0)continue;
-        const float angle=std::fmod(static_cast<float>(capCandidate)*2.3999632f,2.0f*std::numbers::pi_v<float>);
-        const float height=.16f+.07f*std::sin(static_cast<float>(capCandidate)*1.71f)*.5f+.035f;
+        ++capCandidate;
+        const float phase=static_cast<float>(capCandidate);
+        const float angle=std::fmod(phase*2.3999632f,2.0f*std::numbers::pi_v<float>);
+        const float height=.20f+.10f*(.5f+.5f*std::sin(phase*1.71f));
         const Vector3 c(centre.x,centre.y+.018f,centre.z);
-        const Vector3 first(std::cos(angle)*.055f,0,std::sin(angle)*.055f);
+        const float halfWidth=.058f+.020f*(.5f+.5f*std::sin(phase*.83f));
+        const Vector3 first(std::cos(angle)*halfWidth,0,std::sin(angle)*halfWidth);
         const Vector3 second(-first.Z,0,first.X);
         const auto blade=[&](const Vector3 side,const float lean) {
             const Vector3 a=c-side,b=c+side,tip=c+Vector3(side.Z*lean,height,-side.X*lean);
@@ -196,7 +198,9 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
                     {l.x,l.y,l.z,2.0f}});
             }
         };
-        blade(first,.35f);blade(second,-.25f);++grassTuftCount;
+        blade(first,.35f);blade(second,-.25f);
+        blade(Vector3::Normalize(first+second)*halfWidth,.18f);
+        ++grassTuftCount;
     }
     // Shallow eroded ceiling pendants break the otherwise continuous tunnel arch.
     // Their tips remain above 2.3m local height, clear of the walking capsule, so
@@ -269,8 +273,8 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
     std::cout<<"island-simulator: cave connected shell strips share smooth lighting normals while portal breaks stay sharp\n";
     std::cout<<"island-simulator: cave adds six high-clearance eroded ceiling pendants in the existing draw\n";
     std::cout<<"island-simulator: cave mouth is embedded in a rising inland mountain slope\n";
-    std::cout<<"island-simulator: cave crown carries an earth-and-grass cap with "
-             <<grassTuftCount<<" sparse blade tufts in the existing draw\n";
+    std::cout<<"island-simulator: cave crown is concealed from above by blended earth and "
+             <<grassTuftCount<<" irregular three-blade tufts in the existing draw\n";
     const char* material="island-simulator: cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling";
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
 }
