@@ -2062,6 +2062,14 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
 All six items remain incomplete or in progress. Stream/cave/helicopter locations should be coordinated with
 hut access and existing wildlife; do not remove vegetation or relocate animals blindly.
 
+The 2026-10-14 cross-species visual audit compared the current resident, bear, boars, goats,
+monkeys, snakes, spiders, crabs, fish, turtles, shark, dolphins, birds and butterflies in one
+contact sheet. The largest remaining anatomy failure was the dolphin face: its beak collapsed to a
+flat plate and its eye read as a black diamond. The corrected close tier uses a deeper tapered
+twelve-sided rostrum and small six-facet oval eyes, adding 24 vertices while retaining one draw and
+all motion/LOD behavior. Inspected native evidence is `20261014T175547.884290Z-dolphins`; broader
+WebGL/Android qualification will run with the bunker integration.
+
 ## Product definition and non-goals
 
 `island-simulator` is a peaceful first-person tropical island walking and near-shore swimming

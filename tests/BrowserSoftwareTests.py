@@ -397,13 +397,14 @@ class BrowserSoftwareTests(unittest.TestCase):
         silhouette = "near dolphins use a nineteen-station closed melon profile, twenty-four-sided body, and vertex-blended countershading"
         stroke = "dolphin tail stock bends vertically through horizontal fluke strokes"
         profile = "near dolphins use an extended fitted rostrum, lower swept fins, and readable grey countershading"
-        geometry = "dolphin near/far geometry 3144/15 vertices, closed fins and CPU faceted daylight"
+        face = "dolphin facial pass uses a stout tapered rostrum and small six-facet oval eyes instead of flat diamond marks"
+        geometry = "dolphin near/far geometry 3168/15 vertices, closed fins and CPU faceted daylight"
         def report():
             return {"passed": True, "views": [{"mode": "dolphins", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "dolphins.png", "afterSimulationScreenshot": "dolphins-after.png",
                 "intervals": [16.7] * 60,
-                "result": {"output": marker + "\n" + silhouette + "\n" + stroke + "\n" + profile + "\n" + geometry
+                "result": {"output": marker + "\n" + silhouette + "\n" + stroke + "\n" + profile + "\n" + face + "\n" + geometry
                     + "\ndolphins 1/4 visible (near 1, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_dolphin_report(report()),
                          ("dolphins.png", "dolphins-after.png"))

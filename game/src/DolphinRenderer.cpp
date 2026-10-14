@@ -198,19 +198,20 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
                      wildlife_render::ScaleColor(colors[0], .88f),
                      SmoothBodyColor(colors, axes, nextAngle));
   }
-  // A short closed beak beneath the rounded melon avoids a fish-like needle profile.
+  // A stout closed rostrum grows out of the lower forehead. Earlier radii made the
+  // beak collapse into a paper-thin plate in the authored broadside camera.
   constexpr int RostrumSegments = 12;
   std::array<Vector3, RostrumSegments> rostrumBase{};
   std::array<Vector3, RostrumSegments> rostrumTip{};
   for (int segment = 0; segment < RostrumSegments; ++segment) {
     const float angle = 2.0f * std::numbers::pi_v<float>
         * static_cast<float>(segment) / static_cast<float>(RostrumSegments);
-    rostrumBase[segment] = Point(centre, axes, .094f * std::cos(angle),
-        -.042f + .058f * std::sin(angle), .895f, scale);
-    rostrumTip[segment] = Point(centre, axes, .043f * std::cos(angle),
-        -.048f + .032f * std::sin(angle), 1.125f, scale);
+    rostrumBase[segment] = Point(centre, axes, .108f * std::cos(angle),
+        -.032f + .068f * std::sin(angle), .882f, scale);
+    rostrumTip[segment] = Point(centre, axes, .058f * std::cos(angle),
+        -.043f + .043f * std::sin(angle), 1.135f, scale);
   }
-  const auto rostrumCap = Point(centre, axes, 0, -.048f, 1.155f, scale);
+  const auto rostrumCap = Point(centre, axes, 0, -.043f, 1.180f, scale);
   for (int segment = 0; segment < RostrumSegments; ++segment) {
     const int next = (segment + 1) % RostrumSegments;
     const float angle = 2.0f * std::numbers::pi_v<float>
@@ -253,22 +254,24 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
         Point(centre, axes, side * .10f, tail - .014f, -1.05f, scale)};
     ClosedPolygon(out, fluke, axes.up * (.007f * scale), colors[0], colors[1]);
   }
-  const Color eyeShine(126, 148, 151, 255);
+  const Color eyeShine(153, 173, 176, 255);
   for (float side : {-1.0f, 1.0f}) {
-    const auto eyeTop = Point(centre, axes, side * .210f, .085f, .645f, scale);
-    const auto eyeFront = Point(centre, axes, side * .217f, .055f, .672f, scale);
-    const auto eyeBottom = Point(centre, axes, side * .220f, .025f, .642f, scale);
-    const auto eyeRear = Point(centre, axes, side * .216f, .055f, .610f, scale);
-    if (side > 0) {
-      Triangle(out, eyeTop, eyeBottom, eyeFront, colors[3]);
-      Triangle(out, eyeTop, eyeRear, eyeBottom, colors[3]);
-    } else {
-      Triangle(out, eyeTop, eyeFront, eyeBottom, colors[3]);
-      Triangle(out, eyeTop, eyeBottom, eyeRear, colors[3]);
+    constexpr int EyeSegments = 6;
+    const auto eyeCentre = Point(centre, axes, side * .218f, .058f, .642f, scale);
+    for (int segment = 0; segment < EyeSegments; ++segment) {
+      const float first = 2.0f * std::numbers::pi_v<float> * segment / EyeSegments;
+      const float next = 2.0f * std::numbers::pi_v<float> * (segment + 1) / EyeSegments;
+      const auto edge = [&](const float angle) {
+        return Point(centre, axes, side * .221f,
+                     .058f + std::sin(angle) * .014f,
+                     .642f + std::cos(angle) * .020f, scale);
+      };
+      if (side > 0) Triangle(out, eyeCentre, edge(next), edge(first), colors[3]);
+      else Triangle(out, eyeCentre, edge(first), edge(next), colors[3]);
     }
-    Triangle(out, Point(centre, axes, side * .222f, .073f, .650f, scale),
-             Point(centre, axes, side * .223f, .060f, .660f, scale),
-             Point(centre, axes, side * .223f, .059f, .640f, scale), eyeShine);
+    Triangle(out, Point(centre, axes, side * .223f, .066f, .649f, scale),
+             Point(centre, axes, side * .224f, .061f, .653f, scale),
+             Point(centre, axes, side * .224f, .060f, .646f, scale), eyeShine);
 
     const auto mouthFront = Point(centre, axes, side * .027f, -.078f, 1.150f, scale);
     const auto mouthOuter = Point(centre, axes, side * .092f, -.078f, .905f, scale);
@@ -350,6 +353,10 @@ DolphinRenderer::DolphinRenderer(GraphicsDevice &device,
       "island-simulator: near dolphins use an extended fitted rostrum, lower swept fins, and readable grey countershading";
   std::cout << profile << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(profile);
+  const char *face =
+      "island-simulator: dolphin facial pass uses a stout tapered rostrum and small six-facet oval eyes instead of flat diamond marks";
+  std::cout << face << '\n';
+  MirrorRuntimeDiagnosticToPlatformLog(face);
 }
 DolphinRenderer::~DolphinRenderer() = default;
 

@@ -117,6 +117,21 @@ emulator; Release and Debug 600-second pod regressions pass. Current Android run
 continuous interactive observation, skin microtexture and physical-device performance remain
 open.
 
+## Facial readability audit — 2026-10-14
+
+The cross-species audit found that the close broadside dolphin still lost its most important
+cetacean cue: the narrow beak collapsed into a nearly flat plate, while the eye mark read as an
+oversized black diamond. The rostrum now starts deeper beneath the melon, tapers through a larger
+twelve-sided base and retains thickness at its rounded forward cap. Each eye is a much smaller
+six-facet oval with a restrained highlight. This adds only 24 close-tier vertices, changing the
+fixed budget from 3,144 to 3,168 vertices; population, dynamic batching, LOD, motion and one draw
+remain unchanged.
+
+Native llvmpipe evidence `20261014T175547.884290Z-dolphins` passes at 1280 by 720 with 120 colour
+bins, 44.72 luminance deviation, 210.79 spatial contrast and no captured kernel fault. The image
+was inspected at original resolution. Focused WebGL and Android qualification are grouped with the
+larger secret-bunker integration pass.
+
 ## Known limitations
 
 The close animal remains a deliberately economical procedural model; its mouth crease, blowhole
