@@ -452,6 +452,23 @@ void main()
         float dropoff = smoothstep(78.0, 104.0, offshore)
             * smoothstep(4.0, 8.0, bedDepth) * submergedHabitat;
         color = mix(color, vec3(0.095, 0.145, 0.145) * vGroundLight, dropoff * 0.58);
+
+        // Sparse shell fragments remain readable on the close sandy gaps between
+        // lagoon grass and reef cover. Reuse the filtered material fleck primitive
+        // instead of adding geometry or another underwater draw.
+        float shallowSandDetail = submergedHabitat
+            * (1.0 - smoothstep(3.0, 4.6, bedDepth))
+            * (1.0 - smoothstep(30.0, 62.0, distanceToCamera))
+            * smoothstep(0.34, 0.72, sandChannel)
+            * (1.0 - meadow * 0.78) * (1.0 - reefCover * 0.88);
+        if (shallowSandDetail > 0.0) {
+            float ivoryShell = groundFleck(p, 0.88, vec2(21.7, -4.3), 0.80);
+            float roseShell = groundFleck(p, 1.04, vec2(-7.8, 26.1), 0.88);
+            color = mix(color, vec3(0.78, 0.73, 0.57) * vGroundLight,
+                        ivoryShell * shallowSandDetail * 0.34);
+            color = mix(color, vec3(0.66, 0.49, 0.40) * vGroundLight,
+                        roseShell * shallowSandDetail * 0.25);
+        }
     }
 
     float groundVariation = (broad * 0.185 + medium * 0.120 + fine * 0.024)

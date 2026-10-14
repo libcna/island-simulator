@@ -52,6 +52,18 @@ The current shelf limits how clearly the outer reef is visible through the exist
 
 Hardware qualification remains stopped. Software captures do not qualify the host AMD GPU.
 
+## Shallow-scene completion — 2026-10-15
+
+The generated near-surface overlay now includes sparse deterministic suspended motes without
+changing its 160 by 90 allocation or single conditional draw. Close shallow sandy channels also
+receive two footprint-filtered shell-fragment colours from the existing terrain material; meadow,
+reef, depth and distance masks prevent a uniform scatter. Together with the spatial habitat below,
+the existing sand ripples, fish and shared aquatic lighting, this closes macro-geography item 16.
+Native inspected evidence is
+`build-consumer/software-captures/20261014T233503.630466Z-reef-habitat`; the current browser coast
+suite and ARM64 assemble/lint also pass. Full volumetric underwater fog and refractive water remain
+explicitly outside this bounded scene treatment.
+
 ## Spatial habitat follow-up — 2026-10-12
 
 The material-only limitation now has a first three-dimensional implementation in the

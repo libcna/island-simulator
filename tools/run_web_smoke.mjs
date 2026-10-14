@@ -1258,7 +1258,7 @@ try {
     && result.output?.includes("island-simulator: prevailing-wind shelter adds 10 driftwood and 24 shell/wrack placements to the leeward bay")
     && result.output?.includes("island-simulator: dry wrack reuses one of four beach-detail variants")
     && result.output?.includes(
-      "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw")
+      "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, peripheral veil, and sparse suspended motes in one draw")
     && result.output?.includes(
       "island-simulator: movement ripples and shoreline-transition bursts integrated into the portable ocean shader")
     && result.output?.includes(
@@ -2190,7 +2190,7 @@ try {
     && waterResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && waterResult.output?.includes(
-      "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw")
+      "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, peripheral veil, and sparse suspended motes in one draw")
     && /water view 0[.][1-9][0-9]*, 1 draw, player ripple 0[.][1-9][0-9]*, phase [01](?:[.][0-9]+)?, splash 0[.][1-9][0-9]*, phase 0[.][0-9]+/.test(
       waterResult.output ?? "")
     && !waterResult.error;
@@ -2228,7 +2228,7 @@ try {
     && currentResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && currentResult.output?.includes(
-      "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw")
+      "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, peripheral veil, and sparse suspended motes in one draw")
     && /water view 0[.][1-9][0-9]*, 1 draw, player ripple [01](?:[.][0-9]+)?, phase [01](?:[.][0-9]+)?, splash 0, phase 1, current 0[.][1-9][0-9]*/.test(
       currentResult.output ?? "")
     && /undertow target 0[.][1-9][0-9]*/.test(currentResult.output ?? "")

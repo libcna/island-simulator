@@ -591,7 +591,7 @@ try {
       "island-simulator: renderer WEBGL2",
       "island-simulator: ocean sunward ripple crests reuse analytic slope field",
       "island-simulator: ocean grazing reflection bands reuse analytic slope field",
-      "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw",
+      "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, peripheral veil, and sparse suspended motes in one draw",
     ],
     waterStatePattern);
   const shipwreckScene = await qualifyScene(

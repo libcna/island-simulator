@@ -222,10 +222,10 @@ The AMD incident remains unresolved. Headless software frame times are not phone
   Fresnel coverage reduce the strongest cyan crosshatch at swimming height. The spectrum remains
   small and stylized; there is no physically integrated rough-surface or scene-reflection model.
   Swimming adds a deliberately subtle,
-  depth-responsive turquoise edge veil with restrained upper-surface scatter that cools and
-  strengthens with the offshore current, but
-  full underwater fog, a geometric waterline, refraction-like cues, true splash particles, and
-  final wash/material tuning remain incomplete. Moving water entry/exit does produce a short
+  depth-responsive turquoise edge veil with restrained upper-surface scatter and sparse generated
+  suspended motes that cools and strengthens with the offshore current, but full volumetric
+  underwater fog, a geometric waterline, refraction-like cues, true splash particles, and final
+  wash/material tuning remain incomplete. Moving water entry/exit does produce a short
   speed-scaled pair of broken shader-integrated surface rings.
 - Palms, grass, canopy trees, understory, low bushes, and forest-floor plants have deterministic
   calm wind, and nearby mesh grass now bends around the player's stationary body radius and expands

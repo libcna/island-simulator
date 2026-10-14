@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -28,6 +29,25 @@ namespace island
         {
             const float t = std::clamp(value, 0.0f, 1.0f);
             return t * t * (3.0f - 2.0f * t);
+        }
+
+        [[nodiscard]] float SuspendedMote(const int x, const int y,
+                                          const float edge, const float v) noexcept
+        {
+            std::uint32_t hash = static_cast<std::uint32_t>(x) * 0x9e3779b9U
+                ^ static_cast<std::uint32_t>(y) * 0x85ebca6bU ^ 0x6d2b79f5U;
+            hash ^= hash >> 16U;
+            hash *= 0x7feb352dU;
+            hash ^= hash >> 15U;
+            hash *= 0x846ca68bU;
+            hash ^= hash >> 16U;
+            if ((hash & 2047U) >= 11U) return 0.0f;
+            const float depthEnvelope = SmoothStep((v - 0.08f) / 0.28f)
+                * (1.0f - 0.45f * SmoothStep((v - 0.78f) / 0.22f));
+            const float centreEnvelope = 1.0f - edge * 0.72f;
+            const float strength = 0.42f
+                + 0.58f * static_cast<float>((hash >> 12U) & 255U) / 255.0f;
+            return depthEnvelope * centreEnvelope * strength;
         }
 
         [[nodiscard]] std::unique_ptr<Texture2D> CreateVeilTexture(GraphicsDevice& device)
@@ -59,16 +79,19 @@ namespace island
                         u * 12.0f + v * 2.1f + std::sin(u * 3.7f) * 1.4f);
                     const float lightRay = SmoothStep((rayField - 0.70f) / 0.25f)
                         * surfaceLight * (0.45f + 0.55f * (1.0f - v));
+                    const float suspendedMote = SuspendedMote(x, y, edge, v);
                     const float alpha = std::clamp(
                         8.0f + edge * 25.0f + depthVeil * 15.0f
-                            + surfaceScatter * 10.0f + lightRay * 5.0f,
+                            + surfaceScatter * 10.0f + lightRay * 5.0f
+                            + suspendedMote * 15.0f,
                         0.0f, 63.0f);
                     const int alphaByte = static_cast<int>(std::lround(alpha));
                     const auto premultiply = [alphaByte](const float channel) {
                         return static_cast<int>(std::lround(
                             channel * static_cast<float>(alphaByte) / 255.0f));
                     };
-                    const float lightLift = surfaceScatter * 34.0f + lightRay * 18.0f;
+                    const float lightLift = surfaceScatter * 34.0f + lightRay * 18.0f
+                        + suspendedMote * 92.0f;
                     pixels[static_cast<std::size_t>(y * TextureWidth + x)] = Color(
                         premultiply(48.0f + lightLift),
                         premultiply(142.0f + depthVeil * 8.0f + lightLift * 0.72f),

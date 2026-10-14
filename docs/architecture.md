@@ -252,8 +252,9 @@ otherwise empty build-owned directory to protect the present contract.
    authoritative player eye.
 7. `WaterViewModel` converts swimming state, authoritative support depth, and normalized offshore
    current to a smoothed veil intensity. `WaterViewOverlay` later uses that value for one generated
-   `SpriteBatch` draw with a vertical depth haze, restrained upper-surface scatter, and peripheral
-   colour; it cools slightly as current develops and submits nothing while dry.
+   `SpriteBatch` draw with a vertical depth haze, restrained upper-surface scatter, peripheral
+   colour, and deterministic sparse suspended motes; it cools slightly as current develops and
+   submits nothing while dry.
    `WaterRippleModel` independently derives a smoothed, wrapped surface-ripple state from support
    depth and horizontal speed. The same finite-safe model detects moving wet/dry crossings with
    7.5/2.5 cm hysteresis, a 1.6-second cooldown, and a bounded 1.6-second transition phase; the

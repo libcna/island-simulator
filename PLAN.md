@@ -60,6 +60,27 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — complete shallow underwater scene
+
+The swimming audit found that spatial reef forms, seagrass substrate, rocks, sand ripples, fish,
+caustic daylight and blue-green depth extinction were already integrated, but plan item 16 still
+lacked suspended matter and shells on the submerged sand itself. The existing generated 160 by 90
+near-surface overlay now contains a deterministic sparse mote field. It remains in the same texture
+allocation and the same conditional `SpriteBatch` submission, so swimming still costs exactly one
+overlay draw. Two restrained material-only shell-fragment families now appear on close shallow
+sandy channels between meadow and reef cover; depth, camera footprint and habitat masks keep them
+off deep water, grass and coral. This adds no mesh, texture, buffer or draw.
+
+Native llvmpipe `build-consumer/software-captures/20261014T233503.630466Z-reef-habitat` passes at
+1280 by 720 with 109 colour bins, 25.80 luminance deviation and 130.63 spatial contrast. The image
+was inspected at original resolution: sparse motes remain subordinate to readable coral and the
+filtered shell material does not become bright underwater confetti. Chrome/SwiftShader coast
+evidence `build/browser-software/20261014T231851.908044Z-chrome-coast` passes shipwreck, water,
+west and reef views for 120 finite positive intervals each, GL0, live contexts and an empty new
+kernel delta. ARM64 assemble/lint passes through the two-worker wrapper using the pinned local
+Sharp Runtime checkout (24,046,595 bytes, SHA-256
+`b200958ab9fee3d1c5ea92e172a987ef86deee2070f207fdac79648ee2217e43`) without emulator/KVM.
+
 ## Latest visual-audit implementation — one authored atmosphere fog colour
 
 The atmosphere audit found that stock-effect renderers already consumed the shared C++ fog
@@ -3741,8 +3762,9 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   `distant`/`overview` captures inspected.
 - [ ] 15. Coastal micro-topography of 20-100 cm: beach berm, small dunes, erosion edge, rock steps,
   wash channels, exposed roots, small tidal pools.
-- [ ] 16. Underwater environment for swimming: seagrass patches, simple coral heads, stones, sand
+- [x] 16. Underwater environment for swimming: seagrass patches, simple coral heads, stones, sand
   ripples, shells, small fish, suspended particles, subtle caustics, blue-green depth extinction.
+  Completed by the spatial habitat work plus the 2026-10-15 shallow-scene audit recorded above.
 - [ ] 17. Small fauna with simple behaviour (for example a gecko that sits, flees, disappears):
   geckos, skinks, hermit crabs, coconut crabs, more small crabs, shorebirds and seabirds, fruit bats,
   dragonflies, cicadas, beetles, small lizards. Monkeys and boars remain.

@@ -1680,7 +1680,7 @@ namespace island
                   << "island-simulator: terrain-conforming contact shadows in one portable "
                      "near-field batch\n"
                   << "island-simulator: near-surface swimming view uses generated depth haze, "
-                     "surface scatter, and peripheral veil in one draw\n"
+                     "surface scatter, peripheral veil, and sparse suspended motes in one draw\n"
                   << "island-simulator: movement ripples and shoreline-transition bursts "
                      "integrated into the portable ocean shader\n"
                   << "island-simulator: outer-ocean current uses progressive inward return "
