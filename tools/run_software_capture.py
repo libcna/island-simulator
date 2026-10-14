@@ -23,6 +23,8 @@ from gpu_incident_qualification import (
     contained_command, artifact_identity,
 )
 
+SPIDER_POPULATION = 200
+
 
 def validate_campfire_stages(log):
     rows=re.findall(r"campfire motion stage=(\d+) updates=(\d+) time=(\S+) draws=(\d+) effect-triangles=(\d+)",log)
@@ -244,7 +246,8 @@ def validate_spider_lighting(text):
 def validate_spider_habitat_selection(text):
     rows = re.findall(r"spider habitat candidate=(\d+) transmission=(\S+)", text)
     selected = re.findall(r"spider habitat selected=(\d+)", text)
-    if [int(row[0]) for row in rows] != list(range(12)) or len(selected) != 1:
+    if ([int(row[0]) for row in rows] != list(range(SPIDER_POPULATION))
+            or len(selected) != 1):
         raise RuntimeError("incomplete spider habitat comparison")
     try:
         values = [float(row[1]) for row in rows]
@@ -253,7 +256,7 @@ def validate_spider_habitat_selection(text):
     if not all(math.isfinite(v) and 0 <= v <= 1 for v in values):
         raise RuntimeError("invalid spider habitat transmission")
     subject = int(selected[0])
-    if subject != max(range(12), key=values.__getitem__):
+    if subject != max(range(SPIDER_POPULATION), key=values.__getitem__):
         raise RuntimeError("spider camera did not select first brightest existing habitat")
     return {"bodyTransmissions": values, "subject": subject}
 

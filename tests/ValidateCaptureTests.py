@@ -47,8 +47,27 @@ class CaptureValidatorTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_capture(image, profile="unknown")
         self.assertEqual(profile_for_viewpoint("litter"), "shaded-detail")
+        self.assertEqual(profile_for_viewpoint("spiders-bright"), "close-natural-detail")
         for name in ("", "overview", "grass", "wet-sand", "litter-other", "interactive"):
             self.assertEqual(profile_for_viewpoint(name), "scene")
+
+    def test_close_natural_detail_retains_bounded_non_degenerate_thresholds(self):
+        image = PpmImage(640, 360, b"")
+        metrics = {"luminanceMean": 53.0, "luminanceStandardDeviation": 12.0,
+                   "quantizedColorBins": 49, "spatialContrast": 18.0,
+                   "darkPixelFraction": 0.0, "brightPixelFraction": 0.0}
+        with patch("tools.validate_capture.analyze_capture", return_value=metrics):
+            report = validate_capture(image, profile="close-natural-detail")
+            self.assertTrue(report["valid"])
+            self.assertEqual(report["thresholds"]["minimumQuantizedColorBins"], 40)
+            self.assertEqual(report["thresholds"]["minimumSpatialContrast"], 15.0)
+            for key, bad in (("luminanceStandardDeviation", 9.0),
+                             ("quantizedColorBins", 39), ("spatialContrast", 14.0)):
+                # Re-run with one deliberately failed gate while preserving all others.
+                with patch("tools.validate_capture.analyze_capture",
+                           return_value={**metrics, key: bad}):
+                    self.assertFalse(validate_capture(
+                        image, profile="close-natural-detail")["valid"])
 
     def test_shaded_profile_preserves_other_failure_gates(self):
         image = PpmImage(640, 360, b"")
