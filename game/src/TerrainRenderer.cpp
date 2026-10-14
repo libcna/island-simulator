@@ -79,6 +79,8 @@ namespace island
             "island-simulator: terrain steep faces use dominant-axis rock projection with broken bedding and joints";
         constexpr std::string_view RidgeSkyFillDiagnostic =
             "island-simulator: inland ridge rock starts on sustained slopes and retains cool sky fill in fixed-sun shade";
+        constexpr std::string_view CoastalCliffFillDiagnostic =
+            "island-simulator: low coastal cliffs retain salt-worn mineral colour and cool open-sky fill";
 
         const VertexDeclaration& TerrainDeclaration()
         {
@@ -603,9 +605,15 @@ void main()
     // featureless green vertex palette. Existing filtered fields break the edge.
     float ridgeRock = smoothstep(0.19, 0.46, slopeRadians + broad * 0.14 + medium * 0.08)
         * interior * smoothstep(4.0, 10.0, vWorld.y);
+    float coastalCliff = coastField.x * smoothstep(0.26, 0.58, slopeRadians)
+        * smoothstep(-0.25, 0.35, vWorld.y)
+        * (1.0 - smoothstep(9.0, 17.0, vWorld.y));
     ridgeRock = max(ridgeRock, coastField.x * smoothstep(-0.25, 0.35, vWorld.y));
     vec3 weatheredRock = mix(vec3(0.285, 0.285, 0.250), vec3(0.455, 0.390, 0.295),
         clamp(0.5 + broad * 0.80 + medium * 0.42, 0.0, 1.0));
+    vec3 saltWornRock = mix(vec3(0.350, 0.370, 0.350), vec3(0.485, 0.425, 0.330),
+        clamp(0.52 + broad * 0.68 + medium * 0.48, 0.0, 1.0));
+    weatheredRock = mix(weatheredRock, saltWornRock, coastalCliff * 0.62);
     weatheredRock *= 1.0 + medium * 0.27 + fine * 0.045;
     if (ridgeRock > 0.0) {
         // Height-field x/z noise stretches into muddy vertical curtains on a steep face.
@@ -651,6 +659,8 @@ void main()
     vec3 litRidgeRock = weatheredRock * vGroundLight;
     float ridgeSkyFill = 1.0 - smoothstep(0.38, 0.72, vGroundLight);
     litRidgeRock += vec3(0.060, 0.078, 0.084) * ridgeSkyFill;
+    litRidgeRock += vec3(0.038, 0.054, 0.058) * coastalCliff
+        * (0.62 + ridgeSkyFill * 0.38);
     color = mix(color, litRidgeRock, ridgeRock * 0.98);
 
     // One shared environment field darkens the carved drainage and its irregular damp banks.
@@ -875,6 +885,8 @@ void main()
                     MirrorRuntimeDiagnosticToPlatformLog(CliffMaterialDiagnostic);
                     std::cout << RidgeSkyFillDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(RidgeSkyFillDiagnostic);
+                    std::cout << CoastalCliffFillDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(CoastalCliffFillDiagnostic);
                 } else {
                     std::cerr << "island-simulator: terrain material fallback: "
                               << materialEffect_->GetCompileErrorEXT() << '\n';

@@ -122,7 +122,25 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — broad valley-scale stream bends
+## Latest visual-audit implementation — readable low coastal cliffs
+
+The wide headland audit found the island silhouette, palms and water lighting already coherent,
+but the long low coastal escarpment collapsed into a near-black band despite retaining its projected
+bedding geometry. A tightly bounded coastal-cliff mask now requires steep terrain, authored coastal
+rockiness and a low elevation, then blends a salt-worn grey-brown mineral palette with extra cool
+open-sky fill. It cannot affect the cave interior, flat beach or high inland ridge and adds no noise
+sample, texture, geometry, simulation or draw call.
+
+Native baseline/final evidence from the identical headland camera is
+`build-consumer/software-captures/20261014T083556.826504Z-headland` and
+`20261014T083807.937710Z-headland`; the final passes with 360 colour bins, 45.97 luminance deviation
+and 237.45 spatial contrast. Inspection shows the former black belt retaining shaded separation
+while its mineral colour, bedding and vertical joints remain readable. The focused `cliffs` browser
+scope now covers both the existing east ridge and the coastal headland; both inspected
+Chrome/SwiftShader views pass 60 clean intervals each with zero GL error/context loss at
+`build/browser-software/20261014T083946.558330Z-chrome-cliffs`.
+
+## Previous visual-audit implementation — broad valley-scale stream bends
 
 The stream/terrain audit found the wet-bank planting, incised bed and animated surface convincing,
 but the lower reach still read as a nearly straight, constant-axis drainage ditch from the authored
