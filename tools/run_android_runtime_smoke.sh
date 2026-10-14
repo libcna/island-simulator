@@ -303,7 +303,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: grass anchor-distance contraction uses nearest-bound cell culling" \
             "$LOG_FILE" \
-        && grep -q "island-simulator: juvenile ground broadleaf uses curved tagged laminae and retained near/far leaf identities" \
+        && grep -q "island-simulator: juvenile ground broadleaf uses layered arching laminae, readable midribs, and retained near/far leaf identities" \
             "$LOG_FILE" \
         && grep -q "island-simulator: split ground leaves use connected lobed surfaces with shared LOD knots and root-anchored wind" \
             "$LOG_FILE" \

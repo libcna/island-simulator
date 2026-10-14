@@ -1171,8 +1171,11 @@ void main()
                     const float across=-1+2.0f*column/(columns-1);
                     const auto p=SampleGroundBroadleaf(leaf,t,across);
                     const auto n=GroundBroadleafNormal(leaf,t,across);
+                    const float midrib=std::pow(1.0f-std::abs(across),7.0f);
+                    const float margin=std::pow(std::abs(across),4.0f);
                     geometry.vertices.emplace_back(direction*p.along+side*p.across+Vector3::Up*p.height,
-                        ShadeColor(baseColor,0.96f+0.04f*t), Vector2(0.48f+0.44f*t,windPhase));
+                        ShadeColor(baseColor,0.94f+0.05f*t+0.10f*midrib-0.08f*margin),
+                        Vector2(0.48f+0.44f*t,windPhase));
                     geometry.leaves.resize(geometry.vertices.size());
                     geometry.leaves.back()={side*n.across+Vector3::Up*n.height+direction*n.along,
                         Vector4(t,across,windPhase,1.0f)};
@@ -1391,7 +1394,7 @@ void main()
         std::cout << broadleafDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(broadleafDiagnostic);
         constexpr const char* groundBroadleafDiagnostic =
-            "island-simulator: juvenile ground broadleaf uses curved tagged laminae and retained near/far leaf identities";
+            "island-simulator: juvenile ground broadleaf uses layered arching laminae, readable midribs, and retained near/far leaf identities";
         std::cout << groundBroadleafDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(groundBroadleafDiagnostic);
         constexpr const char* splitGroundDiagnostic =

@@ -833,7 +833,7 @@ def main():
                 raise RuntimeError("current grass shared LOD is missing; check for a stale executable")
             if "grass anchor-distance contraction uses nearest-bound cell culling" not in diagnostics:
                 raise RuntimeError("current grass distance continuity is missing; check for a stale executable")
-            if "juvenile ground broadleaf uses curved tagged laminae and retained near/far leaf identities" not in diagnostics:
+            if "juvenile ground broadleaf uses layered arching laminae, readable midribs, and retained near/far leaf identities" not in diagnostics:
                 raise RuntimeError("current ground broadleaf geometry is missing; check for a stale executable")
             if "split ground leaves use connected lobed surfaces with shared LOD knots and root-anchored wind" not in diagnostics:
                 raise RuntimeError("current split ground leaf geometry is missing; check for a stale executable")

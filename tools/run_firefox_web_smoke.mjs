@@ -307,7 +307,7 @@ try {
   const requiredFirstFrameMarkers = [
     "island-simulator: edge antialiasing requested 4x renderer-applied 4x",
     "island-simulator: grass anchor-distance contraction uses nearest-bound cell culling",
-    "island-simulator: juvenile ground broadleaf uses curved tagged laminae and retained near/far leaf identities",
+    "island-simulator: juvenile ground broadleaf uses layered arching laminae, readable midribs, and retained near/far leaf identities",
     "island-simulator: split ground leaves use connected lobed surfaces with shared LOD knots and root-anchored wind",
     "island-simulator: shrubs use supported shoots and curved individual leaves with shared LOD identities and complete leaf outlines",
     "island-simulator: forest-floor colonies retain route footprints; groups=",

@@ -1,6 +1,7 @@
 #include "IslandSimulator/GroundBroadleaf.hpp"
 
 #include <array>
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -12,6 +13,7 @@ void TestGroundBroadleaf()
         if (!condition) throw std::runtime_error(message);
     };
     std::array<bool,6> retained{};
+    std::array<float,6> heights{},reaches{},pigments{};
     for (int i=0; i<4; ++i) {
         const auto far=island::GroundBroadleafForTier(i,true);
         require(far==island::GroundBroadleafForTier(far.source,false),"Ground leaf LOD identity changed");
@@ -21,6 +23,9 @@ void TestGroundBroadleaf()
     int samples=0;
     for (int i=0; i<6; ++i) {
         const auto leaf=island::GroundBroadleafForTier(i,false);
+        heights[i]=leaf.height;
+        reaches[i]=leaf.reach;
+        pigments[i]=leaf.pigment;
         for (int row=0; row<=100; ++row) for (int column=0; column<=20; ++column) {
             const float t=row/100.0f, side=column/10.0f-1;
             const auto p=island::SampleGroundBroadleaf(leaf,t,side);
@@ -48,6 +53,12 @@ void TestGroundBroadleaf()
         const auto edge=island::SampleGroundBroadleaf(leaf,0.5f,1);
         require(middle.height>edge.height,"Ground broadleaf has no cupped lamina");
     }
+    const auto spread=[](const auto& values) {
+        const auto [low,high]=std::minmax_element(values.begin(),values.end());
+        return *high-*low;
+    };
+    require(spread(heights)>0.15f && spread(reaches)>0.15f && spread(pigments)>0.15f,
+        "Ground broadleaf rosette lost its layered stature or pigment variation");
     for (bool far : {false,true}) for (int bad : {-1,far?4:6}) {
         bool rejected=false;
         try { (void)island::GroundBroadleafForTier(bad,far); }

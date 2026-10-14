@@ -122,7 +122,25 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — fuller low-shrub structure
+## Latest visual-audit implementation — layered juvenile broadleaf rosettes
+
+The next close-ground audit found the juvenile upright broadleaf species readable but still
+shaped like a small flat green star. The bounded follow-up retains all six near/four far leaf
+identities, existing plant placements, batching and wind path while alternating lower outward
+leaves with taller inner growth. Broader asymmetric laminae now carry a stronger longitudinal
+arch and cup; restrained per-leaf pigment variation plus a vertex-colour midrib/margin gradient
+makes overlapping surfaces readable without a new texture, draw or material.
+
+Baseline/final native evidence is
+`build-consumer/software-captures/20261014T040518.792449Z-ground-broadleaf` and
+`20261014T053205.901393Z-ground-broadleaf`. Full-resolution inspection confirms a deeper layered
+rosette, visible central growth and midrib lighting while the plant stays subordinate to the
+forest floor. The new single-view Web scope passes 60 Chrome/SwiftShader intervals with zero GL
+error/context loss and an inspected matching screenshot at
+`build/browser-software/20261014T053605.877193Z-chrome-ground-broadleaf`. Native profile tests,
+Android ARM64 assemble/lint and focused harness tests remain the close-out gates.
+
+## Previous visual-audit implementation — fuller low-shrub structure
 
 The close-vegetation audit found the low shrubs materially weaker than the surrounding palms,
 canopy and grass: their narrow late-splaying shoots and small uniformly pitched leaves made them
