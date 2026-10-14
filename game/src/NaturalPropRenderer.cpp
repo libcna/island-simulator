@@ -64,6 +64,8 @@ namespace island
             "island-simulator: rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering";
         constexpr std::string_view RockTintDiagnostic =
             "island-simulator: rock per-instance tint reuses existing transforms";
+        constexpr std::string_view RockGroundingDiagnostic =
+            "island-simulator: near rocks use filtered mineral strata and a local soil-stained base";
         constexpr std::string_view FallenLogEndDiagnostic =
             "island-simulator: near fallen logs use irregular broken end contours";
         constexpr std::string_view FallenLogCrackDiagnostic =
@@ -194,6 +196,7 @@ void main()
     // Derivatives must execute outside distance/material branches. The warped grain uses a
     // conservative Jacobian bound (5.5 + sqrt(3)*1.4*sqrt(3)*1.5*0.85 < 11).
     float worldFootprint = max(length(dFdx(vWorld)), length(dFdy(vWorld)));
+    float localHeightFootprint = fwidth(vLocal.y);
     vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
     float distanceToCamera = length(vWorld - uCameraPosition);
     float fog = smoothstep(235.0, 610.0, distanceToCamera);
@@ -222,9 +225,15 @@ void main()
         vec3 albedo = vColor * (0.86 + 0.25 * broad);
         albedo = mix(albedo, albedo * vec3(1.17,1.13,1.05), mineral * 0.55 * nearDetail);
         albedo *= 1.0 + (pores-0.5) * 0.22 * nearDetail;
+        float strataPhase=vLocal.y*18.0+broad*1.7
+            +sin(vLocal.x*2.6-vLocal.z*2.1)*0.42;
+        float strataWeight=1.0-smoothstep(0.24,0.72,localHeightFootprint*18.0);
+        albedo *= 1.0+sin(strataPhase)*0.055*strataWeight*nearDetail;
         float lichen = smoothstep(0.58,0.78,broad) * smoothstep(-0.1,0.6,normal.y)
             * smoothstep(0.25,1.0,vWorld.y);
         albedo = mix(albedo, albedo * vec3(0.81,1.02,0.78), lichen * 0.3);
+        float soilStain=1.0-smoothstep(0.055,0.29,vLocal.y);
+        albedo=mix(albedo,albedo*vec3(0.67,0.76,0.64),soilStain*0.58);
         float wetBand = 1.0 - smoothstep(-0.10, 0.26 + 0.10*grain, vWorld.y);
         albedo *= mix(vec3(1.0), vec3(0.64,0.71,0.73), wetBand);
         materialColor = albedo * (0.55 + 0.43*direct + 0.13*sky);
@@ -356,10 +365,10 @@ void main()
             geometry.normals.resize(base, Vector3::Zero);
             for (const auto& vertex : geometry.vertices) geometry.albedos.push_back(vertex.Color);
             const int materialDetail = farMesh ? 255 : 64;
-            const Color rockBase = variant == 0 ? Color(112, 113, 98, materialDetail)
-                : (variant == 1 ? Color(126, 115, 92, materialDetail)
-                   : (variant == 2 ? Color(98, 116, 104, materialDetail)
-                                   : Color(124, 128, 116, materialDetail)));
+            const Color rockBase = variant == 0 ? Color(99, 102, 90, materialDetail)
+                : (variant == 1 ? Color(112, 103, 86, materialDetail)
+                   : (variant == 2 ? Color(88, 104, 95, materialDetail)
+                                   : Color(108, 112, 102, materialDetail)));
             const Color albedo(rockBase.getRProperty(), rockBase.getGProperty(),
                                rockBase.getBProperty(), static_cast<std::uint8_t>(64));
             const auto surface = BuildRockSurface(variant, farMesh);
@@ -1333,6 +1342,8 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(RockFacetDiagnostic);
             std::cout << RockTintDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(RockTintDiagnostic);
+            std::cout << RockGroundingDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(RockGroundingDiagnostic);
             std::cout << "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings\n";
             constexpr std::string_view woodLighting =
                 "island-simulator: wood uses outward shared normals and scale-correct fixed-sun lighting";

@@ -932,6 +932,8 @@ def main():
                 raise RuntimeError("current land shadow geometry is missing; check for a stale executable")
             if "rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering" not in diagnostics:
                 raise RuntimeError("current stone surface is missing; check for a stale executable")
+            if "near rocks use filtered mineral strata and a local soil-stained base" not in diagnostics:
+                raise RuntimeError("current grounded rock material is missing; check for a stale executable")
             if "coastal contact patches follow rendered seabed triangles in the existing batch" not in diagnostics:
                 raise RuntimeError("current coastal shadows are missing; check for a stale executable")
             if args.viewpoint == "shipwreck" and not re.search(

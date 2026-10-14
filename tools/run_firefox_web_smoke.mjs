@@ -340,6 +340,7 @@ try {
     "island-simulator: near fallen logs use irregular broken end contours",
     "island-simulator: near fallen-log end grain uses restrained radial cracks",
     "island-simulator: rock per-instance tint reuses existing transforms",
+    "island-simulator: near rocks use filtered mineral strata and a local soil-stained base",
     "island-simulator: shipwreck portable aged wood, waterline, and salt-wear material",
     "island-simulator: shipwreck wood loaded Content/structures/shipwreck-weathered-wood.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored interior atlas",
     "island-simulator: shipwreck weathered wood follows per-piece board and beam UVs",

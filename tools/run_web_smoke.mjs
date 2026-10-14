@@ -888,6 +888,7 @@ try {
             && log.includes("ocean short waves use phased wind packets with analytic envelope gradients")
             && (!focusedGroundingCheck || /contact shadows [1-9][0-9]*, [1-9][0-9]* triangles, 1 draw/.test(log))
             && log.includes("rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering")
+            && log.includes("near rocks use filtered mineral strata and a local soil-stained base")
             && (mode !== "shipwreck" || /coastal contact shadows [1-9][0-9]*/.test(log))
             && log.includes("near understory uses curved five-column blades with raised midribs")
             && log.includes("terrain close soil uses footprint-filtered clods and analytic relief")

@@ -122,7 +122,25 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — distinct tropical bark families
+## Latest visual-audit implementation — grounded mineral boulders
+
+The next terrain/vegetation review found the inland boulders readable in silhouette but overly pale
+and smooth against the much richer jungle floor. Their four existing deterministic families now
+use a darker, restrained tropical mineral palette, footprint-filtered low-frequency strata and a
+local-coordinate soil stain around the embedded base. The treatment preserves every rock surface,
+placement, scale, collision proxy, contact patch, draw and LOD boundary; it adds no texture lookup
+or CPU work and filters the narrow strata before they can alias at distance.
+
+Native baseline/final jungle evidence is
+`build-consumer/software-captures/20261014T063531.250726Z-jungle` and
+`20261014T065119.745963Z-jungle`; the final frame passes with 259 colour bins, 47.75 luminance
+deviation and 213.14 spatial contrast. Full-resolution inspection shows the main foreground
+boulder retaining clear daylight modelling while its lower edge joins the brown-green forest floor
+instead of reading as a clean white prop. Chrome/SwiftShader passes 60 clean intervals with a
+matching inspected screenshot at
+`build/browser-software/20261014T065538.947858Z-chrome-canopy-light`.
+
+## Previous visual-audit implementation — distinct tropical bark families
 
 The next wide-jungle review found the canopy trunks structurally sound but too uniformly grey,
 which made different tree forms read as repeated poles despite their existing lean, bark grain,
