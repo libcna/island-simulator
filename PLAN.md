@@ -522,7 +522,14 @@ docs/stream-course.md and docs/environment-field-design.md.
   native `20261013T114848.142975Z-fish` passes119bins/std20.76/spatial122.64/kernel[]. Focused
   Chrome/SwiftShader `20261013T115244.372229Z-chrome-fish` passes two inspected different-hash
   school poses,60finite intervals,GL0/context intact/kernel[]. Current Android qualification
-  remains pending; see `docs/fish-form.md`.
+  remains pending. A fourth audit pass replaces the pointed seven-station/ten-facet body with an
+  eleven-station/sixteen-sided capped surface, analytic smooth body daylight, interpolated
+  countershading and restrained five/six-point tail/dorsal/pectoral outlines. An initial oversized
+  fin version was rendered and rejected. Near/far geometry is1362/12vertices (maximum all-near
+  1046016bytes), still48agents/one draw. Inspected native
+  `20261014T024923.271904Z-fish` PASS114bins/std20.10/spatial132.11/kernel[]; Chrome/SwiftShader
+  `20261014T025156.580245Z-chrome-fish` passes two inspected different-time views/60finite
+  intervals/GL0/context intact/kernel[]. See `docs/fish-form.md`.
   Shark then received the corresponding 51-to-375-vertex first pass: seven-station/capped body,
   blunt snout, progressive rear bend, caudal peduncle, asymmetric heterocercal tail, paired fins,
   eyes, mouth and three gill slits per side. A second pass uses an eight-station/ten-facet rounded

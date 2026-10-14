@@ -709,8 +709,8 @@ asymmetric-leaflet diagnostic, the distant view must report all five unreachable
 islets in exactly one portable batch, and the bird/fish views must report nonzero
 visible populations from the 24-agent flock and 48-agent school population. The bird view also
 requires the layered near trailing-flight-feather diagnostic. The fish view also
-requires the exact 546/12-vertex, closed-fin, CPU-faceted daylight diagnostic, the
-seven-station/ten-facet anatomy marker, and the shared depth/sun-band lighting diagnostic. A
+requires the exact 1362/12-vertex, closed-fin, CPU-faceted daylight diagnostic, the
+eleven-station/sixteen-sided anatomy marker, and the shared depth/sun-band lighting diagnostic. A
 focused `--scope fish` run additionally requires two different-hash separated-time frames, 60
 positive intervals, SwiftShader, an intact context and GL error zero. The shark view must report
 the active offshore patrol, exact 834/15-vertex inventory, eight-station/ten-facet anatomy marker

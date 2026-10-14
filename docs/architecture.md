@@ -1086,15 +1086,15 @@ proposed move must remain 3--48 m offshore on submerged terrain, and each vertic
 between a seabed clearance and the surface. Smoothed vertical velocity supplies bounded pitch and
 heading error supplies bounded turn banking, so schools follow depth changes without remaining
 mechanically level. School-level activation uses the same shared wildlife
-tiers, so only nearby water receives full-rate updates. `FishRenderer` selects a 414-vertex
-seven-station/ten-facet near body or a 12-vertex far silhouette, gives both tiers a forked tail, and
+tiers, so only nearby water receives full-rate updates. `FishRenderer` selects a 1,362-vertex
+eleven-station/sixteen-sided near body or a 12-vertex far silhouette, gives both tiers a forked tail, and
 adds two-facet highlighted eyes and gill marks only to the near tier. The shaped pectoral fins,
-dorsal fin and tail use two-sided fixed-sun lighting while the closed body uses outward-facing CPU
-facet colours. One shared CPU sample per visible animal smoothly tints the
+dorsal fin and tail use two-sided fixed-sun lighting while the capped body uses analytic
+radial-normal daylight and interpolated countershading. One shared CPU sample per visible animal smoothly tints the
 palette with depth and adds two restrained moving shallow-sun bands before facet lighting. Because
 the batch
 uses `CullNone`; the close dorsal, pectorals and both tail lobes are thin closed volumes instead of
-coincident sheets. Near/far geometry is 546/12 vertices per fish. The renderer
+coincident sheets. Near/far geometry is 1,362/12 vertices per fish. The renderer
 frustum/distance-culls agents and streams all visible fish in one `DynamicVertexBuffer` draw before
 the transparent ocean. A translation-following close-review camera preserves live heading and tail
 motion across slow audit frames. Native OpenGL 3.3 and focused Chrome/SwiftShader WebGL 2 captures

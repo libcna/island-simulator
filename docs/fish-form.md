@@ -33,7 +33,7 @@ live fish in two different-hash frames across 60 positive intervals with GL erro
 context and an empty kernel delta. It is a clearer low-poly school, not a claim of photorealism or
 a measured hardware performance result.
 
-The renderer checks every generated close fish against the compile-time 414-vertex budget, and the
+The renderer checks every generated close fish against the compile-time near-vertex budget, and the
 native/Web gates pin both that inventory and the current anatomy marker. Actual Android execution,
 sustained performance, scale/colour variety, fin articulation and further texture/material polish
 remain.
@@ -57,3 +57,25 @@ frames retain the school in distinct poses, their SHA-256 identities differ, all
 finite, `glError` is zero, the context remains live and the kernel delta is empty. Android
 execution, sustained hardware performance, articulated fin strokes and texture/material polish
 remain open.
+
+## Smooth capped body and restrained fins (2026-10-14)
+
+The next whole-island comparison found the fish visibly weaker than the revised dolphin, shark,
+turtle and crab: the seven body rings still formed a pointed football and the large triangular
+tail/pectoral surfaces dominated the school. The near body now uses eleven longitudinal stations
+and sixteen radial sides, with small separately triangulated caps sealing the nose and caudal
+peduncle. Analytic radial-normal daylight and interpolated dorsal/flank/belly colours replace the
+old constant colour and brightness per triangle. Progressive rear-body bending is retained.
+
+Both tail lobes now use five-point swept closed outlines; the dorsal and paired pectorals use six
+points. A first render with 25cm tail lobes and 38cm pectorals was rejected as oversized. The
+accepted 18cm/22cm profiles keep the fork and steering surfaces readable without producing a
+cross-shaped silhouette, and the yellow/dark fin palettes are less saturated. Eyes, gills, mouth,
+four palette/shape variants, 48-agent simulation, 12-vertex far tier and one dynamic draw remain.
+
+Near geometry is 1,362 vertices / 454 triangles, at most 65,376 vertices or 1,046,016 bytes if
+all 48 animals are near. Inspected native llvmpipe evidence
+`20261014T024923.271904Z-fish` passes at 1280x720 with 114 colour bins, 20.10 luminance deviation,
+132.11 spatial contrast and an empty kernel delta. Chrome/SwiftShader evidence
+`20261014T025156.580245Z-chrome-fish` passes with two inspected different-time school views, 60
+finite intervals, `glError=0`, an intact context and no new kernel GPU fault.

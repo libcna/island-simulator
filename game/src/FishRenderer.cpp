@@ -55,16 +55,16 @@ namespace island
         const std::array<FishPalette, 4> Palettes = {{
             {Color(66, 111, 117, 255), Color(126, 166, 166, 255),
              Color(207, 214, 184, 255),
-             Color(218, 177, 67, 255)},
+             Color(176, 154, 78, 255)},
             {Color(21, 76, 91, 255), Color(41, 126, 138, 255),
              Color(125, 191, 175, 255),
-             Color(35, 83, 102, 255)},
+             Color(58, 106, 118, 255)},
             {Color(102, 79, 51, 255), Color(174, 133, 74, 255),
              Color(223, 194, 129, 255),
-             Color(116, 83, 52, 255)},
+             Color(143, 109, 64, 255)},
             {Color(28, 48, 91, 255), Color(59, 82, 126, 255),
              Color(140, 168, 180, 255),
-             Color(224, 183, 58, 255)}
+             Color(170, 148, 76, 255)}
         }};
 
         struct BodySection
@@ -74,18 +74,22 @@ namespace island
             float halfHeight;
         };
 
-        constexpr std::array<BodySection, 7> BodySections = {{
-            {0.52f, 0.018f, 0.024f},
-            {0.44f, 0.074f, 0.068f},
-            {0.28f, 0.145f, 0.135f},
-            {0.08f, 0.188f, 0.180f},
-            {-0.14f, 0.170f, 0.160f},
-            {-0.33f, 0.115f, 0.105f},
-            {-0.45f, 0.050f, 0.052f},
+        constexpr std::array<BodySection, 11> BodySections = {{
+            {0.55f, 0.010f, 0.014f},
+            {0.50f, 0.055f, 0.050f},
+            {0.40f, 0.105f, 0.095f},
+            {0.27f, 0.150f, 0.138f},
+            {0.12f, 0.185f, 0.175f},
+            {-0.04f, 0.195f, 0.185f},
+            {-0.18f, 0.174f, 0.165f},
+            {-0.30f, 0.135f, 0.123f},
+            {-0.40f, 0.085f, 0.078f},
+            {-0.47f, 0.048f, 0.045f},
+            {-0.50f, 0.025f, 0.026f},
         }};
-        constexpr int BodySegments = 10;
+        constexpr int BodySegments = 16;
         constexpr std::string_view FishDetailDiagnostic =
-            "island-simulator: near fish use rounded ten-facet bodies, closed-volume fins, and two-facet eyes";
+            "island-simulator: near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -112,38 +116,58 @@ namespace island
             AddLitTriangle(vertices, a, c, d, color);
         }
 
-        void AppendClosedTriangle(std::vector<VertexPositionColor>& vertices,
-                                  const Vector3& a, const Vector3& b, const Vector3& c,
-                                  const Vector3& halfThickness,
-                                  const Color& face, const Color& edge)
+        template <std::size_t Count>
+        void AppendClosedPolygon(std::vector<VertexPositionColor>& vertices,
+                                 const std::array<Vector3, Count>& outline,
+                                 const Vector3& halfThickness,
+                                 const Color& face, const Color& edge)
         {
-            const Vector3 ap = a + halfThickness, bp = b + halfThickness;
-            const Vector3 cp = c + halfThickness;
-            const Vector3 am = a - halfThickness, bm = b - halfThickness;
-            const Vector3 cm = c - halfThickness;
-            AddLitTriangle(vertices, ap, bp, cp, face);
-            AddLitTriangle(vertices, am, cm, bm, face);
-            AddLitQuad(vertices, ap, am, bm, bp, edge);
-            AddLitQuad(vertices, bp, bm, cm, cp, edge);
-            AddLitQuad(vertices, cp, cm, am, ap, edge);
+            static_assert(Count >= 3U);
+            std::array<Vector3, Count> positive{}, negative{};
+            for (std::size_t point = 0; point < Count; ++point) {
+                positive[point] = outline[point] + halfThickness;
+                negative[point] = outline[point] - halfThickness;
+            }
+            for (std::size_t point = 1; point + 1U < Count; ++point) {
+                AddLitTriangle(vertices, positive[0], positive[point], positive[point + 1U], face);
+                AddLitTriangle(vertices, negative[0], negative[point + 1U], negative[point], face);
+            }
+            for (std::size_t point = 0; point < Count; ++point) {
+                const std::size_t next = (point + 1U) % Count;
+                AddLitQuad(vertices, positive[point], negative[point], negative[next],
+                           positive[next], edge);
+            }
         }
 
-        void AppendClosedQuad(std::vector<VertexPositionColor>& vertices,
-                              const Vector3& a, const Vector3& b,
-                              const Vector3& c, const Vector3& d,
-                              const Vector3& halfThickness,
-                              const Color& face, const Color& edge)
+        [[nodiscard]] Color BodyColor(const FishPalette& palette, const float vertical)
         {
-            const Vector3 ap = a + halfThickness, bp = b + halfThickness;
-            const Vector3 cp = c + halfThickness, dp = d + halfThickness;
-            const Vector3 am = a - halfThickness, bm = b - halfThickness;
-            const Vector3 cm = c - halfThickness, dm = d - halfThickness;
-            AddLitQuad(vertices, ap, bp, cp, dp, face);
-            AddLitQuad(vertices, am, dm, cm, bm, face);
-            AddLitQuad(vertices, ap, am, bm, bp, edge);
-            AddLitQuad(vertices, bp, bm, cm, cp, edge);
-            AddLitQuad(vertices, cp, cm, dm, dp, edge);
-            AddLitQuad(vertices, dp, dm, am, ap, edge);
+            if (vertical < 0.0f)
+                return Color::Lerp(palette.body, palette.belly,
+                                   std::clamp(-vertical * .88f, 0.0f, 1.0f));
+            return Color::Lerp(palette.body, palette.back,
+                               std::clamp(vertical * .82f, 0.0f, 1.0f));
+        }
+
+        [[nodiscard]] Color SmoothBodyColor(const FishPalette& palette,
+                                            const PoseAxes& axes, const float angle)
+        {
+            const Vector3 normal = Vector3::Normalize(
+                axes.right * std::cos(angle) + axes.up * std::sin(angle));
+            const float direct = std::max(
+                0.0f, Vector3::Dot(normal, wildlife_render::FixedSunDirection));
+            const float sky = std::max(0.0f, normal.Y);
+            return wildlife_render::ScaleColor(BodyColor(palette, std::sin(angle)),
+                                               .76f + .25f * direct + .05f * sky);
+        }
+
+        void AddGradientTriangle(std::vector<VertexPositionColor>& vertices,
+                                 const Vector3& a, const Vector3& b, const Vector3& c,
+                                 const Color& colorA, const Color& colorB,
+                                 const Color& colorC)
+        {
+            vertices.emplace_back(a, colorA);
+            vertices.emplace_back(b, colorB);
+            vertices.emplace_back(c, colorC);
         }
 
         [[nodiscard]] PoseAxes MakePoseAxes(const FishState& fish)
@@ -209,58 +233,83 @@ namespace island
                 for (int segment = 0; segment < BodySegments; ++segment) {
                     const int next = (segment + 1) % BodySegments;
                     const float angle = 2.0f * std::numbers::pi_v<float>
-                        * (static_cast<float>(segment) + 0.5f)
-                        / static_cast<float>(BodySegments);
-                    const Color color = std::sin(angle) > 0.36f ? palette.back
-                        : (std::sin(angle) < -0.20f ? palette.belly : palette.body);
-                    AddLitTriangle(vertices, rings[row][segment], rings[row + 1U][segment],
-                                   rings[row + 1U][next], color);
-                    AddLitTriangle(vertices, rings[row][segment], rings[row + 1U][next],
-                                   rings[row][next], color);
+                        * static_cast<float>(segment) / static_cast<float>(BodySegments);
+                    const float nextAngle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(next) / static_cast<float>(BodySegments);
+                    const Color color = SmoothBodyColor(palette, axes, angle);
+                    const Color nextColor = SmoothBodyColor(palette, axes, nextAngle);
+                    AddGradientTriangle(vertices, rings[row][segment], rings[row + 1U][segment],
+                                        rings[row + 1U][next], color, color, nextColor);
+                    AddGradientTriangle(vertices, rings[row][segment], rings[row + 1U][next],
+                                        rings[row][next], color, nextColor, nextColor);
                 }
             }
 
+            const auto appendBodyCap = [&](const std::size_t row, const float z,
+                                           const bool front) {
+                const Vector3 cap = LocalPoint(centre, axes,
+                    fish.bodyWave * 0.105f
+                        * std::pow(std::clamp((0.20f - z) / 0.65f, 0.0f, 1.0f), 2.0f),
+                    0.0f, z, scale);
+                for (int segment = 0; segment < BodySegments; ++segment) {
+                    const int next = (segment + 1) % BodySegments;
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(segment) / static_cast<float>(BodySegments);
+                    const float nextAngle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(next) / static_cast<float>(BodySegments);
+                    const Color color = SmoothBodyColor(palette, axes, angle);
+                    const Color nextColor = SmoothBodyColor(palette, axes, nextAngle);
+                    if (front)
+                        AddGradientTriangle(vertices, rings[row][segment],
+                                            rings[row][next], cap,
+                                            color, nextColor, palette.body);
+                    else
+                        AddGradientTriangle(vertices, rings[row][segment], cap,
+                                            rings[row][next],
+                                            color, palette.body, nextColor);
+                }
+            };
+            appendBodyCap(0U, .562f, true);
+            appendBodyCap(BodySections.size() - 1U, -.515f, false);
+
             const float bend = fish.bodyWave * 0.105f;
-            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.45f, scale);
+            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.49f, scale);
 
             const float tailBend = fish.bodyWave * 0.17f;
-            const Vector3 tailTop = LocalPoint(
-                centre, axes, tailBend, 0.25f, -0.78f, scale);
-            const Vector3 tailNotch = LocalPoint(
-                centre, axes, tailBend * 1.08f, 0.0f, -0.66f, scale);
-            const Vector3 tailBottom = LocalPoint(
-                centre, axes, tailBend, -0.25f, -0.78f, scale);
-            AppendClosedTriangle(vertices, rear, tailTop, tailNotch,
-                                 axes.right * (0.004f * scale),
-                                 palette.fin, palette.back);
-            AppendClosedTriangle(vertices, rear, tailNotch, tailBottom,
-                                 axes.right * (0.004f * scale),
-                                 palette.fin, palette.back);
+            const auto tailPoint = [&](const float y, const float z, const float wave) {
+                return LocalPoint(centre, axes, tailBend * wave, y, z, scale);
+            };
+            const std::array upperTail{rear, tailPoint(.075f,-.60f,1.02f),
+                tailPoint(.18f,-.73f,1.08f), tailPoint(.15f,-.81f,1.10f),
+                tailPoint(0,-.66f,1.07f)};
+            const std::array lowerTail{rear, tailPoint(0,-.66f,1.07f),
+                tailPoint(-.15f,-.81f,1.10f), tailPoint(-.18f,-.73f,1.08f),
+                tailPoint(-.075f,-.60f,1.02f)};
+            AppendClosedPolygon(vertices, upperTail, axes.right * (0.004f * scale),
+                                palette.fin, palette.back);
+            AppendClosedPolygon(vertices, lowerTail, axes.right * (0.004f * scale),
+                                palette.fin, palette.back);
 
-            const Vector3 dorsalFront = LocalPoint(
-                centre, axes, 0.0f, 0.13f, 0.12f, scale);
-            const Vector3 dorsalTip = LocalPoint(
-                centre, axes, 0.0f, 0.34f, -0.08f, scale);
-            const Vector3 dorsalBack = LocalPoint(
-                centre, axes, bend * 0.45f, 0.12f, -0.27f, scale);
-            const Vector3 dorsalKnee = LocalPoint(
-                centre, axes, bend * 0.25f, 0.25f, -0.19f, scale);
-            AppendClosedQuad(vertices, dorsalFront, dorsalTip, dorsalKnee, dorsalBack,
-                             axes.right * (0.006f * scale),
-                             palette.fin, palette.back);
+            const std::array dorsal{
+                LocalPoint(centre, axes, 0, .14f, .15f, scale),
+                LocalPoint(centre, axes, 0, .21f, .04f, scale),
+                LocalPoint(centre, axes, 0, .27f, -.07f, scale),
+                LocalPoint(centre, axes, bend*.18f, .25f, -.13f, scale),
+                LocalPoint(centre, axes, bend*.38f, .18f, -.21f, scale),
+                LocalPoint(centre, axes, bend*.50f, .12f, -.28f, scale)};
+            AppendClosedPolygon(vertices, dorsal, axes.right * (0.006f * scale),
+                                palette.fin, palette.back);
 
             for (const float side : {-1.0f, 1.0f}) {
-                const Vector3 rootFront = LocalPoint(
-                    centre, axes, side * 0.15f, -0.015f, 0.14f, scale);
-                const Vector3 tip = LocalPoint(
-                    centre, axes, side * 0.37f, -0.09f, -0.10f, scale);
-                const Vector3 elbow = LocalPoint(
-                    centre, axes, side * 0.27f, -0.075f, -0.17f, scale);
-                const Vector3 rootBack = LocalPoint(
-                    centre, axes, side * 0.13f, -0.055f, -0.21f, scale);
-                AppendClosedQuad(vertices, rootFront, tip, elbow, rootBack,
-                                 axes.up * (0.004f * scale),
-                                 palette.fin, palette.back);
+                const std::array pectoral{
+                    LocalPoint(centre, axes, side*.145f,-.015f,.13f,scale),
+                    LocalPoint(centre, axes, side*.175f,-.038f,.035f,scale),
+                    LocalPoint(centre, axes, side*.22f,-.058f,-.06f,scale),
+                    LocalPoint(centre, axes, side*.205f,-.064f,-.115f,scale),
+                    LocalPoint(centre, axes, side*.17f,-.055f,-.16f,scale),
+                    LocalPoint(centre, axes, side*.125f,-.048f,-.19f,scale)};
+                AppendClosedPolygon(vertices, pectoral, axes.up * (0.004f * scale),
+                                    palette.fin, palette.back);
             }
 
             const Color eye(19, 31, 33, 255);

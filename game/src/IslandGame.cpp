@@ -1455,8 +1455,8 @@ namespace island
                   << "island-simulator: fish near/far geometry "
                   << FishRenderer::NearVertexCount << '/' << FishRenderer::FarVertexCount
                   << " vertices, closed fins and CPU faceted daylight\n"
-                  << "island-simulator: near fish use seven-station volumetric bodies, caudal "
-                     "peduncles and progressive rear-body bends\n"
+                  << "island-simulator: near fish use capped smooth-lit bodies, caudal peduncles "
+                     "and progressive rear-body bends\n"
                   << "island-simulator: shark near/far geometry "
                   << SharkRenderer::NearVertexCount << '/' << SharkRenderer::FarVertexCount
                   << " vertices, closed fins and CPU faceted daylight\n"
