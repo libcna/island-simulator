@@ -1109,14 +1109,24 @@ namespace island
             std::cout << "island-simulator: boar QA camera frames and follows non-hostile inland wildlife\n";
         } else if (viewpoint_ == FixedViewpoint::CrabDetail
                    && crabColony_.Crabs().size() > 2U) {
-            const CrabState& crab = crabColony_.Crabs()[2U];
+            const auto crabs=crabColony_.Crabs();
+            float bestNearest=-1.0f;
+            for(std::size_t candidate=0;candidate<crabs.size();++candidate) {
+                float nearest=std::numeric_limits<float>::infinity();
+                for(std::size_t other=0;other<crabs.size();++other) if(other!=candidate)
+                    nearest=std::min(nearest,std::hypot(crabs[candidate].x-crabs[other].x,
+                        crabs[candidate].z-crabs[other].z));
+                if(nearest>bestNearest) {bestNearest=nearest;crabViewSubject_=candidate;}
+            }
+            const CrabState& crab = crabs[crabViewSubject_];
             const float radius = std::hypot(crab.x, crab.z);
             const float outwardX = crab.x / radius;
             const float outwardZ = crab.z / radius;
             const float tangentX = -outwardZ;
             const float tangentZ = outwardX;
             // Stay low and close enough to make the palm-sized anatomy auditable. The
-            // crab may still exercise its ordinary retreat behaviour during the capture.
+            // simulation receives a separate distant observer below, so the camera does
+            // not herd all five colony members into one overlapping retreat pile.
             const float cameraX = crab.x - outwardX * 1.75f + tangentX * 0.38f;
             const float cameraZ = crab.z - outwardZ * 1.75f + tangentZ * 0.38f;
             cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ) + 0.62f,
@@ -1125,7 +1135,9 @@ namespace island
                 - cameraPosition_;
             yaw_ = std::atan2(toCrab.X, toCrab.Z);
             pitch_ = std::atan2(toCrab.Y, std::hypot(toCrab.X, toCrab.Z));
-            std::cout << "island-simulator: crab QA camera views an active beach colony\n";
+            std::cout << "island-simulator: crab QA camera frames one foraging subject without camera-triggered colony retreat\n";
+            std::cout << "island-simulator: crab QA isolated subject " << crabViewSubject_
+                      << " nearest-neighbour " << bestNearest << "m\n";
         } else if (viewpoint_ == FixedViewpoint::ButterflyDetail
                    && butterflyMeadow_.Butterflies().size() > 2U) {
             const ButterflyState& butterfly=butterflyMeadow_.Butterflies()[2U];
@@ -1714,10 +1726,17 @@ namespace island
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         }
-        const CrabState previousCrabSubject = crabColony_.Crabs()[2U];
-        crabColony_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        const CrabState previousCrabSubject = crabColony_.Crabs()[crabViewSubject_];
+        Vector3 crabObserver=cameraPosition_;
+        if(viewpoint_==FixedViewpoint::CrabDetail) {
+            const float radius=std::hypot(previousCrabSubject.x,previousCrabSubject.z);
+            const Vector3 outward(previousCrabSubject.x/radius,0,previousCrabSubject.z/radius);
+            crabObserver=Vector3(previousCrabSubject.x,previousCrabSubject.y,previousCrabSubject.z)
+                +outward*18.0f+Vector3::Up*1.5f;
+        }
+        crabColony_.Update(deltaSeconds, crabObserver.X, crabObserver.Y, crabObserver.Z);
         if (viewpoint_ == FixedViewpoint::CrabDetail) {
-            const CrabState& subject = crabColony_.Crabs()[2U];
+            const CrabState& subject = crabColony_.Crabs()[crabViewSubject_];
             cameraPosition_ += Vector3(subject.x - previousCrabSubject.x,
                                        subject.y - previousCrabSubject.y,
                                        subject.z - previousCrabSubject.z);

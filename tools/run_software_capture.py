@@ -948,6 +948,10 @@ def main():
                     raise RuntimeError("current crab shell surface is missing; check for a stale executable")
                 if "near crabs use low broad shells with retained lateral carapace corners" not in diagnostics:
                     raise RuntimeError("current crab shell anatomy is missing; check for a stale executable")
+                if "crab QA camera frames one foraging subject without camera-triggered colony retreat" not in diagnostics:
+                    raise RuntimeError("current crab inspection composition is missing; check for a stale executable")
+                if not re.search(r"crab QA isolated subject [0-9]+ nearest-neighbour 1\.[0-9]+m", diagnostics):
+                    raise RuntimeError("crab inspection subject is not measurably separated")
                 if not re.search(r"crabs [1-9][0-9]*/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):
                     raise RuntimeError("crab capture did not submit a near detailed colony")
             if args.viewpoint == "birds" and "near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes" not in diagnostics:

@@ -303,12 +303,15 @@ class BrowserSoftwareTests(unittest.TestCase):
         marker = "near crabs use tapered toes, socketed eyes, and solid pincer fingers"
         silhouette = "near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms"
         surface = "near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs"
+        anatomy = "near crabs use low broad shells with retained lateral carapace corners"
+        camera = "crab QA camera frames one foraging subject without camera-triggered colony retreat"
         def report():
             return {"passed": True, "views": [{"mode": "crabs", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "crabs.png", "afterSimulationScreenshot": "crabs-after.png",
                 "intervals": [16.7] * 60,
-                "result": {"output": marker + "\n" + silhouette + "\n" + surface
+                "result": {"output": marker + "\n" + silhouette + "\n" + surface + "\n" + anatomy
+                    + "\n" + camera + "\ncrab QA isolated subject 28 nearest-neighbour 1.28294m"
                     + "\ncrabs 5/30 visible (near 5, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_crab_report(report()), ("crabs.png", "crabs-after.png"))
         for mutate in (

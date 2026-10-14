@@ -60,6 +60,24 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — separated beach-crab colonies
+
+The renewed close audit found that the low broad crab model itself was being misread because all
+five members of the inspected colony occupied overlapping home centres. Even the globally most
+isolated crab had a nearest neighbour only 0.387 m away, less than two carapace widths, and the
+close camera made the whole group retreat along one direction. Debris-guided homes now use the
+same anchors and habitat rules but reject another member of their five-crab colony within 1.12 m.
+The QA camera deterministically selects the globally best-separated subject and supplies the
+simulation with a separate distant observer, preserving ordinary forage motion without herding.
+
+Population remains 30 in six debris-associated colonies; render geometry, palettes, one-draw
+batch, LOD, habitat bounds and normal player-triggered scuttle behaviour are unchanged. The
+selected current subject has 1.28294 m initial clearance. Baseline pile-up
+`20261014T155226.177045Z-crabs` and accepted `20261014T160445.974296Z-crabs` were inspected. The
+final frame makes the low wide shells, walking legs and claws individually readable and passes at
+325 colour bins, 26.46 luminance deviation and 136.09 spatial contrast. Deterministic placement,
+long-session habitat and observer-response tests pass with the new separation invariant.
+
 ## Latest visual-audit implementation — denser fallen palm fronds
 
 The current overview/frond/water comparison selected grove-associated fallen palm fronds as the

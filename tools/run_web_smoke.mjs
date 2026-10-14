@@ -798,6 +798,8 @@ try {
               && log.includes("near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms")
               && log.includes("near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs")
               && log.includes("near crabs use low broad shells with retained lateral carapace corners")
+              && log.includes("crab QA camera frames one foraging subject without camera-triggered colony retreat")
+              && /crab QA isolated subject [0-9]+ nearest-neighbour 1\.[0-9]+m/.test(log)
               && /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedFishCheck || (log.includes("near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes")
               && log.includes("near fish use softly interpolated family flank lines, bars, and caudal marks")
@@ -2074,7 +2076,7 @@ try {
     && crabResult.output?.includes(
       "island-simulator: beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch")
     && crabResult.output?.includes(
-      "island-simulator: crab QA camera views an active beach colony")
+      "island-simulator: crab QA camera frames one foraging subject without camera-triggered colony retreat")
     && /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(
       crabResult.output ?? "")
     && !crabResult.error;

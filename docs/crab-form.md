@@ -151,3 +151,24 @@ are retained only as local build evidence. Focused Chrome/SwiftShader evidence
 `build/browser-software/20261014T031556.664431Z-chrome-crabs` passes with two inspected animated
 frames, 60 finite intervals, GL error zero, an intact context and no new kernel GPU fault. The
 ARM64 debug APK assembles and lint passes without starting an emulator.
+
+## Debris-colony separation and honest QA framing (2026-10-14)
+
+A new current-binary audit exposed a composition problem rather than another mesh defect. The five
+members around each debris anchor accepted the first valid points on almost the same small circle;
+the best-isolated animal across all thirty still had only 0.387424 m to its nearest neighbour. The
+old close camera also triggered all five retreat vectors at once. Their overlapping broad shells
+therefore hid the already implemented low profile, legs and claws.
+
+Debris-guided initialization now rejects homes less than 1.12 m from an earlier member of the same
+five-crab colony. It keeps the exact six selected debris anchors, 3.25 m anchor radius, shoreline
+surface/slope constraints, home radii and deterministic search. The QA view selects the animal
+with the greatest nearest-neighbour distance (current subject 28 at 1.28294 m) and gives only this
+inspection simulation a distant observer, so foraging remains active without camera-induced herd
+retreat. Ordinary gameplay still supplies the real player and preserves the existing non-hostile
+scuttle response.
+
+Geometry, thirty-agent population, palettes, 38 m LOD, one dynamic draw and audio are unchanged.
+Baseline `20261014T155226.177045Z-crabs` and final `20261014T160445.974296Z-crabs` were inspected;
+the latter passes at 325 colour bins, 26.46 luminance deviation and 136.09 spatial contrast and
+shows individually readable low broad shells instead of one piled mass.

@@ -3336,6 +3336,11 @@ int main()
               "debris-guided crab colony placement is deterministic");
         Check(island::CrabColony::IsNearDebris(home, crabDebrisCues),
               "crab colony home is not beside driftwood or dry wrack");
+        const std::size_t first=(index/5U)*5U;
+        for(std::size_t previous=first;previous<index;++previous)
+            Check(std::hypot(home.x-debrisCrabs.Homes()[previous].x,
+                             home.z-debrisCrabs.Homes()[previous].z)>=1.119f,
+                  "debris-guided crab homes keep broad carapaces separated");
     }
     const island::ShipwreckLayout shipwreck(terrain);
     const island::ShipwreckLayout repeatedShipwreck(terrain);

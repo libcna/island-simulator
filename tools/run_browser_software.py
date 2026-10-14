@@ -325,6 +325,9 @@ def validate_crab_report(report):
         or "near crabs use tapered toes, socketed eyes, and solid pincer fingers" not in log
         or "near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms" not in log
         or "near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs" not in log
+        or "near crabs use low broad shells with retained lateral carapace corners" not in log
+        or "crab QA camera frames one foraging subject without camera-triggered colony retreat" not in log
+        or not re.search(r"crab QA isolated subject [0-9]+ nearest-neighbour 1\.[0-9]+m", log)
         or not re.search(r"crabs [1-9][0-9]*/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("crab view lacks current anatomy, frames or clean graphics state")

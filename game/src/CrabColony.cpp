@@ -115,17 +115,25 @@ namespace island
         const float landwardOffset = 3.4f + static_cast<float>(index % 6U) * 1.55f;
         const float tangentOffset = (static_cast<float>((index * 7U) % 9U) - 4.0f) * 0.42f;
         agent.home.radius = 5.8f + static_cast<float>(index % 4U) * 0.7f;
+        const auto separatedFromEarlierColonyMembers=[&](const float x,const float z) {
+            const std::size_t first=colonyIndex*5U;
+            for(std::size_t previous=first;previous<index;++previous)
+                if(std::hypot(x-agents_[previous].home.x,z-agents_[previous].home.z)<1.12f)
+                    return false;
+            return true;
+        };
         bool foundHabitat = false;
         if (debrisAnchored_) {
             const auto anchor = debrisAnchors_[colonyIndex];
             angle = std::atan2(anchor.z, anchor.x);
             for (int attempt = 0; attempt < 64 && !foundHabitat; ++attempt) {
-                const float radius = .35f + static_cast<float>(attempt) * .045f;
+                const float radius = .58f + static_cast<float>(attempt) * .038f;
                 const float theta = static_cast<float>(index) * 1.173f
                     + static_cast<float>(attempt) * 2.399963f;
                 agent.home.x = anchor.x + std::cos(theta) * radius;
                 agent.home.z = anchor.z + std::sin(theta) * radius;
-                foundHabitat = IsValidHabitat(agent.home.x, agent.home.z, agent.home);
+                foundHabitat = IsValidHabitat(agent.home.x, agent.home.z, agent.home)
+                    && separatedFromEarlierColonyMembers(agent.home.x,agent.home.z);
             }
         }
         for (int attempt = 0; attempt < 97 && !foundHabitat; ++attempt) {
@@ -137,7 +145,8 @@ namespace island
             agent.home.z = std::sin(angle) * radius + std::cos(angle) * tangentOffset;
             const auto sample = terrain_.Sample(agent.home.x, agent.home.z);
             if (sample.coastalRockiness < 0.35f
-                && IsValidHabitat(agent.home.x, agent.home.z, agent.home)) {
+                && IsValidHabitat(agent.home.x, agent.home.z, agent.home)
+                && separatedFromEarlierColonyMembers(agent.home.x,agent.home.z)) {
                 foundHabitat = true;
                 break;
             }
