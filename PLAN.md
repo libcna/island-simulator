@@ -53,11 +53,30 @@ These are control budgets, not permission to leave a feature half-connected or t
 window is consumed: simplify geometry/material/animation variety before cutting required behavior,
 then keep improving remaining or shallow items until the operator ends the work.
 
-Build constraint: all future compilations are limited to at most four CPU cores
-by explicit user request. Use `-j4` / `--parallel 4` or fewer workers, bound nested
-tool workers, and serialize builds. Where tools use internal threads, restrict
-the build process tree to at most four allowed logical CPUs. This supersedes
-older uncapped build guidance; existing `-j2` builds remain suitable.
+Build constraint: all future compilations are limited to at most three CPU cores
+by explicit user request (reduced from four on 2026-10-14). Use `-j3` / `--parallel 3`
+or fewer workers, bound nested tool workers, and serialize builds. Where tools use
+internal threads, restrict the build process tree to at most three allowed logical
+CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
+existing two-worker limit remains suitable.
+
+## Latest visual-audit implementation — denser fallen palm fronds
+
+The current overview/frond/water comparison selected grove-associated fallen palm fronds as the
+weakest subject. Their fourteen exactly opposed leaflet pairs still read as a flat brown fish
+skeleton at first-person distance. The accepted revision uses a more strongly arched and laterally
+curved eleven-section rachis, eighteen narrower leaflet pairs, small side-to-side root staggering,
+less regular axial sweep and two missing pinnae only on the dry variant. Fresh and olive variants
+remain complete. The existing geometric fold, three colour identities, placement, 35-instance
+population, 76 m culling, collision policy and maximum three instanced draws are unchanged.
+
+The two rejected studies are preserved as evidence rather than shipped: the first made leaflets
+overlap like roof shingles and the second became too sparse. The accepted meshes use 168 vertices /
+94 triangles for fresh and olive forms and 160 / 90 for the broken dry form, versus 132 / 74
+previously. Static prop inventory rises by only 100 vertices. Baseline
+`20261014T153426.921985Z-fronds` and accepted `20261014T154547.292750Z-fronds` were inspected; the
+final pinnae are denser, narrower and less mirror-regular and pass at 276 colour bins, 21.41
+luminance deviation and 108.50 spatial contrast.
 
 ## Latest visual-audit implementation — broader bear head
 

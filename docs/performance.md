@@ -1424,6 +1424,17 @@ the native silhouette. The arm64 GLES 3 APK builds/lints through the shared cach
 `arm64-v8a`, and verifies with APK signature scheme v2; a physical-mobile frond inspection remains
 open, so no Android appearance or performance improvement is claimed.
 
+### Denser staggered fallen-frond pinnae follow-up
+
+The 2026-10-14 current-binary comparison found that fourteen opposed pairs still read as a flat
+fish skeleton. The accepted meshes retain the same three instance batches but use an eleven-section
+rachis and eighteen narrower, slightly staggered pinna pairs. Fresh/olive forms now cost 168
+vertices / 94 triangles and the two-gap dry form 160 / 90, versus 132 / 74. Across the three static
+meshes this adds only 100 uploaded vertices; population, culling and per-frame instance work do not
+change. Native baseline `20261014T153426.921985Z-fronds` and accepted
+`20261014T154547.292750Z-fronds` were inspected. Two intervening candidates were visually rejected
+for shingle-like overlap and excessive sparsity.
+
 ### Broad clearing-floor patch breakup follow-up
 
 The east and west clearing floors now classify complementary dry/cool and leaf/moss patches from

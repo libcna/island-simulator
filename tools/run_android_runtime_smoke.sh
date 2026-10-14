@@ -410,6 +410,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: fallen frond leaflets use geometric central folds" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: fallen fronds use narrow folded pinnae with staggered roots and broken dry gaps" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: ocean sunward ripple crests reuse analytic slope field" \
             "$LOG_FILE" \
         && grep -q "island-simulator: ocean grazing reflection bands reuse analytic slope field" \

@@ -2257,6 +2257,8 @@ try {
       "island-simulator: fallen fronds use curved asymmetric leaflet silhouettes")
     && frondResult.output?.includes(
       "island-simulator: fallen frond leaflets use geometric central folds")
+    && frondResult.output?.includes(
+      "island-simulator: fallen fronds use narrow folded pinnae with staggered roots and broken dry gaps")
     && /[1-9][0-9]*\/35 fallen fronds/.test(frondResult.output ?? "")
     && !frondResult.error;
 

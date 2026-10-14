@@ -78,6 +78,8 @@ namespace island
             "island-simulator: fallen fronds use curved asymmetric leaflet silhouettes";
         constexpr std::string_view FallenFrondFoldDiagnostic =
             "island-simulator: fallen frond leaflets use geometric central folds";
+        constexpr std::string_view FallenFrondPinnaDiagnostic =
+            "island-simulator: fallen fronds use narrow folded pinnae with staggered roots and broken dry gaps";
         constexpr std::string_view StaghornCoralDiagnostic =
             "island-simulator: branching reef form uses dense upright staghorn stems, offset side forks, and small growing tips";
         constexpr std::string_view StaghornGrowthDiagnostic =
@@ -1152,8 +1154,8 @@ void main()
         [[nodiscard]] PropGeometry CreateFallenFrondGeometry(const int variant)
         {
             PropGeometry geometry;
-            geometry.vertices.reserve(136U);
-            geometry.indices.reserve(228U);
+            geometry.vertices.reserve(176U);
+            geometry.indices.reserve(330U);
             const Color rachis = variant == 2
                 ? Color(105, 76, 39, FallenFrondMaterialDetail)
                 : Color(102, 112, 48, FallenFrondMaterialDetail);
@@ -1162,17 +1164,17 @@ void main()
                 : (variant == 1
                        ? Color(91, 112, 49, FallenFrondMaterialDetail)
                        : Color(133, 100, 48, FallenFrondMaterialDetail));
-            constexpr int stemSections = 9;
+            constexpr int stemSections = 11;
             const auto stemBase = static_cast<std::uint16_t>(geometry.vertices.size());
             for (int section = 0; section <= stemSections; ++section) {
                 const float t = static_cast<float>(section)
                     / static_cast<float>(stemSections);
                 const float x = t - 0.5f;
                 const float arch = std::sin(t * std::numbers::pi_v<float>);
-                const float curve = arch * 0.032f;
+                const float curve = arch * 0.038f;
                 const float sideways = std::sin(
                     t * std::numbers::pi_v<float> * 2.0f + variant * 0.7f)
-                    * (0.012f + arch * 0.010f);
+                    * (0.016f + arch * 0.016f);
                 const float halfWidth = 0.014f - t * 0.006f;
                 geometry.vertices.emplace_back(
                     Vector3(x, 0.018f + curve, sideways - halfWidth),
@@ -1191,33 +1193,38 @@ void main()
                                          right, nextLeft, nextRight});
             }
 
-            constexpr int leafletPairs = 14;
+            constexpr int leafletPairs = 18;
             for (int pair = 0; pair < leafletPairs; ++pair) {
-                const float t = 0.055f + static_cast<float>(pair)
-                    / static_cast<float>(leafletPairs - 1) * 0.855f;
-                const float x = t - 0.5f;
-                const float envelope = 0.055f
-                    + std::sin(t * std::numbers::pi_v<float>) * 0.155f;
-                const float centreHeight = 0.020f
-                    + std::sin(t * std::numbers::pi_v<float>) * 0.032f;
-                const float centreSideways = std::sin(
-                    t * std::numbers::pi_v<float> * 2.0f + variant * 0.7f)
-                    * (0.012f
-                       + std::sin(t * std::numbers::pi_v<float>) * 0.010f);
                 for (int sideIndex = 0; sideIndex < 2; ++sideIndex) {
+                    // Old pairs shared one root station and made the whole frond read as a
+                    // mirrored fish skeleton. Stagger the two ranks and leave a few genuine
+                    // gaps only in the dry form, as broken pinnae do on fallen palm leaves.
+                    if (variant == 2 && (pair + sideIndex * 7) % 17 == 3) continue;
                     const float side = sideIndex == 0 ? -1.0f : 1.0f;
+                    const float stagger = side * (.0045f
+                        + .0015f * std::sin(static_cast<float>(pair) * 1.19f + variant));
+                    const float t = 0.045f + static_cast<float>(pair)
+                        / static_cast<float>(leafletPairs - 1) * 0.875f + stagger;
+                    const float x = t - 0.5f;
+                    const float arch = std::sin(t * std::numbers::pi_v<float>);
+                    const float envelope = 0.052f + arch * 0.165f;
+                    const float centreHeight = 0.020f + arch * 0.038f;
+                    const float centreSideways = std::sin(
+                        t * std::numbers::pi_v<float> * 2.0f + variant * 0.7f)
+                        * (0.016f + arch * 0.016f);
                     const float alternate = ((pair + sideIndex + variant) % 2 == 0)
-                        ? 0.018f : -0.012f;
+                        ? 0.009f : -0.007f;
                     const float shapeVariation = std::sin(
                         static_cast<float>(pair) * 1.71f
                         + static_cast<float>(sideIndex) * 2.13f
                         + static_cast<float>(variant) * 0.83f);
-                    const float sideScale = 0.91f + shapeVariation * 0.10f;
-                    const float sweep = 0.038f + t * 0.052f
-                        + 0.006f * static_cast<float>(variant)
-                        + shapeVariation * 0.009f;
-                    const float tipDrop = 0.008f
-                        + std::abs(shapeVariation) * 0.010f;
+                    const float sideScale = 0.90f + shapeVariation * 0.11f;
+                    const float sweep = 0.020f + t * 0.045f
+                        + 0.004f * static_cast<float>(variant)
+                        + shapeVariation * 0.006f;
+                    const float tipDrop = 0.010f
+                        + std::abs(shapeVariation) * 0.012f
+                        + (variant == 2 ? .005f : 0.0f);
                     const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
                     const float ageVariation = 0.94f + shapeVariation * 0.07f;
                     const Color inner = ShadeColor(
@@ -1228,8 +1235,8 @@ void main()
                         Vector3(x, centreHeight + 0.006f,
                                 centreSideways + side * 0.010f), inner);
                     geometry.vertices.emplace_back(
-                        Vector3(x - 0.028f, centreHeight + 0.001f,
-                                centreSideways + side * envelope * 0.23f),
+                        Vector3(x - 0.015f, centreHeight + 0.001f,
+                                centreSideways + side * envelope * 0.22f),
                         ShadeColor(inner, 0.92f));
                     geometry.vertices.emplace_back(
                         Vector3(x + sweep + alternate,
@@ -1237,8 +1244,8 @@ void main()
                                 centreSideways + side * envelope * sideScale),
                         ShadeColor(outer, 1.05f));
                     geometry.vertices.emplace_back(
-                        Vector3(x + 0.040f, centreHeight + 0.002f,
-                                centreSideways + side * envelope * 0.24f), outer);
+                        Vector3(x + 0.022f, centreHeight + 0.002f,
+                                centreSideways + side * envelope * 0.23f), outer);
                     geometry.indices.insert(
                         geometry.indices.end(),
                         {base, static_cast<std::uint16_t>(base + 1U),
@@ -1379,6 +1386,8 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(FallenFrondDiagnostic);
             std::cout << FallenFrondFoldDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(FallenFrondFoldDiagnostic);
+            std::cout << FallenFrondPinnaDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(FallenFrondPinnaDiagnostic);
             constexpr std::string_view reefDiagnostic =
                 "island-simulator: spatial reef uses branching, rounded, plate coral and underwater-rock LOD forms";
             std::cout << reefDiagnostic << '\n';
