@@ -289,6 +289,13 @@ LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
             for old, new in (("broad tapered", "missing"), ("2/6", "0/6"), ("2 draw", "1 draw")):
                 log.write_text(boars.replace(old, new))
                 with self.assertRaises(RuntimeError): gate.validate_game_logs(directory, False, "boars")
+            turtle_surface = ("near turtles use a twenty-by-sixteen carapace surface, "
+                "eighteen-sided seven-ring heads, and irregular mottled shell and skin tones\n")
+            log.write_text(good + turtle_surface)
+            gate.validate_game_logs(directory, False, "turtles")
+            log.write_text(good)
+            with self.assertRaisesRegex(RuntimeError, "sea-turtle surface"):
+                gate.validate_game_logs(directory, False, "turtles")
             log.write_text(good)
             for view in ("hut", "hut-material"):
                 with self.assertRaisesRegex(RuntimeError, "hut material"):

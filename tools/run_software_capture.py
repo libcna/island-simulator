@@ -854,6 +854,8 @@ def main():
                     raise RuntimeError("current sea-turtle scute and paddle detail is missing; check for a stale executable")
                 if "near turtles use compact integrated heads, narrower hydrodynamic paddles, and restrained shell seams" not in diagnostics:
                     raise RuntimeError("current sea-turtle silhouette refinement is missing; check for a stale executable")
+                if "near turtles use a twenty-by-sixteen carapace surface, eighteen-sided seven-ring heads, and irregular mottled shell and skin tones" not in diagnostics:
+                    raise RuntimeError("current sea-turtle surface refinement is missing; check for a stale executable")
                 if not re.search(r"turtles [1-5]/5 visible \(near [1-5], far [0-5]\), 1 draw", diagnostics):
                     raise RuntimeError("sea-turtle capture did not submit a near detailed animal")
             if args.viewpoint == "fish":

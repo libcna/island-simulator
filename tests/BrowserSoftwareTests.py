@@ -270,12 +270,13 @@ class BrowserSoftwareTests(unittest.TestCase):
                       (ROOT / "tools/web_smoke.html.in").read_text())
         marker = "near turtles use staggered scutes and closed tapered-volume paddles"
         silhouette = "near turtles use compact integrated heads, narrower hydrodynamic paddles, and restrained shell seams"
+        surface = "near turtles use a twenty-by-sixteen carapace surface, eighteen-sided seven-ring heads, and irregular mottled shell and skin tones"
         def report():
             return {"passed": True, "views": [{"mode": "turtles", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "turtles.png", "afterSimulationScreenshot": "turtles-after.png",
                 "intervals": [16.7] * 60,
-                "result": {"output": marker + "\n" + silhouette
+                "result": {"output": marker + "\n" + silhouette + "\n" + surface
                     + "\nturtles 1/5 visible (near 1, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_turtle_report(report()), ("turtles.png", "turtles-after.png"))
         for mutate in (
@@ -284,7 +285,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             lambda value: value["views"][0].update(contextLost=True),
             lambda value: value["views"][0].update(intervals=[16.7] * 59),
             lambda value: value["views"][0]["result"].update(output="turtles 1/5 visible (near 1, far 0), 1 draw"),
-            lambda value: value["views"][0]["result"].update(output=marker + "\n" + silhouette
+            lambda value: value["views"][0]["result"].update(output=marker + "\n" + silhouette + "\n" + surface
                 + "\nturtles 0/5 visible (near 0, far 0), 0 draw"),
         ):
             invalid = report(); mutate(invalid)

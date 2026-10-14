@@ -780,6 +780,7 @@ try {
               && log.includes("cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling")))
             && (!focusedTurtleCheck || (log.includes("near turtles use staggered scutes and closed tapered-volume paddles")
               && log.includes("near turtles use compact integrated heads, narrower hydrodynamic paddles, and restrained shell seams")
+              && log.includes("near turtles use a twenty-by-sixteen carapace surface, eighteen-sided seven-ring heads, and irregular mottled shell and skin tones")
               && /turtles [1-5]\/5 visible \(near [1-5], far [0-5]\), 1 draw/.test(log)))
             && (!focusedCrabCheck || (log.includes("near crabs use tapered toes, socketed eyes, and solid pincer fingers")
               && log.includes("near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms")

@@ -1594,6 +1594,17 @@ Standing visual-quality rules (apply to every task from now on):
   Chrome/SwiftShader `20261013T164900.718714Z-chrome-turtles` PASS two inspected different poses,
   60intervals/GL0/context intact/kernel[]. ARM64 assemble/lint PASS without emulator. Current
   Android runtime, microtexture and continuous all-angle stroke review remain open.
+  A seventh audit pass increases the near carapace from10x8 to20x16 surface cells, the head from
+  five12-sided rings to seven18-sided rings and paddle samples from7/5 to9/6. Deterministic
+  two-frequency olive/brown mottling replaces broad colour blocks; marginal scutes keep dark shell
+  material and lighter/narrower joins remove the painted rim/cage effect. Near geometry is now
+  4986vertices/1662triangles per turtle (398880bytes maximum for five), still one draw with the
+  same simulation/far LOD. Inspected native `20261014T015340.586828Z-turtles` PASS216bins/
+  std29.04/spatial161.99/kernel[]; Chrome/SwiftShader
+  `20261014T014756.417428Z-chrome-turtles` PASS two inspected animated poses,60intervals,
+  GL0/context intact/kernel[]. Current-source Debug build and Android ARM64 assemble/lint PASS
+  without emulator/KVM. Filtered microtexture, continuous all-angle review and Android runtime
+  imagery remain open.
   A third crab pass replaces all four zero-thickness triangular pincer fingers with closed,
   tapering triangular prisms. Near geometry is810vertices/270triangles (388800bytes for all30),
   with unchanged far tier/population/one draw. Inspected native

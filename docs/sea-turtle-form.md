@@ -167,3 +167,34 @@ head, narrower paddle and quieter shell grid are visible. Chrome/SwiftShader
 intervals, GL error zero, an intact context and no new kernel GPU fault. ARM64 assemble/lint passes
 without launching an emulator. The animal remains deliberately faceted; skin/scute microtexture,
 continuous all-angle stroke review and Android runtime imagery remain open.
+
+## Seventh curved-surface and mottled-material pass (2026-10-14)
+
+The next cross-system audit compared the current turtle against the shipwreck, boar, bear,
+monkey and dolphin close views. The turtle remained the weakest foreground silhouette: its
+ten-by-eight carapace surface still exposed large planar cells, the five-ring head showed hard
+longitudinal corners, and the pale marginal band read as a continuous painted stripe rather than
+shell scutes.
+
+The near carapace now samples the same bounded teardrop profile on a20-by16 surface grid. Large
+shield boundaries remain authored by the existing staggered scute functions, but they ride on a
+finer curved surface. The head now uses seven anatomical stations and18 sides from its buried neck
+through cheeks, crown, brow and beak. Front and rear paddles use9/6 centreline samples, preserving
+the existing power/recovery stroke while reducing visible outline hinges. Irregular deterministic
+two-frequency tone variation breaks up each shell and skin region; the marginal scutes now remain
+dark shell material, while only the closed plastron stays pale. Narrower, lighter shell and paddle
+joins no longer form the former high-contrast cage.
+
+Near geometry is4,986 vertices /1,662 triangles per turtle, at most398,880 bytes for all five
+`VertexPositionColor` models. Population, route simulation, culling distance, far LOD, texture
+count and the single dynamic draw are unchanged. Inspected llvmpipe evidence
+`20261014T015340.586828Z-turtles` passes at1280x720 with216 colour bins,29.04 luminance deviation,
+161.99 spatial contrast and an empty kernel delta. Compared with
+`20261013T164545.549417Z-turtles`, the shell and head curves have visibly smaller facets and the
+continuous pale rim is gone.
+
+Focused Chrome/SwiftShader evidence `20261014T014756.417428Z-chrome-turtles` passes two inspected
+different animated poses,60 finite frame intervals, `glError=0`, an intact context and no new
+kernel GPU fault. Current-source Android ARM64 assembly and lint also pass without starting an
+emulator or touching KVM. A true filtered skin/scute texture, all-angle continuous stroke review
+and current Android runtime imagery remain open.

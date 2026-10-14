@@ -248,6 +248,8 @@ def validate_game_logs(directory, lifecycle, viewpoint=None):
                 raise RuntimeError("application did not confirm visible boars and both material draws")
         if viewpoint == "bear" and "bear fur loaded Content/wildlife/bear-fur.png; 128x128, 8 mips, 87380 RGBA8 bytes" not in log:
             raise RuntimeError("application did not confirm the bear fur texture")
+        if viewpoint == "turtles" and "near turtles use a twenty-by-sixteen carapace surface, eighteen-sided seven-ring heads, and irregular mottled shell and skin tones" not in log:
+            raise RuntimeError("application did not confirm the current sea-turtle surface")
         if viewpoint in ("hut", "hut-material") and "hut beam-aligned weathered grain and filtered thatch fibres" not in log:
             raise RuntimeError("application did not confirm the hut material")
         if viewpoint in ("hut", "hut-material") and "hut timber material uses coarse warped grain, recessed dark fibres, knot bands, and sun-bleached board variation" not in log:

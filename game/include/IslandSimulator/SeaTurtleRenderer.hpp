@@ -22,7 +22,7 @@ namespace island
     class SeaTurtleRenderer final
     {
     public:
-        static constexpr int NearVertexCount = 2250;
+        static constexpr int NearVertexCount = 4986;
         static constexpr int FarVertexCount = 36;
 
         explicit SeaTurtleRenderer(
