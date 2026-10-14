@@ -190,7 +190,7 @@ void main()
     materialColor += vec3(0.76, 0.78, 0.75) * ironSheen;
 
     float fog = smoothstep(190.0, 520.0, distanceToCamera);
-    vec3 color = mix(materialColor, vec3(0.53, 0.78, 0.88), fog);
+    vec3 color = mix(materialColor, islandAtmosphereFog, fog);
     fragColor = vec4(color, 1.0);
 }
 )";
@@ -198,9 +198,11 @@ void main()
         [[nodiscard]] std::string ShaderSource(const bool embedded, const char* body)
         {
             if (embedded) {
-                return std::string("#version 300 es\nprecision highp float;\n") + body;
+                return std::string("#version 300 es\nprecision highp float;\n")
+                    + environment::FogShaderDefinition + body;
             }
-            return std::string("#version 330 core\n") + body;
+            return std::string("#version 330 core\n")
+                + environment::FogShaderDefinition + body;
         }
 
         [[nodiscard]] CNA::Graphics::ShaderPackageEXT CreateShaderPackage()

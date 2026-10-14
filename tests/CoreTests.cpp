@@ -11,6 +11,7 @@
 #include "IslandSimulator/ContactShadowPatch.hpp"
 #include "IslandSimulator/DebugFreeCamera.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
+#include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
 #include "IslandSimulator/FirstPersonInput.hpp"
@@ -94,6 +95,14 @@ namespace
 
 int main()
 {
+    {
+        const std::string_view fogShader = island::environment::FogShaderDefinition;
+        Check(island::environment::FogColorRed == 0.53f
+            && island::environment::FogColorGreen == 0.78f
+            && island::environment::FogColorBlue == 0.88f
+            && fogShader == "const vec3 islandAtmosphereFog=vec3(0.53,0.78,0.88);\n",
+            "CPU and portable shader atmosphere fog share one authored colour");
+    }
     {
         island::SwimDepth dive;
         Check(dive.EyeHeight()==.58f,"diving starts at the swimming surface");

@@ -226,7 +226,7 @@ void main()
         float upwardFill = abs(faceNormal.y);
         material *= 0.88 + twoSidedDiffuse * 0.16 + upwardFill * 0.04;
     }
-    vec3 color = mix(material, vec3(0.53, 0.78, 0.88), fog);
+    vec3 color = mix(material, islandAtmosphereFog, fog);
     fragColor = vec4(color, 1.0);
 }
 )";
@@ -240,9 +240,10 @@ void main()
                 : std::string();
             if (embedded) {
                 return std::string("#version 300 es\nprecision highp float;\nprecision highp int;\n")
-                    + materials + body;
+                    + environment::FogShaderDefinition + materials + body;
             }
-            return std::string("#version 330 core\n") + materials + body;
+            return std::string("#version 330 core\n")
+                + environment::FogShaderDefinition + materials + body;
         }
 
         [[nodiscard]] CNA::Graphics::ShaderPackageEXT CreateShaderPackage()

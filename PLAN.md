@@ -60,6 +60,27 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — one authored atmosphere fog colour
+
+The atmosphere audit found that stock-effect renderers already consumed the shared C++ fog
+channels, but nine portable custom shader families still repeated the same RGB literal by hand.
+`EnvironmentLighting.hpp` now generates both the three C++ channels and one GLSL
+`islandAtmosphereFog` declaration from the same three numeric tokens. Terrain, grass, jungle,
+palms, natural props, the hut, shipwreck, ocean and sky consume that declaration; distant scenery
+and above-water stock-effect wildlife continue to consume the matching C++ channels. Underwater
+fish, dolphins, shark and turtle rendering deliberately retain their separate depth-extinction
+colour. Fog distances stay renderer-specific because their geometry and useful view ranges differ.
+No uniform, texture, buffer, draw or fragment arithmetic was added.
+
+The CPU contract pins the generated GLSL declaration to the C++ channels, and source audit finds
+no remaining repeated above-water fog literal. Native overview evidence
+`build-consumer/software-captures/20261014T230638.007633Z-overview` passes after all custom effects
+compile and was inspected. Chrome/SwiftShader
+`build/browser-software/20261014T230820.465736Z-chrome-sky` passes the matching inspected overview
+with 60 positive finite intervals, GL0, a live context and clean kernel delta. ARM64 assemble/lint
+passes through the two-worker wrapper using the locked Sharp Runtime revision (24,046,019 bytes,
+`e4a1b9fd...f5d2c2`), without emulator or KVM. All 63 enabled non-display tests pass.
+
 ## Latest visual-audit implementation — directional palm-crown shade
 
 The lighting audit confirmed a long-documented discontinuity: broadleaf crowns cast into the
@@ -3700,10 +3721,13 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   Requalified: 33/33 non-display groups (26.94 s), Chrome litter scope `145543.719907Z`,
   Android `145908.469206Z-palms` (PID 1822 / TID 1890, image inspected, empty kernel deltas);
   packages refreshed (Web 10,368,543 / 3,527,432 gzip; x86_64 APK 20,406,235; ARM64 20,495,028).
-- [~] 13. One shared `AtmosphereModel` for aerial perspective used by terrain, vegetation, ocean,
+- [x] 13. One shared `AtmosphereModel` for aerial perspective used by terrain, vegetation, ocean,
   distant islands and wildlife instead of per-renderer fog colours such as `(0.53, 0.78, 0.88)`.
   2026-10-10: `environment::FogColor*` constants back the C++ fog sites and the sky haze; GLSL
-  literals are still hand-kept.
+  literals were still hand-kept. 2026-10-15 completion generates one portable GLSL declaration
+  and the three C++ channels from the same authored tokens. All above-water custom shaders and
+  stock-effect consumers now share it; underwater depth fog intentionally remains aquatic.
+  Native/WebGL/ARM64 evidence and the 63-case regression are recorded in the latest audit section.
 - [x] 14. Integrate distant islets into the atmosphere: one nearer, two almost silhouettes, one
   treeless sandbar/reef, one very distant, with contrast falling steeply with distance.
   2026-10-10 (`docs/distant-islets.md`): nearer wooded islet at 575 m, sandbar variant, far

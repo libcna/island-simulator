@@ -139,7 +139,7 @@ void main()
     float verticalBlend = pow(elevation, 0.58);
     // The horizon haze is the same colour every renderer fogs toward, so distant terrain,
     // water and islets dissolve into the sky instead of standing in front of it.
-    vec3 hazeColor = vec3(0.53, 0.78, 0.88);
+    vec3 hazeColor = islandAtmosphereFog;
     vec3 horizon = vec3(0.70, 0.86, 0.92);
     vec3 zenith = vec3(0.12, 0.42, 0.74);
     vec3 color = mix(horizon, zenith, verticalBlend);
@@ -201,9 +201,11 @@ void main()
         [[nodiscard]] std::string ShaderSource(const bool embedded, const char* body)
         {
             if (embedded) {
-                return std::string("#version 300 es\nprecision highp float;\n") + body;
+                return std::string("#version 300 es\nprecision highp float;\n")
+                    + environment::FogShaderDefinition + body;
             }
-            return std::string("#version 330 core\n") + body;
+            return std::string("#version 330 core\n")
+                + environment::FogShaderDefinition + body;
         }
 
         [[nodiscard]] CNA::Graphics::ShaderPackageEXT CreateShaderPackage()
@@ -326,6 +328,10 @@ void main()
                 "island-simulator: sky horizon locks to shared aerial haze above the below-horizon skirt";
             std::cout << horizonDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(horizonDiagnostic);
+            constexpr const char* fogSourceDiagnostic =
+                "island-simulator: atmosphere fog colour shares one CPU and portable shader definition";
+            std::cout << fogSourceDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(fogSourceDiagnostic);
             constexpr const char* driftDiagnostic =
                 "island-simulator: fair-weather cumulus and wisps drift slowly west with prevailing wind";
             std::cout << driftDiagnostic << '\n';

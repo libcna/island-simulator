@@ -295,7 +295,7 @@ void main()
         float direct = max(dot(normal, normalize(uToSun)), 0.0);
         materialColor *= 0.55 + 0.43*direct + 0.13*max(normal.y, 0.0);
     }
-    vec3 color = mix(materialColor, vec3(0.53, 0.78, 0.88), fog);
+    vec3 color = mix(materialColor, islandAtmosphereFog, fog);
     fragColor = vec4(color, 1.0);
 }
 )";
@@ -303,9 +303,11 @@ void main()
         [[nodiscard]] std::string ShaderSource(const bool embedded, const char* body)
         {
             if (embedded) {
-                return std::string("#version 300 es\nprecision highp float;\n") + body;
+                return std::string("#version 300 es\nprecision highp float;\n")
+                    + environment::FogShaderDefinition + body;
             }
-            return std::string("#version 330 core\n") + body;
+            return std::string("#version 330 core\n")
+                + environment::FogShaderDefinition + body;
         }
 
         [[nodiscard]] CNA::Graphics::ShaderPackageEXT CreateShaderPackage()

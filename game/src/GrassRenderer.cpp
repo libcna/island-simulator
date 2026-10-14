@@ -334,7 +334,7 @@ void main()
     vec2 receiver = canopyGroundReceiver(vWorld, vGroundHeight, uToSun);
     color = applyCanopyLight(color, receiver);
     color = applyCampfireLight(color,vWorld);
-    color = mix(color, vec3(0.53, 0.78, 0.88), smoothstep(260.0, 720.0, distanceToCamera));
+    color = mix(color, islandAtmosphereFog, smoothstep(260.0, 720.0, distanceToCamera));
     fragColor = vec4(color, 1.0);
 }
 )";
@@ -344,13 +344,15 @@ void main()
         {
             if (embedded) {
                 return std::string("#version 300 es\nprecision highp float;\n")
+                    + environment::FogShaderDefinition
                     + GrassMotion::ShaderConstants()
                     + GrassFootprintShaderConstants()
                     + GrassMaterialShaderConstants()
                     + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader)
                     + (canopy ? CampfireLighting::Shader : "") + body;
             }
-            return std::string("#version 330 core\n") + GrassMotion::ShaderConstants()
+            return std::string("#version 330 core\n") + environment::FogShaderDefinition
+                + GrassMotion::ShaderConstants()
                 + GrassFootprintShaderConstants()
                 + GrassMaterialShaderConstants()
                 + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader)

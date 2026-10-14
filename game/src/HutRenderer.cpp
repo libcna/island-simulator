@@ -247,8 +247,10 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
         if(!device.SupportsCapability(CNA::GraphicsCapability::CustomEffects))
             throw std::runtime_error("custom effects unavailable");
         using CNA::Graphics::ShaderCodeEXT;
-        const auto es=[](const char* body){return std::string("#version 300 es\nprecision highp float;\n")+body;};
-        const auto desktop=[](const char* body){return std::string("#version 330 core\n")+body;};
+        const auto es=[](const char* body){return std::string("#version 300 es\nprecision highp float;\n")
+            +environment::FogShaderDefinition+body;};
+        const auto desktop=[](const char* body){return std::string("#version 330 core\n")
+            +environment::FogShaderDefinition+body;};
         const CNA::Graphics::ShaderPackageEXT package({
             ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs,CNA::ShaderStageEXT::Vertex,"main","hut/es.vert",es(HutMaterialVertex)),
             ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs,CNA::ShaderStageEXT::Fragment,"main","hut/es.frag",es(HutMaterialFragment)),

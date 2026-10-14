@@ -898,6 +898,8 @@ def main():
                 raise RuntimeError("current sky atmosphere is missing; check for a stale executable")
             if "sky horizon locks to shared aerial haze above the below-horizon skirt" not in diagnostics:
                 raise RuntimeError("current sky horizon lock is missing; check for a stale executable")
+            if "atmosphere fog colour shares one CPU and portable shader definition" not in diagnostics:
+                raise RuntimeError("current shared atmosphere fog source is missing; check for a stale executable")
             if "distant wooded islets use rounded stepped ridges, clustered low crowns, and broader palm silhouettes" not in diagnostics:
                 raise RuntimeError("current distant islet silhouettes are missing; check for a stale executable")
             if "fair-weather cumulus and wisps drift slowly west with prevailing wind" not in diagnostics:

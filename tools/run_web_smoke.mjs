@@ -905,6 +905,7 @@ try {
               && log.includes("ground QA target variant 2 at player-eye detail distance")))
             && state.glError === 0 && !state.result?.error && !state.result?.exited
             && log.includes("island-simulator: renderer WEBGL2")
+            && log.includes("atmosphere fog colour shares one CPU and portable shader definition")
             && log.includes("ocean 160x160 textures 10091644/10111860 bytes audio 6/6 sources")
             && log.includes("forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows")
             && log.includes("leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes")

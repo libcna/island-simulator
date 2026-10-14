@@ -323,7 +323,7 @@ void main()
         litColor = applyCanopyLight(litColor, canopyGroundReceiver(vWorld, vGroundHeight, uToSun));
     }
     litColor=applyCampfireLight(litColor,vWorld);
-    vec3 color = mix(litColor, vec3(0.53, 0.78, 0.88), fog);
+    vec3 color = mix(litColor, islandAtmosphereFog, fog);
     fragColor = vec4(color, 1.0);
 }
 )";
@@ -333,11 +333,13 @@ void main()
         {
             if (embedded) {
                 return std::string("#version 300 es\nprecision highp float;\nprecision highp int;\n")
+                    + environment::FogShaderDefinition
                     + (canopy ? CampfireLighting::Shader : "")
                     + (canopy ? std::string(CanopyLighting::Shader) + JungleMaterial::Shader() + BarkMaterial::Shader + TrunkSurface::Shader() + LeafSurfaceMaterial::Shader()
                               : JungleWind::ShaderConstants() + std::string(RenderedTerrainSurface::Shader)) + body;
             }
             return std::string("#version 330 core\n")
+                + environment::FogShaderDefinition
                 + (canopy ? CampfireLighting::Shader : "")
                 + (canopy ? std::string(CanopyLighting::Shader) + JungleMaterial::Shader() + BarkMaterial::Shader + TrunkSurface::Shader() + LeafSurfaceMaterial::Shader()
                           : JungleWind::ShaderConstants() + std::string(RenderedTerrainSurface::Shader)) + body;

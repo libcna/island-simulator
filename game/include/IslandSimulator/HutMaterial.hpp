@@ -68,7 +68,7 @@ void main() {
     color=mix(vColor.rgb,color,detail);
     float base=(1.0-smoothstep(-0.3,0.25,vWorld.y-uHutCentre.y))*(1.0-step(0.7,vColor.a));
     color*=1.0-base*0.12;
-    color=mix(color,vec3(0.53,0.78,0.88),smoothstep(180.0,300.0,length(vWorld-uCameraPosition)));
+    color=mix(color,islandAtmosphereFog,smoothstep(180.0,300.0,length(vWorld-uCameraPosition)));
     fragColor=vec4(color,1.0);
 }
 )";

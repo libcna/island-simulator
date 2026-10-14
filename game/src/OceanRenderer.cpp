@@ -297,7 +297,7 @@ void main()
     float grazingHaze = smoothstep(0.45, 0.88, 1.0 - viewFacing)
         * smoothstep(240.0, 650.0, distanceToCamera);
     float fog = max(distanceFog, grazingHaze);
-    water = mix(water, vec3(0.53, 0.78, 0.88), fog);
+    water = mix(water, islandAtmosphereFog, fog);
 
     float alpha = uCoastalOptics.w * (1.0 - exp(-waterDepth * uCoastalOptics.x));
     // Grazing sky reflection should not inherit the clear lagoon's downward-view transparency.
@@ -313,9 +313,11 @@ void main()
         [[nodiscard]] std::string ShaderSource(const bool embedded, const std::string& body)
         {
             if (embedded) {
-                return std::string("#version 300 es\nprecision highp float;\n") + body;
+                return std::string("#version 300 es\nprecision highp float;\n")
+                    + environment::FogShaderDefinition + body;
             }
-            return std::string("#version 330 core\n") + body;
+            return std::string("#version 330 core\n")
+                + environment::FogShaderDefinition + body;
         }
 
         [[nodiscard]] CNA::Graphics::ShaderPackageEXT CreateShaderPackage()

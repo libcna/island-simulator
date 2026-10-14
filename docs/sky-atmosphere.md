@@ -18,9 +18,10 @@ of dissolving into it.
 - The high horizontal wisps and their diagnostic are unchanged; a new diagnostic names the sky
   volume and is pinned by the native capture harness.
 - The stock-effect fallback dome uses the new horizon/zenith colours.
-- `environment::FogColorRed/Green/Blue` now back the 14 C++ `setFogColorProperty` sites that
-  previously repeated the literal; GLSL bodies still repeat the same literal and must be kept in
-  step by hand (documented in the header). Underwater renderers keep their own water fog.
+- `environment::FogColorRed/Green/Blue` back the C++ `setFogColorProperty` sites. Since
+  2026-10-15 the same three authored tokens also generate the single portable GLSL
+  `islandAtmosphereFog` declaration consumed by terrain, grass, jungle, palms, natural props, hut,
+  shipwreck, ocean and sky. Underwater renderers keep their own water fog.
 
 ## Android emulator crash and fix (2026-10-10 evening)
 
@@ -45,7 +46,7 @@ Native llvmpipe `build/software-captures/20261010T145219.907592Z-beach`, `145227
 `145234.350022Z-palms` (pass; images inspected; before: `145055.141034Z-beach`). From the
 overview the island now sits under a hazy horizon with cloud masses; from the beach the masses
 show between trunks. Masses are smooth ellipse blobs without cauliflower edges, cast no light or
-shadow on the world, and the fog literal is not yet generated from one source for GLSL.
+shadow on the world.
 
 Platform runs: Chrome/SwiftShader litter scope `build/browser-software/20261010T145543.719907Z-chrome-litter`
 (pass, both views, empty kernel deltas), Android KVM/SwiftShader
@@ -54,3 +55,14 @@ first draw 5,989.730 ms, total 16,349.383 ms, image inspected, empty kernel delt
 packages: Web 10,368,543 raw / 3,527,432 gzip bytes; x86_64 APK 20,406,235 bytes
 (`87617ee62e675cb38b8290d020d31c1be52cf87cd60f6e134e1a0c096acd12d6`); ARM64 APK 20,495,028 bytes
 (`c4bf396f138198cf78140e382549c9af76483cce479b8e40ad453f7bf61a58dd`), runtime untested.
+
+## Shared atmosphere-source completion — 2026-10-15
+
+The above-water fog colour now has one authored source for CPU stock effects and portable custom
+shaders; per-renderer distance ranges remain intentional. Native inspected overview
+`build-consumer/software-captures/20261014T230638.007633Z-overview` passes after every custom effect
+is created. Chrome/SwiftShader `build/browser-software/20261014T230820.465736Z-chrome-sky` passes
+60 positive finite intervals with GL0, a live context and clean kernel delta; its matching overview
+was inspected. ARM64 assemble/lint passes without emulator/KVM (24,046,019-byte APK, SHA-256
+`e4a1b9fd72750a48d9a29945ccab20b80bb1989f32f2025fd471f20feff5d2c2`), as do all 63 enabled
+non-display tests.

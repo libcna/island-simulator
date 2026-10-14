@@ -790,7 +790,7 @@ void main()
     color=mix(color,caveStone,caveFloor);
     color=applyCampfireLight(color,vWorld);
     float fog = smoothstep(260.0, 720.0, distanceToCamera);
-    color = mix(color, vec3(0.53, 0.78, 0.88), fog);
+    color = mix(color, islandAtmosphereFog, fog);
     fragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
 }
 )";
@@ -800,6 +800,7 @@ void main()
         {
             if (embedded) {
                 return std::string("#version 300 es\nprecision highp float;\nprecision highp int;\n")
+                    + environment::FogShaderDefinition
                     + (canopy ? CanopyLighting::Shader : "")
                     + (canopy ? IslandEnvironmentField::InlandShader : "")
                     + (canopy ? GroundCover::Shader() : std::string())
@@ -807,7 +808,8 @@ void main()
                     + (canopy ? ForestFloorMaterial::Shader : "")
                     + (canopy ? CampfireLighting::Shader : "") + body;
             }
-            return std::string("#version 330 core\n") + (canopy ? CanopyLighting::Shader : "")
+            return std::string("#version 330 core\n") + environment::FogShaderDefinition
+                + (canopy ? CanopyLighting::Shader : "")
                 + (canopy ? IslandEnvironmentField::InlandShader : "")
                 + (canopy ? GroundCover::Shader() : std::string())
                 + (canopy ? TerrainSurfaceFrame::Shader : "")
