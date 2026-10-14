@@ -136,9 +136,11 @@ materials, buffers, draws, animals or behavior. Native nine-stage tree evidence
 `20261014T021133.836452Z-monkey-tree` and Chrome/SwiftShader moving evidence
 `20261014T021453.720843Z-chrome-monkeys` pass and were inspected; WebGL reports 60 finite
 intervals, `glError=0`, no context loss and an empty kernel delta. The frontal face is still
-stylised and remains eligible for a later bounded detail pass. Next visual-audit target is the
-dolphin, whose close model is still visibly more geometric than the newly revised turtle,
-shark and monkey.
+stylised and remains eligible for a later bounded detail pass. The following dolphin pass is now
+also integrated: its close body is a closed nineteen-station/twenty-four-sided surface with
+smooth per-vertex daylight, rounded melon and refined fin/fluke outlines. The next comparison of
+fish, shark and crab captures selects the fish as weakest: their flat triangular fin silhouette
+and angular body profile lag the shark, turtle, crab and dolphin.
 
 ## Latest implementation — turtle nesting traces
 
@@ -497,7 +499,14 @@ docs/stream-course.md and docs/environment-field-design.md.
   `20261013T181811.002065Z-dolphins` PASS235bins/std28.33/spatial146.81/kernel[]. Final
   Chrome/SwiftShader `20261013T182032.131304Z-chrome-dolphins` PASS60intervals/two distinct
   inspected poses/GL0/context intact/kernel[]. ARM64 assemble/lint and Release+Debug pod tests
-  pass; Android runtime, skin microtexture and measured physical performance remain open.
+  pass; Android runtime, skin microtexture and measured physical performance remain open. A sixth
+  audit pass closes the previously open melon with a nineteen-station/twenty-four-sided body,
+  interpolates analytic radial-normal daylight and countershading per body vertex, and gives the
+  dorsal/pectorals/flukes seven/seven/six-point swept outlines. Near/far geometry is3144/15vertices
+  (maximum all-near201216bytes), still four agents/one draw/no texture or simulation change.
+  Inspected native `20261014T023119.008608Z-dolphins` PASS238bins/std28.37/spatial147.92/kernel[];
+  Chrome/SwiftShader `20261014T023401.772283Z-chrome-dolphins` passes two inspected different-time
+  poses/60finite intervals/GL0/context intact/kernel[].
   Fish then received an image-driven close-form pass: the 51-vertex
   diamond body first became
   a 276-vertex six-station/eight-facet loft with rounded head, caudal peduncle, progressive rear-body

@@ -370,9 +370,9 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn('["dolphins", ["--viewpoint", "dolphins", "--debug-overlay"]]',
                       (ROOT / "tools/web_smoke.html.in").read_text())
         marker = "near dolphins use closed-volume fins and flukes, short beaks, faceted eyes, mouth creases, and a blowhole"
-        silhouette = "near dolphins use a thirteen-station melon-to-peduncle profile, natural countershading, a compact falcate dorsal, and swept pectoral fins"
+        silhouette = "near dolphins use a nineteen-station closed melon profile, twenty-four-sided body, and vertex-blended countershading"
         stroke = "dolphin tail stock bends vertically through horizontal fluke strokes"
-        geometry = "dolphin near/far geometry 1476/15 vertices, closed fins and CPU faceted daylight"
+        geometry = "dolphin near/far geometry 3144/15 vertices, closed fins and CPU faceted daylight"
         def report():
             return {"passed": True, "views": [{"mode": "dolphins", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",

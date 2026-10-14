@@ -879,11 +879,11 @@ def main():
                     raise RuntimeError("current dolphin form is missing; check for a stale executable")
                 if "near dolphins use closed-volume fins and flukes, short beaks, faceted eyes, mouth creases, and a blowhole" not in diagnostics:
                     raise RuntimeError("current close dolphin anatomy is missing; check for a stale executable")
-                if "near dolphins use a thirteen-station melon-to-peduncle profile, natural countershading, a compact falcate dorsal, and swept pectoral fins" not in diagnostics:
+                if "near dolphins use a nineteen-station closed melon profile, twenty-four-sided body, and vertex-blended countershading" not in diagnostics:
                     raise RuntimeError("current dolphin silhouette proportions are missing; check for a stale executable")
                 if "dolphin tail stock bends vertically through horizontal fluke strokes" not in diagnostics:
                     raise RuntimeError("current species-appropriate dolphin tail stroke is missing")
-                if "dolphin near/far geometry 1476/15 vertices, closed fins and CPU faceted daylight" not in diagnostics:
+                if "dolphin near/far geometry 3144/15 vertices, closed fins and CPU faceted daylight" not in diagnostics:
                     raise RuntimeError("current dolphin geometry inventory is missing; check for a stale executable")
                 if not re.search(r"dolphins [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw", diagnostics):
                     raise RuntimeError("dolphin capture did not submit a near detailed animal")

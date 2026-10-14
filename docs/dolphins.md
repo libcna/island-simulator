@@ -14,7 +14,8 @@ animation or sound recording.
 ## Form and rendering
 
 `DolphinRenderer` emits all visible animals into one dynamic `BasicEffect` batch. The close form
-has a tapered fusiform body, pale underside, short closed eight-facet beak below the melon,
+has a nineteen-station, twenty-four-sided tapered fusiform body, pale underside, short closed
+twelve-facet beak below the melon,
 two-facet highlighted eyes, shaped swept pectoral fins, a rear-curved dorsal fin and broad
 horizontal flukes. The dorsal, both pectorals and both flukes are thin closed volumes with separate
 faces and darker perimeter edges rather than coincident zero-thickness sheets. A two-part mouth
@@ -23,9 +24,32 @@ body follows smoothed dive pitch and turn bank, while the tail stock bends verti
 horizontal flukes' up/down stroke. Three
 restrained grey-blue palettes share the existing CPU depth tint and moving shallow-sun response.
 
-The fixed budgets are 1,476 vertices for a close animal and 15 vertices for a distant silhouette.
+The fixed budgets are 3,144 vertices for a close animal and 15 vertices for a distant silhouette.
 Four animals still produce at most one draw call. There
 is no dolphin texture, separate shadow, collision proxy or audio voice.
+
+## Closed melon and smooth body lighting — 2026-10-14
+
+The next whole-island audit after the monkey pass selected the dolphin because its close body
+still showed the thirteen longitudinal rings, a visibly cut front section, broad flat colour
+facets and angular fin outlines. The accepted body uses nineteen progressively spaced stations
+and twenty-four radial sides from the tail stock through the rounded forehead. A small forward
+cap closes the melon while the separately modelled beak stays buried into the lower face.
+
+Countershading is now interpolated at body vertices and receives analytic radial-normal sunlight
+instead of one brightness value per triangle. This keeps the smooth skin visually distinct from
+the intentionally firmer edges of the fins. The dorsal and both pectorals grow from five to seven
+outline points, while each horizontal fluke uses a six-point swept outline. Existing pitch, bank,
+vertical tail stroke, depth tint, LOD threshold, four-agent population and single dynamic draw are
+unchanged. The close cost is 3,144 vertices / 1,048 triangles, or 201,216 bytes if all four
+dolphins are simultaneously near.
+
+Inspected native llvmpipe evidence `20261014T023119.008608Z-dolphins` passes at 1280x720 with
+238 colour bins, 28.37 luminance deviation, 147.92 spatial contrast and an empty kernel delta.
+Chrome/SwiftShader evidence `20261014T023401.772283Z-chrome-dolphins` passes with two inspected
+different-time poses, 60 finite intervals, `glError=0`, an intact context and no new kernel GPU
+fault. The underwater view still limits tiny facial-cue readability, and this pass does not add a
+skin texture, wake or breach behavior.
 
 ## Verification
 

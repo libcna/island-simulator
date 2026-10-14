@@ -242,9 +242,9 @@ def validate_dolphin_report(report):
         or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
         or len(set(frames)) != 2
         or "near dolphins use closed-volume fins and flukes, short beaks, faceted eyes, mouth creases, and a blowhole" not in log
-        or "near dolphins use a thirteen-station melon-to-peduncle profile, natural countershading, a compact falcate dorsal, and swept pectoral fins" not in log
+        or "near dolphins use a nineteen-station closed melon profile, twenty-four-sided body, and vertex-blended countershading" not in log
         or "dolphin tail stock bends vertically through horizontal fluke strokes" not in log
-        or "dolphin near/far geometry 1476/15 vertices, closed fins and CPU faceted daylight" not in log
+        or "dolphin near/far geometry 3144/15 vertices, closed fins and CPU faceted daylight" not in log
         or not re.search(r"dolphins [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("dolphin view lacks current anatomy, frames or clean graphics state")

@@ -36,20 +36,26 @@ struct Axes {
 struct Section {
   float z, rx, ry, centreY;
 };
-constexpr std::array<Section, 13> Body{{{-.76f, .052f, .052f, 0},
-                                        {-.66f, .078f, .071f, 0},
-                                        {-.54f, .115f, .103f, 0},
-                                        {-.38f, .158f, .138f, 0},
-                                        {-.18f, .203f, .171f, 0},
-                                        {.04f, .240f, .195f, 0},
-                                        {.24f, .245f, .198f, 0},
-                                        {.43f, .235f, .194f, .002f},
-                                        {.59f, .220f, .188f, .006f},
-                                        {.71f, .200f, .178f, .014f},
-                                        {.81f, .172f, .165f, .026f},
-                                        {.89f, .136f, .150f, .040f},
-                                        {.945f, .091f, .116f, .044f}}};
-constexpr int Segments = 16;
+constexpr std::array<Section, 19> Body{{{-.80f, .042f, .040f, 0},
+                                        {-.72f, .060f, .055f, 0},
+                                        {-.62f, .082f, .074f, 0},
+                                        {-.50f, .115f, .103f, 0},
+                                        {-.37f, .155f, .137f, 0},
+                                        {-.22f, .190f, .165f, 0},
+                                        {-.06f, .222f, .185f, 0},
+                                        {.10f, .242f, .198f, 0},
+                                        {.25f, .246f, .200f, 0},
+                                        {.40f, .238f, .197f, .002f},
+                                        {.53f, .225f, .190f, .006f},
+                                        {.64f, .210f, .182f, .014f},
+                                        {.73f, .193f, .172f, .025f},
+                                        {.81f, .174f, .160f, .038f},
+                                        {.87f, .150f, .145f, .052f},
+                                        {.92f, .122f, .130f, .064f},
+                                        {.955f, .096f, .110f, .068f},
+                                        {.978f, .070f, .085f, .064f},
+                                        {.992f, .044f, .058f, .054f}}};
+constexpr int Segments = 24;
 
 void Triangle(std::vector<VertexPositionColor> &out, const Vector3 &a,
               const Vector3 &b, const Vector3 &c, const Color &color,
@@ -60,27 +66,38 @@ void Triangle(std::vector<VertexPositionColor> &out, const Vector3 &a,
   out.emplace_back(c, lit);
 }
 
+void GradientTriangle(std::vector<VertexPositionColor> &out, const Vector3 &a,
+                      const Vector3 &b, const Vector3 &c, const Color &colorA,
+                      const Color &colorB, const Color &colorC) {
+  out.emplace_back(a, colorA);
+  out.emplace_back(b, colorB);
+  out.emplace_back(c, colorC);
+}
+
+Color BodyColor(const std::array<Color, 4> &colors, const float vertical) {
+  if (vertical < .05f)
+    return Color::Lerp(colors[0], colors[2],
+                       std::clamp((.05f - vertical) / .92f, 0.0f, 1.0f));
+  return Color::Lerp(colors[0], colors[1],
+                     std::clamp((vertical - .05f) / .88f, 0.0f, 1.0f));
+}
+
+Color SmoothBodyColor(const std::array<Color, 4> &colors, const Axes &axes,
+                      const float angle) {
+  const Vector3 normal = Vector3::Normalize(
+      axes.right * std::cos(angle) + axes.up * std::sin(angle));
+  const float direct = std::max(
+      0.0f, Vector3::Dot(normal, wildlife_render::FixedSunDirection));
+  const float sky = std::max(0.0f, normal.Y);
+  return wildlife_render::ScaleColor(BodyColor(colors, std::sin(angle)),
+                                     .76f + .25f * direct + .05f * sky);
+}
+
 void Quad(std::vector<VertexPositionColor> &out, const Vector3 &a,
           const Vector3 &b, const Vector3 &c, const Vector3 &d,
           const Color &color) {
   Triangle(out, a, b, c, color);
   Triangle(out, a, c, d, color);
-}
-
-void ClosedQuad(std::vector<VertexPositionColor> &out, const Vector3 &a,
-                const Vector3 &b, const Vector3 &c, const Vector3 &d,
-                const Vector3 &halfThickness, const Color &face,
-                const Color &edge) {
-  const Vector3 ap = a + halfThickness, bp = b + halfThickness,
-                cp = c + halfThickness, dp = d + halfThickness;
-  const Vector3 am = a - halfThickness, bm = b - halfThickness,
-                cm = c - halfThickness, dm = d - halfThickness;
-  Quad(out, ap, bp, cp, dp, face);
-  Quad(out, am, dm, cm, bm, face);
-  Quad(out, ap, am, bm, bp, edge);
-  Quad(out, bp, bm, cm, cp, edge);
-  Quad(out, cp, cm, dm, dp, edge);
-  Quad(out, dp, dm, am, ap, edge);
 }
 
 template <std::size_t Count>
@@ -161,16 +178,28 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
   for (std::size_t row = 0; row + 1 < Body.size(); ++row)
     for (int s = 0; s < Segments; ++s) {
       const int n = (s + 1) % Segments;
-      const float angle = 2 * std::numbers::pi_v<float> * (s + .5f) / Segments;
-      const float vertical = std::sin(angle);
-      const Color color = vertical < -.24f
-                              ? colors[2]
-                              : (vertical > .42f ? colors[1] : colors[0]);
-      Triangle(out, rings[row][s], rings[row + 1][s], rings[row + 1][n], color);
-      Triangle(out, rings[row][s], rings[row + 1][n], rings[row][n], color);
+      const float angleS = 2 * std::numbers::pi_v<float> * s / Segments;
+      const float angleN = 2 * std::numbers::pi_v<float> * n / Segments;
+      const Color colorS = SmoothBodyColor(colors, axes, angleS);
+      const Color colorN = SmoothBodyColor(colors, axes, angleN);
+      GradientTriangle(out, rings[row][s], rings[row + 1][s], rings[row + 1][n],
+                       colorS, colorS, colorN);
+      GradientTriangle(out, rings[row][s], rings[row + 1][n], rings[row][n],
+                       colorS, colorN, colorN);
     }
+  // Close the melon rather than leaving the foremost body ring as a visible cut plane.
+  const auto melonCap = Point(centre, axes, 0, .050f, 1.010f, scale);
+  for (int segment = 0; segment < Segments; ++segment) {
+    const int next = (segment + 1) % Segments;
+    const float angle = 2 * std::numbers::pi_v<float> * segment / Segments;
+    const float nextAngle = 2 * std::numbers::pi_v<float> * next / Segments;
+    GradientTriangle(out, rings.back()[segment], melonCap, rings.back()[next],
+                     SmoothBodyColor(colors, axes, angle),
+                     wildlife_render::ScaleColor(colors[0], .88f),
+                     SmoothBodyColor(colors, axes, nextAngle));
+  }
   // A short closed beak beneath the rounded melon avoids a fish-like needle profile.
-  constexpr int RostrumSegments = 8;
+  constexpr int RostrumSegments = 12;
   std::array<Vector3, RostrumSegments> rostrumBase{};
   std::array<Vector3, RostrumSegments> rostrumTip{};
   for (int segment = 0; segment < RostrumSegments; ++segment) {
@@ -194,32 +223,35 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
   // A thin closed swept-back dorsal retains the falcate profile without vanishing
   // edge-on like the former coincident sheet.
   const std::array dorsal{
-      Point(centre, axes, 0, .225f, .13f, scale),
-      Point(centre, axes, 0, .305f, .025f, scale),
-      Point(centre, axes, 0, .355f, -.070f, scale),
-      Point(centre, axes, 0, .272f, -.18f, scale),
-      Point(centre, axes, 0, .183f, -.31f, scale)};
+      Point(centre, axes, 0, .205f, .16f, scale),
+      Point(centre, axes, 0, .292f, .07f, scale),
+      Point(centre, axes, 0, .350f, -.025f, scale),
+      Point(centre, axes, 0, .335f, -.105f, scale),
+      Point(centre, axes, 0, .285f, -.185f, scale),
+      Point(centre, axes, 0, .230f, -.275f, scale),
+      Point(centre, axes, 0, .180f, -.34f, scale)};
   ClosedPolygon(out, dorsal, axes.right * (.010f * scale), colors[0], colors[1]);
   for (float side : {-1.0f, 1.0f}) {
     const std::array fin{
         Point(centre, axes, side * .19f, -.055f, .30f, scale),
+        Point(centre, axes, side * .27f, -.080f, .22f, scale),
         Point(centre, axes, side * .34f, -.105f, .13f, scale),
         Point(centre, axes, side * .44f, -.13f, .015f, scale),
         Point(centre, axes, side * .34f, -.14f, -.095f, scale),
+        Point(centre, axes, side * .24f, -.130f, -.145f, scale),
         Point(centre, axes, side * .14f, -.105f, -.18f, scale)};
     ClosedPolygon(out, fin, axes.up * (.009f * scale), colors[0], colors[1]);
   }
   const float tail = dolphin.tailBeat * .12f;
   for (float side : {-1.0f, 1.0f}) {
-    const auto root = Point(centre, axes, 0, tail, -.68f, scale);
-    const auto leading =
-        Point(centre, axes, side * .30f, tail + .02f, -.80f, scale);
-    const auto outer =
-        Point(centre, axes, side * .50f, tail + .018f, -.91f, scale);
-    const auto rear =
-        Point(centre, axes, side * .12f, tail - .012f, -1.05f, scale);
-    ClosedQuad(out, root, leading, outer, rear,
-               axes.up * (.007f * scale), colors[0], colors[1]);
+    const std::array fluke{
+        Point(centre, axes, 0, tail, -.68f, scale),
+        Point(centre, axes, side * .18f, tail + .018f, -.75f, scale),
+        Point(centre, axes, side * .43f, tail + .020f, -.84f, scale),
+        Point(centre, axes, side * .52f, tail + .012f, -.92f, scale),
+        Point(centre, axes, side * .38f, tail - .008f, -1.00f, scale),
+        Point(centre, axes, side * .10f, tail - .014f, -1.05f, scale)};
+    ClosedPolygon(out, fluke, axes.up * (.007f * scale), colors[0], colors[1]);
   }
   const Color eyeShine(126, 148, 151, 255);
   for (float side : {-1.0f, 1.0f}) {
@@ -307,7 +339,7 @@ DolphinRenderer::DolphinRenderer(GraphicsDevice &device,
   std::cout << detail << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(detail);
   const char *silhouette =
-      "island-simulator: near dolphins use a thirteen-station melon-to-peduncle profile, natural countershading, a compact falcate dorsal, and swept pectoral fins";
+      "island-simulator: near dolphins use a nineteen-station closed melon profile, twenty-four-sided body, and vertex-blended countershading";
   std::cout << silhouette << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(silhouette);
   const char *stroke =
