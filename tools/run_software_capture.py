@@ -791,6 +791,8 @@ def main():
                 raise RuntimeError("current terrain slope lighting is missing; check for a stale executable")
             if "terrain steep faces use dominant-axis rock projection with broken bedding and joints" not in diagnostics:
                 raise RuntimeError("current steep terrain material is missing; check for a stale executable")
+            if "steep terrain rock macrocolour follows the cliff face instead of top-down curtains" not in diagnostics:
+                raise RuntimeError("current cliff macrocolour projection is missing; check for a stale executable")
             if "inland ridge rock starts on sustained slopes and retains cool sky fill in fixed-sun shade" not in diagnostics:
                 raise RuntimeError("current ridge exposure and sky fill are missing; check for a stale executable")
             if "low coastal cliffs retain salt-worn mineral colour and cool open-sky fill" not in diagnostics:

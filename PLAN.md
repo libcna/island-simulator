@@ -59,7 +59,28 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
-## Latest visual-audit implementation — retained shark countershading
+## Latest visual-audit implementation — face-projected cliff macrocolour
+
+The terrain/vegetation/lighting overview selected steep rock material as the next weakest element:
+the existing close detail was projected on the cliff face, but its broad source colour still sampled
+the island from above. On steep inland slopes that top-down field stretched into long muddy vertical
+curtains. The accepted material-only revision derives broad colour, mottle, grain and fracture from
+the appropriate vertical face plane. Its projection weight follows the island's smooth radial face
+direction rather than each terrain triangle, preventing the first experimental version from exposing
+the height-field tessellation. Bedding warp and seam contrast were also reduced after a rejected
+intermediate image produced loop-shaped strata. Terrain geometry, collision, cells and draw count are
+unchanged.
+
+Native baseline/final close evidence is
+`build-consumer/software-captures/20261014T105153.957940Z-east` and
+`20261014T111457.649506Z-east`; the accepted coastal guard is
+`20261014T111420.038925Z-headland`. Focused Chrome/SwiftShader evidence
+`build/browser-software/20261014T111827.935808Z-chrome-cliffs` contains inspected east and headland
+frames with no polygon-grid or looping-strata regression. The Release and WebGL builds, focused
+native tests, Android assemble/lint and diagnostic guards pass. Android runtime remains unqualified
+because no emulator or device was used.
+
+## Previous visual-audit implementation — retained shark countershading
 
 The shark close audit accepted its blunt head, gill slits, fins and heterocercal tail, but selected
 the near-uniform cyan material as the next weakness: shared water tint compressed the already narrow
