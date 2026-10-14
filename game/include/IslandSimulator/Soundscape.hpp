@@ -223,6 +223,7 @@ namespace island
         bool wildlifeCallsEnabled_ = false;
         bool wildlifeFailureReported_ = false;
         bool underwaterAudioReported_ = false;
+        bool sharedLoopRecoveryReported_ = false;
         float waveSecondsRemaining_ = 0.0f;
         float waterTransitionSecondsRemaining_ = 0.0f;
         float footstepSecondsRemaining_ = 0.0f;

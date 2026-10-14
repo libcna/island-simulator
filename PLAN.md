@@ -59,7 +59,30 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
-## Latest visual-audit implementation — low broad crab carapaces
+## Latest sound-audit implementation — grounded bear airway voice and loop recovery
+
+The full 40-clip procedural audio report remained valid, but its objective spectrum proxy exposed
+the weakest animal voice: bear breath variants crossed zero roughly 7,634--7,678 times per second,
+reading much closer to a hiss than the low airway/chest sound of a large mammal. The accepted
+synthesis keeps the six clips, durations, peaks, positional ranges, scheduler and shared-source
+budget unchanged, but moves energy from raw noise into two filtered airway bands plus the existing
+low chest harmonics. Final breath variants measure 3,049--3,120 crossings/s, snuffles
+2,791--2,848/s and huffs 819--843/s; all 40 clips remain valid at the exact 6,052,724-byte PCM
+budget. Bear motion/audio tests now bound this hiss regression explicitly.
+
+The same runtime audit exposed a separate resilience gap relevant to the operator's earlier total
+sound dropout: if the backend stopped the currently selected campfire/stream/player-water loop,
+logical region flags prevented recovery until another boundary crossing. The active shared loop is
+now checked and restarted in place, once-reporting recovery without adding a source. A stale
+campfire test point at `(0,-225)` was also corrected because the relocated beach fire is only 6.7 m
+away; the test now uses a genuinely distant location and reports cycle/region/volume on failure.
+The serial bear, 40-clip report and real-CNA dummy-backend transition/playback tests pass 3/3.
+The affected code also passes the focused Chrome/SwiftShader bear runtime at
+`build/browser-software/20261014T100002.986031Z-chrome-bear` and Android arm64-v8a assemble/lint,
+both under the four-core constraint. Subjective speaker/headphone naturalness and physical Android
+audio remain open.
+
+## Previous visual-audit implementation — low broad crab carapaces
 
 The renewed wildlife close audit selected the beach crabs: their palettes, jointed motion and
 thirty-agent colony remained coherent, but the near shell still read as a rounded beetle body from

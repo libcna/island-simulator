@@ -1329,10 +1329,13 @@ namespace island
                 +(alternate?5.0f:-3.0f)+4.0f*slower;
             phase+=2*std::numbers::pi*frequency/AmbientSampleRate;
             const float chest=static_cast<float>(std::sin(phase)+.48*std::sin(2*phase)+.21*std::sin(3*phase));
-            const float breath=2.2f*low+1.25f*(raw-low);
-            const float voice=kind==BearCallKind::Breath?breath*.64f+chest*.035f
-                :kind==BearCallKind::Snuffle?breath*.93f+chest*.10f
-                :breath*.72f+chest*.62f;
+            // A large mammal's breath is dominated by slow chest/airway turbulence. Feeding the
+            // raw-noise residual directly at full strength made the bear read like a snake hiss.
+            const float airway=2.35f*slower+1.15f*(low-slower);
+            const float air=.28f*(raw-low);
+            const float voice=kind==BearCallKind::Breath?airway*.98f+air*.24f+chest*.045f
+                :kind==BearCallKind::Snuffle?airway*1.18f+air*.50f+chest*.12f
+                :airway*.92f+air*.34f+chest*.66f;
             samples[i]=envelope*voice;
         }
         return Quantize(samples,kind==BearCallKind::Huff?.62f:kind==BearCallKind::Snuffle?.48f:.46f);

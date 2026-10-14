@@ -178,7 +178,7 @@ namespace island
             }
         }
         try {
-            state.campfirePlaying=available_&&campfireInstance_
+            state.campfirePlaying=available_&&campfirePlaybackActive_&&campfireInstance_
                 &&campfireInstance_->getStateProperty()==SoundState::Playing;
             if(available_&&campfireInstance_)state.campfireVolume=campfireInstance_->getVolumeProperty();
         } catch(const std::exception&) {}
@@ -206,6 +206,7 @@ namespace island
             return available_;
         }
         startAttempted_ = true;
+        sharedLoopRecoveryReported_ = false;
         streamSound_ = StreamSoundField::Sample(playerX, playerZ);
         campfirePresence_=CampfireSite::SoundPresence(playerX,CampfireLayout::GroundY()+PlayerMotion::EyeHeight,
             playerZ,CampfireLayout::GroundY());
@@ -596,6 +597,28 @@ namespace island
                 }
                 streamPlaybackActive_ = wantsStreamPlayback;
                 campfirePlaybackActive_=wantsCampfirePlayback;
+            } catch (const std::exception& exception) {
+                DisableAfterRuntimeFailure(exception.what());
+                return;
+            }
+        }
+        if (available_) {
+            // A device/backend can stop a loop without changing the logical region. Previously
+            // the cached active flags then prevented any restart until the player crossed another
+            // stream/fire/water boundary, leaving that layer silent indefinitely.
+            SoundEffectInstance* desiredLoop = wantsCampfirePlayback ? campfireInstance_.get()
+                : wantsStreamPlayback ? streamInstance_.get() : waterMovementInstance_.get();
+            try {
+                if (desiredLoop && desiredLoop->getStateProperty() != SoundState::Playing) {
+                    desiredLoop->Play();
+                    if (!sharedLoopRecoveryReported_) {
+                        sharedLoopRecoveryReported_ = true;
+                        constexpr std::string_view diagnostic =
+                            "island-simulator: shared regional audio loop recovered after an unexpected backend stop";
+                        std::cout << diagnostic << '\n' << std::flush;
+                        MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+                    }
+                }
             } catch (const std::exception& exception) {
                 DisableAfterRuntimeFailure(exception.what());
                 return;

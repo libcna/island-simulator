@@ -132,6 +132,13 @@ int main() {
             &&a.samples!=b.samples&&std::any_of(a.samples.begin(),a.samples.end(),[](auto value){return value>900;})
             &&std::all_of(a.samples.begin(),a.samples.end(),[](auto value){return std::abs(value)<21000;}),
             "bear PCM is not deterministic, distinct, bounded and silent at endpoints");
+        int zeroCrossings=0;
+        for(std::size_t sample=1;sample<a.samples.size();++sample)
+            zeroCrossings+=(a.samples[sample-1]<0&&a.samples[sample]>=0)
+                ||(a.samples[sample-1]>0&&a.samples[sample]<=0);
+        Check(zeroCrossings<9600
+                &&(kind!=BearCallKind::Huff||zeroCrossings<3200),
+            "bear airway synthesis regressed into high-frequency hiss");
         Check(BearCallVolume(kind,0)>BearCallVolume(kind,8)&&BearCallVolume(kind,60)==0
             &&BearCallVolume(kind,-1)==0&&BearCallVolume(kind,NAN)==0,
             "bear voice attenuation is not finite and distance-bounded");
