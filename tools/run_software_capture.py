@@ -948,6 +948,8 @@ def main():
                 raise RuntimeError("current wind-aware shoreline foam is missing; check for a stale executable")
             if "shared fixed-sun canopy transmission lights terrain and grass" not in diagnostics:
                 raise RuntimeError("current canopy-light feature is missing; check for a stale executable")
+            if "canopy shade adds bounded world-anchored low-frequency sun patches" not in diagnostics:
+                raise RuntimeError("current canopy dapple lighting is missing; check for a stale executable")
             if "jungle ground layers receive shared canopy shade; crowns excluded" not in diagnostics:
                 raise RuntimeError("current jungle receiver shader is missing; check for a stale executable")
             if "jungle leaves use smooth normals, filtered veins and restrained wax shading" not in diagnostics:

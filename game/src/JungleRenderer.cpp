@@ -234,7 +234,9 @@ void main()
         albedo = trunkSurfaceAlbedo(vColor, aboveGround, woodCoordinate, barkSeed);
         // Wood below and inside crowns receives the shared fixed-sun field in every draw.
         // Direct sun is attenuated; fill and sky light are cooled and reduced in shade.
-        float transmission = canopyTransmission(canopyGroundReceiver(vWorld, vGroundHeight, uToSun));
+        vec2 woodReceiver=canopyGroundReceiver(vWorld,vGroundHeight,uToSun);
+        float transmission=canopyTransmission(woodReceiver);
+        transmission=canopyDappleTransmission(woodReceiver,transmission);
         vec3 skyFill = mix(uCanopyAmbient, vec3(1.0), transmission);
         daylightColor = (woodDaylightTerms.x + woodDaylightTerms.z * max(faceNormal.y, 0.0)) * skyFill
             + woodDaylightTerms.y * max(dot(faceNormal, normalize(uToSun)), 0.0) * transmission;

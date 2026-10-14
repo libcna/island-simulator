@@ -57,10 +57,24 @@ float canopyTransmission(vec2 groundPosition)
 {
     return canopyGroundField(groundPosition).x;
 }
+float canopyDappleTransmission(vec2 groundPosition,float transmission)
+{
+    // Broad, world-anchored openings suggest sun passing between leaf clusters without
+    // introducing an unfiltered high-frequency shadow texture or per-frame shadow map.
+    float primary=sin(groundPosition.x*0.71+groundPosition.y*0.37
+        +sin(groundPosition.y*0.13)*0.85);
+    float crossing=sin(groundPosition.x*-0.29+groundPosition.y*0.83
+        +sin(groundPosition.x*0.17)*0.62);
+    float openings=smoothstep(0.40,0.79,0.5+0.25*primary+0.25*crossing);
+    float deepShade=1.0-smoothstep(0.62,0.96,transmission);
+    return clamp(transmission+openings*deepShade*0.22,0.0,1.0);
+}
 vec3 applyCanopyLight(vec3 color, vec2 groundPosition)
 {
     // Retain cool skylight: this field attenuates direct daylight, not all illumination.
-    return color * mix(uCanopyAmbient, vec3(1.0), canopyTransmission(groundPosition));
+    float transmission=canopyTransmission(groundPosition);
+    transmission=canopyDappleTransmission(groundPosition,transmission);
+    return color * mix(uCanopyAmbient, vec3(1.0), transmission);
 }
 )";
     private:

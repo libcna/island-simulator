@@ -46,6 +46,10 @@ namespace island
             "island-simulator: shared fixed-sun canopy transmission lights terrain and grass";
         std::cout << diagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+        constexpr const char* dappleDiagnostic =
+            "island-simulator: canopy shade adds bounded world-anchored low-frequency sun patches";
+        std::cout << dappleDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(dappleDiagnostic);
         std::cout << "island-simulator: canopy CPU receiver field " << field.Texels().size()
                   << " bytes retained\n";
         constexpr const char* coverDiagnostic =

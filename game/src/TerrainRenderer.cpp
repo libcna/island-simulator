@@ -684,7 +684,8 @@ void main()
     }
 
     // Same texel as the cover sample above; retains cool skylight in canopy shade.
-    color *= mix(uCanopyAmbient, vec3(1.0), groundField.x);
+    float terrainTransmission=canopyDappleTransmission(vWorld.xz,groundField.x);
+    color *= mix(uCanopyAmbient, vec3(1.0), terrainTransmission);
     // The replacement mesh is also the cave floor: no coplanar rock-floor overlay.
     vec2 caveOffset=vWorld.xz-uCaveEntrance.xz;
     float caveDepth=dot(caveOffset,uCaveForward);

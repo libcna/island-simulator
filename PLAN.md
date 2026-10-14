@@ -122,7 +122,26 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — softer layered split-leaf rosettes
+## Latest visual-audit implementation — bounded sun patches beneath canopy
+
+The lighting audit found that the existing porous fixed-sun canopy field correctly separated open
+and shaded habitat, but its broad interpolation could leave the jungle floor, low plants and trunks
+as large uniformly dim zones. A bounded shader-only refinement now introduces broad world-anchored
+openings inside partial/deep canopy shade. The same function is used by terrain, grass, understory
+and canopy wood, so a patch does not stop at renderer boundaries. Its contribution fades out before
+open sun, is static under the permanent fixed day, and adds no texture, shadow map, draw, simulation
+state or CPU work; deliberately low spatial frequencies avoid distant shimmer.
+
+Native baseline/final jungle evidence is
+`build-consumer/software-captures/20261014T040457.287556Z-jungle` and
+`20261014T055932.284655Z-jungle`; the latter passes the image gate with 264 colour bins, 47.79
+luminance deviation and 213.10 spatial contrast. The inspected result retains the calm shaded
+interior while breaking up the broad muddy bands across soil, grass and lower trunks. The dedicated
+`canopy-light` browser scope passes 60 Chrome/SwiftShader intervals with zero GL error/context loss
+and an inspected screenshot at
+`build/browser-software/20261014T060409.105032Z-chrome-canopy-light`.
+
+## Previous visual-audit implementation — softer layered split-leaf rosettes
 
 The following forest-floor audit found the lobed ground-plant species to be the remaining weakest
 close vegetation: five similarly posed, deeply cut leaves read as a rigid paper star. The bounded

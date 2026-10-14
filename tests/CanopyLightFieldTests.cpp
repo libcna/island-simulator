@@ -1,4 +1,5 @@
 #include "IslandSimulator/CanopyLightField.hpp"
+#include "IslandSimulator/CanopyLighting.hpp"
 #include "IslandSimulator/CanopyProfile.hpp"
 #include "IslandSimulator/MonkeyClimbPose.hpp"
 #include "IslandSimulator/MonkeyTreeReach.hpp"
@@ -443,6 +444,11 @@ try
     Require(CanopyTransmissionTint(-1).red == darkTint.red
         && CanopyTransmissionTint(2).blue == 1,
         "Out-of-range transmission must not create negative or amplified light");
+    const std::string canopyShader=CanopyLighting::Shader;
+    Require(canopyShader.find("canopyDappleTransmission")!=std::string::npos
+        && canopyShader.find("openings*deepShade*0.22")!=std::string::npos
+        && canopyShader.find("groundPosition.x*0.71")!=std::string::npos,
+        "Canopy lighting lost its bounded world-anchored sun patches");
     Require(std::ranges::all_of(empty.Texels(), [](auto x) { return x == 255; }),
             "Empty field must be fully sunlit");
     Require(empty.Sample(0, 0) == 1 && empty.Sample(301, 0) == 1
