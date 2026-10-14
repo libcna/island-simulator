@@ -122,7 +122,25 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — broad dry-sand mineral variation
+## Latest visual-audit implementation — readable salt-worn mangrove bark
+
+The wetland vegetation audit found the localized mangrove colony already strong in silhouette and
+root structure, but its shaded trunks and stilt roots collapsed into nearly uniform charcoal. The
+mangrove-only bark palette is now a restrained pale warm mineral colour, retaining the existing
+damp darkening and moss at the base so the roots stay grounded rather than looking bleached. Meshes,
+placement, leaf material, wind, LOD, collision and draw count are unchanged, so the improvement has
+no new geometry, texture, simulation or submission cost.
+
+Native before/after evidence from the identical mangrove camera is
+`build-consumer/software-captures/20261014T080350.347835Z-mangroves` and
+`20261014T081017.721343Z-mangroves`; the final frame passes with 336 colour bins, 45.86 luminance
+deviation and 210.75 spatial contrast. Inspection confirms brighter readable sunward trunk and
+root planes while the wet feet and canopy shade remain dark. A new focused browser scope and the
+previously missing HTML viewpoint mapping now keep this view reusable; Chrome/SwiftShader passes
+60 clean intervals with zero GL error or context loss and an inspected matching frame at
+`build/browser-software/20261014T081309.516211Z-chrome-mangroves`.
+
+## Previous visual-audit implementation — broad dry-sand mineral variation
 
 The bay-ground terrain audit found good driftwood, shell/pebble flecks and close ripple relief, but
 the broad exposed areas between them still read as one pale colour. Dry beach sand now reuses the

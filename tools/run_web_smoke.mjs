@@ -28,6 +28,7 @@ const focusedShipwreckCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "shipwreck"
 const focusedGroundingCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "grounding";
 const focusedVegetationCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "vegetation";
 const focusedPalmCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "palms";
+const focusedMangroveCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "mangroves";
 const focusedTerrainCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "terrain";
 const focusedCliffCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "cliffs";
 const focusedSkyCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "sky";
@@ -59,19 +60,19 @@ const focusedResidentCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "resident";
 const focusedHelicopterCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "helicopter";
 const focusedCampfireCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "campfire";
 const focusedCaveCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "cave";
-const focusedCheck = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedHelicopterCheck || focusedCampfireCheck || focusedCaveCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSharkCheck || focusedDolphinCheck || focusedBearCheck || focusedResidentCheck || focusedBoarCheck || focusedSnakeCheck || focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedShipwreckCheck || focusedGroundingCheck || focusedVegetationCheck || focusedPalmCheck || focusedBushCheck || focusedGroundBroadleafCheck || focusedSplitGroundCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedCliffCheck || focusedSkyCheck || focusedDistantCheck || focusedCanopyLightCheck || focusedLitterCheck || focusedMaterialsCheck || focusedStreamCheck || focusedMonkeyCheck;
-const focusedArtifactPrefix = focusedSpiderCheck ? "spiders" : focusedGoatCheck ? "goats" : focusedHutCheck ? "hut" : focusedHelicopterCheck ? "helicopter" : focusedCampfireCheck ? "campfire" : focusedCaveCheck ? "cave" : focusedTurtleCheck ? "turtles" : focusedCrabCheck ? "crabs" : focusedFishCheck ? "fish" : focusedSharkCheck ? "shark" : focusedDolphinCheck ? "dolphins" : focusedBearCheck ? "bear" : focusedResidentCheck ? "resident" : focusedBoarCheck ? "boars" : focusedSnakeCheck ? "snakes" : focusedFlightCheck ? "flight" : focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedStreamCheck ? "stream" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedCanopyLightCheck ? "canopy-light" : focusedDistantCheck ? "distant" : focusedSkyCheck ? "sky" : focusedCliffCheck ? "cliffs" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedSplitGroundCheck ? "split-ground" : focusedGroundBroadleafCheck ? "ground-broadleaf" : focusedBushCheck ? "bushes" : focusedPalmCheck ? "palms" : focusedVegetationCheck ? "vegetation"
+const focusedCheck = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedHelicopterCheck || focusedCampfireCheck || focusedCaveCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSharkCheck || focusedDolphinCheck || focusedBearCheck || focusedResidentCheck || focusedBoarCheck || focusedSnakeCheck || focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedShipwreckCheck || focusedGroundingCheck || focusedVegetationCheck || focusedPalmCheck || focusedMangroveCheck || focusedBushCheck || focusedGroundBroadleafCheck || focusedSplitGroundCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedCliffCheck || focusedSkyCheck || focusedDistantCheck || focusedCanopyLightCheck || focusedLitterCheck || focusedMaterialsCheck || focusedStreamCheck || focusedMonkeyCheck;
+const focusedArtifactPrefix = focusedSpiderCheck ? "spiders" : focusedGoatCheck ? "goats" : focusedHutCheck ? "hut" : focusedHelicopterCheck ? "helicopter" : focusedCampfireCheck ? "campfire" : focusedCaveCheck ? "cave" : focusedTurtleCheck ? "turtles" : focusedCrabCheck ? "crabs" : focusedFishCheck ? "fish" : focusedSharkCheck ? "shark" : focusedDolphinCheck ? "dolphins" : focusedBearCheck ? "bear" : focusedResidentCheck ? "resident" : focusedBoarCheck ? "boars" : focusedSnakeCheck ? "snakes" : focusedFlightCheck ? "flight" : focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedStreamCheck ? "stream" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedCanopyLightCheck ? "canopy-light" : focusedDistantCheck ? "distant" : focusedSkyCheck ? "sky" : focusedCliffCheck ? "cliffs" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedSplitGroundCheck ? "split-ground" : focusedGroundBroadleafCheck ? "ground-broadleaf" : focusedBushCheck ? "bushes" : focusedMangroveCheck ? "mangroves" : focusedPalmCheck ? "palms" : focusedVegetationCheck ? "vegetation"
   : focusedShipwreckCheck ? "shipwreck" : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
 const focusedViews = focusedSpiderCheck ? ["spiders", "spider-web"] : focusedGoatCheck ? ["goats"] : focusedHutCheck ? ["hut", "hut-material"] : focusedHelicopterCheck ? ["helicopter", "helicopter-inside"] : focusedCampfireCheck ? ["campfire"] : focusedCaveCheck ? ["cave", "cave-inside"] : focusedTurtleCheck ? ["turtles"] : focusedCrabCheck ? ["crabs"] : focusedFishCheck ? ["fish"] : focusedSharkCheck ? ["shark"] : focusedDolphinCheck ? ["dolphins"] : focusedBearCheck ? ["bear"] : focusedResidentCheck ? ["resident"] : focusedBoarCheck ? ["boars"] : focusedSnakeCheck ? ["snakes", "snake-head"] : focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedStreamCheck ? ["stream"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
   : focusedLitterCheck ? ["litter", "grass"] : focusedCanopyLightCheck ? ["jungle"] : focusedDistantCheck ? ["distant"] : focusedSkyCheck ? ["overview"] : focusedCliffCheck ? ["east"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
-  : focusedGrassMotionCheck ? ["grass-motion"] : focusedSplitGroundCheck ? ["ground"] : focusedGroundBroadleafCheck ? ["ground-broadleaf"] : focusedBushCheck ? ["bush"] : focusedPalmCheck ? ["palms"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
+  : focusedGrassMotionCheck ? ["grass-motion"] : focusedSplitGroundCheck ? ["ground"] : focusedGroundBroadleafCheck ? ["ground-broadleaf"] : focusedBushCheck ? ["bush"] : focusedMangroveCheck ? ["mangroves"] : focusedPalmCheck ? ["palms"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
   : focusedShipwreckCheck ? ["shipwreck"]
   : focusedCoastCheck ? ["shipwreck", "water", "west", "reef"]
   : ["jungle", "boars", "monkeys", "east"];
 const focusedFrameCount = focusedGrassMotionCheck ? 30 : focusedCoastCheck ? 120 : 60;
 if (process.env.ISLAND_WEB_SMOKE_SCOPE && !focusedCheck) {
-  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/shipwreck/grounding/vegetation/palms/bushes/ground-broadleaf/split-ground/terrain/cliffs/sky/distant/canopy-light/grass-motion/litter/materials/stream/monkeys/boars/turtles/crabs/fish/shark/dolphins/bear/resident/helicopter/campfire/cave");
+  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/shipwreck/grounding/vegetation/palms/mangroves/bushes/ground-broadleaf/split-ground/terrain/cliffs/sky/distant/canopy-light/grass-motion/litter/materials/stream/monkeys/boars/turtles/crabs/fish/shark/dolphins/bear/resident/helicopter/campfire/cave");
 }
 // The outer Python supervisor monitors the host kernel continuously. A user/PID namespace
 // must not depend on retaining the host's supplementary journal-access group.
@@ -743,7 +744,7 @@ try {
           }, sessionId);
           const state = sampled.result.value;
           if (!state) throw new Error(`${mode} did not return frame evidence`);
-          const afterSimulationScreenshot = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedHelicopterCheck || focusedCampfireCheck || focusedCaveCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSharkCheck || focusedDolphinCheck || focusedBearCheck || focusedResidentCheck || focusedSnakeCheck || focusedFlightCheck || focusedStreamCheck || focusedShipwreckCheck || mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
+          const afterSimulationScreenshot = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedHelicopterCheck || focusedCampfireCheck || focusedCaveCheck || focusedTurtleCheck || focusedCrabCheck || focusedFishCheck || focusedSharkCheck || focusedDolphinCheck || focusedBearCheck || focusedResidentCheck || focusedSnakeCheck || focusedFlightCheck || focusedStreamCheck || focusedShipwreckCheck || mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedMangroveCheck || focusedTerrainCheck
             ? path.basename(await captureVisualFrame(sessionId,
               `island-browser-${focusedArtifactPrefix}-${mode}-after-simulation.png`, false)) : null;
           const log = state.result?.output ?? "";
@@ -843,6 +844,9 @@ try {
             && (!focusedPalmCheck || (log.includes("palm crowns use dense narrow leaflets, irregular arcs, and emerging spear fronds")
               && log.includes("palm far crowns retain twelve arched ribbons and two narrow emerging spears")
               && /palms [1-9][0-9]*\/327 \(near [1-9][0-9]*, far [0-9]+\)/.test(log)))
+            && (!focusedMangroveCheck || (log.includes("mangrove salt-worn bark uses a pale warm palette above shared damp-base moss")
+              && log.includes("mangrove QA target exposes stilt roots and low crown")
+              && /localized mangrove colony (?:1[5-9]|2[0-9]|30) trees, low crowns, multiple stems, stilt roots, canopy variant 8/.test(log)))
             && (!focusedCliffCheck || (log.includes("terrain steep faces use dominant-axis rock projection with broken bedding and joints")
               && log.includes("inland ridge rock starts on sustained slopes and retains cool sky fill in fixed-sun shade")))
             && (!focusedSkyCheck || log.includes("sky cumulus use layered billow silhouettes with blue-grey undersides and sunlit crowns"))
@@ -992,7 +996,8 @@ try {
           ? "software WebGL steep terrain material only" : focusedGrassMotionCheck
           ? "software measured grass traversal only" : focusedVegetationCheck
           ? "software WebGL grass and vegetation only" : focusedPalmCheck
-          ? "software WebGL close palm crown only" : focusedCoastCheck
+          ? "software WebGL close palm crown only" : focusedMangroveCheck
+          ? "software WebGL close mangrove roots, trunk and crown only" : focusedCoastCheck
           ? "software WebGL coast only" : focusedShipwreckCheck
           ? "software WebGL shipwreck material and separated-time frames" : focusedGroundingCheck
             ? "software WebGL prop grounding only" : "software WebGL wildlife/foliage only",

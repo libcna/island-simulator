@@ -505,8 +505,8 @@ void main()
             constexpr std::array<std::array<std::uint8_t, 3>, CanopyFormCount> barks{{
                 {112, 91, 68}, {142, 134, 118}, {88, 72, 57}, {126, 101, 75},
                 {101, 86, 69}, {151, 141, 122}, {82, 69, 58}, {128, 94, 68},
-                // Sun-bleached grey bark remains legible under the compact colony's shade.
-                {142, 136, 121}}};
+                // Salt-worn pale bark retains warm mineral colour under the compact colony's shade.
+                {166, 154, 132}}};
             const auto& bark = barks.at(static_cast<std::size_t>(variant));
             return Color(bark[0], bark[1], bark[2], static_cast<std::uint8_t>(255));
         }
@@ -1484,6 +1484,10 @@ void main()
         std::cout << "island-simulator: localized mangrove colony " << layout.MangroveCount()
                   << " trees, low crowns, multiple stems, stilt roots, canopy variant "
                   << MangroveCanopyVariant << '\n';
+        constexpr std::string_view mangroveBarkDiagnostic =
+            "island-simulator: mangrove salt-worn bark uses a pale warm palette above shared damp-base moss";
+        std::cout << mangroveBarkDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(mangroveBarkDiagnostic);
         constexpr const char* crownStructureDiagnostic =
             "island-simulator: eight structural crown forms share eight LOD lobe anchors and supported trunk bends";
         std::cout << crownStructureDiagnostic << '\n';

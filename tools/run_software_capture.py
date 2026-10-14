@@ -741,6 +741,8 @@ def main():
                     raise RuntimeError("mangrove colony population/form diagnostic missing")
                 if "mangrove QA target exposes stilt roots and low crown" not in diagnostics:
                     raise RuntimeError("mangrove detail camera did not select its target")
+                if "mangrove salt-worn bark uses a pale warm palette above shared damp-base moss" not in diagnostics:
+                    raise RuntimeError("mangrove bark palette diagnostic missing")
             if args.viewpoint == "turtle-nest":
                 if "two turtle nesting traces use paired flipper tracks and disturbed dry-sand nests" not in diagnostics:
                     raise RuntimeError("turtle nesting trace geometry is missing")
