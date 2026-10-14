@@ -889,6 +889,8 @@ def main():
                 if not re.search(r"turtles [1-5]/5 visible \(near [1-5], far [0-5]\), 1 draw", diagnostics):
                     raise RuntimeError("sea-turtle capture did not submit a near detailed animal")
             if args.viewpoint == "fish":
+                if "fish fins inherit body-family pigment with dark fitted root edges" not in diagnostics:
+                    raise RuntimeError("current fish fin pigment is missing; check for a stale executable")
                 if "near fish use capped smooth-lit bodies, caudal peduncles and progressive rear-body bends" not in diagnostics:
                     raise RuntimeError("current close fish form is missing; check for a stale executable")
                 if "near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes" not in diagnostics:

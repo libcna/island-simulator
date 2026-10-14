@@ -59,7 +59,27 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
-## Latest visual-audit implementation — readable canopy trunks in deep shade
+## Latest visual-audit implementation — body-family fish fin pigment
+
+The underwater wildlife close audit found that fish body volume, eyes, gills and schooling motion
+remained readable, but two palettes used unrelated mustard-grey fins. Their nearly uniform colour
+made the caudal and dorsal geometry look pasted on and caused it to fade before the body in water
+haze. The accepted material-only change replaces those two fin colours with muted teal/slate tones
+derived from each body family; the existing dark back colour continues to close and outline every
+solid fin root. Geometry, 48-agent population, animation, LOD, one-batch submission and vertex
+budgets are unchanged.
+
+Baseline/final native close evidence is
+`build-consumer/software-captures/20261014T103053.644989Z-fish` and
+`20261014T103304.185528Z-fish`. The inspected result keeps palette variation but integrates tails
+and dorsal fins into the fish silhouette instead of presenting beige appendages. Native fish and
+focused browser gates require the new pigment diagnostic. Native Release, core/audit preflights,
+the focused Chrome/SwiftShader fish runtime at
+`build/browser-software/20261014T103656.670383Z-chrome-fish`, and Android arm64-v8a assemble/lint
+pass under the four-core constraint. Android runtime appearance remains unqualified without a
+device/emulator.
+
+## Previous visual-audit implementation — readable canopy trunks in deep shade
 
 The jungle-floor audit rejected grass geometry as the next target: its unequal tufts, ground
 contact and soil transition remained coherent. The weakest visible material was instead the nearby

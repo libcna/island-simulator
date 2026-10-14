@@ -55,7 +55,7 @@ namespace island
         const std::array<FishPalette, 4> Palettes = {{
             {Color(66, 111, 117, 255), Color(126, 166, 166, 255),
              Color(207, 214, 184, 255),
-             Color(176, 154, 78, 255)},
+             Color(105, 143, 132, 255)},
             {Color(21, 76, 91, 255), Color(41, 126, 138, 255),
              Color(125, 191, 175, 255),
              Color(58, 106, 118, 255)},
@@ -64,7 +64,7 @@ namespace island
              Color(143, 109, 64, 255)},
             {Color(28, 48, 91, 255), Color(59, 82, 126, 255),
              Color(140, 168, 180, 255),
-             Color(170, 148, 76, 255)}
+             Color(82, 108, 137, 255)}
         }};
 
         struct BodySection
@@ -90,6 +90,8 @@ namespace island
         constexpr int BodySegments = 16;
         constexpr std::string_view FishDetailDiagnostic =
             "island-simulator: near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes";
+        constexpr std::string_view FishFinDiagnostic =
+            "island-simulator: fish fins inherit body-family pigment with dark fitted root edges";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -405,6 +407,8 @@ namespace island
         stagingVertices_.reserve(static_cast<std::size_t>(MaximumVertexCount));
         std::cout << FishDetailDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(FishDetailDiagnostic);
+        std::cout << FishFinDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(FishFinDiagnostic);
     }
 
     FishRenderer::~FishRenderer() = default;

@@ -797,6 +797,7 @@ try {
               && log.includes("near crabs use low broad shells with retained lateral carapace corners")
               && /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedFishCheck || (log.includes("near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes")
+              && log.includes("fish fins inherit body-family pigment with dark fitted root edges")
               && log.includes("near fish use capped smooth-lit bodies, caudal peduncles and progressive rear-body bends")
               && /fish [1-9][0-9]*\/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedSharkCheck || (log.includes("near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes")
