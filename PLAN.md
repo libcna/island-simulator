@@ -122,7 +122,34 @@ Two fresh independent current-Release runs, `software-fullscreen/20261013T112246
 screenshots were inspected. This closes the observed Openbox regression; other desktop/window
 manager combinations and physical-monitor mode switching remain unqualified.
 
-## Latest visual-audit implementation — boar canopy readability
+## Latest visual-audit implementation — denser natural palm crowns
+
+The vegetation/terrain/lighting comparison selected palms as the weakest current element: the
+close beach view exposed ten to twelve rigid radial fronds with only nine long triangular leaflet
+pairs, producing a sparse ladder or fish-bone silhouette even though the neighbouring ground cover
+and broadleaf jungle read coherently. The accepted bounded pass keeps the 327 deterministic palm
+placements, instanced batches, collision proxies and shaders, but gives near crowns 12--14
+irregularly spaced fronds, nine-segment laterally curved rachises, sixteen shorter and narrower
+staggered leaflet pairs, and two compact upright emerging spear fronds. The cheaper far crown grows
+from seven three-segment ribbons to nine four-segment ribbons so the island overview retains a
+recognisable crown envelope rather than a radial cross.
+
+The rejected baseline and accepted native views are retained at
+`build-consumer/software-captures/20261014T040505.232113Z-palms` and
+`20261014T041021.291299Z-palms`; accepted overview evidence is
+`20261014T040728.188462Z-overview`. Direct image comparison shows a fuller feathered silhouette,
+more varied arc/drop and a substantially smaller empty crown centre without changing the world
+population. The dedicated current WebGL scope passes 60 real Chrome/SwiftShader frame intervals
+with zero GL error, no context loss and matching image at
+`build/browser-software/20261014T042858.545314Z-chrome-palms`; the earlier broad eight-view
+vegetation job was too slow for its 600-second software-rendering deadline, so a reusable focused
+`palms` scope now avoids conflating audit evidence with the unrelated scenes. That focused run also
+found and corrected an old 328-palm harness pin to the current deterministic 327-palm inventory.
+Native capture validation, 89 browser/software harness unit tests, WebGL build, and arm64-v8a debug
+APK assembly plus lint pass. Android appearance and physical-GPU wind/LOD cost remain unqualified
+without an emulator or device; no Android emulator or KVM state was changed.
+
+## Previous visual-audit implementation — boar canopy readability
 
 The post-stream land-animal comparison selected the boar: its detailed bristle texture collapsed
 into an almost black silhouette in the intended woodland habitat. The accepted pass lifts the

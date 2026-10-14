@@ -845,6 +845,8 @@ def main():
                 raise RuntimeError("current shrub geometry is missing; check for a stale executable")
             if "palms lean away from the fixed east trade wind by coastal windward exposure" not in diagnostics:
                 raise RuntimeError("current prevailing wind is missing; check for a stale executable")
+            if "palm crowns use dense narrow leaflets, irregular arcs, and emerging spear fronds" not in diagnostics:
+                raise RuntimeError("current palm crown refinement is missing; check for a stale executable")
             if "sky adds shared-haze horizon, warm sun glow and eleven fixed distant cumulus masses" not in diagnostics:
                 raise RuntimeError("current sky atmosphere is missing; check for a stale executable")
             if "fair-weather cumulus and wisps drift slowly west with prevailing wind" not in diagnostics:

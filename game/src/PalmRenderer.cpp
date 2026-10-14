@@ -483,19 +483,29 @@ void main()
         void AppendFronds(PalmGeometry& geometry, const int variant, const bool farMesh,
                           const float crownX, const float crownY, const float crownZ)
         {
-            const int segments = farMesh ? 3 : 7;
-            const int frondCount = farMesh ? 7 : 10 + variant % 3;
+            const int segments = farMesh ? 4 : 9;
+            const int frondCount = farMesh ? 9 : 12 + variant % 3;
             const float rotation = static_cast<float>(variant) * 0.41f;
             for (int frond = 0; frond < frondCount; ++frond) {
+                const float angleJitter = 0.12f * std::sin(
+                    static_cast<float>(frond + 1) * 2.31f
+                    + static_cast<float>(variant) * 1.17f);
                 const float angle = rotation + 2.0f * std::numbers::pi_v<float>
-                    * static_cast<float>(frond) / static_cast<float>(frondCount);
+                    * static_cast<float>(frond) / static_cast<float>(frondCount) + angleJitter;
                 const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
                 const Vector3 side(-direction.Z, 0.0f, direction.X);
-                const float length = 4.2f + 0.28f * static_cast<float>((frond + variant) % 4);
-                const float lift = 0.42f + 0.18f
-                    * static_cast<float>((frond + 2 * variant) % 3);
-                const float drop = 1.15f + 0.22f
-                    * static_cast<float>((frond + variant) % 5);
+                const bool emerging = !farMesh
+                    && (frond == variant % 3 || frond == frondCount / 2 + variant % 2);
+                const float matureLength = 3.85f + 0.31f
+                    * static_cast<float>((frond * 3 + variant) % 5);
+                const float length = matureLength * (emerging ? 0.76f : 1.0f);
+                const float lift = emerging ? 1.68f + 0.12f * static_cast<float>(variant % 2)
+                    : 0.46f + 0.21f * static_cast<float>((frond + 2 * variant) % 4);
+                const float drop = emerging ? 0.42f
+                    : 1.00f + 0.19f * static_cast<float>((frond * 2 + variant) % 5);
+                const float lateralBend = 0.10f * std::sin(
+                    static_cast<float>(frond + 1) * 1.73f
+                    + static_cast<float>(variant) * 0.91f);
                 const std::uint16_t base = static_cast<std::uint16_t>(geometry.vertices.size());
                 const Color leafBase = frond % 3 == 0
                     ? Color(42, 128 + variant * 3, 52, 255)
@@ -513,16 +523,18 @@ void main()
                     const float radial = length * t;
                     const float arch = lift * std::sin(t * std::numbers::pi_v<float>)
                         - drop * t * t;
+                    const float lateral = lateralBend * length
+                        * std::sin(t * std::numbers::pi_v<float>) * t;
                     const float width = segment == segments
                         ? (farMesh ? 0.035f : 0.018f)
                         : (farMesh
-                               ? 0.14f + 0.68f
+                               ? 0.12f + 0.61f
                                    * std::pow(std::sin(t * std::numbers::pi_v<float>), 0.62f)
                                : 0.035f + 0.075f
                                    * std::pow(std::sin(t * std::numbers::pi_v<float>), 0.70f));
-                    const Vector3 centre(crownX + direction.X * radial,
+                    const Vector3 centre(crownX + direction.X * radial + side.X * lateral,
                                          crownY + arch,
-                                         crownZ + direction.Z * radial);
+                                         crownZ + direction.Z * radial + side.Z * lateral);
                     const Color color = ShadeColor(
                         leafBase, frondShade * (0.92f + 0.08f * t));
                     const Vector2 windData(t * t, windPhase);
@@ -544,22 +556,25 @@ void main()
                     continue;
                 }
 
-                constexpr int LeafletStations = 9;
+                constexpr int LeafletStations = 16;
                 for (int station = 0; station < LeafletStations; ++station) {
-                    const float t = 0.11f + static_cast<float>(station) * 0.095f;
+                    const float t = 0.075f + static_cast<float>(station) * 0.058f;
                     const float radial = length * t;
                     const float arch = lift * std::sin(t * std::numbers::pi_v<float>)
                         - drop * t * t;
-                    const Vector3 centre(crownX + direction.X * radial,
+                    const float lateral = lateralBend * length
+                        * std::sin(t * std::numbers::pi_v<float>) * t;
+                    const Vector3 centre(crownX + direction.X * radial + side.X * lateral,
                                          crownY + arch,
-                                         crownZ + direction.Z * radial);
+                                         crownZ + direction.Z * radial + side.Z * lateral);
                     const float envelope = std::pow(
                         std::sin(t * std::numbers::pi_v<float>), 0.56f);
-                    const float lengthVariation = 0.94f + 0.06f
+                    const float lengthVariation = 0.91f + 0.055f
                         * static_cast<float>((station + frond + variant) % 3);
-                    const float leafletLength = 0.84f * envelope * lengthVariation;
-                    const float sweep = 0.16f + 0.17f * (1.0f - t);
-                    const float droop = 0.06f + 0.18f * t;
+                    const float leafletLength = 0.64f * envelope * lengthVariation
+                        * (emerging ? 0.82f : 1.0f);
+                    const float sweep = 0.09f + 0.11f * (1.0f - t);
+                    const float droop = (emerging ? 0.025f : 0.055f) + 0.20f * t;
                     const float pairVariation = std::sin(
                         static_cast<float>(station + 1) * 2.17f
                         + static_cast<float>(frond + 1) * 1.43f
@@ -577,14 +592,14 @@ void main()
                             + static_cast<float>(variant) * 0.83f
                             + static_cast<float>(sideIndex) * 2.11f);
                         const Vector3 outward = side * sideSign;
-                        const float stagger = sideSign * (0.045f + pairVariation * 0.018f);
+                        const float stagger = sideSign * (0.025f + pairVariation * 0.012f);
                         const float sideLength = leafletLength * (0.97f + sideVariation * 0.075f);
                         const Vector3 staggeredCentre = centre + direction * stagger;
                         const Vector3 rootBack = staggeredCentre
-                            - direction * (0.145f + sideVariation * 0.012f)
+                            - direction * (0.070f + sideVariation * 0.009f)
                             + outward * 0.030f;
                         const Vector3 rootFront = staggeredCentre
-                            + direction * (0.135f - sideVariation * 0.010f)
+                            + direction * (0.065f - sideVariation * 0.008f)
                             + outward * 0.043f;
                         const Vector3 tip = staggeredCentre + outward * sideLength
                             + direction * (sweep + pairVariation * 0.045f
@@ -814,6 +829,10 @@ void main()
                 "island-simulator: palm near leaflets use staggered asymmetric silhouettes";
             std::cout << leafletDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(leafletDiagnostic);
+            constexpr const char* crownDiagnostic =
+                "island-simulator: palm crowns use dense narrow leaflets, irregular arcs, and emerging spear fronds";
+            std::cout << crownDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(crownDiagnostic);
             constexpr const char* lightingDiagnostic =
                 "island-simulator: palm near geometry uses fixed-sun facet shading";
             std::cout << lightingDiagnostic << '\n';
