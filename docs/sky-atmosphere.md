@@ -45,8 +45,9 @@ per mass inside it. No new texture, buffer or draw.
 Native llvmpipe `build/software-captures/20261010T145219.907592Z-beach`, `145227.215759Z-overview`,
 `145234.350022Z-palms` (pass; images inspected; before: `145055.141034Z-beach`). From the
 overview the island now sits under a hazy horizon with cloud masses; from the beach the masses
-show between trunks. Masses are smooth ellipse blobs without cauliflower edges, cast no light or
-shadow on the world.
+show between trunks. This first-pass limitation was subsequently removed: every mass now combines
+a compact flat-bottomed base with three unequal upper billows and normalized edge erosion, while
+retaining its sunlit crown and cool underside. Clouds still cast no light or shadow on the world.
 
 Platform runs: Chrome/SwiftShader litter scope `build/browser-software/20261010T145543.719907Z-chrome-litter`
 (pass, both views, empty kernel deltas), Android KVM/SwiftShader

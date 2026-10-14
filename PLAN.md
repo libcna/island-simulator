@@ -3713,11 +3713,17 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   Terrain, grass and low plants therefore receive coherent grove shade with no new texture, pass,
   draw or per-frame work. Native/WebGL/ARM64 evidence is recorded in the latest audit section.
   The supported shadow-map investigation and large-object directional coverage remain open.
-- [~] 12. Sky with volume but no weather: stronger horizon haze, 5-15 distant cumulus masses
+- [x] 12. Sky with volume but no weather: stronger horizon haze, 5-15 distant cumulus masses
   (some low on the horizon), warmer sun surroundings, softer zenith gradient, bright sunlit cloud
   tops with blue-grey undersides. 2026-10-10 first pass done (`docs/sky-atmosphere.md`): haze
   toward the shared fog colour, warm glow, eleven fixed cumulus masses with lit tops and grey
-  bases; native beach/overview/palms captures inspected. Masses remain smooth blobs.
+  bases; native beach/overview/palms captures inspected. Later bounded silhouette passes replaced
+  the smooth wide blobs with compact flat-bottomed bases, three unequal upper billows, normalized
+  edge erosion, sunlit crowns and cool undersides, while prevailing-wind drift keeps the fixed sunny
+  scene alive without weather. Current native `20261014T230638.007633Z-overview` and
+  Chrome/SwiftShader `20261014T230820.465736Z-chrome-sky` pass and were inspected; the latter has
+  60 positive finite intervals, GL0, a live context and clean kernel delta. Current ARM64
+  assemble/lint and all 63 enabled non-display tests pass without emulator/KVM.
   Requalified: 33/33 non-display groups (26.94 s), Chrome litter scope `145543.719907Z`,
   Android `145908.469206Z-palms` (PID 1822 / TID 1890, image inspected, empty kernel deltas);
   packages refreshed (Web 10,368,543 / 3,527,432 gzip; x86_64 APK 20,406,235; ARM64 20,495,028).
