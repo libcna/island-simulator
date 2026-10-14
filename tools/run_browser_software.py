@@ -167,6 +167,7 @@ def validate_bear_report(report):
         or "near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes" not in log
         or "bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws" not in log
         or "bear torso uses a continuous rump-to-neck loft without overlapping body shells" not in log
+        or "near bear uses a broader rounded skull, fitted brow volumes, larger rounded ears, and a short wide muzzle" not in log
         or not re.search(r"bear 1/1 visible, 2 draws, [1-9][0-9]* body triangles", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("bear view lacks current anatomy, frames or clean graphics state")

@@ -527,13 +527,16 @@ class BrowserSoftwareTests(unittest.TestCase):
                       source)
         self.assertIn('bear torso uses a continuous rump-to-neck loft without overlapping body shells',
                       source)
+        self.assertIn('near bear uses a broader rounded skull, fitted brow volumes, larger rounded ears, and a short wide muzzle',
+                      source)
         log = ("bear QA camera frames and follows the single peaceful adult\n"
                "bear fur loaded Content/wildlife/bear-fur.png; 128x128, 8 mips, 87380 RGBA8 bytes\n"
                "near bear uses twenty-two body-envelope fur wedges without another draw\n"
                "near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes\n"
                "bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws\n"
                "bear torso uses a continuous rump-to-neck loft without overlapping body shells\n"
-               "bear 1/1 visible, 2 draws, 5578 body triangles")
+               "near bear uses a broader rounded skull, fitted brow volumes, larger rounded ears, and a short wide muzzle\n"
+               "bear 1/1 visible, 2 draws, 5914 body triangles")
         report = {"passed":True,"views":[{"mode":"bear","passed":True,"glError":0,
             "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,
             "screenshot":"before.png","afterSimulationScreenshot":"after.png",

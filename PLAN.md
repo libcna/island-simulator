@@ -59,6 +59,22 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
+## Latest visual-audit implementation — broader bear head
+
+The renewed close audit selected the bear's head as its weakest remaining region: it was too small
+beside the deep torso, its ears disappeared into the crown, and the narrow bead-eyed muzzle read
+more like a dog than a large brown bear. The near model now has a broader rounded skull, a slightly
+fuller terminal neck, larger separated round ears with dark inner volumes, fitted low brow volumes,
+more legible inset eyes and a short wide two-stage muzzle with a broader nose. Movement, grounded
+limb IK, peaceful behaviour, fur texture, calls, population and the two-draw contract are unchanged.
+
+The two near-only brows add 336 triangles, taking the current body from 5,578 to 5,914 triangles;
+the far tier is unchanged. Native baseline `20261014T151533.658800Z-bear` and final eight-stage
+evidence `20261014T152117.127821Z-bear` were inspected. The final head is visibly larger and more
+bear-like across changing live poses and passes at 192 colour bins, 35.54 luminance deviation and
+167.11 spatial contrast. The deterministic 600-second motion regression still travels 219.719 m
+with a 0.16559 m maximum step.
+
 ## Latest landmark repair — earth-covered cave crown
 
 The operator's overhead review correctly found that the cave entrance was in the mountain but its

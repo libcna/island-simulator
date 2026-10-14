@@ -11,9 +11,26 @@ project-owned ImageGen material now supplies the 128x128 mipmapped directional f
 raised shoulders, neck, short tail, muzzle, nose, restrained eyes, rounded outer/inner ears,
 four jointed legs, broad paws and five claws per paw. The second visual pass replaces the pale cylindrical
 snout with two overlapping tapered muzzle volumes, a smaller volumetric nose, paired nostrils,
-a shallow philtrum/divided mouth crease and highlighted inset eyes. A 55m near tier uses 5,578
+a shallow philtrum/divided mouth crease and highlighted inset eyes. The latest head pass broadens
+the skull and muzzle, separates larger rounded ears and adds fitted brow volumes. A 55m near tier uses 5,914
 triangles; the cheaper far tier omits face/claw detail. Body and one 18-triangle terrain shadow
 remain two bounded draws.
+
+## Broader head anatomy — 2026-10-14
+
+The current-binary close audit showed that the head remained undersized beside the barrel torso.
+Its low, partly buried ears, narrow muzzle and exposed bead eyes produced a dog-like expression.
+The revised near head enlarges the rounded skull, slightly fills the final neck stations, moves and
+enlarges the paired ears, and retains separate dark inner-ear volumes. Two low fitted brow volumes
+seat the eyes into the face; the two-stage muzzle and nose are wider and shorter in proportion.
+
+Only the brows add topology: 336 triangles bring the near body from 5,578 to 5,914 triangles. The
+far tier, material allocation, two draws, motion, IK, behaviour and audio are unchanged. Baseline
+`20261014T151533.658800Z-bear` and final eight-stage native evidence
+`20261014T152117.127821Z-bear` were inspected. The final capture passes with 192 colour bins,
+35.54 luminance deviation and 167.11 spatial contrast; its changing poses retain the wider,
+recognisably ursine face. The 600-second deterministic movement regression remains green at
+219.719 m travelled and a 0.16559 m maximum step.
 
 ## Continuous trunk and limbs — 2026-10-13
 
@@ -136,7 +153,7 @@ for 9,305,216 audited runtime RGBA8 bytes inside a 9,325,432-byte profile limit.
 
 ## Still required
 
-- Refine the remaining head/neck transition, fur silhouette and gait weight transfer.
+- Refine the remaining fur silhouette and gait weight transfer.
 - Review longer walk/trot/turn/forage sequences and hear all call kinds on real speakers.
 - Run Android visual/audio lifecycle tests and physical performance checks.
 

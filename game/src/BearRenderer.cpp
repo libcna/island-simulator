@@ -218,7 +218,7 @@ void BuildBear(std::vector<VertexPositionColorTexture>& vertices,const BearState
     BearMeshBuilder mesh(vertices,state.pose,canopy);const int lon=near?22:10,lat=near?14:7;
     const float breath=.014f*std::sin(state.breathPhase),forage=state.foragePose;
     const Vector3 right=Vector3::Right,up=Vector3::Up,forward(0,0,1);
-    const Vector3 head{0,1.28f-forage*.48f,1.12f+forage*.18f};
+    const Vector3 head{0,1.30f-forage*.48f,1.15f+forage*.18f};
     const float bob=state.pose.bodyBob;
     const std::array<Vector3,13> bodyCentres{{
         {0,1.08f+bob,-1.10f},{0,1.05f+bob,-.98f},{0,1.04f+bob,-.78f},
@@ -231,9 +231,9 @@ void BuildBear(std::vector<VertexPositionColorTexture>& vertices,const BearState
         {.50f+breath,.48f+breath},{.57f+breath,.53f+breath},
         {.59f+breath,.55f+breath},{.60f+breath,.54f+breath},
         {.60f,.50f},{.57f,.45f},{.51f,.43f},{.45f,.41f},
-        {.38f,.35f},{.26f,.26f},{.12f,.13f}}};
+        {.405f,.37f},{.28f,.27f},{.14f,.14f}}};
     mesh.BodyLoft(bodyCentres,bodyRadii,Material::Fur,lon);
-    mesh.Ellipsoid(head,right,up,forward,.38f,.35f,.39f,Material::Fur,lon,lat);
+    mesh.Ellipsoid(head,right,up,forward,.43f,.38f,.43f,Material::Fur,lon,lat);
     if(near) {
         // Short overlapping wedges break the mathematically smooth top outline. Roots
         // follow the new continuous trunk loft and the overlapping head, so breathing,
@@ -265,25 +265,27 @@ void BuildBear(std::vector<VertexPositionColorTexture>& vertices,const BearState
     }
     // Two overlapping, successively narrower volumes make a short tapered brown-bear muzzle.
     // The former single pale cylinder read as a toy snout from every oblique capture angle.
-    const Vector3 muzzleRoot=head+forward*.315f-up*.105f;
-    const Vector3 muzzle=muzzleRoot+forward*.155f-up*.008f;
-    mesh.Ellipsoid(muzzleRoot,right,up,forward,.245f,.175f,.245f,
+    const Vector3 muzzleRoot=head+forward*.340f-up*.110f;
+    const Vector3 muzzle=muzzleRoot+forward*.175f-up*.008f;
+    mesh.Ellipsoid(muzzleRoot,right,up,forward,.265f,.185f,.260f,
         Material::Muzzle,near?18:9,near?10:6);
-    mesh.Ellipsoid(muzzle,right,up,forward,.195f,.137f,.170f,
+    mesh.Ellipsoid(muzzle,right,up,forward,.205f,.140f,.185f,
         Material::Muzzle,near?16:9,near?9:6);
-    const Vector3 nose=muzzle+forward*.158f+up*.035f;
-    mesh.Ellipsoid(nose,right,up,forward,.105f,.066f,.047f,
+    const Vector3 nose=muzzle+forward*.173f+up*.035f;
+    mesh.Ellipsoid(nose,right,up,forward,.120f,.072f,.050f,
         Material::Nose,near?14:8,near?8:5);
     mesh.Ellipsoid({0,1.10f,-1.08f},right,up,forward,.13f,.13f,.14f,Material::Fur,near?12:8,near?7:5);
     for(int side=-1;side<=1;side+=2) {
-        const Vector3 ear=head+right*(side*.23f)+up*.285f-forward*.04f;
-        mesh.Ellipsoid(ear,right,up,forward,.11f,.115f,.075f,Material::Fur,near?12:8,near?8:5);
+        const Vector3 ear=head+right*(side*.275f)+up*.310f-forward*.035f;
+        mesh.Ellipsoid(ear,right,up,forward,.135f,.140f,.082f,Material::Fur,near?12:8,near?8:5);
         if(near) {
-            mesh.Ellipsoid(ear+forward*.052f,right,up,forward,.068f,.075f,.018f,Material::DarkFur,10,7);
-            const Vector3 eye=head+right*(side*.226f)+up*.050f+forward*.337f;
-            mesh.Ellipsoid(eye,right,up,forward,.024f,.020f,.012f,Material::Bare,10,6);
-            mesh.Ellipsoid(eye-right*(side*.005f)+up*.006f+forward*.011f,right,up,forward,
-                .006f,.005f,.003f,Material::EyeHighlight,7,5);
+            mesh.Ellipsoid(ear+forward*.057f,right,up,forward,.082f,.090f,.020f,Material::DarkFur,10,7);
+            const Vector3 brow=head+right*(side*.235f)+up*.112f+forward*.300f;
+            mesh.Ellipsoid(brow,right,up,forward,.105f,.052f,.080f,Material::Fur,12,7);
+            const Vector3 eye=head+right*(side*.255f)+up*.052f+forward*.365f;
+            mesh.Ellipsoid(eye,right,up,forward,.030f,.024f,.014f,Material::Bare,10,6);
+            mesh.Ellipsoid(eye-right*(side*.006f)+up*.008f+forward*.013f,right,up,forward,
+                .008f,.006f,.0035f,Material::EyeHighlight,7,5);
         }
     }
     for(std::size_t leg=0;leg<4;++leg) {
@@ -360,6 +362,8 @@ BearRenderer::BearRenderer(GraphicsDevice& device,const CanopyLightField& canopy
     std::cout<<limbDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(limbDiagnostic);
     const char* torsoDiagnostic="island-simulator: bear torso uses a continuous rump-to-neck loft without overlapping body shells";
     std::cout<<torsoDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(torsoDiagnostic);
+    const char* headDiagnostic="island-simulator: near bear uses a broader rounded skull, fitted brow volumes, larger rounded ears, and a short wide muzzle";
+    std::cout<<headDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(headDiagnostic);
 }
 BearRenderer::~BearRenderer()=default;
 
