@@ -59,7 +59,25 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
-## Latest visual-audit implementation — face-projected cliff macrocolour
+## Latest visual-audit implementation — readable boar face in wet shade
+
+The animal comparison inspected fresh goat, boar and dolphin close views. Goat fur and silhouette
+and dolphin anatomy remained readable; the boar still lost its lowered head, eye and nasal disc into
+one dark mass in the wet understory. The accepted material pass keeps the existing bristle texture,
+continuous body, gait and two-draw split, but admits more neutral visibility through the sampled
+canopy tint, raises the underside daylight floor, warms the solid nasal disc and enlarges the small
+amber eye catchlight. A first weaker lift was visually rejected as effectively unchanged. The final
+Chrome frame retains dark patterned bristles while separating the cheek, eye, snout and legs.
+
+Native baseline/final evidence is
+`build-consumer/software-captures/20261014T113034.517854Z-boars` and
+`20261014T113802.426885Z-boars`. Focused Chrome/SwiftShader evidence
+`build/browser-software/20261014T114226.736300Z-chrome-boars` passes 60 CPU-rendered intervals
+with two different poses and a clean graphics context; the frontal frame was inspected at full
+resolution. Release and WebGL builds, focused native tests, Android assemble/lint and stale-binary
+diagnostic guards pass. Android runtime remains unqualified because no emulator or device was used.
+
+## Previous visual-audit implementation — face-projected cliff macrocolour
 
 The terrain/vegetation/lighting overview selected steep rock material as the next weakest element:
 the existing close detail was projected on the cliff face, but its broad source colour still sampled

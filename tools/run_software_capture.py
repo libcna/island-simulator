@@ -1019,6 +1019,8 @@ def main():
                 raise RuntimeError("current boar shoulder/muzzle silhouette is missing; check for a stale executable")
             if args.viewpoint=="boars" and "near boars retain warm shoulder, cheek, nose, and eye contrast in canopy shade" not in diagnostics:
                 raise RuntimeError("current boar shaded-form contrast is missing; check for a stale executable")
+            if args.viewpoint=="boars" and "boar face retains a warm nasal disc and visible amber eye catchlight in wet understory" not in diagnostics:
+                raise RuntimeError("current boar face readability is missing; check for a stale executable")
             if "monkeys receive footprint-averaged canopy light through 14-bone skinning" not in diagnostics:
                 raise RuntimeError("current monkey lighting is missing; check for a stale executable")
             if args.viewpoint in {"monkeys", "monkey-tree", "monkey-climb"}:

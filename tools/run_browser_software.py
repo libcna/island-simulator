@@ -220,6 +220,7 @@ def validate_boar_report(report):
         or "near boar lower legs use a continuous knee-to-cannon taper without spherical joint caps" not in log
         or "boars use a lifted shoulder mantle and broad sealed nasal disc" not in log
         or "near boars retain warm shoulder, cheek, nose, and eye contrast in canopy shade" not in log
+        or "boar face retains a warm nasal disc and visible amber eye catchlight in wet understory" not in log
         or not re.search(r"boars [1-6]/6 visible, 2 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("boar view lacks current anatomy, frames or clean graphics state")

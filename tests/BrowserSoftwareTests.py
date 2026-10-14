@@ -455,6 +455,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn('near boar lower legs use a continuous knee-to-cannon taper without spherical joint caps', source)
         self.assertIn('boars use a lifted shoulder mantle and broad sealed nasal disc', source)
         self.assertIn('near boars retain warm shoulder, cheek, nose, and eye contrast in canopy shade', source)
+        self.assertIn('boar face retains a warm nasal disc and visible amber eye catchlight in wet understory', source)
         self.assertIn('/boars [1-6]\\/6 visible, 2 draw/.test(log)', source)
         self.assertNotIn('/boars [1-6]\\/6 visible, 1 draw/.test(log)', source)
         log = ("boar QA camera frames and follows non-hostile inland wildlife\n"
@@ -462,6 +463,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                "near boar lower legs use a continuous knee-to-cannon taper without spherical joint caps\n"
                "boars use a lifted shoulder mantle and broad sealed nasal disc\n"
                "near boars retain warm shoulder, cheek, nose, and eye contrast in canopy shade\n"
+               "boar face retains a warm nasal disc and visible amber eye catchlight in wet understory\n"
                "boars 1/6 visible, 2 draw")
         report = {"passed":True,"views":[{"mode":"boars","passed":True,"glError":0,
             "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,
