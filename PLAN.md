@@ -59,6 +59,24 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
+## Latest landmark repair — closed hut wall and gables
+
+The operator correctly identified regular see-through stripes on two opposite hut walls. The
+vertical-beam helper defines local X as cross-section width and local Z as depth; the X-constant
+side walls passed those values in the same order as the Z-constant end walls. Each side board was
+therefore 0.18 m thick through the wall but covered only 0.055 m of a 0.213 m wall pitch. Side-wall
+arguments are now swapped, while end-wall and front-gable board widths exactly match their spacing.
+The reverse-angle audit then exposed a completely open rear triangular gable, which now receives
+the same 16 edge-joined boards. The static one-draw mesh rises from 10,458 to 10,650 triangles;
+placement, route, collision, texture and contact shadows are unchanged.
+
+The ordinary `hut` view retains the front/right overview and `hut-material` now inspects the
+formerly unseen rear/left pair. Baselines are `20261014T145258.206957Z-hut` and
+`20261014T145308.048809Z-hut-material`; final front/right and rear/left evidence is
+`20261014T145559.713745Z-hut` and `20261014T145837.783505Z-hut-material`. All were inspected; the
+final reverse view shows continuous walls and a closed rear gable and passes at 283 colour bins,
+53.58 luminance deviation and 231.48 spatial contrast. Focused hut layout/reachability passes.
+
 ## Latest visual-audit implementation — readable dolphin broadside
 
 The fresh goat/dolphin/frond/distant comparison selected dolphins as the weakest subject. The old

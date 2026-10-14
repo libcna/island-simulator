@@ -89,20 +89,28 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
     }
     for(float x:{-2.1f,2.1f}) beam({x,2.2f,-1.8f},{x,2.2f,1.8f},0.16f,0.16f,dark);
     for(float z:{-1.7f,1.7f}) beam({-2.18f,2.2f,z},{2.18f,2.2f,z},0.16f,0.16f,dark);
-    // Slatted rear wall and a front facade with a framed central door and two windows.
+    // Edge-joined rear wall and front facade. The old 0.16--0.18 m boards were
+    // spaced on a roughly 0.21 m pitch, exposing regular see-through stripes.
+    constexpr float EndWallBoardWidth=4.0f/19.0f;
     for(int i=0;i<20;++i) {
         const float x=-2.0f+static_cast<float>(i)*4.0f/19;
-        beam({x,0.08f,-1.7f},{x,1.8f,-1.7f},0.18f,0.055f,timber+Vector3(static_cast<float>(i%4)*5));
+        beam({x,0.08f,-1.7f},{x,1.8f,-1.7f},EndWallBoardWidth,0.055f,
+             timber+Vector3(static_cast<float>(i%4)*5));
         const float ax=std::abs(x);
         if(ax<0.53f) continue;
         if(ax>0.82f&&ax<1.72f) {
-            beam({x,0.08f,1.7f},{x,0.55f,1.7f},0.16f,0.055f,timber);
-            beam({x,1.35f,1.7f},{x,1.8f,1.7f},0.16f,0.055f,timber);
-        } else beam({x,0.08f,1.7f},{x,1.8f,1.7f},0.16f,0.055f,timber);
+            beam({x,0.08f,1.7f},{x,0.55f,1.7f},EndWallBoardWidth,0.055f,timber);
+            beam({x,1.35f,1.7f},{x,1.8f,1.7f},EndWallBoardWidth,0.055f,timber);
+        } else beam({x,0.08f,1.7f},{x,1.8f,1.7f},EndWallBoardWidth,0.055f,timber);
     }
+    constexpr float SideWallBoardWidth=3.2f/15.0f;
     for(float x:{-2.1f,2.1f}) for(int i=0;i<16;++i) {
         const float z=-1.6f+static_cast<float>(i)*3.2f/15;
-        beam({x,0.08f,z},{x,1.8f,z},0.18f,0.055f,timber+Vector3(static_cast<float>(i%3)*5));
+        // Vertical beam cross-sections use local X for width and local Z for depth.
+        // On an X-constant side wall those roles must be swapped: X is wall
+        // thickness and Z is the board coverage direction.
+        beam({x,0.08f,z},{x,1.8f,z},0.055f,SideWallBoardWidth,
+             timber+Vector3(static_cast<float>(i%3)*5));
     }
     // Muted opaque glazing gives the facade readable windows without a sorted
     // transparency pass. Timber mullions sit slightly forward of the glass.
@@ -147,13 +155,12 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
     beam({-.76f,-.16f,2.28f},{.76f,-.16f,2.28f},.34f,.14f,timber);
     beam({-.76f,-.31f,2.56f},{.76f,-.31f,2.56f},.34f,.14f,timber);
     beam({-.76f,-.46f,2.84f},{.76f,-.46f,2.84f},.34f,.14f,timber);
-    // Close the front gable with individually varied vertical boards. The structural
-    // frame remains slightly forward, so this reads as a timber house rather than an
-    // unfinished open shelter while preserving the broad reference-house gable.
-    for(int i=0;i<16;++i) {
+    // Close both gables with individually varied edge-joined boards. The former
+    // front-only loop left the entire rear triangle visibly open from uphill.
+    for(float faceZ:{-1.70f,1.70f}) for(int i=0;i<16;++i) {
         const float x=-1.76f+static_cast<float>(i)*3.52f/15;
         const float top=3.45f-.60f*std::abs(x);
-        beam({x,2.23f,1.70f},{x,top,1.70f},.19f,.055f,
+        beam({x,2.23f,faceZ},{x,top,faceZ},3.52f/15.0f,.055f,
              timber+Vector3(static_cast<float>(i%4)*4));
     }
     // The front gable exposes the load-bearing frame seen in the reference house.
@@ -205,7 +212,7 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
             }
         }
     }
-    if(mesh.empty()||mesh.size()>31800) throw std::runtime_error("Hut mesh exceeds budget");
+    if(mesh.empty()||mesh.size()>32400) throw std::runtime_error("Hut mesh exceeds budget");
     Vector3 low(std::numeric_limits<float>::max()),high(std::numeric_limits<float>::lowest());
     for(const auto& vertex:mesh) {
         if(!std::isfinite(vertex.TextureCoordinate.X)||!std::isfinite(vertex.TextureCoordinate.Y))
@@ -260,6 +267,8 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
         std::cout<<verandaMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(verandaMessage);
         const char* structureMessage="island-simulator: hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports";
         std::cout<<structureMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(structureMessage);
+        const char* wallMessage="island-simulator: hut wall boards meet edge-to-edge on all four sides and both gables without see-through gaps";
+        std::cout<<wallMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(wallMessage);
     } catch(const std::exception& error) {
         material_.reset();
         const std::string message=std::string("island-simulator: hut material fallback: ")+error.what();

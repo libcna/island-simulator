@@ -256,6 +256,21 @@ Browser/Android diagnostic pins and CPU budget expectation updated accordingly.
 Later goat fur adds349,524bytes to both totals; current inventory is documented in
 `docs/goats.md` and `docs/asset-pipeline.md`.
 
+## Closed side walls and rear gable
+
+The vertical timber-prism helper uses its `width` argument along local X and `depth` along local Z.
+The two X-constant side walls had reused the end-wall argument order, leaving only 0.055 m of board
+coverage along Z on a 0.213 m pitch and producing regular see-through stripes. Those arguments are
+now orientation-correct. End-wall and gable widths also equal their authored pitch, so adjacent
+boards meet without coplanar overlap or open seams. A reverse-angle review found that only the
+front triangular gable had infill; the rear now has the same sixteen fitted boards.
+
+The added rear infill costs 576 vertices / 192 triangles. Total static geometry is 31,950 vertices
+/ 10,650 triangles in the unchanged one draw, with no new texture, material, buffer, collision or
+simulation. `hut` continues to show the front/right sides; `hut-material` intentionally moved to the
+rear/left so the two views cover all walls and both gables. Current native evidence and validation
+are recorded in `PLAN.md`; portable runtime appearance remains subject to the consolidated gate.
+
 Actual native `20261011T231908.276787Z-hut-material/capture.png` PASS and inspected:
 roof now visibly pale/fibrous and distinct from timber, not the old brown slat surface.
 Capture422colour bins/luminanceSD52.58/spatialcontrast192.60, kernel-after empty,

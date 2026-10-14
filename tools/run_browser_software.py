@@ -442,6 +442,7 @@ def validate_hut_report(report):
             or "hut four-pane muted glazing and braced plank door" not in log
             or "hut raised veranda uses full-height outer posts, split rails, fascia, and three steps" not in log
             or "hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports" not in log
+            or "hut wall boards meet edge-to-edge on all four sides and both gables without see-through gaps" not in log
             or "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in log
             or f"hut 1 draw, {7 if view['mode'] == 'hut' else 6} contact patches" not in log
             or "material fallback:" in log):

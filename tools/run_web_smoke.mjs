@@ -765,6 +765,7 @@ try {
               && log.includes("hut four-pane muted glazing and braced plank door")
               && log.includes("hut raised veranda uses full-height outer posts, split rails, fascia, and three steps")
               && log.includes("hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports")
+              && log.includes("hut wall boards meet edge-to-edge on all four sides and both gables without see-through gaps")
               && log.includes("hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes")
               && log.includes(`hut 1 draw, ${mode === "hut" ? 7 : 6} contact patches`)))
             && (!focusedHelicopterCheck || (log.includes("helicopter uses a smoothly tapered thirty-two-sided cockpit canopy, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane")

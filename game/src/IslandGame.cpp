@@ -1007,7 +1007,9 @@ namespace island
             const auto& h=*hutPlacement_;
             const float c=std::cos(h.yawRadians),s=std::sin(h.yawRadians);
             const bool close=viewpoint_==FixedViewpoint::HutMaterialDetail;
-            const float x=close?3.8f:6.0f,z=close?4.8f:9.0f;
+            // The two routes jointly expose all four walls: overview from the
+            // front/right, material review from the formerly unchecked rear/left.
+            const float x=close?-4.2f:6.0f,z=close?-5.0f:9.0f;
             cameraPosition_=Vector3(h.x+c*x+s*z,h.floorY+3.2f,h.z-s*x+c*z);
             const Vector3 direction=Vector3(h.x,h.floorY+(close?2.0f:1.5f),h.z)-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
