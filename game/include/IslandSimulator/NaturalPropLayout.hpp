@@ -121,7 +121,9 @@ namespace island
         static constexpr int WindSortedBayDetailCount = 24;
         static constexpr int TurtleNestingTrackCount = 2;
         static constexpr int TurtleTrackSegmentsPerNest = 7;
-        static constexpr float AuthoredCoveAngle = -2.35f;
+        // The north arm of the broad western lee-side beach, clear of the
+        // rocky south-west headland and stream mouth.
+        static constexpr float AuthoredCoveAngle = 3.02f;
         static constexpr float RockMinimumScale = 0.48f;
         static constexpr float RockMaximumScale = 1.85f;
         static constexpr int ReefRockSiteCount = 56;

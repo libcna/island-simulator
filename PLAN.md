@@ -59,6 +59,26 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
+## Latest visual-audit implementation — level lee-cove driftwood
+
+The coast/prop audit found that the three-piece authored driftwood landmark still used the old
+`-2.35` radian south-west transect. Terrain and coastal-material development had turned that
+location into a steep green headland shoulder, so the close view showed logs scattered across a
+slope rather than deposited on a beach. A first level-beach correction at `-3.02` radians was
+visually rejected because it landed directly in the stream/mangrove mouth. The accepted location
+mirrors the group to `3.02` radians on the north arm of the broad western lee cove: dry sand,
+clear of the stream and rocky headland, with the existing wind-sorted accumulation visible nearby.
+
+The authored placement now fails construction if its complete support has beach suitability below
+0.72, slope above 0.16 radians, or more than 0.22 m of height variation; core tests repeat those
+invariants. The QA camera moved from behind the former rising shoulder to the water side and now
+shows all three silhouettes and their beach context. Population, prop geometry, renderer, cells,
+LOD, collision policy and draw count are unchanged. Baseline, rejected stream-mouth study and
+accepted native evidence are respectively `20261014T142942.930254Z-driftwood`,
+`20261014T143505.780868Z-driftwood` and `20261014T143605.611238Z-driftwood`; all were inspected,
+and the accepted frame passes the ordinary image gate at 252 colour bins, 40.43 luminance
+deviation and 200.19 spatial contrast.
+
 ## Latest visual-audit implementation — close patterned butterflies
 
 After the bird pass, the same overview comparison selected butterflies as the next weak close

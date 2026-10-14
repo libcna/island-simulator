@@ -5551,6 +5551,11 @@ int main()
             Check(terrain.SignedShoreDistance(wood.x, wood.z) >= 6.8f
                       && terrain.SignedShoreDistance(wood.x, wood.z) <= 10.7f,
                   "authored cove driftwood centres remain on dry beach");
+            const auto centre = terrain.Sample(wood.x, wood.z);
+            const auto coast = island::IslandEnvironmentField::SampleCoast(
+                wood.x, wood.z, centre.signedShoreDistance);
+            Check(coast.beachSuitability >= 0.72f,
+                  "authored cove driftwood remains on visibly sandy coast");
             if (wood.variant < coveLandmarkVariants.size()) {
                 coveLandmarkVariants[wood.variant] = true;
             }
@@ -5570,16 +5575,28 @@ int main()
         }
         const float directionX = std::cos(wood.yawRadians);
         const float directionZ = std::sin(wood.yawRadians);
+        float minimumSupportHeight = terrain.Height(wood.x, wood.z);
+        float maximumSupportHeight = minimumSupportHeight;
+        float maximumSupportSlope = terrain.Sample(wood.x, wood.z).slopeRadians;
         for (int sampleIndex = 0; sampleIndex < 5; ++sampleIndex) {
             const float t = static_cast<float>(sampleIndex) / 4.0f - 0.5f;
             const float sampleX = wood.x + directionX * wood.length * t;
             const float sampleZ = wood.z + directionZ * wood.length * t;
             const island::TerrainSample support = terrain.Sample(sampleX, sampleZ);
+            minimumSupportHeight = std::min(minimumSupportHeight, support.height);
+            maximumSupportHeight = std::max(maximumSupportHeight, support.height);
+            maximumSupportSlope = std::max(maximumSupportSlope, support.slopeRadians);
             Check(support.signedShoreDistance >= 1.5f
                       && support.signedShoreDistance <= 27.0f,
                   "the complete driftwood footprint stays in the dry beach belt");
             Check(!island::VegetationLayout::IsReservedRoute(sampleX, sampleZ),
                   "the complete driftwood footprint stays outside authored routes");
+        }
+        if (wood.coveLandmark) {
+            Check(maximumSupportSlope <= 0.16f,
+                  "authored cove driftwood lies on a level beach footprint");
+            Check(maximumSupportHeight - minimumSupportHeight <= 0.22f,
+                  "authored cove driftwood has no buried or hovering end");
         }
     }
     for (const bool observed : observedDriftwoodVariants) {

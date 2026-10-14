@@ -649,13 +649,25 @@ namespace island
             const float directionX = std::cos(wood.yawRadians);
             const float directionZ = std::sin(wood.yawRadians);
             float maximumSupportHeight = terrain.Height(wood.x, wood.z);
+            float minimumSupportHeight = maximumSupportHeight;
+            float maximumSupportSlope = terrain.Sample(wood.x, wood.z).slopeRadians;
             for (int sampleIndex = 0; sampleIndex < DriftwoodSupportSamples; ++sampleIndex) {
                 const float t = static_cast<float>(sampleIndex)
                     / static_cast<float>(DriftwoodSupportSamples - 1) - 0.5f;
-                maximumSupportHeight = std::max(
-                    maximumSupportHeight,
-                    terrain.Height(wood.x + directionX * wood.length * t,
-                                   wood.z + directionZ * wood.length * t));
+                const auto support = terrain.Sample(
+                    wood.x + directionX * wood.length * t,
+                    wood.z + directionZ * wood.length * t);
+                maximumSupportHeight = std::max(maximumSupportHeight, support.height);
+                minimumSupportHeight = std::min(minimumSupportHeight, support.height);
+                maximumSupportSlope = std::max(maximumSupportSlope, support.slopeRadians);
+            }
+            const auto centre = terrain.Sample(wood.x, wood.z);
+            const auto coast = IslandEnvironmentField::SampleCoast(
+                wood.x, wood.z, centre.signedShoreDistance);
+            if (coast.beachSuitability < 0.72f || maximumSupportSlope > 0.16f
+                    || maximumSupportHeight - minimumSupportHeight > 0.22f) {
+                throw std::runtime_error(
+                    "Authored cove driftwood must remain on broad level dry sand");
             }
             wood.y = maximumSupportHeight + wood.radius * 0.58f;
             driftwood_.push_back(wood);

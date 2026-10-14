@@ -1023,10 +1023,13 @@ to be skipped in the distance.
 The shared prop-cell AABB is only a conservative range rejection. Rocks, fallen logs, and
 driftwood then enforce maximum range and select near/far geometry from their actual instance
 position, preventing early switches at cell boundaries. Three non-solid driftwood pieces use the
-three existing silhouettes to form an authored arc at the shared `-2.35` radian cove transect.
-Their centres and complete footprints remain inside the dry-beach belt, outside reserved routes,
-and separated from trunks and other driftwood. The driftwood QA camera frames the group centroid
-from inland and exposes its near/far population.
+three existing silhouettes to form an authored arc at the shared `3.02` radian lee-cove transect,
+away from both the rocky south-west headland and the stream mouth. Their centres and complete
+footprints remain inside the dry-beach belt, outside reserved routes, and separated from trunks and
+other driftwood. In addition to those constraints, their complete supports must retain at least
+0.72 beach suitability, no more than 0.16 radians of slope and no more than 0.22 m of height
+variation. The driftwood QA camera frames the group centroid from the water side and exposes its
+beach context and near/far population.
 Collision is limited to substantial rocks, every visibly emergent reef outcrop, and sampled
 fallen-log spans, leaving small dressing non-solid. The player applies those horizontal proxies
 while both walking and swimming. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full instanced

@@ -709,14 +709,17 @@ namespace island
             const float targetRadius = std::hypot(targetX, targetZ);
             const float outwardX = targetRadius > 0.001f ? targetX / targetRadius : 0.0f;
             const float outwardZ = targetRadius > 0.001f ? targetZ / targetRadius : -1.0f;
-            const float cameraX = targetX - outwardX * 12.0f - outwardZ * 3.5f;
-            const float cameraZ = targetZ - outwardZ * 12.0f + outwardX * 3.5f;
-            cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
-                                                   + PlayerMotion::EyeHeight,
-                                      cameraZ);
+            // The landmark arc is 7--10.5 m inland. Review it from the lower beach side;
+            // the former 12 m inward offset put the camera behind the rising cove shoulder.
+            const float cameraX = targetX + outwardX * 10.0f - outwardZ * 1.0f;
+            const float cameraZ = targetZ + outwardZ * 10.0f + outwardX * 1.0f;
+            cameraPosition_ = Vector3(cameraX,
+                std::max(terrain_.Height(cameraX, cameraZ) + PlayerMotion::EyeHeight,
+                         targetY + 3.8f), cameraZ);
             yaw_ = std::atan2(targetX - cameraX, targetZ - cameraZ);
             pitch_ = std::atan2(targetY - cameraPosition_.Y,
                                 std::hypot(targetX - cameraX, targetZ - cameraZ));
+            std::cout << "island-simulator: driftwood QA views the three-piece cove arc from the lower beach\n";
         } else if (viewpoint_ == FixedViewpoint::ReefDetail) {
             float targetAngle = 0.0f;
             float targetOffshore = 74.0f;
