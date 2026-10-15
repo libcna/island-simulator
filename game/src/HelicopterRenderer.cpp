@@ -626,8 +626,10 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
              {radial.X*.47f,3.045f,radial.Z*.47f-.12f},.020f,
              Color(104,108,98),Surface::Metal);
         const auto bladePoint=[&](const float distance,const float fraction) {
-            return rotorCentre+radial*distance+perpendicular*(.055f*fraction)
-                -Vector3(0,.012f*fraction,0);
+            const float sweep=.055f*fraction+.055f*fraction*fraction;
+            const float droop=.18f*fraction*fraction;
+            return rotorCentre+radial*distance+perpendicular*sweep
+                -Vector3(0,droop,0);
         };
         const auto closedBlade=[&](const float innerDistance,const float outerDistance,
             const float innerHalf,const float outerHalf,const float innerFraction,
@@ -649,7 +651,17 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         };
         const float tipStart=HelicopterLayout::MainRotorRadius-.28f;
         const float tipFraction=(tipStart-.48f)/(HelicopterLayout::MainRotorRadius-.48f);
-        closedBlade(.48f,tipStart,.155f,.110f,0,tipFraction,
+        constexpr float firstJoint=2.00f;
+        constexpr float secondJoint=3.70f;
+        const float firstFraction=(firstJoint-.48f)/(HelicopterLayout::MainRotorRadius-.48f);
+        const float secondFraction=(secondJoint-.48f)/(HelicopterLayout::MainRotorRadius-.48f);
+        closedBlade(.48f,firstJoint,.155f,.145f,0,firstFraction,
+            blade%2?Color(62,67,60):Color(76,82,73),
+            blade%2?Color(42,46,42):Color(50,55,49));
+        closedBlade(firstJoint,secondJoint,.145f,.128f,firstFraction,secondFraction,
+            blade%2?Color(62,67,60):Color(76,82,73),
+            blade%2?Color(42,46,42):Color(50,55,49));
+        closedBlade(secondJoint,tipStart,.128f,.110f,secondFraction,tipFraction,
             blade%2?Color(62,67,60):Color(76,82,73),
             blade%2?Color(42,46,42):Color(50,55,49));
         // Muted yellow parked-blade tips improve scale/readability without suggesting
@@ -720,6 +732,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<smoothSurfaces<<'\n';MirrorRuntimeDiagnosticToPlatformLog(smoothSurfaces);
     const std::string bubble="island-simulator: helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen";
     std::cout<<bubble<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bubble);
+    const std::string bladeShape="island-simulator: parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep";
+    std::cout<<bladeShape<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bladeShape);
 }
 
 HelicopterRenderer::~HelicopterRenderer()=default;

@@ -245,6 +245,24 @@ spatial contrast. Interior guard `20261015T182542.524784Z-helicopter-inside` pre
 controls and exit sightlines at 195 bins, 21.80 deviation and 93.69 contrast. Both kernel deltas
 are empty.
 
+## Latest helicopter silhouette pass — parked rotor blade droop
+
+The accepted fuller cockpit left the main rotor as the strongest remaining artificial line: each
+5.65 m parked blade was one nearly level prism, so the whole head collapsed into a black horizontal
+bar across the normal exterior view. Each dark span now has three connected chord sections plus the
+existing coloured tip. Their shared centreline uses a restrained quadratic droop and small
+progressive backward sweep, while chord width reduces independently at both intermediate stations.
+This gives the static blades weight and airfoil taper without suggesting rotation or flight.
+
+Two extra closed spans per blade add 96 triangles, taking the complete helicopter from 3,682 to
+3,778 triangles in the same opaque/glass two draws. Rotor radius, collision/site clearance, mast,
+grips, pitch links, tip bands, doors, floor and cabin remain unchanged. `IslandHelicopterLayoutTests`,
+`IslandCoreTests` and all 96 browser/capture tests pass. Inspected same-camera baseline
+`20261015T182504.108836Z-helicopter` and accepted current-binary evidence
+`20261015T184819.938307Z-helicopter` show the former ruler-straight bar replaced by visible parked
+blade sag and taper. The final 1280x720 frame passes with 314 colour bins, 54.76 luminance
+deviation, 230.71 spatial contrast and an empty kernel delta.
+
 ## Latest helicopter visual pass — readable open-cabin avionics
 
 The current exterior/interior audit found the grounded exterior recognisable and proportionally

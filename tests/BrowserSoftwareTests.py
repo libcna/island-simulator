@@ -82,6 +82,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             "helicopter realism pass adds a rounded chin and tail-root fairing, twelve-sided six-station tail boom, maintenance seams, engine intakes, shaped cushions, harnesses, centre pedestal, and overhead console",
             "helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry",
             "helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen",
+            "parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep",
             "helicopter 2 draw",
         ))
         def view(mode):
@@ -105,6 +106,10 @@ class BrowserSoftwareTests(unittest.TestCase):
             gate.validate_helicopter_report(report)
         report["views"][1]["result"]["output"] = markers.replace(
             "helicopter raised tapered engine cowling feeds two rear exhaust outlets behind the rotor mast\n", "")
+        with self.assertRaises(RuntimeError):
+            gate.validate_helicopter_report(report)
+        report["views"][1]["result"]["output"] = markers.replace(
+            "parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep\n", "")
         with self.assertRaises(RuntimeError):
             gate.validate_helicopter_report(report)
 

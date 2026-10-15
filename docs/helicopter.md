@@ -269,3 +269,24 @@ contrast and an empty kernel delta. Interior guard `20261015T182542.524784Z-heli
 passes with 195 bins, 21.80 deviation, 93.69 contrast and an empty kernel delta; the panel, radios,
 controls, seats and open exits remain readable. This focused pass does not substitute for physical
 AMD/Android review or future evidence-driven rotor/body-detail work.
+
+## Parked rotor blade droop and chord taper — 2026-10-15
+
+The fuller-cockpit exterior audit still showed all four 5.65 m main-rotor blades as nearly one
+perfectly horizontal dark bar. The former dark portion used one closed span followed only by the
+short coloured tip. It now uses three connected closed spans. Their shared centreline receives a
+quadratic 18 cm maximum parked droop and a restrained 11 cm progressive backward sweep, while chord
+half-width reduces through 0.155, 0.145, 0.128 and 0.110 m before the existing 0.098 m tip. Adjacent
+spans share exact endpoints, so the change bends one continuous blade rather than assembling gaps.
+
+The two extra spans per blade add 96 triangles and raise the complete helicopter from 3,682 to
+3,778 triangles. Both existing opaque/glass submissions, generated atlas, rotor radius, site
+clearance, stationary state, non-flying contract and all cabin access remain unchanged.
+`IslandHelicopterLayoutTests`, `IslandCoreTests` and all 96 browser/capture tests pass; the focused
+native, Chrome and Web-smoke gates now require the new blade-shape diagnostic.
+
+Inspected same-camera baseline `20261015T182504.108836Z-helicopter` and accepted current-binary
+evidence `20261015T184819.938307Z-helicopter` show the long parked blades carrying visible weight
+instead of forming a ruler-straight line. The accepted 1280x720 frame passes with 314 colour bins,
+54.76 luminance deviation, 230.71 spatial contrast and an empty kernel delta. This is a static
+silhouette improvement, not rotor animation or a helicopter flight feature.
