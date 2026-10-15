@@ -5268,6 +5268,11 @@ int main()
               && island::VegetationLayout::PrimaryPathReservedHalfWidth >= 0.75f
               && island::VegetationLayout::PrimaryPathReservedHalfWidth <= 1.5f,
           "primary path keeps an ordered range and a 1.5 to 3 metre walking reserve");
+    Check(island::VegetationLayout::IsReservedRoute(
+              island::VegetationLayout::PlayerSpawnX,
+              island::VegetationLayout::PlayerSpawnZ)
+              && island::VegetationLayout::PlayerSpawnReserveRadius >= 12.0f,
+          "authored beach spawn retains a useful vegetation and prop clearance");
     Check(island::VegetationLayout::EastClearing.radius > 20.0f
               && island::VegetationLayout::WestClearing.radius > 20.0f,
           "authored clearings retain useful first-person room dimensions");

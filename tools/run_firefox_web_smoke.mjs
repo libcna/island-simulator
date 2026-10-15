@@ -271,7 +271,9 @@ try {
     output: globalThis.islandDeploymentOutput ?? globalThis.islandSmokeResult?.output ?? "",
     error: globalThis.islandSmokeResult?.error ?? "", focused: document.hasFocus(),
     pointerLocked: document.pointerLockElement === document.getElementById("canvas"),
-    inputEvents: globalThis.islandSmokeResult?.inputEvents ?? [] })`);
+    inputEvents: globalThis.islandSmokeResult?.inputEvents ?? [],
+    keyEvents: globalThis.islandFirefoxKeyEvents ?? [],
+    movementBridgeEvents: globalThis.islandMovementKeyBridgeEvents ?? [] })`);
   const preflightRenderer = JSON.parse(await evaluate(context, `JSON.stringify((() => {
     const canvas = document.createElement("canvas");
     let creationError = "";
@@ -379,6 +381,16 @@ try {
   if (!renderer.webgl2 || renderer.version !== "WebGL 2.0") {
     throw new Error(`Firefox did not expose WebGL 2: ${JSON.stringify(renderer)}`);
   }
+  await evaluate(context, `(() => {
+    globalThis.islandFirefoxKeyEvents = [];
+    const record = event => globalThis.islandFirefoxKeyEvents.push({
+      type: event.type, key: event.key, code: event.code, trusted: event.isTrusted,
+      repeat: event.repeat, milliseconds: performance.now(), focused: document.hasFocus(),
+      pointerLocked: document.pointerLockElement === document.getElementById("canvas") });
+    addEventListener("keydown", record, { capture: true, passive: true });
+    addEventListener("keyup", record, { capture: true, passive: true });
+    return true;
+  })()`);
   const releaseWithEscape = async () => {
     const evidence = {};
     escapeGestures.push(evidence);
@@ -419,6 +431,14 @@ try {
       target: { context }, awaitPromise: true, resultOwnership: "none",
     });
   };
+  const holdMovementUntilOutput = async (key, marker, attempts = 240) => {
+    await performKeyActions(context, [{ type: "keyDown", value: key }]);
+    try {
+      return await waitForOutput(context, marker, attempts);
+    } finally {
+      await performKeyActions(context, [{ type: "keyUp", value: key }]);
+    }
+  };
   await capture(context, "island-firefox-esr.png");
 
   await performPointerClick(context, 640, 360);
@@ -428,12 +448,11 @@ try {
   if (!pointerLocked) throw new Error("Firefox did not grant pointer lock after a trusted click");
 
   await toggleWithShift("island-simulator: run mode enabled (8.0 m/s)");
-  await performKeyActions(context, [
-    { type: "keyDown", value: "w" },
-    { type: "pause", duration: 700 },
-    { type: "keyUp", value: "w" },
-  ]);
-  output = await waitForOutput(context, "island-simulator: first distance-scheduled land footstep played");
+  // Separate calls let the game's Web bridge preserve the trusted DOM key state while the
+  // contained browser renders. Firefox batches both edges when a long pause is embedded in one
+  // action sequence, so the game otherwise observes neither edge at its low software frame rate.
+  output = await holdMovementUntilOutput(
+    "W", "island-simulator: first distance-scheduled land footstep played");
   const runEnabled = output.includes("island-simulator: run mode enabled (8.0 m/s)");
   const audioInitialized = output.includes(
     "island-simulator: audio sources use sequential generation and upload with bounded staging memory")
@@ -565,10 +584,11 @@ try {
   const fatalDiagnostic = /fatal error|shader.*(?:failed|error)/i.test(productionOutput);
   if (fatalDiagnostic) throw new Error("Firefox emitted a fatal or shader diagnostic");
   const junglePopulationPattern = new RegExp(
-    "jungle [1-9][0-9]*/262 canopy \\(near [1-9][0-9]*, far [0-9]+\\), "
-      + "[1-9][0-9]*/1768 understory \\(near [1-9][0-9]*, far [0-9]+\\), "
-      + "[1-9][0-9]*/588 bushes \\(near [1-9][0-9]*, far [0-9]+\\), "
-      + "[1-9][0-9]*/2975 ground plants \\(near [1-9][0-9]*, far [0-9]+\\)");
+    "jungle [1-9][0-9]*/261 canopy \\(near [1-9][0-9]*, far [0-9]+\\), "
+      + "[0-9]+/12 standing snags, "
+      + "[1-9][0-9]*/1737 understory \\(near [1-9][0-9]*, far [0-9]+\\), "
+      + "[1-9][0-9]*/569 bushes \\(near [1-9][0-9]*, far [0-9]+\\), "
+      + "[1-9][0-9]*/2945 ground plants \\(near [1-9][0-9]*, far [0-9]+\\)");
   const waterStatePattern = new RegExp(
     "water view 0[.][1-9][0-9]*, 1 draw, player ripple 0[.][1-9][0-9]*, "
       + "phase [01](?:[.][0-9]+)?, splash 0[.][1-9][0-9]*, phase 0[.][0-9]+");
@@ -616,9 +636,9 @@ try {
     "island-firefox-esr-crabs.png",
     [
       "island-simulator: renderer WEBGL2",
-      "island-simulator: beach crabs 30 agents in deterministic sand-constrained colonies",
+      "island-simulator: beach crabs 30 agents in deterministic sand-and-debris-constrained colonies",
       "island-simulator: beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch",
-      "island-simulator: crab QA camera views an active beach colony",
+      "island-simulator: crab QA camera frames a debris-linked burrow and its foraging colony",
     ],
     /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/);
   const butterflyScene = await qualifyScene(
@@ -630,7 +650,7 @@ try {
       "island-simulator: clearing butterflies 18 agents in deterministic low-altitude habitats",
       "island-simulator: clearing butterflies use hinged patterned wings in one culled batch",
       "island-simulator: near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins",
-      "island-simulator: butterfly QA camera follows one existing sunny-clearing animal",
+      "island-simulator: butterfly QA camera frames one concrete nectar patch and its six animals",
     ],
     /butterflies [1-9][0-9]*\/18 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/);
   const turtleScene = await qualifyScene(
@@ -639,7 +659,7 @@ try {
     "island-firefox-esr-turtles.png",
     [
       "island-simulator: renderer WEBGL2",
-      "island-simulator: sea turtles 5 agents in bounded near-shore cruise, forage, and surface routes",
+      "island-simulator: sea turtles 5 agents in bounded habitat routes, three based in the sheltered western bay",
       "island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch",
       "island-simulator: sea-turtle QA camera views a surfacing route",
     ],

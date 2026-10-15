@@ -168,3 +168,28 @@ Reproduction/qualification commands (one browser at a time):
 sg systemd-journal -c 'python3 tools/run_browser_software.py build-probe --node /home/robertvokac/emsdk/node/24.19.0_64bit/bin/node --browser firefox --scope full --timeout 600'
 sg systemd-journal -c 'python3 tools/run_browser_software.py build-probe --node /home/robertvokac/emsdk/node/24.19.0_64bit/bin/node --browser chrome --scope grass-motion --timeout 300'
 ```
+
+## Current Firefox requalification and beach-start collision — 2026-10-15
+
+The current full-world Firefox gate initially received a trusted `KeyW` event while pointer lock
+and document focus were both true, but CNA/SDL polling did not retain that held state at roughly
+1–2 llvmpipe frames per second. A bounded production-page bridge now mirrors only WASD/arrow state
+into the existing `FirstPersonDigitalInput`; blur and hidden-document transitions clear all four
+bits. It does not synthesize motion, change speed, bypass collision or affect native/Android input.
+
+Instrumented Wasm evidence then proved that the callback and game update both sampled forward
+input with `dt=0.0166667` and wish vector `(0,1)`, but collision rejected the first step twice. The
+cause was the beach firewood proxy: its centre at `(-0.62,-223.45)` lay only about 1.73 m from the
+old `(0,-225)` start. The fire and wood remain on the requested beach. The player start moves four
+metres laterally to `(4,-225)` inside the existing reserved room, and `CampfireTests` now requires
+the spawn capsule and its first forward metre to be clear.
+
+Contained Firefox 140/llvmpipe evidence
+`build/browser-software/20261015T140330.390633Z-firefox-full/` passes the complete production gate.
+The camera advances from `(4,-225)` to about `(4,-217.5)`, the first distance-scheduled footstep is
+played, audio starts, both run modes toggle, both pointer-lock Escape cycles pass, resize and actual
+tab hide/resume recover, and all jungle/water/wreck/crab/butterfly/turtle scenes qualify. The six
+scene images were inspected; the WebGL 2 context remains live with GL error zero, live kernel log
+is empty and final kernel delta is `[]`. The active native range passes 72/72 and ARM64
+assemble/lint passes without emulator/KVM. This is software-renderer and cross-build evidence, not
+AMD or physical-Android qualification.

@@ -1276,7 +1276,7 @@ try {
       "island-simulator: selected palm near crowns include sparse hanging dry fronds")
     && result.output?.includes(
       "island-simulator: palm per-instance frond tint reuses existing transforms")
-    && result.output?.includes("island-simulator: jungle 262 canopy trees, 1768 understory plants, 588 low bushes, hardware instancing")
+    && result.output?.includes("island-simulator: jungle 261 canopy trees, 1737 understory plants, 569 low bushes, hardware instancing")
     && result.output?.includes("island-simulator: jungle ground layer 2975 small plants")
     && result.output?.includes(
       "island-simulator: jungle fixed-sun two-sided geometric facet lighting")
@@ -1636,7 +1636,7 @@ try {
     && visualResult.output?.includes("island-simulator: palms 327 in 64 cells, hardware instancing")
     && visualResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && visualResult.output?.includes(
-      "island-simulator: jungle 262 canopy trees, 1768 understory plants, 588 low bushes, hardware instancing")
+      "island-simulator: jungle 261 canopy trees, 1737 understory plants, 569 low bushes, hardware instancing")
     && visualResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && visualResult.output?.includes("natural-prop portable shader with near/far LOD")
     && visualResult.output?.includes(
@@ -1800,7 +1800,7 @@ try {
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && groundResult.output?.includes(
       "island-simulator: ground QA target variant 2 at player-eye detail distance")
-    && /[1-9][0-9]*\/2975 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /[1-9][0-9]*\/2945 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       groundResult.output ?? "")
     && groundResult.output?.includes("island-simulator: debug overlay active")
     && !groundResult.error;
@@ -1832,7 +1832,7 @@ try {
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && litterResult.output?.includes(
       "island-simulator: ground-litter QA target variant 0 at player-eye detail distance")
-    && /[1-9][0-9]*\/2975 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /[1-9][0-9]*\/2945 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       litterResult.output ?? "")
     && litterResult.output?.includes("island-simulator: debug overlay active")
     && !litterResult.error;
@@ -1940,7 +1940,7 @@ try {
       "jungle near ground plants include upright and split-leaf silhouettes")
     && jungleResult.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
-    && /jungle [1-9][0-9]*\/262 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1768 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/588 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/2975 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /jungle [1-9][0-9]*\/261 canopy \(near [1-9][0-9]*, far [0-9]+\), [0-9]+\/12 standing snags, [1-9][0-9]*\/1737 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/569 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/2945 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;
 
@@ -2217,11 +2217,11 @@ try {
     visualSessionId, "island-browser-crabs.png", true);
   const crabPassed = crabResult.output?.includes("island-simulator: renderer WEBGL2")
     && crabResult.output?.includes(
-      "island-simulator: beach crabs 30 agents in deterministic sand-constrained colonies")
+      "island-simulator: beach crabs 30 agents in deterministic sand-and-debris-constrained colonies")
     && crabResult.output?.includes(
       "island-simulator: beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch")
     && crabResult.output?.includes(
-      "island-simulator: crab QA camera frames one foraging subject without camera-triggered colony retreat")
+      "island-simulator: crab QA camera frames a debris-linked burrow and its foraging colony")
     && /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(
       crabResult.output ?? "")
     && !crabResult.error;
@@ -2258,7 +2258,7 @@ try {
     && butterflyResult.output?.includes(
       "island-simulator: near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins")
     && butterflyResult.output?.includes(
-      "island-simulator: butterfly QA camera follows one existing sunny-clearing animal")
+      "island-simulator: butterfly QA camera frames one concrete nectar patch and its six animals")
     && /butterflies [1-9][0-9]*\/18 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(
       butterflyResult.output ?? "")
     && !butterflyResult.error;
@@ -2508,7 +2508,7 @@ try {
     && turtleResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && turtleResult.output?.includes(
-      "island-simulator: sea turtles 5 agents in bounded near-shore cruise, forage, and surface routes")
+      "island-simulator: sea turtles 5 agents in bounded habitat routes, three based in the sheltered western bay")
     && turtleResult.output?.includes(
       "island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch")
     && turtleResult.output?.includes(

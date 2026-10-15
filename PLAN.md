@@ -66,11 +66,13 @@ The unchecked-marker count below is not the current backlog: this long ledger de
 historical incident next steps, rejected visual iterations and superseded acceptance notes. The
 remaining material work is:
 
-- continue whole-island visual critique, especially jungle-floor/canopy repetition, continuous
-  camera LOD transitions and moving-edge aliasing;
-- complete three recorded whole-island passes for traversal/scale, materials/lighting and
-  animation/sound, including long-session silence and control/lifecycle checks;
-- qualify final release behavior on actual AMD hardware, Firefox and a physical Android device.
+- continue whole-island visual critique, especially jungle-floor/canopy repetition and any
+  moving-edge aliasing that is visible in ordinary first-person play;
+- complete subjective headphone/speaker listening and real audio-focus/lifecycle checks; the
+  recorded traversal, material/lighting and wildlife/motion plus automated long-session sound
+  passes are complete;
+- qualify final release behavior on actual AMD hardware and a physical Android device. The
+  current Firefox/WebGL 2 production, input, lifecycle and seven-scene gate now passes.
 
 The traversal/scale member of the three required recorded whole-island passes is now complete.
 Six linked overview-to-water native views selected the formerly identical canopy trunk taper as
@@ -101,6 +103,27 @@ inspected Chrome WebGL frames plus Android ARM64 assemble/lint are recorded in
 `docs/whole-island-wildlife-pass.md`. The deterministic twenty-minute sound route and runtime
 mute/transition/source gate pass, but subjective headphone/speaker listening and real audio-focus
 lifecycle remain explicitly open.
+
+The continuous moving-camera vegetation review is now recorded as well. Chrome 155/SwiftShader
+`20261015T125040.280244Z-chrome-grass-motion` traverses 85 distinct rendered frames and records 93
+telemetry samples, 46 grass LOD states, 21 canopy transitions across 11 trees and 49 bush
+transitions across 26 plants. The inspected paired montage shows no whole-crown disappearance or
+hard grass/bush wall at a tier boundary; WebGL remains live, GL error is zero, the final return
+error is 1.075 m and kernel monitoring is clean. This is representative motion evidence, not a
+mathematical all-view aliasing proof.
+
+The current Firefox qualification exposed a real beach-start regression rather than a renderer
+failure: the relocated firewood collision sat 1.73 m ahead of the old `(0,-225)` start and rejected
+forward movement. The player now starts at `(4,-225)` inside the unchanged 17 m reserved beach
+room, with an explicit campfire/woodpile corridor regression. A bounded Web-only key-state bridge
+also mirrors trusted WASD/arrow events into the game update and clears on blur/hidden state, so
+Firefox does not lose a held key when browser event delivery and SDL polling occur at very low
+software frame rates. The full contained Firefox 140/llvmpipe run
+`20261015T140330.390633Z-firefox-full` passes movement/footstep/audio, pointer lock and two Escape
+cycles, responsive resize, real tab hide/resume and jungle/water/shipwreck/crab/butterfly/turtle
+scenes with a live WebGL 2 context and empty kernel delta. Current ARM64 assemble/lint also passes
+without emulator/KVM; the 24,535,491-byte APK contains a 19,492,920-byte `libmain.so` and has
+SHA-256 `41e4da672983666a74bbcbfd16857c6d016279291c8e5c9dde4c326c85f92f0d`.
 
 Helicopter, bunker, hut relocation, cave, campfire, resident, bear, crocodiles, 50 snakes, 200
 spiders, boar/goat/snake sound, flight/diving controls, stream/wetland/mangroves/reef, shipwreck and

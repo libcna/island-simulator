@@ -782,6 +782,29 @@ class BrowserSoftwareTests(unittest.TestCase):
             with self.subTest(browser=browser, scope=scope), self.assertRaises(ValueError):
                 gate.browser_command(ROOT, ROOT, Path("/node"), browser, scope)
 
+    def test_firefox_walk_holds_real_input_until_game_acknowledges_it(self):
+        source = (ROOT / "tools/run_firefox_web_smoke.mjs").read_text()
+        self.assertIn('globalThis.islandFirefoxKeyEvents = []', source)
+        self.assertIn('key: event.key, code: event.code, trusted: event.isTrusted', source)
+        self.assertIn('movementBridgeEvents: globalThis.islandMovementKeyBridgeEvents ?? []', source)
+        self.assertIn('const holdMovementUntilOutput = async (key, marker, attempts = 240)', source)
+        self.assertIn('return await waitForOutput(context, marker, attempts)', source)
+        self.assertIn('output = await holdMovementUntilOutput(', source)
+        self.assertIn('"W", "island-simulator: first distance-scheduled land footstep played"', source)
+        self.assertNotIn('{ type: "pause", duration: 700 }', source)
+
+        game = (ROOT / "game/src/IslandGame.cpp").read_text()
+        self.assertIn("InstallWebMovementKeyBridge", game)
+        self.assertIn("globalThis.islandMovementKeyBridgeEvents = []", game)
+        self.assertIn("volatile int WebMovementKeyMaskValue = 0", game)
+        self.assertIn("EMSCRIPTEN_KEEPALIVE void IslandSetWebMovementKeyState", game)
+        self.assertIn("_IslandSetWebMovementKeyState(bit, value)", game)
+        self.assertIn("WebMovementKeyMaskValue;", game)
+        self.assertIn('case "KeyW": case "ArrowUp"', game)
+        self.assertIn('addEventListener("blur", clear', game)
+        self.assertIn('document.visibilityState !== "visible"', game)
+        self.assertIn('|| (webMovementKeyMask & 1) != 0', game)
+
     def test_device_policy_contains_no_host_device_bind(self):
         command = contained_command(["node", "fixture"], private_devices=True)
         self.assertIn("--unshare-pid", command)

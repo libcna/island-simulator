@@ -31,6 +31,7 @@
 #include <vector>
 
 #if defined(__EMSCRIPTEN__)
+#include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
 #endif
 
@@ -58,6 +59,42 @@ namespace island
 {
     namespace
     {
+#if defined(__EMSCRIPTEN__)
+        volatile int WebMovementKeyMaskValue = 0;
+
+        EM_JS(void, InstallWebMovementKeyBridge, (), {
+            if (globalThis.islandMovementKeyBridgeInstalled) return;
+            globalThis.islandMovementKeyBridgeInstalled = true;
+            globalThis.islandMovementKeyBridgeEvents = [];
+            const record = (code, value) => {
+                const events = globalThis.islandMovementKeyBridgeEvents;
+                if (events.length < 32) events.push({code, value, milliseconds: performance.now()});
+            };
+            const clear = () => {
+                _IslandSetWebMovementKeyState(15, 0);
+                record("clear", 0);
+            };
+            const update = (event, value) => {
+                let bit = 0;
+                switch (event.code) {
+                case "KeyW": case "ArrowUp": bit = 1; break;
+                case "KeyS": case "ArrowDown": bit = 2; break;
+                case "KeyA": case "ArrowLeft": bit = 4; break;
+                case "KeyD": case "ArrowRight": bit = 8; break;
+                default: return;
+                }
+                _IslandSetWebMovementKeyState(bit, value);
+                record(event.code, value);
+            };
+            addEventListener("keydown", event => update(event, 1), {capture: true, passive: true});
+            addEventListener("keyup", event => update(event, 0), {capture: true, passive: true});
+            addEventListener("blur", clear, {capture: true, passive: true});
+            document.addEventListener("visibilitychange", () => {
+                if (document.visibilityState !== "visible") clear();
+            }, {capture: true, passive: true});
+        });
+#endif
+
         constexpr float MouseSensitivity = 0.0021f;
         constexpr float TouchLookSensitivity = 0.0032f;
         constexpr std::uint32_t SmokeTestFrames = 4U;
@@ -176,6 +213,16 @@ namespace island
         }
     }
 
+#if defined(__EMSCRIPTEN__)
+    extern "C" EMSCRIPTEN_KEEPALIVE void IslandSetWebMovementKeyState(
+        const int bit, const int down) noexcept
+    {
+        if (bit <= 0 || (bit & ~15) != 0) return;
+        if (down != 0) WebMovementKeyMaskValue |= bit;
+        else WebMovementKeyMaskValue &= ~bit;
+    }
+#endif
+
     IslandGame::IslandGame(const bool smokeTest, std::string capturePath,
                            FixedViewpoint viewpoint, const bool showDebugOverlay,
                            const bool inputDiagnostics, const bool showWorldDebug,
@@ -216,7 +263,8 @@ namespace island
           naturalPropLayout_(terrain_, vegetationLayout_, jungleLayout_),
           shipwreckLayout_(terrain_),
           birdPerchLayout_(terrain_, jungleLayout_, naturalPropLayout_, shipwreckLayout_),
-          cameraPosition_(0.0f, 3.0f, -225.0f),
+          cameraPosition_(VegetationLayout::PlayerSpawnX, 3.0f,
+                          VegetationLayout::PlayerSpawnZ),
           renderCameraPosition_(cameraPosition_),
           smokeTest_(smokeTest),
           viewpoint_(viewpoint),
@@ -1675,6 +1723,13 @@ namespace island
         if (!qualityProfile_.IsValid()) {
             throw std::logic_error("The selected runtime quality profile is invalid");
         }
+#if defined(__EMSCRIPTEN__)
+        InstallWebMovementKeyBridge();
+        constexpr auto webMovementDiagnostic =
+            "island-simulator: Web movement bridge mirrors trusted WASD/arrow state and clears on focus loss";
+        std::cout << webMovementDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(webMovementDiagnostic);
+#endif
         if (GeneratedTextureBudget::TotalRuntimeRgba8Bytes
                 > qualityProfile_.textureByteBudget
             || Soundscape::MaximumPlayingSourceCount
@@ -2813,11 +2868,21 @@ namespace island
             MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         }
 
+        const int webMovementKeyMask =
+#if defined(__EMSCRIPTEN__)
+            WebMovementKeyMaskValue;
+#else
+            0;
+#endif
         const FirstPersonDigitalInput digitalInput{
-            keyboard.IsKeyDown(Keys::W) || keyboard.IsKeyDown(Keys::Up),
-            keyboard.IsKeyDown(Keys::S) || keyboard.IsKeyDown(Keys::Down),
-            keyboard.IsKeyDown(Keys::A) || keyboard.IsKeyDown(Keys::Left),
-            keyboard.IsKeyDown(Keys::D) || keyboard.IsKeyDown(Keys::Right),
+            keyboard.IsKeyDown(Keys::W) || keyboard.IsKeyDown(Keys::Up)
+                || (webMovementKeyMask & 1) != 0,
+            keyboard.IsKeyDown(Keys::S) || keyboard.IsKeyDown(Keys::Down)
+                || (webMovementKeyMask & 2) != 0,
+            keyboard.IsKeyDown(Keys::A) || keyboard.IsKeyDown(Keys::Left)
+                || (webMovementKeyMask & 4) != 0,
+            keyboard.IsKeyDown(Keys::D) || keyboard.IsKeyDown(Keys::Right)
+                || (webMovementKeyMask & 8) != 0,
             locomotionPaceToggle_.IsRunningSelected() || touchControlState_.runRequested,
         };
         const bool movementKeyDown = digitalInput.forward || digitalInput.backward

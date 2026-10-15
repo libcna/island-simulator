@@ -259,7 +259,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: shipwreck large-ship silhouette uses deck rails, hull openings, keel, rudder, and a broken foremast" \
             "$LOG_FILE" \
-        && grep -q "island-simulator: beach crabs 30 agents in deterministic sand-constrained colonies" \
+        && grep -q "island-simulator: beach crabs 30 agents in deterministic sand-and-debris-constrained colonies" \
             "$LOG_FILE" \
         && grep -q "island-simulator: beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch" \
             "$LOG_FILE" \
@@ -269,7 +269,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins" \
             "$LOG_FILE" \
-        && grep -q "island-simulator: sea turtles 5 agents in bounded near-shore cruise, forage, and surface routes" \
+        && grep -q "island-simulator: sea turtles 5 agents in bounded habitat routes, three based in the sheltered western bay" \
             "$LOG_FILE" \
         && grep -q "island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch" \
             "$LOG_FILE" \

@@ -58,6 +58,13 @@ int main() {
     Check(materials[static_cast<int>(FireMaterial::Ember)]==240
         &&materials[static_cast<int>(FireMaterial::Coal)]==360,"ember/charcoal split changed");
     const WorldCollisionGrid fireSolids(fire.Obstacles());
+    Check(!fireSolids.IntersectsCircle(VegetationLayout::PlayerSpawnX,
+                                      VegetationLayout::PlayerSpawnZ,
+                                      PlayerMotion::CapsuleRadius)
+              && !fireSolids.IntersectsCircle(VegetationLayout::PlayerSpawnX,
+                                              VegetationLayout::PlayerSpawnZ + 1.0f,
+                                              PlayerMotion::CapsuleRadius),
+          "beach campfire or woodpile blocks the player spawn corridor");
     for(const auto obstacle:fire.Obstacles()) {
         PlayerMotion player;
         player.SetPosition(terrain,obstacle.x-4,obstacle.z);

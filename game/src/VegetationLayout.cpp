@@ -109,7 +109,8 @@ namespace island
 
         // Two intentional rooms in the vegetation and a safe uncluttered player spawn.
         return IsInsideAuthoredClearing(x, z)
-            || DistanceSquared(x, z, 0.0f, -225.0f) < 17.0f * 17.0f;
+            || DistanceSquared(x, z, PlayerSpawnReserveX, PlayerSpawnReserveZ)
+                < PlayerSpawnReserveRadius * PlayerSpawnReserveRadius;
     }
 
     bool VegetationLayout::IsInsideAuthoredClearing(const float x, const float z) noexcept
@@ -126,7 +127,9 @@ namespace island
             return true;
         if(CaveSite::Reserves(x,z,5+radius)||BunkerSite::Reserves(x,z,2+radius)||CampfireSite::Reserves(x,z,radius)
             ||HelicopterSite::Reserves(x,z,radius))return true;
-        for (const auto clearing : {EastClearing, WestClearing, ClearingDefinition{0, -225, 17}}) {
+        for (const auto clearing : {EastClearing, WestClearing,
+                                    ClearingDefinition{PlayerSpawnReserveX, PlayerSpawnReserveZ,
+                                                       PlayerSpawnReserveRadius}}) {
             if (std::hypot(x - clearing.x, z - clearing.z) <= clearing.radius + radius) return true;
         }
         // |dx - path'(z)*dz| <= radius*sqrt(1 + maximumDerivative^2). Expanding both

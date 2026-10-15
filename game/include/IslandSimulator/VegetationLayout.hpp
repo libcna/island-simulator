@@ -61,6 +61,11 @@ namespace island
         static constexpr float PrimaryPathMinimumZ = -225.0f;
         static constexpr float PrimaryPathMaximumZ = 190.0f;
         static constexpr float PrimaryPathReservedHalfWidth = 1.4f;
+        static constexpr float PlayerSpawnX = 4.0f;
+        static constexpr float PlayerSpawnZ = -225.0f;
+        static constexpr float PlayerSpawnReserveX = 0.0f;
+        static constexpr float PlayerSpawnReserveZ = -225.0f;
+        static constexpr float PlayerSpawnReserveRadius = 17.0f;
         static constexpr ClearingDefinition EastClearing {43.0f, -18.0f, 32.0f};
         static constexpr ClearingDefinition WestClearing {-82.0f, 62.0f, 24.0f};
 

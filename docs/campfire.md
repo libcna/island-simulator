@@ -135,3 +135,14 @@ The wide llvmpipe evidence `20261014T003928.816157Z-campfire-wide` was inspected
 shallow water, fire ring and separate wood stack are simultaneously visible on sand. It passes
 at1280x720 with412 colour bins,18.46 luminance deviation and125.23 spatial contrast.
 The rebuilt world report records the new centres and fingerprint `a33aa6c2913b5796`.
+
+## Player-start corridor correction — 2026-10-15
+
+The beach relocation put the stored-wood collision proxy only about 1.73 m ahead of the historical
+player start `(0,-225)`. Forward motion therefore resolved correctly but was rejected by the solid
+woodpile. The campfire and woodpile remain unchanged on dry beach sand; the player starts four
+metres to the east at `(4,-225)`, still inside the original 17 m vegetation/prop reserve and facing
+the island. The named spawn coordinates are shared by game initialization and placement tests.
+`CampfireTests` rejects any future fire or wood proxy that overlaps the spawn capsule or its first
+forward metre. Current Firefox evidence advances roughly 7.5 m from this start and emits the first
+land-footstep marker; native core/campfire tests and the complete 72-test active range pass.
