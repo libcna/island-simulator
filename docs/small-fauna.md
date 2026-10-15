@@ -399,6 +399,30 @@ claw diagnostic. Focused Chrome/SwiftShader evidence
 frames, GL error zero, a live context and an empty final kernel delta. Android packaging remains
 grouped with later integration.
 
+### Domed blue-grey terrestrial armour (2026-10-16)
+
+The next whole-animal comparison still found the coconut crab too similar to a flat orange beach
+crab. Its shared shell is now compacted further laterally, positive-height joints rise while toes
+remain on the authored support plane, and the front gains a restrained upward inclination. A new
+closed smooth-lit cephalothorax volume overlaps the inherited shell and every existing leg root,
+replacing the long flat centre bar with a deep terrestrial armour dome.
+
+Four deterministic cool blue-grey, violet-brown, slate and warm-umber families are blended with
+the original per-part lighting, preserving dark eyes, joints and pincer separation rather than
+painting the entire animal one colour. The two existing unequal palms and the new body dome now
+use five contour rings instead of three; the palms are slightly narrower while retaining their
+two separated solid fingers. Near geometry rises from 1,998 to an exact runtime-checked 2,538
+vertices per animal. All six still share the existing opaque crab buffer and draw, with no texture,
+shader, simulation, habitat or population change.
+
+The first recolour candidate `20261015T225113.385755Z-coconut-crabs` was rejected for flat uniform
+blue shading, and `20261015T225336.090689Z-coconut-crabs` was retained only as an intermediate
+three-ring body/claw study. Accepted native evidence `20261015T231514.688471Z-coconut-crabs`
+passes at 1280x720 with 282 colour bins, 44.19 luminance deviation, 216.93 spatial contrast and an
+empty kernel delta. Focused Chrome/SwiftShader
+`20261015T231815.216785Z-chrome-coconut-crabs` passes two distinct inspected frames, 60 finite
+intervals, GL error zero, a live context and an empty final kernel delta.
+
 ## Skinks
 
 Eight deterministic diurnal skinks occupy 6.4--7.5 m homes around clearings, a wetland edge and

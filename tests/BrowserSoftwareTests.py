@@ -453,6 +453,8 @@ class BrowserSoftwareTests(unittest.TestCase):
                    "and arched abdominal plates")
         claws = ("near coconut crabs use rounded unequal claw palms over separated solid "
                  "pincer fingers")
+        colour = ("coconut crabs use cool blue-grey, violet-brown, slate, and warm umber "
+                  "limb armour with a front-raised terrestrial stance")
         camera = ("coconut-crab QA camera frames one large terrestrial animal in coastal "
                   "vegetation")
         def report():
@@ -462,7 +464,8 @@ class BrowserSoftwareTests(unittest.TestCase):
                 "afterSimulationScreenshot": "coconut-after.png",
                 "intervals": [16.7] * 60,
                 "result": {"output": population + "\n" + anatomy + "\n" + profile + "\n"
-                    + claws + "\n" + camera + "\ncoconut crabs 1/6 visible in shared draw"}}]}
+                    + claws + "\n" + colour + "\n" + camera
+                    + "\ncoconut crabs 1/6 visible in shared draw"}}]}
         self.assertEqual(gate.validate_coconut_crab_report(report()),
                          ("coconut-before.png", "coconut-after.png"))
         for mutate in (

@@ -862,6 +862,7 @@ try {
               && log.includes("coconut crabs use broad armored bodies, segmented terrestrial abdomens, robust walking legs, and massive unequal claws")
               && log.includes("coconut crabs use elevated compact bodies, planted high-jointed legs, and arched abdominal plates")
               && log.includes("near coconut crabs use rounded unequal claw palms over separated solid pincer fingers")
+              && log.includes("coconut crabs use cool blue-grey, violet-brown, slate, and warm umber limb armour with a front-raised terrestrial stance")
               && log.includes("coconut-crab QA camera frames one large terrestrial animal in coastal vegetation")
               && /coconut crabs [1-6]\/6 visible in shared draw/.test(log)))
             && (!focusedButterflyCheck || (log.includes("butterflies feed at three visible deterministic nectar-flower patches")

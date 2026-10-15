@@ -712,6 +712,7 @@ def validate_coconut_crab_report(report):
         or "coconut crabs use broad armored bodies, segmented terrestrial abdomens, robust walking legs, and massive unequal claws" not in log
         or "coconut crabs use elevated compact bodies, planted high-jointed legs, and arched abdominal plates" not in log
         or "near coconut crabs use rounded unequal claw palms over separated solid pincer fingers" not in log
+        or "coconut crabs use cool blue-grey, violet-brown, slate, and warm umber limb armour with a front-raised terrestrial stance" not in log
         or "coconut-crab QA camera frames one large terrestrial animal in coastal vegetation" not in log
         or not re.search(r"coconut crabs [1-6]/6 visible in shared draw",log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):

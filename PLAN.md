@@ -541,6 +541,24 @@ Focused Chrome/SwiftShader evidence
 `20261015T200935.227024Z-chrome-coconut-crabs` passes 60 finite intervals, two distinct inspected
 frames, GL error zero, a live context and an empty final kernel delta.
 
+## Latest terrestrial-fauna visual pass — domed coconut-crab armour
+
+The renewed animal audit still found the coconut crab too flat and too close in colour to its
+beach-crab foundation. The inherited shell is now more compact laterally and its positive-height
+joints rise around terrain-planted toes. A closed smooth-lit cephalothorax dome overlaps the shell
+and all leg roots, while four deterministic blue-grey, violet-brown, slate and warm-umber families
+blend with retained per-part shade. The unequal claw palms and body dome use five contour rings;
+palms are narrower and retain their separated solid fingers.
+
+Near geometry grows from 1,998 to 2,538 vertices per animal, still in the existing shared opaque
+crab buffer and draw with unchanged population, habitat and simulation. The flat-colour candidate
+`20261015T225113.385755Z-coconut-crabs` and intermediate three-ring dome
+`20261015T225336.090689Z-coconut-crabs` are rejected. Accepted native
+`20261015T231514.688471Z-coconut-crabs` passes with 282 colour bins, 44.19 luminance deviation,
+216.93 spatial contrast and kernel `[]`. Focused Chrome/SwiftShader
+`20261015T231815.216785Z-chrome-coconut-crabs` passes two inspected frames, 60 finite intervals,
+GL0, a live context and kernel `[]`.
+
 ## Latest aquatic visual pass — octopus mantle and skin light
 
 After the stingray repair, the same coastal-animal matrix left the octopus as the next weakest

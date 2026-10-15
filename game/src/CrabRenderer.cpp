@@ -42,7 +42,7 @@ namespace island
         constexpr int MaximumBurrowVertices = 1024;
         constexpr int MaximumHermitCrabVertices =
             static_cast<int>(HermitCrabGroup::Count) * 1024;
-        constexpr int CoconutCrabVertexCount = 1998;
+        constexpr int CoconutCrabVertexCount = 2538;
         constexpr int MaximumCoconutCrabVertices =
             static_cast<int>(CoconutCrabGroup::Count) * CoconutCrabVertexCount;
         constexpr int MaximumVertexCount = static_cast<int>(CrabColony::CrabCount)
@@ -74,6 +74,8 @@ namespace island
             "island-simulator: coconut crabs use elevated compact bodies, planted high-jointed legs, and arched abdominal plates";
         constexpr std::string_view CoconutCrabClawDiagnostic =
             "island-simulator: near coconut crabs use rounded unequal claw palms over separated solid pincer fingers";
+        constexpr std::string_view CoconutCrabColourDiagnostic =
+            "island-simulator: coconut crabs use cool blue-grey, violet-brown, slate, and warm umber limb armour with a front-raised terrestrial stance";
 
         struct CrabPalette
         {
@@ -99,6 +101,23 @@ namespace island
              Color(117, 79, 58, 255), Color(153, 98, 65, 255),
              Color(96, 65, 51, 255), Color(220, 154, 96, 255)}
         }};
+
+        const std::array<Color, 4> CoconutBodyColours = {{
+            Color(91, 88, 112, 255), Color(112, 79, 88, 255),
+            Color(76, 94, 103, 255), Color(116, 96, 78, 255)
+        }};
+
+        [[nodiscard]] Color CoconutArmourColour(const Color& source,
+                                                const std::uint8_t variant)
+        {
+            const float luminance=(source.getRProperty()+source.getGProperty()
+                +source.getBProperty())/3.0f;
+            if(luminance<44.0f)return source;
+            const float tone=.68f+.85f*luminance/255.0f;
+            const Color cool=wildlife_render::ScaleColor(
+                CoconutBodyColours[variant%CoconutBodyColours.size()],tone);
+            return Color::Lerp(source,cool,.62f);
+        }
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -253,8 +272,8 @@ namespace island
                                       const Color& sideColor)
         {
             constexpr int Segments = 10;
-            constexpr std::array<float, 3> RingHeights = {{-.58f, 0.0f, .58f}};
-            constexpr std::array<float, 3> RingRadii = {{.815f, 1.0f, .815f}};
+            constexpr std::array<float, 5> RingHeights = {{-.75f, -.38f, 0.0f, .38f, .75f}};
+            constexpr std::array<float, 5> RingRadii = {{.66f, .92f, 1.0f, .92f, .66f}};
             const auto point = [&](const std::size_t ring, const int segment) {
                 const float angle = TwoPi * static_cast<float>(segment)
                     / static_cast<float>(Segments);
@@ -293,8 +312,9 @@ namespace island
                                     color(ring, segment), color(ring + 1U, segment),
                                     color(ring + 1U, next), color(ring, next));
                 }
-                AddGradientTriangle(vertices, top, point(2U, next), point(2U, segment),
-                                    topCapColor, color(2U, next), color(2U, segment));
+                const std::size_t last=RingHeights.size()-1U;
+                AddGradientTriangle(vertices, top, point(last, next), point(last, segment),
+                                    topCapColor, color(last, next), color(last, segment));
             }
         }
 
@@ -596,9 +616,9 @@ namespace island
                 if (useRoundedUnequalPalms) {
                     AppendRoundedCoconutPalm(
                         vertices, palm, right, up, forward,
-                        (side > 0.0f ? .110f : .090f) * scale,
-                        (side > 0.0f ? .061f : .055f) * scale,
-                        (side > 0.0f ? .145f : .125f) * scale,
+                        (side > 0.0f ? .095f : .080f) * scale,
+                        (side > 0.0f ? .058f : .052f) * scale,
+                        (side > 0.0f ? .140f : .122f) * scale,
                         palette.claw, palette.shellSide);
                 } else {
                     AppendOctahedron(vertices, palm, right, up, forward,
@@ -707,22 +727,35 @@ namespace island
             const std::size_t baseFirst=vertices.size();
             AppendNearCrab(vertices, base, true);
             // Beach crabs are low and broad. Preserve their detailed shared anatomy but
-            // compact only this terrestrial form laterally and lift its positive-height
-            // joints, producing the characteristic high planted coconut-crab stance.
+            // compact this terrestrial form laterally, lift positive-height joints and
+            // incline the front slightly. The toes stay on their authored support plane.
             for(std::size_t index=baseFirst;index<vertices.size();++index) {
                 const Vector3 delta=vertices[index].Position-centre;
-                const float localRight=Vector3::Dot(delta,right)*.82f;
-                const float localForward=Vector3::Dot(delta,forward)*.95f;
+                const float localRight=Vector3::Dot(delta,right)*.75f;
+                const float localForward=Vector3::Dot(delta,forward)*.92f;
                 const float localUp=Vector3::Dot(delta,up);
-                const float raisedUp=localUp>0.0f?localUp*1.50f:localUp;
+                const float raisedUp=localUp>0.0f
+                    ?localUp*2.20f+std::max(0.0f,localForward)*.12f:localUp;
                 vertices[index].Position=centre+right*localRight+forward*localForward
                     +up*raisedUp;
+                vertices[index].Color=CoconutArmourColour(
+                    vertices[index].Color,crab.colorVariant);
             }
             const std::array<Color, 4> plates = {{
                 Color(82, 88, 70, 255), Color(105, 82, 66, 255),
                 Color(91, 72, 58, 255), Color(119, 91, 61, 255)}};
             const Color plate = plates[crab.colorVariant % plates.size()];
             const Color plateShade = Color::Lerp(plate, Color(25, 28, 25, 255), .42f);
+            // A coconut crab carries a deep domed cephalothorax rather than the
+            // flat lateral pancake of its beach-crab base. This closed smooth-lit
+            // armour volume overlaps the shared shell and preserves every leg root.
+            const Color body=CoconutBodyColours[
+                crab.colorVariant%CoconutBodyColours.size()];
+            AppendRoundedCoconutPalm(vertices,
+                centre+forward*(.055f*scale)+up*(.205f*scale),right,up,forward,
+                .305f*scale,.155f*scale,.235f*scale,
+                wildlife_render::ScaleColor(body,1.12f),
+                wildlife_render::ScaleColor(body,.78f));
             constexpr int Segments = 12;
             constexpr std::array<float, 4> Stations = {{-.20f, -.125f, -.045f, .025f}};
             constexpr std::array<float, 4> Widths = {{.17f, .25f, .27f, .18f}};
@@ -866,6 +899,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(CoconutCrabProfileDiagnostic);
         std::cout << CoconutCrabClawDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CoconutCrabClawDiagnostic);
+        std::cout << CoconutCrabColourDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(CoconutCrabColourDiagnostic);
     }
 
     CrabRenderer::~CrabRenderer() = default;
