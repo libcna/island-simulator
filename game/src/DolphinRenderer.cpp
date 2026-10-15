@@ -83,14 +83,26 @@ Color BodyColor(const std::array<Color, 4> &colors, const float vertical) {
 }
 
 Color SmoothBodyColor(const std::array<Color, 4> &colors, const Axes &axes,
-                      const float angle) {
+                      const float angle, const float axialPosition,
+                      const std::uint32_t colorVariant) {
   const Vector3 normal = Vector3::Normalize(
       axes.right * std::cos(angle) + axes.up * std::sin(angle));
   const float direct = std::max(
       0.0f, Vector3::Dot(normal, wildlife_render::FixedSunDirection));
   const float sky = std::max(0.0f, normal.Y);
-  return wildlife_render::ScaleColor(BodyColor(colors, std::sin(angle)),
-                                     .76f + .25f * direct + .05f * sky);
+  const float vertical = std::sin(angle);
+  const float sideFacing = std::abs(std::cos(angle));
+  const float headToShoulder = std::clamp((axialPosition + .48f) / 1.20f,
+                                          0.0f, 1.0f);
+  const float lowerFlank = std::clamp((.34f - vertical) / .82f, 0.0f, 1.0f);
+  const float flankFlash = sideFacing * headToShoulder * lowerFlank * .24f;
+  Color pigment = Color::Lerp(BodyColor(colors, vertical), colors[2], flankFlash);
+  const float phase = static_cast<float>(colorVariant % 3U) * 1.71f;
+  const float skinVariation = 1.0f
+      + .022f * std::sin(axialPosition * 18.0f + angle * 3.0f + phase)
+      + .010f * std::sin(axialPosition * 41.0f - angle * 5.0f + phase * .7f);
+  return wildlife_render::ScaleColor(
+      pigment, (.76f + .25f * direct + .05f * sky) * skinVariation);
 }
 
 void Quad(std::vector<VertexPositionColor> &out, const Vector3 &a,
@@ -180,12 +192,18 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
       const int n = (s + 1) % Segments;
       const float angleS = 2 * std::numbers::pi_v<float> * s / Segments;
       const float angleN = 2 * std::numbers::pi_v<float> * n / Segments;
-      const Color colorS = SmoothBodyColor(colors, axes, angleS);
-      const Color colorN = SmoothBodyColor(colors, axes, angleN);
+      const Color rearS = SmoothBodyColor(
+          colors, axes, angleS, Body[row].z, dolphin.colorVariant);
+      const Color rearN = SmoothBodyColor(
+          colors, axes, angleN, Body[row].z, dolphin.colorVariant);
+      const Color forwardS = SmoothBodyColor(
+          colors, axes, angleS, Body[row + 1].z, dolphin.colorVariant);
+      const Color forwardN = SmoothBodyColor(
+          colors, axes, angleN, Body[row + 1].z, dolphin.colorVariant);
       GradientTriangle(out, rings[row][s], rings[row + 1][s], rings[row + 1][n],
-                       colorS, colorS, colorN);
+                       rearS, forwardS, forwardN);
       GradientTriangle(out, rings[row][s], rings[row + 1][n], rings[row][n],
-                       colorS, colorN, colorN);
+                       rearS, forwardN, rearN);
     }
   // Close the melon rather than leaving the foremost body ring as a visible cut plane.
   const auto melonCap = Point(centre, axes, 0, .050f, 1.010f, scale);
@@ -194,9 +212,11 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
     const float angle = 2 * std::numbers::pi_v<float> * segment / Segments;
     const float nextAngle = 2 * std::numbers::pi_v<float> * next / Segments;
     GradientTriangle(out, rings.back()[segment], melonCap, rings.back()[next],
-                     SmoothBodyColor(colors, axes, angle),
+                     SmoothBodyColor(colors, axes, angle, Body.back().z,
+                                     dolphin.colorVariant),
                      wildlife_render::ScaleColor(colors[0], .88f),
-                     SmoothBodyColor(colors, axes, nextAngle));
+                     SmoothBodyColor(colors, axes, nextAngle, Body.back().z,
+                                     dolphin.colorVariant));
   }
   // A stout closed rostrum grows out of the lower forehead. Earlier radii made the
   // beak collapse into a paper-thin plate in the authored broadside camera.
@@ -207,40 +227,49 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
     const float angle = 2.0f * std::numbers::pi_v<float>
         * static_cast<float>(segment) / static_cast<float>(RostrumSegments);
     rostrumBase[segment] = Point(centre, axes, .108f * std::cos(angle),
-        -.032f + .068f * std::sin(angle), .882f, scale);
+        -.034f + .075f * std::sin(angle), .875f, scale);
     rostrumTip[segment] = Point(centre, axes, .058f * std::cos(angle),
-        -.043f + .043f * std::sin(angle), 1.135f, scale);
+        -.045f + .050f * std::sin(angle), 1.185f, scale);
   }
-  const auto rostrumCap = Point(centre, axes, 0, -.043f, 1.180f, scale);
+  const auto rostrumCap = Point(centre, axes, 0, -.045f, 1.230f, scale);
   for (int segment = 0; segment < RostrumSegments; ++segment) {
     const int next = (segment + 1) % RostrumSegments;
     const float angle = 2.0f * std::numbers::pi_v<float>
         * (static_cast<float>(segment) + .5f) / static_cast<float>(RostrumSegments);
-    const Color color = std::sin(angle) < -.12f ? colors[2] : colors[0];
-    Triangle(out, rostrumBase[segment], rostrumTip[segment], rostrumTip[next], color);
-    Triangle(out, rostrumBase[segment], rostrumTip[next], rostrumBase[next], color);
-    Triangle(out, rostrumCap, rostrumTip[next], rostrumTip[segment], color);
+    const float nextAngle = 2.0f * std::numbers::pi_v<float>
+        * (static_cast<float>(next) + .5f) / static_cast<float>(RostrumSegments);
+    const Color color = SmoothBodyColor(
+        colors, axes, angle, 1.04f, dolphin.colorVariant);
+    const Color nextColor = SmoothBodyColor(
+        colors, axes, nextAngle, 1.04f, dolphin.colorVariant);
+    const Color capColor = Color::Lerp(color, nextColor, .5f);
+    GradientTriangle(out, rostrumBase[segment], rostrumTip[segment], rostrumTip[next],
+                     color, color, nextColor);
+    GradientTriangle(out, rostrumBase[segment], rostrumTip[next], rostrumBase[next],
+                     color, nextColor, nextColor);
+    GradientTriangle(out, rostrumCap, rostrumTip[next], rostrumTip[segment],
+                     capColor, nextColor, color);
   }
   // A thin closed swept-back dorsal retains the falcate profile without vanishing
   // edge-on like the former coincident sheet.
   const std::array dorsal{
       Point(centre, axes, 0, .205f, .16f, scale),
-      Point(centre, axes, 0, .258f, .075f, scale),
-      Point(centre, axes, 0, .302f, -.020f, scale),
-      Point(centre, axes, 0, .286f, -.105f, scale),
-      Point(centre, axes, 0, .246f, -.190f, scale),
-      Point(centre, axes, 0, .207f, -.280f, scale),
-      Point(centre, axes, 0, .180f, -.350f, scale)};
+      Point(centre, axes, 0, .238f, .055f, scale),
+      Point(centre, axes, 0, .271f, -.045f, scale),
+      Point(centre, axes, 0, .280f, -.120f, scale),
+      Point(centre, axes, 0, .252f, -.188f, scale),
+      Point(centre, axes, 0, .214f, -.260f, scale),
+      Point(centre, axes, 0, .180f, -.365f, scale)};
   ClosedPolygon(out, dorsal, axes.right * (.010f * scale), colors[0], colors[1]);
   for (float side : {-1.0f, 1.0f}) {
     const std::array fin{
-        Point(centre, axes, side * .19f, -.055f, .30f, scale),
-        Point(centre, axes, side * .27f, -.080f, .22f, scale),
-        Point(centre, axes, side * .35f, -.110f, .10f, scale),
-        Point(centre, axes, side * .47f, -.145f, -.060f, scale),
-        Point(centre, axes, side * .34f, -.145f, -.170f, scale),
-        Point(centre, axes, side * .23f, -.125f, -.150f, scale),
-        Point(centre, axes, side * .14f, -.105f, -.18f, scale)};
+        Point(centre, axes, side * .17f, -.055f, .34f, scale),
+        Point(centre, axes, side * .25f, -.082f, .26f, scale),
+        Point(centre, axes, side * .34f, -.115f, .12f, scale),
+        Point(centre, axes, side * .43f, -.145f, -.055f, scale),
+        Point(centre, axes, side * .36f, -.154f, -.180f, scale),
+        Point(centre, axes, side * .25f, -.135f, -.220f, scale),
+        Point(centre, axes, side * .14f, -.102f, -.130f, scale)};
     ClosedPolygon(out, fin, axes.up * (.009f * scale), colors[0], colors[1]);
   }
   const float tail = dolphin.tailBeat * .12f;
@@ -357,6 +386,10 @@ DolphinRenderer::DolphinRenderer(GraphicsDevice &device,
       "island-simulator: dolphin facial pass uses a stout tapered rostrum and small six-facet oval eyes instead of flat diamond marks";
   std::cout << face << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(face);
+  const char *skin =
+      "island-simulator: dolphin skin pass uses continuous axial pigment, a pale swept lower flank, restrained tonal variation, a longer rounded rostrum, and softer swept fins";
+  std::cout << skin << '\n';
+  MirrorRuntimeDiagnosticToPlatformLog(skin);
 }
 DolphinRenderer::~DolphinRenderer() = default;
 

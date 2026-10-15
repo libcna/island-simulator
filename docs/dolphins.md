@@ -141,3 +141,25 @@ There is no breach, leap, wake, exhalation plume, social pod interaction or dolp
 Android execution, continuous interactive observation, and measured integrated frame cost remain
 open. These limits keep both the explicit aquatic-animal visual-polish item and the dolphin backlog
 entry in progress rather than complete.
+
+## Skin and broadside profile pass — 2026-10-15
+
+The current aquatic contact sheet selected the dolphin as weaker than the shark, turtle and crab.
+Although its motion and major anatomy were present, the broadside body remained one nearly uniform
+grey mass, the beak still read as a short plate and the dorsal/pectoral outlines retained rigid
+triangular cues. An initial low-frequency colour pass was rejected because one colour sampled per
+body band exposed the nineteen longitudinal rings as visible stripes.
+
+The accepted implementation evaluates colour independently at the rear and forward end of every
+body band and interpolates it over both triangles. A subtle variant-specific tonal variation and
+pale swept lower-flank transition break up the flat side without becoming spots or painted bands;
+the fitted rostrum uses the same continuous pigment. The beak is slightly longer and rounder, and
+the existing seven-point dorsal and pectorals receive lower, softer rear-swept outlines. The fixed
+3,168/15 near/far vertex inventory, four animals, one draw, dynamic-buffer capacity, habitat,
+simulation, LOD, pitch, bank and vertical fluke stroke are unchanged.
+
+Inspected native evidence `20261015T151802.766412Z-dolphins` passes at 1280x720 with 135 colour
+bins, 45.15 luminance deviation, 209.70 spatial contrast and an empty kernel delta. The retained
+failed tuning evidence `20261015T151345.591315Z-dolphins` documents the rejected banded result;
+the current frame restores a continuous body surface while retaining the more readable pale flank,
+longer rostrum and softer fin profile.

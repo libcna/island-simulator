@@ -131,6 +131,21 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest aquatic visual pass — dolphin skin and profile
+
+The current shark/dolphin/turtle/crab matrix selected the dolphin as the weakest aquatic close
+subject. Its anatomy and motion were present, but the broadside remained one nearly uniform grey
+mass with a short plate-like beak and rigid triangular fin cues. A first tonal attempt was rejected
+because band-constant colour exposed the nineteen longitudinal body rings.
+
+The accepted pass interpolates pigment at both ends of every body band, adds a restrained
+variant-specific low-frequency skin variation and a pale swept lower-flank transition, and carries
+the same continuous treatment onto the rostrum. The rostrum is slightly longer and rounder while
+the dorsal and pectoral outlines use softer rear-swept proportions. Geometry remains 3,168/15 near/
+far vertices, four dolphins, one draw, with unchanged habitat, LOD, pitch, bank and vertical fluke
+stroke. Inspected native evidence `20261015T151802.766412Z-dolphins` passes at 1280x720 with 135
+colour bins, 45.15 luminance deviation, 209.70 spatial contrast and an empty kernel delta.
+
 ## Latest helicopter visual pass — continuous curved-surface lighting
 
 The renewed exterior/interior audit confirmed that the helicopter already has the required
