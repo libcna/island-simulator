@@ -67,6 +67,8 @@ namespace island
             "island-simulator: shipwreck missing plank bays expose eleven-centimetre inner edges";
         constexpr std::string_view DeckhouseDamageDiagnostic =
             "island-simulator: shipwreck stern deckhouse uses separated broken roof planks and framed window bays";
+        constexpr std::string_view SettledDebrisDiagnostic =
+            "island-simulator: shipwreck beach debris uses buried ends, restrained warp, unequal settling, and five genuinely split long planks";
         constexpr int AgedWoodMaterial = 48;
         constexpr int InnerWoodMaterial = 80;
         constexpr int FreshBreakMaterial = 176;
@@ -373,7 +375,8 @@ void main()
                                const Vector3& centre, const Axes& axes,
                                const float halfWidth, const float halfHeight,
                                const float halfLength, const Color& color,
-                               const std::size_t shapeSeed)
+                               const std::size_t shapeSeed,
+                               const float settlingWarp = 0.0f)
         {
             constexpr std::array<float, 5> Along = {-1.0f, -0.82f, -0.04f, 0.84f, 1.0f};
             const float phase = static_cast<float>(shapeSeed % 7U);
@@ -396,9 +399,17 @@ void main()
             std::array<Vector3, 5> leftBottom;
             std::array<Vector3, 5> rightBottom;
             for (std::size_t point = 0; point < Along.size(); ++point) {
+                // Beach debris should follow years of wet/dry settling rather than
+                // remain a perfectly straight carpenter's board. The terminal bias
+                // tucks splintered ends into sand while the small alternating crown
+                // remains below the plank thickness and cannot read as a bent beam.
+                constexpr std::array<float, 5> Settling = {-0.62f, 0.18f, -0.24f, 0.12f, -0.48f};
+                const float seededSettling = Settling[point]
+                    + 0.08f * (static_cast<float>((shapeSeed + point * 3U) % 5U) - 2.0f);
                 const Vector3 sectionCentre = centre
                     + axes.forward * (Along[point] * halfLength)
-                    + axes.right * (centreOffset[point] * halfWidth);
+                    + axes.right * (centreOffset[point] * halfWidth)
+                    + axes.up * (settlingWarp * seededSettling);
                 const Vector3 halfSpan = axes.right * (widthScale[point] * halfWidth);
                 leftTop[point] = sectionCentre - halfSpan + axes.up * halfHeight;
                 rightTop[point] = sectionCentre + halfSpan + axes.up * halfHeight;
@@ -916,13 +927,37 @@ void main()
         {
             Axes axes = HorizontalAxes(debris.yawRadians);
             const float tilt = index % 3U == 0U ? 0.075f : -0.035f;
-            axes.up = Vector3::Normalize(Vector3::Up + axes.right * tilt);
+            const float pitch = (static_cast<float>((index * 7U) % 5U) - 2.0f) * 0.014f;
+            axes.up = Vector3::Normalize(Vector3::Up + axes.right * tilt
+                                         + axes.forward * pitch);
+            axes.forward = Vector3::Normalize(Vector3::Cross(axes.right, axes.up));
             axes.right = Vector3::Normalize(Vector3::Cross(axes.up, axes.forward));
-            const Vector3 centre(debris.x, debris.y + 0.08f, debris.z);
+            // Layout stores the sampled surface plus a 55 mm placement guard. Planks
+            // deliberately consume that guard and a further 5 mm so their lower edge
+            // is sand-buried rather than hovering above its detached contact shadow.
+            const float lift = debris.kind == ShipwreckDebrisKind::Spar ? 0.105f : -0.005f;
+            const Vector3 centre(debris.x, debris.y + lift, debris.z);
             if (debris.kind == ShipwreckDebrisKind::Plank) {
-                AppendBrokenPlank(vertices, centre, axes, debris.width * 0.5f, 0.065f,
-                                  debris.length * 0.5f,
-                                  index % 2U == 0U ? OuterWood : InnerWood, index);
+                const Color plankColor=index % 2U == 0U ? OuterWood : InnerWood;
+                if (debris.length >= 3.0f) {
+                    // The five longest beach boards are storm-broken pairs, not
+                    // pristine full-length lumber. Unequal spans, a real sand gap and
+                    // a small lateral slip preserve the authored trail while breaking
+                    // the strongest repeated straight-line silhouettes.
+                    const float side=index % 2U == 0U ? 1.0f : -1.0f;
+                    AppendBrokenPlank(vertices,
+                        centre - axes.forward * (debris.length * 0.27f),axes,
+                        debris.width * 0.48f,0.065f,debris.length * 0.21f,
+                        plankColor,index * 2U,0.040f);
+                    AppendBrokenPlank(vertices,
+                        centre + axes.forward * (debris.length * 0.25f)
+                            + axes.right * (side * debris.width * 0.11f),axes,
+                        debris.width * 0.43f,0.060f,debris.length * 0.19f,
+                        index % 2U == 0U ? InnerWood : OuterWood,index * 2U + 1U,0.035f);
+                } else {
+                    AppendBrokenPlank(vertices, centre, axes, debris.width * 0.5f, 0.065f,
+                                      debris.length * 0.5f,plankColor,index,0.040f);
+                }
             } else if (debris.kind == ShipwreckDebrisKind::Spar) {
                 AppendTaperedBeam(vertices,
                                   centre - axes.forward * (debris.length * 0.5f),
@@ -937,7 +972,7 @@ void main()
                         vertices, plankCentre, axes, debris.width * 0.34f, 0.075f,
                         debris.length * (0.40f + 0.035f * static_cast<float>(plank)),
                         plank == 0 ? FreshBreak : OuterWood,
-                        index * 3U + static_cast<std::size_t>(plank + 1));
+                        index * 3U + static_cast<std::size_t>(plank + 1), 0.032f);
                 }
             }
         }
@@ -1037,6 +1072,7 @@ void main()
         std::cout << EndProfileDiagnostic << '\n';
         std::cout << PlankThicknessDiagnostic << '\n';
         std::cout << DeckhouseDamageDiagnostic << '\n';
+        std::cout << SettledDebrisDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(
             "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast");
@@ -1046,6 +1082,7 @@ void main()
         MirrorRuntimeDiagnosticToPlatformLog(EndProfileDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(PlankThicknessDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(DeckhouseDamageDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(SettledDebrisDiagnostic);
     }
 
     ShipwreckRenderer::~ShipwreckRenderer() = default;

@@ -39,7 +39,8 @@ def validate_shipwreck_report(report):
         "shipwreck bow and stern use raked lower profiles with thick end timbers",
         "shipwreck missing plank bays expose eleven-centimetre inner edges",
         "shipwreck stern deckhouse uses separated broken roof planks and framed window bays",
-        "shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 5532 triangles",
+        "shipwreck beach debris uses buried ends, restrained warp, unequal settling, and five genuinely split long planks",
+        "shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 5712 triangles",
         "shipwreck visible, 12 debris, 1 draw",
     )
     if (view.get("passed") is not True or view.get("glError") != 0

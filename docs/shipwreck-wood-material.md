@@ -159,3 +159,26 @@ installed bytes and 7,880,492 compressed bytes, with SHA-256
 launched from outside the repository through the private pixman/llvmpipe harness and reproduced
 the strict wreck scene without a material fallback or kernel event. That package frame passed at
 1280 by 720 with 185 colour bins, 38.37 luminance deviation and 163.78 spatial contrast.
+
+## Settled and split beach debris — 2026-10-15
+
+A renewed wide-beach audit found the ship itself visually coherent but the detached debris too
+cleanly laid out. Planks used a centre 80 mm above a layout point that already carried a 55 mm
+support guard, leaving their 65 mm half-thickness visibly above sand. Non-spar debris now consumes
+that guard and settles a further 5 mm into the sampled support. A deterministic cross-slope and
+longitudinal tilt plus a five-section, sub-thickness warp leaves each middle slightly uneven and
+tucks both splintered ends into sand.
+
+Five plank placements at least three metres long are rendered as two unequal storm-broken
+fragments. The pair retains the authored centre, overall direction and beachward trail but has a
+real central gap, different fragment lengths and widths, and a small lateral slip. Four shorter
+planks remain whole, as do the spar and both three-board hull-fragment clusters. The layout still
+reports twelve bounded debris placements and the non-solid traversal policy is unchanged.
+
+The five additional broken-plank meshes add 180 triangles, raising the current single-batch wreck
+from 5532 to 5712 triangles without another texture, draw or collision proxy. `IslandCoreTests`
+passes. The inspected baseline is `20261015T173543.349535Z-shipwreck`; the accepted current-binary
+capture `20261015T174534.505199Z-shipwreck` passes at 1280x720 with 238 colour bins, 39.62
+luminance deviation, 167.75 spatial contrast and an empty kernel delta. The foreground now shows
+actual gaps and buried irregular ends instead of long floating construction timber. Physical
+Android/AMD appearance and subjective free-walk collision feel remain open.

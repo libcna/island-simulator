@@ -131,6 +131,24 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest landmark-composition pass — settled split shipwreck debris
+
+The current beach-wide wreck audit accepted the twenty-metre hull, damage, rigging and material,
+but rejected its shore integration: long loose boards remained perfectly straight and visibly
+hovered above detached shadows. All non-spar debris now consumes the layout's former 55 mm support
+guard and settles 5 mm into sampled sand. A deterministic small longitudinal/cross-slope tilt and
+sub-thickness five-section warp bury splintered ends without creating bent-beam silhouettes. The
+five plank placements at least three metres long are now two unequal fragments with a real gap and
+small lateral slip; four shorter boards, the spar and the two hull-fragment clusters remain whole.
+
+Population stays at twelve authored debris placements, collision remains limited to the major
+hull, and all geometry remains in the existing single culled batch. The five added fragments raise
+the current wreck from 5532 to 5712 triangles. `IslandCoreTests` passes. Inspected same-camera
+baseline `20261015T173543.349535Z-shipwreck` and accepted current-binary evidence
+`20261015T174534.505199Z-shipwreck` show grounded contact, irregular settling and readable gaps in
+the foreground trail. The final 1280x720 frame passes with 238 colour bins, 39.62 luminance
+deviation, 167.75 spatial contrast and an empty kernel delta.
+
 ## Latest helicopter visual pass — readable open-cabin avionics
 
 The current exterior/interior audit found the grounded exterior recognisable and proportionally
