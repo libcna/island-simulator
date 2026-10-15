@@ -1,9 +1,36 @@
 # Small fauna
 
-Seven bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, eight
+Eight bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, eight
 open-ground skinks, nine stream/wetland dragonflies, ten stream/wetland frogs, ten beach hermit
-crabs, six coconut crabs, twelve field mice and eight rats.
+crabs, six coconut crabs, twelve field mice, eight rats and twenty-four flies in four swarms.
 This is not completion of every optional small-fauna candidate: cicadas and beetles remain.
+
+## Flies
+
+Four deterministic inland swarms each contain six harmless close-range flies. The authored homes
+cover the seasonal wetland, both clearings and one organic forest-floor patch; every initial animal
+requires dry land at least 20 m from the coast. Full simulation ends at 22 m and reduced simulation
+at 48 m, after which the shared wildlife activation policy sleeps the agents. Individuals alternate
+hover and orbit states, make brief darts and react with a dart when the player comes within 1.2 m.
+
+The roughly 4.5 cm close model has a tapered dark body, separate head, small dark-red eyes, two
+rear-swept beating wings and six legs. All flies append to the existing small-fauna vertex buffer
+and draw; the stage adds no renderer, texture, material switch or draw call. The deterministic CPU
+test covers the exact 4x6 layout, bounded swarm motion, all three behaviours, repeatability and
+non-finite input containment.
+
+The first native capture was rejected because triangular propeller-like wings, oversized diamond
+eyes and a dark wetland composition made the insect read poorly. The corrected exact-final native
+llvmpipe evidence is `build-consumer/software-captures/20261015T091929.300514Z-flies`: 265 colour
+bins, 34.66 luminance deviation and 159.88 spatial contrast. Its 1280x720 image was inspected at
+original resolution. Chrome/SwiftShader evidence is
+`build/browser-software/20261015T092031.533084Z-chrome-flies`: 60 finite positive intervals,
+GL0, a live context, distinct separated-time frames, clean kernel monitoring and an inspected
+initial image. The updated Web package is 11,431,365 bytes of Wasm, 2,230,701 bytes of data and
+280,439 bytes of JavaScript. ARM64 `assembleDebug` and `lintDebug` pass with two workers and no
+emulator/KVM. The APK is 24,454,987 bytes with SHA-256
+`b5c481c91cbd55a512fbd516c730f5432dc04ca13c55afa8e537c744b7f18f0a`; its stripped
+`libmain.so` is 19,412,416 bytes. Physical-device appearance remains final acceptance work.
 
 ## Mice and rats
 

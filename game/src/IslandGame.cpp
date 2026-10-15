@@ -153,6 +153,7 @@ namespace island
             case FixedViewpoint::FrogDetail: return "frogs";
             case FixedViewpoint::MouseDetail: return "mice";
             case FixedViewpoint::RatDetail: return "rats";
+            case FixedViewpoint::FlyDetail: return "flies";
             case FixedViewpoint::SeaTurtleDetail: return "turtles";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
             case FixedViewpoint::None: return "interactive";
@@ -186,6 +187,7 @@ namespace island
           dragonflySwarm_(terrain_),
           frogPopulation_(terrain_),
           rodentPopulation_(terrain_),
+          flySwarms_(terrain_),
           crabColony_(terrain_),
           hermitCrabGroup_(terrain_),
           coconutCrabGroup_(terrain_),
@@ -1522,6 +1524,17 @@ namespace island
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
             std::cout<<"island-simulator: rat QA camera frames one larger inland rat at ground level\n";
+        } else if (viewpoint_ == FixedViewpoint::FlyDetail) {
+            const FlyState& fly = flySwarms_.Flies()[FlySwarms::PerSwarm];
+            const Vector3 forward(std::cos(fly.headingRadians), 0.0f,
+                                  std::sin(fly.headingRadians));
+            const Vector3 side(-forward.Z, 0.0f, forward.X);
+            cameraPosition_ = Vector3(fly.x, fly.y + .045f, fly.z)
+                + forward * .16f + side * .12f;
+            const Vector3 direction = Vector3(fly.x, fly.y, fly.z) - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+            std::cout << "island-simulator: fly QA camera frames one close insect within its inland swarm\n";
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferMultiSamplingProperty(qualityProfile_.preferredBackBufferSamples > 0);
@@ -1875,6 +1888,8 @@ namespace island
                   << "island-simulator: field mice " << RodentPopulation::MouseCount
                   << " and rats " << RodentPopulation::RatCount
                   << " forage, scurry, and hide in bounded inland edge habitats\n"
+                  << "island-simulator: flies " << FlySwarms::Count
+                  << " agents in four close-range inland organic-ground swarms\n"
                   << "island-simulator: beach crabs " << crabColony_.Crabs().size()
                   << " agents in deterministic sand-and-debris-constrained colonies\n"
                   << "island-simulator: hermit crabs " << hermitCrabGroup_.Crabs().size()
@@ -1988,6 +2003,10 @@ namespace island
             << RodentPopulation::MouseCount << " and rats " << RodentPopulation::RatCount
             << " forage, scurry, and hide in bounded inland edge habitats";
         MirrorRuntimeDiagnosticToPlatformLog(rodentPopulationDiagnostic.str());
+        std::ostringstream flyPopulationDiagnostic;
+        flyPopulationDiagnostic << "island-simulator: flies " << FlySwarms::Count
+            << " agents in four close-range inland organic-ground swarms";
+        MirrorRuntimeDiagnosticToPlatformLog(flyPopulationDiagnostic.str());
         std::ostringstream crabPopulationDiagnostic;
         crabPopulationDiagnostic << "island-simulator: beach crabs "
                                  << crabColony_.Crabs().size()
@@ -2227,6 +2246,13 @@ namespace island
                     || viewpoint_ == FixedViewpoint::RatDetail
                 ? 0.0f : deltaSeconds,
             rodentObserver.X, rodentObserver.Y, rodentObserver.Z);
+        Vector3 flyObserver = cameraPosition_;
+        if (viewpoint_ == FixedViewpoint::FlyDetail) {
+            const FlyState& fly = flySwarms_.Flies()[FlySwarms::PerSwarm];
+            flyObserver = Vector3(fly.x, fly.y + 12.0f, fly.z);
+        }
+        flySwarms_.Update(viewpoint_ == FixedViewpoint::FlyDetail ? 0.0f : deltaSeconds,
+                          flyObserver.X, flyObserver.Y, flyObserver.Z);
         const CrabState previousCrabSubject = crabColony_.Crabs()[crabViewSubject_];
         Vector3 crabObserver=cameraPosition_;
         if(viewpoint_==FixedViewpoint::CrabDetail) {
@@ -3099,6 +3125,7 @@ namespace island
                 ||viewpoint_==FixedViewpoint::DeerDetail
                 ||viewpoint_==FixedViewpoint::ResidentDetail||viewpoint_==FixedViewpoint::BearDetail
                 ||viewpoint_==FixedViewpoint::MouseDetail||viewpoint_==FixedViewpoint::RatDetail
+                ||viewpoint_==FixedViewpoint::FlyDetail
                 ||UsesSpiderViewpoint())
                 ?0.50f:std::numbers::pi_v<float> / 3.0f,
             aspect, 0.08f, 1200.0f);
@@ -3632,7 +3659,7 @@ namespace island
                                      butterflyMeadow_.FlowerPatches(),
                                      geckoPopulation_.Geckos(), skinkPopulation_.Skinks(),
                                      dragonflySwarm_.Dragonflies(), frogPopulation_.Frogs(),
-                                     rodentPopulation_.Rodents());
+                                     rodentPopulation_.Rodents(), flySwarms_.Flies());
         }
 
         {
@@ -4209,6 +4236,9 @@ namespace island
                       << " visible in shared draw; rats "
                       << butterflyRenderer_->VisibleRatCount() << '/'
                       << RodentPopulation::RatCount
+                      << " visible in shared draw; flies "
+                      << butterflyRenderer_->VisibleFlyCount() << '/'
+                      << FlySwarms::Count
                       << " visible in shared draw; crabs "
                       << crabRenderer_->VisibleCrabCount() << '/'
                       << crabColony_.Crabs().size() << " visible (near "
@@ -4381,6 +4411,14 @@ namespace island
                 << (mouse ? butterflyRenderer_->VisibleMouseCount()
                           : butterflyRenderer_->VisibleRatCount())
                 << '/' << (mouse ? RodentPopulation::MouseCount : RodentPopulation::RatCount)
+                << " visible in shared draw";
+            std::cout << report.str() << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(report.str());
+        }
+        if (viewpoint_ == FixedViewpoint::FlyDetail && drawnFrames_ == 1U) {
+            std::ostringstream report;
+            report << "island-simulator: fly render proof: flies "
+                << butterflyRenderer_->VisibleFlyCount() << '/' << FlySwarms::Count
                 << " visible in shared draw";
             std::cout << report.str() << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(report.str());

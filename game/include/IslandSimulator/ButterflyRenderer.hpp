@@ -10,6 +10,7 @@
 #include "IslandSimulator/DragonflySwarm.hpp"
 #include "IslandSimulator/FrogPopulation.hpp"
 #include "IslandSimulator/RodentPopulation.hpp"
+#include "IslandSimulator/FlySwarms.hpp"
 #include "Microsoft/Xna/Framework/Matrix.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
 
@@ -46,7 +47,8 @@ namespace island
                   std::span<const SkinkState> skinks,
                   std::span<const DragonflyState> dragonflies,
                   std::span<const FrogState> frogs,
-                  std::span<const RodentState> rodents);
+                  std::span<const RodentState> rodents,
+                  std::span<const FlyState> flies);
 
         [[nodiscard]] int VisibleButterflyCount() const noexcept {
             return visibleButterflyCount_;
@@ -64,6 +66,7 @@ namespace island
         [[nodiscard]] int VisibleFrogCount() const noexcept { return visibleFrogCount_; }
         [[nodiscard]] int VisibleMouseCount() const noexcept { return visibleMouseCount_; }
         [[nodiscard]] int VisibleRatCount() const noexcept { return visibleRatCount_; }
+        [[nodiscard]] int VisibleFlyCount() const noexcept { return visibleFlyCount_; }
 
     private:
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
@@ -79,6 +82,7 @@ namespace island
         int visibleFrogCount_ = 0;
         int visibleMouseCount_ = 0;
         int visibleRatCount_ = 0;
+        int visibleFlyCount_ = 0;
         int drawCallCount_ = 0;
         float maximumDistance_ = 72.0f;
     };

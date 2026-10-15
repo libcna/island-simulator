@@ -77,6 +77,7 @@ add_library(island_core STATIC
     game/src/SkinkPopulation.cpp
     game/src/FrogPopulation.cpp
     game/src/RodentPopulation.cpp
+    game/src/FlySwarms.cpp
     game/src/GroundBroadleaf.cpp
     game/src/SplitGroundLeaf.cpp
     game/src/BushProfile.cpp
@@ -335,6 +336,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_rodent_population_tests)
     island_enable_first_party_sanitizers(island_rodent_population_tests)
     add_test(NAME IslandRodentPopulationTests COMMAND island_rodent_population_tests)
+    add_executable(island_fly_swarms_tests tests/FlySwarmsTests.cpp)
+    target_link_libraries(island_fly_swarms_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_fly_swarms_tests)
+    island_enable_first_party_sanitizers(island_fly_swarms_tests)
+    add_test(NAME IslandFlySwarmsTests COMMAND island_fly_swarms_tests)
     add_executable(island_goat_mesh_tests tests/GoatMeshTests.cpp)
     target_link_libraries(island_goat_mesh_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_goat_mesh_tests)

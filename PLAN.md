@@ -3816,7 +3816,10 @@ progress or require player interaction; dangerous species keep their distance li
   Current anchors/anatomy appear; sparse Web samples/single Android view are NOT
   continuous gait, mobile performance, lifecycle or AMD qualification. docs/goats.md.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
-- [ ] Flies (small insect swarms, close-range detail only)
+- [x] Flies (small insect swarms, close-range detail only). Four deterministic inland swarms of
+  six hover, orbit and dart agents sleep beyond close range and share the existing small-fauna
+  buffer/draw. Near insects have a compact segmented silhouette, paired beating wings, eyes and
+  six legs. See `docs/small-fauna.md`.
 - [x] Stingrays (shallow sandy water). Five deterministic peaceful agents occupy bounded shallow
   sandy homes, cycle through glide, forage and settle states, maintain seabed/surface clearance,
   avoid a nearby observer and use full/reduced/dormant distance tiers. Their portable one-draw
@@ -4212,7 +4215,7 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
 - [~] 17. Small fauna with simple behaviour (for example a gecko that sits, flees, disappears):
   eight grounded rest/flee/hide geckos, eight bask/forage/flee skinks, nine moist-habitat
   hover/patrol/dart dragonflies, ten moist-bank rest/hop/retreat frogs, ten sheltered-beach hermit
-  crabs, six palm-zone coconut crabs, twelve field mice and eight rats
+  crabs, six palm-zone coconut crabs, twelve field mice, eight rats and four six-agent fly swarms
   are complete in existing shared batches, with native, WebGL and ARM64 qualification described
   above and in `docs/small-fauna.md`. Cicadas and beetles remain explicit candidates.
 - [x] 18. Tie wildlife to places: crabs on specific beach sections with burrows, butterflies at

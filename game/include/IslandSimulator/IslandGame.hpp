@@ -45,6 +45,7 @@
 #include "IslandSimulator/DragonflySwarm.hpp"
 #include "IslandSimulator/FrogPopulation.hpp"
 #include "IslandSimulator/RodentPopulation.hpp"
+#include "IslandSimulator/FlySwarms.hpp"
 #include "IslandSimulator/HermitCrabGroup.hpp"
 #include "IslandSimulator/CoconutCrabGroup.hpp"
 #include "IslandSimulator/FishRenderer.hpp"
@@ -200,6 +201,7 @@ namespace island
         FrogDetail,
         MouseDetail,
         RatDetail,
+        FlyDetail,
         SeaTurtleDetail,
         BenchmarkTraversal
     };
@@ -314,6 +316,7 @@ namespace island
         DragonflySwarm dragonflySwarm_;
         FrogPopulation frogPopulation_;
         RodentPopulation rodentPopulation_;
+        FlySwarms flySwarms_;
         CrabColony crabColony_;
         HermitCrabGroup hermitCrabGroup_;
         CoconutCrabGroup coconutCrabGroup_;

@@ -40,10 +40,14 @@ namespace island
             static_cast<int>(DragonflySwarm::Count) * 720;
         constexpr int MaximumFrogVertices = static_cast<int>(FrogPopulation::Count) * 720;
         constexpr int MaximumRodentVertices = static_cast<int>(RodentPopulation::Count) * 720;
+        // A close fly uses 348 vertices: 192 body, 24 head, 12 wings,
+        // 48 eyes and 72 legs. Keep a small per-agent margin for later detail edits.
+        constexpr int MaximumFlyVertices = static_cast<int>(FlySwarms::Count) * 360;
         constexpr int MaximumVertexCount = static_cast<int>(ButterflyMeadow::ButterflyCount)
             * MaximumVerticesPerButterfly + MaximumFlowerVertices + MaximumGeckoVertices
             + MaximumSkinkVertices
-            +MaximumDragonflyVertices + MaximumFrogVertices + MaximumRodentVertices;
+            +MaximumDragonflyVertices + MaximumFrogVertices + MaximumRodentVertices
+            + MaximumFlyVertices;
         constexpr std::string_view ButterflyDiagnostic =
             "island-simulator: clearing butterflies use hinged patterned wings in one culled batch";
         constexpr std::string_view ButterflyAnatomyDiagnostic =
@@ -64,6 +68,10 @@ namespace island
             "island-simulator: twelve field mice and eight rats forage, scurry, and hide in the shared small-fauna batch";
         constexpr std::string_view RodentAnatomyDiagnostic =
             "island-simulator: near rodents use species-scaled lofted bodies, pointed muzzles, rounded ears, whiskers, paws, eyes, and long segmented tails";
+        constexpr std::string_view FlyDiagnostic =
+            "island-simulator: four close-range fly swarms use twenty-four hover, orbit, and dart agents in the shared small-fauna batch";
+        constexpr std::string_view FlyAnatomyDiagnostic =
+            "island-simulator: near flies use compact dark thoraxes, tapered abdomens, highlighted eyes, six legs, and two beating pale wings";
 
         struct ButterflyPalette
         {
@@ -638,6 +646,52 @@ namespace island
             }
         }
 
+        void AppendFly(std::vector<VertexPositionColor>& vertices, const FlyState& fly)
+        {
+            const Vector3 forward(std::cos(fly.headingRadians), 0.0f,
+                                  std::sin(fly.headingRadians));
+            const Vector3 right(-forward.Z, 0.0f, forward.X), up = Vector3::Up;
+            const float scale = .12f * fly.scale;
+            const std::array<Color, 3> bodies = {{Color(38, 35, 30), Color(52, 45, 34),
+                                                  Color(29, 31, 29)}};
+            const Color body = bodies[fly.colorVariant % bodies.size()];
+            const Color eye(78, 32, 25), wing(158, 170, 165), leg(31, 28, 24);
+            const Vector3 centre(fly.x, fly.y, fly.z);
+            constexpr std::array<float, 4> Stations = {{-.15f, -.04f, .12f, .23f}};
+            constexpr std::array<float, 4> Widths = {{.035f, .085f, .080f, .025f}};
+            constexpr std::array<float, 4> Heights = {{.035f, .075f, .070f, .025f}};
+            AppendGeckoLoft(vertices, centre, right, up, forward, Stations, Widths,
+                            Heights, scale, body, body, body);
+            const Vector3 head = centre + forward * (.235f * scale)
+                + up * (.012f * scale);
+            AppendGeckoDiamond(vertices, head, right, up, forward,
+                .075f * scale, .070f * scale, .060f * scale, body, body);
+            const float beat = std::sin(fly.wingPhase);
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 root = centre - forward * (.015f * scale)
+                    + right * (side * .055f * scale) + up * (.055f * scale);
+                const Vector3 tip = root + right * (side * .23f * scale)
+                    - forward * (.19f * scale) + up * (beat * .10f * scale);
+                const Vector3 leading = root + forward * (.08f * scale)
+                    + right * (side * .035f * scale);
+                const Vector3 trailing = root - forward * (.12f * scale)
+                    + right * (side * .02f * scale);
+                AddDoubleSidedTriangle(vertices, leading, tip, trailing, wing);
+                const Vector3 eyeCentre = head + forward * (.025f * scale)
+                    + right * (side * .058f * scale) + up * (.010f * scale);
+                AppendGeckoDiamond(vertices, eyeCentre, right, up, forward,
+                    .026f * scale, .032f * scale, .022f * scale, eye, eye);
+                for (int legIndex = 0; legIndex < 3; ++legIndex) {
+                    const Vector3 hip = centre + forward * ((.09f - legIndex * .08f) * scale)
+                        + right * (side * .05f * scale) - up * (.035f * scale);
+                    const Vector3 foot = hip + right * (side * (.10f + .025f * legIndex) * scale)
+                        - forward * ((.02f + .04f * legIndex) * scale)
+                        - up * (.09f * scale);
+                    AppendGeckoSegment(vertices, hip, foot, .009f * scale, leg);
+                }
+            }
+        }
+
         void AppendRodentEar(std::vector<VertexPositionColor>& vertices,
                              const Vector3& centre, const Vector3& horizontal,
                              const Vector3& vertical, const float radius,
@@ -930,6 +984,8 @@ namespace island
         std::cout << FrogDiagnostic << '\n';
         std::cout << RodentDiagnostic << '\n';
         std::cout << RodentAnatomyDiagnostic << '\n';
+        std::cout << FlyDiagnostic << '\n';
+        std::cout << FlyAnatomyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyHabitatDiagnostic);
@@ -940,6 +996,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(FrogDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(RodentDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(RodentAnatomyDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(FlyDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(FlyAnatomyDiagnostic);
     }
 
     ButterflyRenderer::~ButterflyRenderer() = default;
@@ -952,7 +1010,8 @@ namespace island
                                   const std::span<const SkinkState> skinks,
                                   const std::span<const DragonflyState> dragonflies,
                                   const std::span<const FrogState> frogs,
-                                  const std::span<const RodentState> rodents)
+                                  const std::span<const RodentState> rodents,
+                                  const std::span<const FlyState> flies)
     {
         stagingVertices_.clear();
         visibleButterflyCount_ = 0;
@@ -964,6 +1023,7 @@ namespace island
         visibleFrogCount_ = 0;
         visibleMouseCount_ = 0;
         visibleRatCount_ = 0;
+        visibleFlyCount_ = 0;
         drawCallCount_ = 0;
         const BoundingFrustum frustum(view * projection);
         for (std::size_t index = 0; index < flowerPatches.size(); ++index) {
@@ -1022,6 +1082,13 @@ namespace island
             AppendRodent(stagingVertices_, rodent);
             if (rodent.species == RodentSpecies::Mouse) ++visibleMouseCount_;
             else ++visibleRatCount_;
+        }
+        for (const FlyState& fly : flies) {
+            const Vector3 centre(fly.x, fly.y, fly.z);
+            if (Vector3::DistanceSquared(centre, cameraPosition) > 34.0f * 34.0f
+                || !frustum.Intersects(BoundingSphere(centre, .08f))) continue;
+            AppendFly(stagingVertices_, fly);
+            ++visibleFlyCount_;
         }
         for (const ButterflyState& butterfly : butterflies) {
             const Vector3 centre(butterfly.x, butterfly.y, butterfly.z);
