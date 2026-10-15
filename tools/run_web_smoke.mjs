@@ -956,6 +956,7 @@ try {
             && log.includes("reef substrate separates pale lagoon, shared habitat patches, crest, sand channels, and deep drop-off")
             && log.includes("coastal contact patches follow rendered seabed triangles in the existing batch")
             && log.includes("land prop shadows match model yaw and rendered terrain triangles")
+            && log.includes("wreck, hut, and helicopter project bounded fixed-sun mass shadows in the shared contact batch")
             && log.includes("wood uses outward shared normals and scale-correct fixed-sun lighting")
             && log.includes("ocean bounded grazing contrast and depth-limited filtered breaker foam")
             && log.includes("ocean short waves use phased wind packets with analytic envelope gradients")

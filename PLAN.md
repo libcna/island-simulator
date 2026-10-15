@@ -60,6 +60,29 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — bounded large-object sun shadows
+
+Lighting item 11 is complete with a portable fixed-day alternative to a general shadow-map pass.
+The existing one-draw terrain-conforming contact batch now adds one low-alpha projected-mass
+footprint for each of the shipwreck, inland hut and grounded helicopter. Each uses the landmark's
+real yaw and dimensions, offsets opposite the fixed sun by a height-derived distance, expands to
+cover the base-to-top projection and samples authoritative terrain or seabed height at every
+vertex. Existing support/contact patches remain. Together with the already completed palm and
+broadleaf crown transmission field, all requested large landmark classes now have bounded
+directional ground response. No render target, texture, renderer, draw call or per-frame scene pass
+was added.
+
+Native llvmpipe evidence `20261015T014613.722242Z-helicopter` passes at 1280 by 720 (305 colour
+bins, 55.67 luminance deviation, 234.94 spatial contrast) and was inspected; hut
+`20261015T014214.728276Z-hut` and shipwreck `20261015T014411.416135Z-shipwreck` were also inspected.
+Chrome/SwiftShader `20261015T014752.722690Z-chrome-helicopter` passes exterior/interior views with
+60 finite positive intervals each, GL0, live contexts, distinct frames and clean kernel monitoring;
+the exterior was inspected. ARM64 assemble/lint passes without emulator/KVM (24,088,611-byte APK,
+SHA-256 `b97097bfd39510ab0a679d7ba8b8f52a9f43ce2ce1c80d0b8a03cbe55a66e52d`,
+19,046,040-byte `libmain.so`). This remains bounded mass projection, not leaf/rotor-exact dynamic
+self-shadowing. The filtered non-display regression passes 60/60 (five display-producing tests
+remain disabled). Details are in `docs/large-object-shadows.md`.
+
 ## Latest ecosystem implementation — first small-fauna stage
 
 Macro-ecosystem item 17 is now partially implemented rather than empty. Eight deterministic inland
@@ -3849,14 +3872,18 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   finite intervals, GL0, a live context and clean kernel delta. ARM64 assemble/lint passes through
   the two-worker wrapper using the locked Sharp Runtime revision (24,025,427 bytes,
   `6f6b1fc4...c463ca`), without emulator or KVM. All 63 enabled non-display tests pass.
-- [~] 11. Lighting: investigate a bounded directional sun shadow map through supported CNA APIs
+- [x] 11. Lighting: investigate a bounded directional sun shadow map through supported CNA APIs
   (one or two cascades, ~100-150 m, vegetation and large objects, low resolution, soft PCF); at
   minimum extend the canopy light/shadow system to palms and stronger directional shadows.
   2026-10-15: the shared fixed-sun field now includes one renderer-aligned porous caster for each
   of 313 living palm crowns (2,401 total casters), while fallen/broken palms correctly add none.
   Terrain, grass and low plants therefore receive coherent grove shade with no new texture, pass,
   draw or per-frame work. Native/WebGL/ARM64 evidence is recorded in the latest audit section.
-  The supported shadow-map investigation and large-object directional coverage remain open.
+  2026-10-15 completion selected the existing portable one-draw projected-footprint path over an
+  extra depth target/pass and adds bounded fixed-sun mass shadows for the wreck, hut and helicopter.
+  Together with palm/broadleaf transmission this closes the requested large-object coverage on
+  native, WebGL2 and ARM64; evidence and explicit limitations are recorded above and in
+  `docs/large-object-shadows.md`.
 - [x] 12. Sky with volume but no weather: stronger horizon haze, 5-15 distant cumulus masses
   (some low on the horizon), warmer sun surroundings, softer zenith gradient, bright sunlit cloud
   tops with blue-grey undersides. 2026-10-10 first pass done (`docs/sky-atmosphere.md`): haze

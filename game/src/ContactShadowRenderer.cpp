@@ -20,6 +20,8 @@
 #include "IslandSimulator/SnakeContactShadow.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
+#include "IslandSimulator/HutLayout.hpp"
+#include "IslandSimulator/HelicopterLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
 #include "Microsoft/Xna/Framework/BoundingSphere.hpp"
@@ -93,10 +95,11 @@ namespace island
                                   const float x, const float z,
                                   const float forwardX, const float forwardZ,
                                   const float forwardRadius, const float sideRadius,
-                                  const float forwardOffset, const std::uint8_t centreAlpha)
+                                  const float offsetX, const float offsetZ,
+                                  const std::uint8_t centreAlpha)
         {
-            const float centreX = x + forwardX * forwardOffset;
-            const float centreZ = z + forwardZ * forwardOffset;
+            const float centreX = x + offsetX;
+            const float centreZ = z + offsetZ;
             const float sideX = -forwardZ;
             const float sideZ = forwardX;
             const Vector3 centre(centreX, terrain.Height(centreX, centreZ) + SurfaceOffset,
@@ -145,7 +148,8 @@ namespace island
         GraphicsDevice& device, const IslandTerrain& terrain,
         const VegetationLayout& vegetation, const JungleLayout& jungle,
         const NaturalPropLayout& naturalProps, const ShipwreckLayout& shipwreck,
-        const float maximumDistanceScale, const HutPlacement* hut)
+        const float maximumDistanceScale, const HutPlacement* hut,
+        const HelicopterPlacement* helicopter)
         : device_(device),
           terrain_(terrain),
           effect_(std::make_unique<BasicEffect>(device)),
@@ -176,7 +180,8 @@ namespace island
                                         const std::uint8_t centreAlpha) {
             const std::size_t firstVertex = staticVertices_.size();
             AppendTerrainEllipse(staticVertices_, terrain_, x, z, forwardX, forwardZ,
-                                 forwardRadius, sideRadius, forwardOffset, centreAlpha);
+                                 forwardRadius, sideRadius, forwardX*forwardOffset,
+                                 forwardZ*forwardOffset, centreAlpha);
             staticShadows_.push_back({Vector3(x, y, z), radius, maximumDistance,
                                       firstVertex, VerticesPerShadow, kind});
         };
@@ -247,6 +252,34 @@ namespace island
         for (const auto& debris : shipwreck.Debris()) cacheCoastal(DebrisContactFootprint(debris));
         if(hut) for(const auto& footprint:HutContactFootprints(*hut))
             cachePatch(footprint,StaticShadowKind::Hut,90.0f,ContactPatchDetail::Coastal);
+
+        // Permanent midday and only three landmark receivers make a bounded projected-footprint
+        // fallback more useful than a cross-platform shadow-map pass. These broad, low-alpha
+        // patches extend the existing batch and project the elevated mass opposite the fixed sun.
+        const auto cacheStructureShadow=[&](const float x,const float y,const float z,
+                                            const float yaw,const float halfLength,
+                                            const float halfWidth,const float height,
+                                            const float distance,const std::uint8_t alpha) {
+            const float axisX=std::cos(yaw),axisZ=std::sin(yaw);
+            const float castLength=height*horizontalSunLength/environment::SunDirectionY;
+            const std::size_t first=staticVertices_.size();
+            AppendTerrainEllipse(staticVertices_,terrain_,x,z,axisX,axisZ,
+                halfLength+castLength*.24f,halfWidth+castLength*.18f,
+                shadowDirectionX*castLength*.5f,shadowDirectionZ*castLength*.5f,alpha);
+            staticShadows_.push_back({Vector3(x,y,z),halfLength+castLength,
+                distance*maximumDistanceScale,first,VerticesPerShadow,
+                StaticShadowKind::Structure});
+        };
+        const auto& wreck=shipwreck.Ship();
+        cacheStructureShadow(wreck.x,wreck.y,wreck.z,wreck.yawRadians,
+            wreck.length*.49f,wreck.beam*.48f,wreck.hullHeight,125.0f,28U);
+        if(hut) cacheStructureShadow(hut->x,hut->floorY,hut->z,hut->yawRadians,
+            (HutLayout::Depth+HutLayout::RoofOverhang*2.0f)*.5f,
+            (HutLayout::Width+HutLayout::RoofOverhang*2.0f)*.5f,3.7f,95.0f,34U);
+        if(helicopter) cacheStructureShadow(helicopter->x,helicopter->groundY,
+            helicopter->z,helicopter->yawRadians,
+            (HelicopterLayout::BodyFront-HelicopterLayout::BodyRear)*.55f,
+            HelicopterLayout::BodyHalfWidth*1.1f,2.9f,105.0f,32U);
 
         // Bounds cover the actual projected/slope-conforming patch, not the source object's pivot.
         for (auto& shadow : staticShadows_) {
@@ -384,6 +417,7 @@ namespace island
             visibleRockShadowCount_ = 0;
             visibleWoodShadowCount_ = 0;
             visibleHutShadowCount_ = 0;
+            visibleStructureShadowCount_ = 0;
             visibleMonkeyShadowCount_ = 0;
             visibleBoarShadowCount_ = 0;
             visibleGoatShadowCount_ = 0;
@@ -430,6 +464,9 @@ namespace island
                 case StaticShadowKind::Coastal:
                     ++visibleCoastalShadowCount_;
                     break;
+                case StaticShadowKind::Structure:
+                    ++visibleStructureShadowCount_;
+                    break;
                 }
             }
 
@@ -445,7 +482,8 @@ namespace island
                 AppendTerrainEllipse(stagingVertices_, terrain_, centre.x, centre.z,
                                      shadowDirectionX, shadowDirectionZ,
                                      0.62f * monkey.scale, 0.38f * monkey.scale,
-                                     0.12f * monkey.scale, FadedAlpha(48, fade));
+                                     shadowDirectionX*0.12f*monkey.scale,
+                                     shadowDirectionZ*0.12f*monkey.scale,FadedAlpha(48, fade));
                 ++visibleMonkeyShadowCount_;
             }
 
@@ -456,7 +494,9 @@ namespace island
                 AppendTerrainEllipse(stagingVertices_, terrain_, boar.x, boar.z,
                                      std::cos(boar.headingRadians), std::sin(boar.headingRadians),
                                      1.05f * boar.scale, 0.48f * boar.scale,
-                                     0.10f * boar.scale, FadedAlpha(90, fade));
+                                     std::cos(boar.headingRadians)*0.10f*boar.scale,
+                                     std::sin(boar.headingRadians)*0.10f*boar.scale,
+                                     FadedAlpha(90, fade));
                 ++visibleBoarShadowCount_;
             }
 
@@ -466,7 +506,9 @@ namespace island
                     monkeyMaximumDistance_,fade))continue;
                 AppendTerrainEllipse(stagingVertices_,terrain_,goat.x,goat.z,
                     std::cos(goat.heading),std::sin(goat.heading),
-                    .70f*goat.scale,.30f*goat.scale,.08f*goat.scale,FadedAlpha(70,fade));
+                    .70f*goat.scale,.30f*goat.scale,
+                    std::cos(goat.heading)*.08f*goat.scale,
+                    std::sin(goat.heading)*.08f*goat.scale,FadedAlpha(70,fade));
                 ++visibleGoatShadowCount_;
             }
             std::vector<std::pair<float,const SpiderState*>> visibleSpiders;
@@ -510,6 +552,7 @@ namespace island
             }
             visibleShadowCount_ = visiblePalmShadowCount_ + visibleCanopyShadowCount_
                 + visibleRockShadowCount_ + visibleWoodShadowCount_ + visibleHutShadowCount_
+                + visibleStructureShadowCount_
                 + visibleMonkeyShadowCount_ + visibleBoarShadowCount_ + visibleCoastalShadowCount_
                 + visibleSnakeShadowCount_ + visibleGoatShadowCount_ + visibleSpiderShadowCount_;
             primitiveCount_ = static_cast<int>(stagingVertices_.size() / 3U);

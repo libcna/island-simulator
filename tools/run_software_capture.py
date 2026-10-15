@@ -1012,6 +1012,8 @@ def main():
                 raise RuntimeError("current wood lighting is missing; check for a stale executable")
             if "land prop shadows match model yaw and rendered terrain triangles" not in diagnostics:
                 raise RuntimeError("current land shadow geometry is missing; check for a stale executable")
+            if "wreck, hut, and helicopter project bounded fixed-sun mass shadows in the shared contact batch" not in diagnostics:
+                raise RuntimeError("current large-object sun shadows are missing; check for a stale executable")
             if "rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering" not in diagnostics:
                 raise RuntimeError("current stone surface is missing; check for a stale executable")
             if "near rocks use filtered mineral strata and a local soil-stained base" not in diagnostics:

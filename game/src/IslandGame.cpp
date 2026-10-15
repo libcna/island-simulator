@@ -1486,7 +1486,9 @@ namespace island
             device, distantSceneryLayout_);
         contactShadowRenderer_ = std::make_unique<ContactShadowRenderer>(
             device, terrain_, vegetationLayout_, jungleLayout_, naturalPropLayout_,
-            shipwreckLayout_, qualityProfile_.contactShadowDistanceScale, hutPlacement_?&*hutPlacement_:nullptr);
+            shipwreckLayout_, qualityProfile_.contactShadowDistanceScale,
+            hutPlacement_?&*hutPlacement_:nullptr,
+            helicopterPlacement_?&*helicopterPlacement_:nullptr);
         constexpr auto coastalShadowDiagnostic =
             "island-simulator: coastal contact patches follow rendered seabed triangles in the existing batch";
         std::cout << coastalShadowDiagnostic << '\n';
@@ -1495,6 +1497,10 @@ namespace island
             "island-simulator: land prop shadows match model yaw and rendered terrain triangles";
         std::cout << landShadowDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(landShadowDiagnostic);
+        constexpr auto structureShadowDiagnostic =
+            "island-simulator: wreck, hut, and helicopter project bounded fixed-sun mass shadows in the shared contact batch";
+        std::cout << structureShadowDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(structureShadowDiagnostic);
         birdRenderer_ = std::make_unique<BirdRenderer>(
             device, 690.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         butterflyRenderer_ = std::make_unique<ButterflyRenderer>(
@@ -3888,7 +3894,9 @@ namespace island
                       << contactShadowRenderer_->VisibleShadowCount() << ", "
                       << contactShadowRenderer_->PrimitiveCount() << " triangles, "
                       << contactShadowRenderer_->DrawCallCount()
-                      << " draw; coastal contact shadows " << contactShadowRenderer_->VisibleCoastalShadowCount()
+                      << " draw, large-object sun shadows "
+                      << contactShadowRenderer_->VisibleStructureShadowCount()
+                      << "; coastal contact shadows " << contactShadowRenderer_->VisibleCoastalShadowCount()
                       << "; water view " << waterViewModel_.Intensity()
                       << ", " << waterViewOverlay_->DrawCallCount()
                       << " draw, player ripple " << waterRippleModel_.Intensity()
