@@ -64,6 +64,7 @@ namespace island
         float scale = 1.0f;
         std::uint8_t variant = 0U;
         bool wetBank = false;
+        bool seasonalWetland = false;
     };
 
     /** @brief Bounded related floor plants near one canopy tree; indices refer to GroundPlants. */
@@ -113,6 +114,8 @@ namespace island
         static constexpr int ForestPlantsPerColony = 8;
         static constexpr int StreamBankColonyCount = 20;
         static constexpr int StreamBankPlantsPerColony = 3;
+        static constexpr int SeasonalWetlandCandidateCount = 240;
+        static constexpr int SeasonalWetlandPlantTargetCount = 42;
         static constexpr float ForestRootSeparation = 0.72f;
         static constexpr int StandingSnagTargetCount = 12;
         static constexpr int StandingSnagCandidateCount = 720;
@@ -159,6 +162,10 @@ namespace island
         {
             return streamBankGroundPlantCount_;
         }
+        [[nodiscard]] std::size_t SeasonalWetlandGroundPlantCount() const noexcept
+        {
+            return seasonalWetlandGroundPlantCount_;
+        }
         [[nodiscard]] std::size_t MangroveCount() const noexcept { return mangroveCount_; }
         [[nodiscard]] std::size_t JuvenileCanopyCount() const noexcept
         {
@@ -184,6 +191,7 @@ namespace island
         std::size_t clearingGroundPlantCount_ = 0;
         std::size_t forestGroundPlantCount_ = 0;
         std::size_t streamBankGroundPlantCount_ = 0;
+        std::size_t seasonalWetlandGroundPlantCount_ = 0;
         std::size_t mangroveCount_ = 0;
         std::size_t juvenileCanopyCount_ = 0;
         std::vector<ForestFloorColony> forestColonies_;

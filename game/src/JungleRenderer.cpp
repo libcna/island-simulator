@@ -1633,6 +1633,9 @@ void main()
         MirrorRuntimeDiagnosticToPlatformLog(forestDiagnostic);
         std::cout << "island-simulator: stream-bank mixed fern/broadleaf plants "
                   << layout.StreamBankGroundPlantCount() << ", shared moisture field\n";
+        std::cout << "island-simulator: seasonal damp depression "
+                  << layout.SeasonalWetlandGroundPlantCount()
+                  << " fern-rich ground plants, dark humic soil, no permanent water\n";
         std::cout << "island-simulator: localized mangrove colony " << layout.MangroveCount()
                   << " trees, low crowns, multiple stems, stilt roots, canopy variant "
                   << MangroveCanopyVariant << '\n';

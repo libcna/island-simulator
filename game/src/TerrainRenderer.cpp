@@ -746,6 +746,17 @@ void main()
     float streamStone = groundFleck(p, 0.72, vec2(19.1, -3.8), 0.68) * streamWet;
     color = mix(color, vec3(0.205, 0.220, 0.180) * vGroundLight, streamStone * 0.48);
 
+    // The seasonal basin has no permanent water surface. Dark humic soil, cool moss flecks and
+    // an irregular drying rim distinguish it from both the flowing stream and ordinary jungle.
+    float seasonalWetland=seasonalWetlandPotential(p,signedShoreDistance);
+    float wetlandBreakup=clamp(.72+broad*.38+medium*.22,0.32,1.0);
+    float wetlandSoil=seasonalWetland*wetlandBreakup;
+    vec3 humicEarth=mix(vec3(.105,.083,.050),vec3(.105,.180,.082),
+        clamp(inlandField.x*.58+max(-fine,0.0)*.24,0.0,1.0))*vGroundLight;
+    color=mix(color,humicEarth,wetlandSoil*.72);
+    float wetlandFleck=groundFleck(p,1.24,vec2(-7.2,23.4),.61)*seasonalWetland;
+    color=mix(color,vec3(.165,.235,.112)*vGroundLight,wetlandFleck*.34);
+
     // Reveal the actual incised bank faces with restrained exposed-soil strata. The mask
     // follows the same route/width function as the CPU bed and is additionally limited by
     // measured terrain slope, so it cannot become a flat painted stripe across the valley.

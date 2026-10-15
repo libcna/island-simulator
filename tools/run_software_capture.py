@@ -547,7 +547,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")

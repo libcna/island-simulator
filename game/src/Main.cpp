@@ -47,6 +47,7 @@ namespace
         case FixedViewpoint::CanopyInspection: return "canopy";
         case FixedViewpoint::WestClearingDetail: return "west";
         case FixedViewpoint::StreamDetail: return "stream";
+        case FixedViewpoint::SeasonalWetlandDetail: return "wetland";
         case FixedViewpoint::MangroveDetail: return "mangroves";
         case FixedViewpoint::GrassDetail: return "grass";
         case FixedViewpoint::GroundPlantDetail: return "ground";
@@ -150,7 +151,7 @@ int main(const int argc, char* argv[])
         } else if (argument == "--viewpoint") {
             if (++index >= argc) {
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, snags, sapling, "
-                             "east, headland, tide-pools, turtle-nest, cave, cave-inside, bunker, bunker-corridor, bunker-computers, bunker-reactor, bunker-service, bunker-end, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, fallen-palm, broken-palm, water, "
+                             "east, headland, tide-pools, turtle-nest, cave, cave-inside, bunker, bunker-corridor, bunker-computers, bunker-reactor, bunker-service, bunker-end, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, wetland, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, fallen-palm, broken-palm, water, "
                              "wet-sand, current, distant, props, driftwood, reef, reef-habitat, fronds, birds, fish, "
                              "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, helicopter, helicopter-inside, crabs, crocodiles, boars, goats, spiders, spiders-bright, spider-web, snakes, snake-head, butterflies, turtles, or traversal\n";
                 return 2;
@@ -210,6 +211,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::WestClearingDetail;
             } else if (name == "stream") {
                 viewpoint = island::FixedViewpoint::StreamDetail;
+            } else if (name == "wetland") {
+                viewpoint = island::FixedViewpoint::SeasonalWetlandDetail;
             } else if (name == "mangroves") {
                 viewpoint = island::FixedViewpoint::MangroveDetail;
             } else if (name == "grass") {

@@ -277,6 +277,10 @@ namespace
         HashScaledPlacements(hash, std::span(world.jungle.Understory()));
         HashScaledPlacements(hash, std::span(world.jungle.Bushes()));
         HashScaledPlacements(hash, std::span(world.jungle.GroundPlants()));
+        for (const island::GroundPlantPlacement& placement : world.jungle.GroundPlants()) {
+            hash.AddByte(placement.wetBank ? 1U : 0U);
+            hash.AddByte(placement.seasonalWetland ? 1U : 0U);
+        }
 
         hash.AddSize(world.props.Rocks().size());
         for (const island::RockPlacement& rock : world.props.Rocks()) {
@@ -1099,6 +1103,8 @@ namespace
                << "    \"bushes\": " << world.jungle.Bushes().size() << ",\n"
                << "    \"groundPlants\": " << world.jungle.GroundPlants().size() << ",\n"
                << "    \"streamBankGroundPlants\": " << world.jungle.StreamBankGroundPlantCount() << ",\n"
+               << "    \"seasonalWetlandGroundPlants\": "
+               << world.jungle.SeasonalWetlandGroundPlantCount() << ",\n"
                << "    \"clearingBushes\": " << world.jungle.ClearingBushCount() << ",\n"
                << "    \"clearingGroundPlants\": " << world.jungle.ClearingGroundPlantCount() << ",\n"
                << "    \"forestFloorColonies\": " << world.jungle.ForestColonies().size() << ",\n"

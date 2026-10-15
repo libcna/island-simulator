@@ -1,5 +1,6 @@
 #include "IslandSimulator/Soundscape.hpp"
 #include "IslandSimulator/CampfireLayout.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 
 #include <algorithm>
@@ -211,8 +212,10 @@ namespace island
         campfirePresence_=CampfireSite::SoundPresence(playerX,CampfireLayout::GroundY()+PlayerMotion::EyeHeight,
             playerZ,CampfireLayout::GroundY());
         campfireVolume_=campfirePresence_*.26f;
+        const float seasonalWetland=IslandEnvironmentField::SeasonalWetlandPotential(
+            playerX,playerZ,signedShoreDistance);
         model_.Reset(signedShoreDistance, swimming, coastalWindExposure,
-                     streamSound_.presence);
+                     streamSound_.presence,seasonalWetland);
         waterMovementModel_.Reset(
             waterDepth, swimming, horizontalSpeed, oceanCurrentStrength);
         try {
@@ -549,8 +552,10 @@ namespace island
         streamSound_ = StreamSoundField::Sample(listenerState.x, listenerState.z);
         campfirePresence_=CampfireSite::SoundPresence(listenerState.x,listenerState.y,listenerState.z,CampfireLayout::GroundY());
         campfireVolume_+=(campfirePresence_*.26f-campfireVolume_)*(1-std::exp(-safeDelta*4));
+        const float seasonalWetland=IslandEnvironmentField::SeasonalWetlandPotential(
+            listenerState.x,listenerState.z,signedShoreDistance);
         (void)model_.Update(signedShoreDistance, swimming, safeDelta,
-                            coastalWindExposure, streamSound_.presence);
+                            coastalWindExposure, streamSound_.presence,seasonalWetland);
         (void)waterMovementModel_.Update(
             waterDepth, swimming, horizontalSpeed, safeDelta, oceanCurrentStrength);
         underwaterAudio_=UnderwaterAudioResponse(swimming?submergedDepth:0.0f);

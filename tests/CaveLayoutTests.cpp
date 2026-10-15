@@ -44,7 +44,8 @@ int main() {
     survey("logs",props.FallenLogs(),4);survey("fronds",props.FallenFronds(),2);
     std::cout<<"baseline bushes/plants "<<jungle.Bushes().size()-jungle.ClearingBushCount()<<'/'
         <<jungle.GroundPlants().size()-jungle.ClearingGroundPlantCount()
-            -jungle.ForestGroundPlantCount()-jungle.StreamBankGroundPlantCount()<<'\n';
+            -jungle.ForestGroundPlantCount()-jungle.StreamBankGroundPlantCount()
+            -jungle.SeasonalWetlandGroundPlantCount()<<'\n';
     std::cout<<"cave entrance "<<entrance.x<<','<<entrance.y<<','<<entrance.z
              <<" triangles "<<cave.Triangles().size()<<'\n';
     Check(cave.Triangles().size()<1600,"cave geometry budget exceeded");

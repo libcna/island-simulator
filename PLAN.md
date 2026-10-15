@@ -60,6 +60,28 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest ecosystem implementation — one small seasonal wetland
+
+Macro-ecosystem item 20 is complete. A naturally low south-valley basin around `(0, -140)`, more
+than 90 m inland and about 25 m from the footpath, now has one shared finite elliptical wetland
+field. CPU placement/audio and portable GLSL material use matching constants. The basin remains a
+seasonal damp depression rather than a second river: no permanent water plane or flowing-water
+audio was added. Its centre has high moisture with bounded 0.60 drainage, dark broken humic soil,
+cool moss flecks, lower grass response and exactly 42 deterministic fern-dominant plants. The
+plants reuse existing ground-plant meshes, cells, LOD and draws. The existing insect-bearing jungle
+loop strengthens locally while stream volume remains zero, adding no audio source.
+
+Native llvmpipe `build-consumer/software-captures/20261015T003306.759798Z-wetland` passes at
+1280 by 720 with 241 colour bins, 46.96 luminance deviation and 185.45 spatial contrast; the image
+was inspected. Chrome/SwiftShader
+`build/browser-software/20261015T003955.406585Z-chrome-wetland` passes the new 60-interval wetland
+scope with GL0, a live context and no new kernel GPU fault; its image was inspected. The Release
+consumer build and all 63 enabled non-display tests pass. World-report fingerprint
+`1b565d9d9e9ce490` records 2,945 ground plants including 42 wetland plants. ARM64 assemble/lint
+passes through the two-worker wrapper (24,055,539-byte APK, SHA-256
+`20b43c68e9dc7a74f073409ebf7ab14f7909021e759d7e3cfdf5709dee8ea265`) without emulator/KVM.
+Details are in `docs/seasonal-wetland.md`.
+
 ## Latest visual-audit implementation — cliff-foot talus completes readable geology
 
 The renewed geology audit found that the eastern headland already had a real approximately 7.5 m
@@ -3824,8 +3846,9 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
 - [x] 19. Rock as geology, not only boulders: a rocky headland, a short 4-8 m cliff, exposed
   bedrock on a slope, large blocks below the cliff. Existing face-projected bedrock plus the
   2026-10-15 two-group talus pass are recorded in `docs/geology.md`.
-- [ ] 20. One small wet biome without a permanent river: a damp depression or seasonal pool with
-  very dark soil, dense ferns, different sounds and insects, shadier vegetation.
+- [x] 20. One small wet biome without a permanent river: a damp depression or seasonal pool with
+  very dark soil, dense ferns, different sounds and insects, shadier vegetation. The completed
+  shared-field implementation and portable evidence are recorded in `docs/seasonal-wetland.md`.
 - Not now (per the analysis and product rules): another renderer, weather simulation,
   day/night, crafting, survival, hundreds of new models, another large gameplay system.
 

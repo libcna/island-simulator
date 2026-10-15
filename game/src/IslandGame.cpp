@@ -6,6 +6,7 @@
 #include "IslandSimulator/FirstPersonInput.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
 #include "IslandSimulator/GpuDiagnostics.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/StreamRoute.hpp"
@@ -95,6 +96,7 @@ namespace island
             case FixedViewpoint::CanopyInspection: return "canopy";
             case FixedViewpoint::WestClearingDetail: return "west";
             case FixedViewpoint::StreamDetail: return "stream";
+            case FixedViewpoint::SeasonalWetlandDetail: return "wetland";
             case FixedViewpoint::MangroveDetail: return "mangroves";
             case FixedViewpoint::GrassDetail: return "grass";
             case FixedViewpoint::GroundPlantDetail: return "ground";
@@ -462,6 +464,17 @@ namespace island
             // elevated overview hid the shallow but physical cross-section.
             cameraPosition_=Vector3(-110,terrain_.Height(-110,-37)+PlayerMotion::EyeHeight,-37);
             const Vector3 target(-122,terrain_.Height(-122,-26.94f)-.18f,-26.94f);
+            const auto direction=target-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+        } else if (viewpoint_ == FixedViewpoint::SeasonalWetlandDetail) {
+            const float cameraX=IslandEnvironmentField::SeasonalWetlandX;
+            const float cameraZ=IslandEnvironmentField::SeasonalWetlandZ+20.0f;
+            cameraPosition_=Vector3(cameraX,terrain_.Height(cameraX,cameraZ)
+                +PlayerMotion::EyeHeight,cameraZ);
+            const float targetX=IslandEnvironmentField::SeasonalWetlandX;
+            const float targetZ=IslandEnvironmentField::SeasonalWetlandZ;
+            const Vector3 target(targetX,terrain_.Height(targetX,targetZ)+.35f,targetZ);
             const auto direction=target-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));

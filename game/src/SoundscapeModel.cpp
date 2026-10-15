@@ -1465,7 +1465,8 @@ namespace island
     SoundscapeMix SoundscapeModel::TargetMix(const float signedShoreDistance,
                                              const bool swimming,
                                              const float coastalWindExposure,
-                                             const float streamPresence) noexcept
+                                             const float streamPresence,
+                                             const float seasonalWetlandPresence) noexcept
     {
         if (!std::isfinite(signedShoreDistance)) {
             return {};
@@ -1482,9 +1483,15 @@ namespace island
             JungleFadeStartDistance, JungleFadeEndDistance, inlandDistance) * 0.078f;
         const float safeStreamPresence = std::isfinite(streamPresence)
             ? std::clamp(streamPresence, 0.0f, 1.0f) : 0.0f;
+        const float safeWetlandPresence = std::isfinite(seasonalWetlandPresence)
+            ? std::clamp(seasonalWetlandPresence, 0.0f, 1.0f) : 0.0f;
         result.streamVolume = safeStreamPresence * 0.23f;
         result.jungleVolume += safeStreamPresence * 0.024f;
         result.breezeVolume *= 1.0f - safeStreamPresence * 0.12f;
+        // The jungle bed already contains sparse insect chirps. Emphasize it locally without
+        // spending another audio source or falsely playing flowing water in the seasonal basin.
+        result.jungleVolume += safeWetlandPresence * 0.038f;
+        result.breezeVolume *= 1.0f - safeWetlandPresence * 0.16f;
         const float windScale=CoastalWindResponse::AmbientScale(coastalWindExposure);
         result.surfVolume*=windScale;
         result.breezeVolume*=windScale;
@@ -1499,20 +1506,23 @@ namespace island
 
     void SoundscapeModel::Reset(const float signedShoreDistance, const bool swimming,
                                 const float coastalWindExposure,
-                                const float streamPresence) noexcept
+                                const float streamPresence,
+                                const float seasonalWetlandPresence) noexcept
     {
         mix_ = TargetMix(signedShoreDistance, swimming, coastalWindExposure,
-                         streamPresence);
+                         streamPresence, seasonalWetlandPresence);
         variationSeconds_ = 0.0;
     }
 
     SoundscapeMix SoundscapeModel::Update(const float signedShoreDistance, const bool swimming,
                                           const float deltaSeconds,
                                           const float coastalWindExposure,
-                                          const float streamPresence) noexcept
+                                          const float streamPresence,
+                                          const float seasonalWetlandPresence) noexcept
     {
         SoundscapeMix target = TargetMix(signedShoreDistance, swimming,
-                                         coastalWindExposure, streamPresence);
+                                         coastalWindExposure, streamPresence,
+                                         seasonalWetlandPresence);
         const float safeDelta = SafeDeltaSeconds(deltaSeconds);
         variationSeconds_ += static_cast<double>(safeDelta);
         // Long, mismatched periods keep stationary ambience from becoming a fixed wall of sound.

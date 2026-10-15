@@ -458,6 +458,49 @@ namespace island
             }
         }
 
+        // An irregular fern-rich patch makes the small seasonal basin legible without a new
+        // renderer or draw call. It is deliberately not a ring: deterministic candidates fill
+        // the darker centre and broken rim until a tightly bounded local budget is reached.
+        for (int candidate = 0;
+             candidate < SeasonalWetlandCandidateCount
+                 && seasonalWetlandGroundPlantCount_ < SeasonalWetlandPlantTargetCount;
+             ++candidate) {
+            const auto random = [&](std::uint32_t channel) {
+                return UnitRandom(Hash(candidate, static_cast<std::int32_t>(channel),
+                    seed ^ (0x76d4a31bU + channel * 0x9e3779b9U)));
+            };
+            const float radial = std::sqrt(random(0));
+            const float angle = random(1) * 2.0f * std::numbers::pi_v<float>;
+            const float x = IslandEnvironmentField::SeasonalWetlandX
+                + std::cos(angle) * radial
+                    * IslandEnvironmentField::SeasonalWetlandRadiusX * .92f;
+            const float z = IslandEnvironmentField::SeasonalWetlandZ
+                + std::sin(angle) * radial
+                    * IslandEnvironmentField::SeasonalWetlandRadiusZ * .92f;
+            const auto sample = terrain.Sample(x, z);
+            const auto environment = IslandEnvironmentField::SampleInland(
+                x, z, sample.signedShoreDistance);
+            const float potential = IslandEnvironmentField::SeasonalWetlandPotential(
+                x, z, sample.signedShoreDistance);
+            const float scale = .86f + .34f * random(2);
+            const float footprint = GroundPlantFootprintRadius * scale;
+            if (potential < .18f || sample.height < 2.5f
+                || sample.slopeRadians > .50f || environment.moisture < .42f
+                || environment.drainage > .72f
+                || VegetationLayout::OverlapsReservedRoute(x, z, footprint)
+                || !clearOfCanopy(x, z, footprint)
+                || !clearOfRoots(x, z, groundPlants_, .66f)
+                || !clearOfRoots(x, z, bushes_, .78f)
+                || !clearOfRoots(x, z, understory_, .72f)
+                || HutLayout::ReservesDecorativeClearing(x, z, .5f * scale)) continue;
+            // Frond variant dominates; split leaves provide sparse silhouette contrast.
+            const std::uint8_t variant = random(3) < .78f ? 0U : 2U;
+            groundPlants_.push_back({x, sample.height + .009f, z,
+                random(4) * 2.0f * std::numbers::pi_v<float>, scale, variant,
+                false, true});
+            ++seasonalWetlandGroundPlantCount_;
+        }
+
         // Seed-sized companions form irregular ellipses near some canopy trees. Do not fill
         // every tree base or overwrite the separately composed clearing-edge accents.
         forestColonies_.reserve(canopy_.size());

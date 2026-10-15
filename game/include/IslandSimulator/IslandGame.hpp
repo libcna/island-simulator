@@ -128,6 +128,7 @@ namespace island
         CanopyInspection,
         WestClearingDetail,
         StreamDetail,
+        SeasonalWetlandDetail,
         MangroveDetail,
         GrassDetail,
         GroundPlantDetail,

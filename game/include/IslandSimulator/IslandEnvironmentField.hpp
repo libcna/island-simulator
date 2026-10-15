@@ -40,6 +40,11 @@ namespace island
     class IslandEnvironmentField final
     {
     public:
+        static constexpr float SeasonalWetlandX = 0.0f;
+        static constexpr float SeasonalWetlandZ = -140.0f;
+        static constexpr float SeasonalWetlandRadiusX = 18.0f;
+        static constexpr float SeasonalWetlandRadiusZ = 13.0f;
+
         [[nodiscard]] static float Smooth(float low, float high, float value) noexcept
         {
             const float t = std::clamp((value - low) / (high - low), 0.0f, 1.0f);
@@ -129,7 +134,20 @@ namespace island
             return {exposure, shelter, accumulation};
         }
 
-        /** @brief Shared valley/stream moisture, drainage concentration and coastal salt field. */
+        /** @brief One shallow, non-flowing seasonal depression away from the permanent stream. */
+        [[nodiscard]] static float SeasonalWetlandPotential(
+            float x, float z, float signedShoreDistance) noexcept
+        {
+            if (!std::isfinite(x) || !std::isfinite(z)
+                || !std::isfinite(signedShoreDistance)) return 0.0f;
+            const float dx = (x - SeasonalWetlandX) / SeasonalWetlandRadiusX;
+            const float dz = (z - SeasonalWetlandZ) / SeasonalWetlandRadiusZ;
+            const float ellipticalRadiusSquared = dx * dx + dz * dz;
+            const float depression = 1.0f - Smooth(0.38f, 1.0f, ellipticalRadiusSquared);
+            return depression * Smooth(54.0f, 72.0f, signedShoreDistance);
+        }
+
+        /** @brief Shared valley/stream/wetland moisture, drainage and coastal salt field. */
         [[nodiscard]] static InlandEnvironmentSample SampleInland(
             float x, float z, float signedShoreDistance) noexcept
         {
@@ -149,11 +167,15 @@ namespace island
             const float southWidth = 12.0f + 12.0f * Smooth(0.0f, 180.0f, -z);
             const float southValley = (1.0f - Smooth(southWidth * 0.35f, southWidth,
                 std::abs(x - southCentre))) * (1.0f - Smooth(5.0f, 70.0f, z));
+            const float seasonalWetland = SeasonalWetlandPotential(
+                x, z, signedShoreDistance);
             const auto coast = SampleCoast(x, z, signedShoreDistance);
             const float salt = (coast.rockiness * 0.78f + coast.beachSuitability * 0.42f)
                 * (1.0f - Smooth(18.0f, 58.0f, signedShoreDistance));
-            return {std::clamp(std::max(streamMoisture, southValley * 0.42f), 0.0f, 1.0f),
-                std::clamp(std::max(streamDrainage, southValley * 0.28f), 0.0f, 1.0f),
+            return {std::clamp(std::max({streamMoisture, southValley * 0.42f,
+                                        seasonalWetland * 0.96f}), 0.0f, 1.0f),
+                std::clamp(std::max({streamDrainage, southValley * 0.28f,
+                                     seasonalWetland * 0.60f}), 0.0f, 1.0f),
                 std::clamp(salt, 0.0f, 1.0f)};
         }
 
@@ -223,6 +245,11 @@ vec3 streamRouteGeometry(vec2 worldPosition) {
     float halfWidth=mix(0.45,1.5,shaped)*(1.0+widthVariation);
     return vec3(streamRange,streamAcross,halfWidth);
 }
+float seasonalWetlandPotential(vec2 worldPosition,float shoreDistance) {
+    vec2 offset=(worldPosition-vec2(0.0,-140.0))/vec2(18.0,13.0);
+    float radiusSquared=dot(offset,offset);
+    return (1.0-smoothstep(0.38,1.0,radiusSquared))*smoothstep(54.0,72.0,shoreDistance);
+}
 vec3 inlandEnvironment(vec2 worldPosition,float shoreDistance,vec2 coastalField) {
     vec3 streamGeometry=streamRouteGeometry(worldPosition);
     float streamRange=streamGeometry.x;
@@ -234,10 +261,11 @@ vec3 inlandEnvironment(vec2 worldPosition,float shoreDistance,vec2 coastalField)
     float southWidth=12.0+12.0*smoothstep(0.0,180.0,-worldPosition.y);
     float southValley=(1.0-smoothstep(southWidth*0.35,southWidth,abs(worldPosition.x-southCentre)))
         *(1.0-smoothstep(5.0,70.0,worldPosition.y));
+    float seasonalWetland=seasonalWetlandPotential(worldPosition,shoreDistance);
     float coastBand=(coastalField.x*0.78+coastalField.y*0.42)
         *(1.0-smoothstep(18.0,58.0,shoreDistance));
-    return vec3(clamp(max(streamMoisture,southValley*0.42),0.0,1.0),
-        clamp(max(streamDrainage,southValley*0.28),0.0,1.0),coastBand);
+    return vec3(clamp(max(max(streamMoisture,southValley*0.42),seasonalWetland*0.96),0.0,1.0),
+        clamp(max(max(streamDrainage,southValley*0.28),seasonalWetland*0.60),0.0,1.0),coastBand);
 }
 )";
     };

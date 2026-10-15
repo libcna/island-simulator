@@ -60,6 +60,7 @@
       ["bunker-service", ["--viewpoint", "bunker-service", "--debug-overlay"]],
       ["bunker-end", ["--viewpoint", "bunker-end", "--debug-overlay"]],
       ["stream", ["--viewpoint", "stream", "--debug-overlay"]],
+      ["wetland", ["--viewpoint", "wetland", "--debug-overlay"]],
       ["campfire", ["--viewpoint", "campfire", "--debug-overlay"]],
       ["snake-head", ["--viewpoint", "snake-head"]],
       ["interactive", []],

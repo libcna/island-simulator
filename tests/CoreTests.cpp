@@ -1266,6 +1266,8 @@ int main()
         island::SoundscapeModel::TargetMix(80.0f, false, 0.5f, 1.0f);
     const island::SoundscapeMix dryInteriorMix =
         island::SoundscapeModel::TargetMix(80.0f, false, 0.5f, 0.0f);
+    const island::SoundscapeMix seasonalWetlandMix =
+        island::SoundscapeModel::TargetMix(80.0f, false, 0.5f, 0.0f, 1.0f);
     Check(beachMix.surfVolume > jungleMix.surfVolume,
           "surf is louder at the beach than deep inland");
     Check(jungleMix.breezeVolume > beachMix.breezeVolume,
@@ -1277,6 +1279,10 @@ int main()
           "jungle texture is audible inland and explicitly attenuated while swimming");
     Check(swimmingMix.surfVolume >= 0.35f && swimmingMix.breezeVolume < beachMix.breezeVolume,
           "swimming emphasizes nearby water while softening canopy breeze");
+    Check(seasonalWetlandMix.streamVolume==dryInteriorMix.streamVolume
+            &&seasonalWetlandMix.jungleVolume>dryInteriorMix.jungleVolume
+            &&seasonalWetlandMix.breezeVolume<dryInteriorMix.breezeVolume,
+        "seasonal wetland emphasizes insect-rich jungle ambience without false flowing water");
     const auto surfaceAudio=island::UnderwaterAudioResponse(0.0f);
     const auto shallowAudio=island::UnderwaterAudioResponse(.55f);
     const auto deepAudio=island::UnderwaterAudioResponse(2.0f);
@@ -4571,10 +4577,26 @@ int main()
         streamX,streamZ+14.0f,terrain.SignedShoreDistance(streamX,streamZ+14.0f));
     const auto dryInterior=island::IslandEnvironmentField::SampleInland(
         105.0f,80.0f,terrain.SignedShoreDistance(105.0f,80.0f));
+    const float wetlandShore=terrain.SignedShoreDistance(
+        island::IslandEnvironmentField::SeasonalWetlandX,
+        island::IslandEnvironmentField::SeasonalWetlandZ);
+    const auto seasonalWetland=island::IslandEnvironmentField::SampleInland(
+        island::IslandEnvironmentField::SeasonalWetlandX,
+        island::IslandEnvironmentField::SeasonalWetlandZ,wetlandShore);
     Check(streamCentre.drainage>0.95f && streamCentre.moisture>0.95f
         && streamBank.moisture>streamBank.drainage && streamBank.moisture>0.35f
         && dryInterior.moisture<0.15f && dryInterior.drainage<0.15f,
         "shared inland field distinguishes wet channel, damp bank and dry interior");
+    Check(island::IslandEnvironmentField::SeasonalWetlandPotential(
+              island::IslandEnvironmentField::SeasonalWetlandX,
+              island::IslandEnvironmentField::SeasonalWetlandZ,wetlandShore)>.95f
+            && seasonalWetland.moisture>.90f
+            && seasonalWetland.drainage>.55f&&seasonalWetland.drainage<.70f,
+        "seasonal inland depression has damp non-flowing environmental controls");
+    Check(island::IslandEnvironmentField::SeasonalWetlandPotential(
+              island::IslandEnvironmentField::SeasonalWetlandX+26.0f,
+              island::IslandEnvironmentField::SeasonalWetlandZ,wetlandShore)==0.0f,
+        "seasonal wetland stays local instead of becoming a second valley");
     const auto invalidInland=island::IslandEnvironmentField::SampleInland(quietNan,0,0);
     Check(invalidInland.moisture==0 && invalidInland.drainage==0
         && invalidInland.saltExposure==0,"non-finite inland environment query is safely empty");
@@ -5019,11 +5041,14 @@ int main()
     const island::JungleLayout repeatedJungle(terrain);
     Check(jungle.ForestColonies() == repeatedJungle.ForestColonies()
         && jungle.ForestGroundPlantCount() == repeatedJungle.ForestGroundPlantCount()
-        && jungle.StreamBankGroundPlantCount() == repeatedJungle.StreamBankGroundPlantCount(),
+        && jungle.StreamBankGroundPlantCount() == repeatedJungle.StreamBankGroundPlantCount()
+        && jungle.SeasonalWetlandGroundPlantCount()
+            == repeatedJungle.SeasonalWetlandGroundPlantCount(),
         "forest colony membership and shape are deterministic for one seed");
     Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 557
         && jungle.GroundPlants().size() - jungle.ClearingGroundPlantCount()
-            - jungle.ForestGroundPlantCount() - jungle.StreamBankGroundPlantCount() == 2134,
+            - jungle.ForestGroundPlantCount() - jungle.StreamBankGroundPlantCount()
+            - jungle.SeasonalWetlandGroundPlantCount() == 2134,
         "wet-biome, cave, bunker and helicopter reservations preserve measured deterministic populations");
     Check(jungle.StreamBankGroundPlantCount() >= 20
         && jungle.StreamBankGroundPlantCount() <= static_cast<std::size_t>(
@@ -5393,6 +5418,7 @@ int main()
               "low-bush scale remains in the authored range");
     }
     std::size_t wetBankPlantCount = 0;
+    std::size_t seasonalWetlandPlantCount = 0;
     std::size_t wetBankNegativeSideCount = 0;
     std::size_t wetBankPositiveSideCount = 0;
     for (std::size_t index = 0; index < jungle.GroundPlants().size(); ++index) {
@@ -5401,7 +5427,8 @@ int main()
         const island::TerrainSample sample = terrain.Sample(plant.x, plant.z);
         Check(plant.x == repeated.x && plant.y == repeated.y && plant.z == repeated.z
                   && plant.yawRadians == repeated.yawRadians && plant.scale == repeated.scale
-                  && plant.variant == repeated.variant && plant.wetBank == repeated.wetBank,
+                  && plant.variant == repeated.variant && plant.wetBank == repeated.wetBank
+                  && plant.seasonalWetland == repeated.seasonalWetland,
               "forest-floor plant placement is bitwise deterministic for one seed");
         Check(sample.signedShoreDistance >= (plant.wetBank ? 8.0f : 27.0f)
                   && sample.signedShoreDistance <= 238.0f,
@@ -5423,6 +5450,16 @@ int main()
             else ++wetBankPositiveSideCount;
             ++wetBankPlantCount;
         }
+        if (plant.seasonalWetland) {
+            const float potential=island::IslandEnvironmentField::SeasonalWetlandPotential(
+                plant.x,plant.z,sample.signedShoreDistance);
+            const auto field=island::IslandEnvironmentField::SampleInland(
+                plant.x,plant.z,sample.signedShoreDistance);
+            Check(!plant.wetBank&&potential>=.18f&&field.moisture>=.42f
+                    &&field.drainage<=.72f,
+                "seasonal-wetland plants remain in the damp non-flowing basin");
+            ++seasonalWetlandPlantCount;
+        }
         Check(plant.variant < island::JungleLayout::GroundPlantVariantCount,
               "forest-floor plant variant index remains in range");
         Check(plant.scale >= island::JungleLayout::GroundPlantMinimumScale
@@ -5431,6 +5468,11 @@ int main()
     }
     Check(wetBankPlantCount == jungle.StreamBankGroundPlantCount(),
         "stream-bank plant inventory matches marked ground plants");
+    Check(seasonalWetlandPlantCount==jungle.SeasonalWetlandGroundPlantCount()
+            &&seasonalWetlandPlantCount>=30
+            &&seasonalWetlandPlantCount<=static_cast<std::size_t>(
+                island::JungleLayout::SeasonalWetlandPlantTargetCount),
+        "seasonal depression retains a bounded fern-rich local population");
     Check(wetBankNegativeSideCount >= 5 && wetBankPositiveSideCount >= 5,
         "stream-bank colonies occupy both sides without a single-sided strip");
 
