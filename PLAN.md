@@ -347,6 +347,29 @@ rotor as a readable anti-torque assembly. The accepted 1280x720 frame passes wit
 guard `20261015T191453.213246Z-helicopter-inside` retains the panel, controls, floor and four open
 exit sightlines at 194 bins, 21.80 deviation and 94.02 contrast with an empty kernel delta.
 
+## Latest helicopter detail pass — open tubular entry steps
+
+The next exterior/interior comparison found the airframe, cabin and rotors coherent, but the four
+solid rectangular plates below the open doors still read as construction planks. Each doorway now
+has an open anti-slip step made from two longitudinal eight-sided metal tubes and four narrower
+cross rungs. The grating exposes the ground and skid structure through itself instead of adding
+another opaque slab beneath the cabin.
+
+Replacing four twelve-triangle boxes adds 336 triangles to the complete aircraft, increasing it
+from 3,870 to 4,206 triangles in the same opaque/glass two draws. The authoritative terrain-fitted
+skid contacts, collision, four entry corridors, walkable floor, doors, cabin and non-flying state
+are unchanged. `IslandHelicopterLayoutTests` and all 41 browser/capture harness tests pass.
+Inspected baseline `20261015T191511.970681Z-helicopter` and accepted current-binary exterior
+`20261015T203907.549897Z-helicopter` show the slab steps replaced by readable open metal rungs. The
+accepted 1280x720 frame passes with 313 colour bins, 54.81 luminance deviation, 232.65 spatial
+contrast and an empty kernel delta. Independent interior guard
+`20261015T203944.103888Z-helicopter-inside` retains the instruments, controls, floor and four exit
+sightlines at 193 bins, 21.76 deviation and 93.68 contrast with an empty kernel delta. Native and
+Web gates pin the new step diagnostic. Focused Chrome/SwiftShader evidence
+`20261015T204303.400351Z-chrome-helicopter` passes exterior and interior with 60 finite intervals
+each, both inspected frames, GL error zero, live contexts and an empty final kernel delta. Android
+qualification remains grouped with integration.
+
 ## Latest helicopter visual pass — readable open-cabin avionics
 
 The current exterior/interior audit found the grounded exterior recognisable and proportionally

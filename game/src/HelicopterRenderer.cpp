@@ -389,8 +389,18 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         {std::pair{-1.70f,-.30f},std::pair{.18f,1.48f}}) {
         const float lowX=side>0?.78f:-1.23f,highX=side>0?1.23f:-.78f;
         box({lowX,.205f,door.first},{highX,.245f,door.second},oliveDark);
-        const float outerLow=side>0?1.23f:-1.58f,outerHigh=side>0?1.58f:-1.23f;
-        box({outerLow,.025f,door.first+.08f},{outerHigh,.065f,door.second-.08f},metal,Surface::Metal);
+        const float stepInnerX=side*1.25f,stepOuterX=side*1.56f;
+        const float stepRearZ=door.first+.12f,stepFrontZ=door.second-.12f;
+        tube({stepInnerX,.055f,stepRearZ},{stepInnerX,.055f,stepFrontZ},.026f,
+             metal,Surface::Metal);
+        tube({stepOuterX,.055f,stepRearZ},{stepOuterX,.055f,stepFrontZ},.026f,
+             metal,Surface::Metal);
+        for(int rung=0;rung<4;++rung) {
+            const float fraction=.14f+static_cast<float>(rung)*.72f/3.0f;
+            const float z=std::lerp(stepRearZ,stepFrontZ,fraction);
+            tube({stepInnerX,.055f,z},{stepOuterX,.055f,z},.020f,
+                 metal,Surface::Metal);
+        }
         beam({side*.93f,.45f,door.first},{side*.93f,2.17f,door.first},.075f,oliveLight);
         beam({side*.93f,.45f,door.second},{side*.93f,2.17f,door.second},.075f,oliveLight);
         beam({side*.93f,2.15f,door.first},{side*.93f,2.15f,door.second},.075f,oliveLight);
@@ -772,6 +782,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<bladeShape<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bladeShape);
     const std::string tailRotorShape="island-simulator: lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands";
     std::cout<<tailRotorShape<<'\n';MirrorRuntimeDiagnosticToPlatformLog(tailRotorShape);
+    const std::string entrySteps="island-simulator: helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs";
+    std::cout<<entrySteps<<'\n';MirrorRuntimeDiagnosticToPlatformLog(entrySteps);
 }
 
 HelicopterRenderer::~HelicopterRenderer()=default;

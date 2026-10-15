@@ -314,3 +314,26 @@ of hidden as a mechanically incorrect front-facing cross. The accepted 1280x720 
 Independent interior guard `20261015T191453.213246Z-helicopter-inside` retains the panel, controls,
 floor and open exit sightlines at 194 bins, 21.80 deviation and 94.02 contrast with an empty kernel
 delta.
+
+## Open tubular entry steps — 2026-10-15
+
+The following paired audit retained the rounded airframe and correct parked rotors but selected the
+four solid rectangular plates under the open doors as the weakest construction detail. They looked
+like flat boards and hid the skid/ground relationship. Every doorway now has an open anti-slip step
+formed by two longitudinal eight-sided metal tubes and four narrower cross rungs, allowing the
+ground and undercarriage to remain visible through the structure.
+
+Four twelve-triangle boxes are replaced by the tubular grids, adding 336 triangles and taking the
+complete aircraft from 3,870 to 4,206 triangles in the same opaque/glass two draws. Authoritative
+terrain contacts, collision, four entry corridors, walkable floor, doors, controls, stationary
+rotors and non-flying contract are unchanged. `IslandHelicopterLayoutTests` and all 41 current
+browser/capture harness tests pass. Inspected baseline
+`20261015T191511.970681Z-helicopter` and accepted current-binary exterior
+`20261015T203907.549897Z-helicopter` show the solid slabs replaced by open metal rungs. The final
+1280x720 frame passes with 313 colour bins, 54.81 luminance deviation, 232.65 spatial contrast and
+an empty kernel delta. Interior guard `20261015T203944.103888Z-helicopter-inside` retains the
+instruments, controls, floor and four open exit sightlines at 193 bins, 21.76 deviation and 93.68
+contrast with an empty kernel delta. Native and Web gates pin the new step diagnostic; focused
+Chrome/SwiftShader evidence `20261015T204303.400351Z-chrome-helicopter` passes exterior and
+interior with 60 finite intervals each, both inspected frames, GL error zero, live contexts and an
+empty final kernel delta. Android qualification remains grouped with integration.
