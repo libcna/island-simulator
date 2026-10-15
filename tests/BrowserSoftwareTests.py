@@ -406,14 +406,16 @@ class BrowserSoftwareTests(unittest.TestCase):
                   "curled arms, and pale sucker rows in one draw")
         profile = ("near octopuses use a rear-swept mantle, smooth analytic skin light, "
                    "and thicker tapered arms")
-        geometry = "octopus near/far geometry 2892/24 vertices in one bounded batch"
+        geometry = "octopus near/far geometry 3186/24 vertices in one bounded batch"
+        eyes = ("near octopuses use raised ocular bulbs, horizontal pupils, and fitted "
+                "eye highlights")
         population = "octopuses 4 agents den, crawl, forage, and swim in reef and rocky shallows"
         camera = "octopus QA camera frames one exposed reef forager and all eight arms"
         def report():
             return {"passed": True, "views": [{"mode": "octopuses", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "octopuses.png", "intervals": [16.7] * 60,
-                "result": {"output": marker + "\n" + profile + "\n" + geometry + "\n"
+                "result": {"output": marker + "\n" + profile + "\n" + geometry + "\n" + eyes + "\n"
                     + population + "\n" + camera
                     + "\noctopuses 1/4 visible (near 1, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_octopus_report(report()), "octopuses.png")

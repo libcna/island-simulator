@@ -482,6 +482,27 @@ controller, hiding, mantle pulse, arm motion, culling and LOD are unchanged. Ins
 arms. The final 1280x720 frame passes with 119 colour bins, 33.22 luminance deviation, 187.73
 spatial contrast and an empty kernel delta.
 
+## Latest aquatic visual pass — octopus mantle proportion and ocular bulbs
+
+The following current-binary close audit still found the animal cartoon-like: its almost circular
+mantle read as a second ball behind the head, while each eye was only a flat gold button. The mantle
+is now narrower, taller and longer toward the rear, and the head uses a closer continuous skin tone.
+Each eye sits on a closed eight-sided ocular bulb integrated into the head and carries a fitted
+gold iris, wider horizontal dark pupil and restrained catchlight.
+
+The two eye bulbs and highlights add 294 vertices / 98 triangles per close animal, taking the exact
+near/far inventory from 2,892/24 to 3,186/24. The conservative four-animal allocation grows by only
+800 vertices (about 13 KiB) because it previously retained spare capacity. Four animals, one opaque
+dynamic draw, dens, motion, arm curl, mantle pulse, hiding and LOD are unchanged. A runtime check
+now enforces the exact near inventory. Inspected baseline `20261015T161248.570827Z-octopuses` and
+accepted current-binary evidence `20261015T202752.644913Z-octopuses` show the spherical mantle and
+button eyes replaced by an elongated profile and raised horizontal-pupil eyes. The final 1280x720
+frame passes with 117 colour bins, 33.20 luminance deviation, 188.71 spatial contrast and an empty
+kernel delta. Native and Web gates pin both the exact geometry and eye diagnostic; focused WebGL
+evidence `20261015T203024.741359Z-chrome-octopuses` passes 60 finite intervals, inspected current
+and after-simulation frames, GL error zero, a live context and an empty final kernel delta. Android
+qualification remains grouped with integration.
+
 ## Latest aquatic visual pass — stingray volume and silhouette
 
 The coastal-animal audit compared stingrays, octopuses and coconut crabs and selected the stingray

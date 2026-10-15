@@ -50,3 +50,25 @@ continuous surface relief and stronger arm roots. The accepted 1280x720 frame pa
 colour bins, 33.22 luminance deviation, 187.73 spatial contrast and an empty kernel delta. Native
 and Web gates pin the profile and exact geometry diagnostics so a stale executable cannot satisfy
 the focused view.
+
+## Elongated mantle and raised eyes (2026-10-15)
+
+A later current-binary animal audit still found two conspicuous cartoon cues: the mantle projected
+as an almost circular second ball and each eye was a flat gold button on the head surface. The
+mantle is now narrower, taller and longer toward the rear. A closer head/mantle pigment transition
+reduces the seam without removing the animal's two anatomical masses. Each eye receives a closed
+eight-sided ocular bulb embedded in the head plus a fitted gold iris, wider horizontal dark pupil
+and small pale catchlight.
+
+The ocular geometry adds 294 vertices / 98 triangles per close animal, changing the exact near/far
+inventory from 2,892/24 to 3,186/24. Existing slack means the conservative four-animal buffer grows
+by only 800 vertices, about 13 KiB. Population, one opaque draw, dens, controller, arm curl, mantle
+pulse, hiding and LOD are unchanged; a new runtime check enforces the exact close count. Inspected
+baseline `20261015T161248.570827Z-octopuses` and accepted llvmpipe/pixman evidence
+`20261015T202752.644913Z-octopuses` show the round mantle and button eyes replaced by a more organic
+rear profile and raised horizontal-pupil eyes. The final 1280x720 frame passes with 117 colour bins,
+33.20 luminance deviation, 188.71 spatial contrast and an empty kernel delta. Native and Web gates
+pin both the new inventory and eye diagnostic. Focused Chrome/SwiftShader evidence
+`20261015T203024.741359Z-chrome-octopuses` passes 60 finite intervals, inspected current and
+after-simulation frames, GL error zero, a live context and an empty final kernel delta. Android
+qualification remains grouped with later integration.
