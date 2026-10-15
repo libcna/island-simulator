@@ -35,8 +35,11 @@ namespace island
         constexpr int MaximumVerticesPerButterfly = 228;
         constexpr int MaximumFlowerVertices = 1800;
         constexpr int MaximumGeckoVertices = static_cast<int>(GeckoPopulation::Count) * 900;
+        constexpr int MaximumDragonflyVertices =
+            static_cast<int>(DragonflySwarm::Count) * 720;
         constexpr int MaximumVertexCount = static_cast<int>(ButterflyMeadow::ButterflyCount)
-            * MaximumVerticesPerButterfly + MaximumFlowerVertices + MaximumGeckoVertices;
+            * MaximumVerticesPerButterfly + MaximumFlowerVertices + MaximumGeckoVertices
+            +MaximumDragonflyVertices;
         constexpr std::string_view ButterflyDiagnostic =
             "island-simulator: clearing butterflies use hinged patterned wings in one culled batch";
         constexpr std::string_view ButterflyAnatomyDiagnostic =
@@ -45,6 +48,8 @@ namespace island
             "island-simulator: butterflies feed at three visible deterministic nectar-flower patches";
         constexpr std::string_view GeckoDiagnostic =
             "island-simulator: eight inland geckos rest, scurry from the player, and hide in the shared butterfly batch";
+        constexpr std::string_view DragonflyDiagnostic=
+            "island-simulator: nine stream and wetland dragonflies hover, patrol, and dart in the shared butterfly batch";
 
         struct ButterflyPalette
         {
@@ -309,6 +314,110 @@ namespace island
             }
         }
 
+        void AppendDragonfly(std::vector<VertexPositionColor>& vertices,
+                             const DragonflyState& fly)
+        {
+            const std::array<Color, 3> bodies = {{
+                Color(33, 116, 124, 255), Color(45, 89, 151, 255),
+                Color(62, 126, 69, 255)}};
+            const Color bodyColor = bodies[fly.colorVariant % bodies.size()];
+            const Color dark = Color::Lerp(bodyColor, Color(10, 17, 18, 255), .68f);
+            const Color abdomenBand = Color::Lerp(bodyColor, Color(174, 178, 93, 255), .18f);
+            const Color wing(184, 202, 198, 255);
+            const Color wingVein(83, 111, 108, 255);
+            const Color eye(75, 117, 64, 255);
+            const Color eyeGlint(185, 204, 151, 255);
+            const float s = fly.scale;
+            const Vector3 centre(fly.x, fly.y, fly.z);
+            const Vector3 forward(std::cos(fly.headingRadians), 0,
+                                  std::sin(fly.headingRadians));
+            const Vector3 levelRight(-forward.Z, 0, forward.X);
+            const float bankCos = std::cos(fly.bankRadians);
+            const float bankSin = std::sin(fly.bankRadians);
+            const Vector3 right = levelRight * bankCos + Vector3::Up * bankSin;
+            const Vector3 up = Vector3::Up * bankCos - levelRight * bankSin;
+
+            constexpr std::array<float, 4> ThoraxStations = {{-.060f, -.020f, .035f, .075f}};
+            constexpr std::array<float, 4> ThoraxWidths = {{.022f, .055f, .048f, .024f}};
+            constexpr std::array<float, 4> ThoraxHeights = {{.018f, .044f, .038f, .018f}};
+            AppendGeckoLoft(vertices, centre, right, up, forward, ThoraxStations,
+                            ThoraxWidths, ThoraxHeights, s, bodyColor, dark, dark);
+
+            const Vector3 head = centre + forward * (.098f * s) + up * (.006f * s);
+            AppendGeckoDiamond(vertices, head, right, up, forward,
+                               .052f * s, .039f * s, .036f * s, dark, dark);
+
+            // Seven visibly separated, steadily tapering abdominal segments give
+            // the insect its characteristic long needle silhouette.
+            Vector3 root = centre - forward * (.052f * s);
+            for (int segment = 0; segment < 7; ++segment) {
+                const float length = (.058f - .0025f * static_cast<float>(segment)) * s;
+                const Vector3 end = root - forward * length
+                    + right * (std::sin(fly.wingPhase * .08f
+                                        + static_cast<float>(segment) * .42f)
+                               * .0025f * s);
+                const Vector3 middle = (root + end) * .5f;
+                const float radius = (.018f - .0017f * static_cast<float>(segment)) * s;
+                AppendGeckoDiamond(vertices, middle, right, up, forward,
+                                   radius, radius * .78f, length * .53f,
+                                   segment % 2 == 0 ? bodyColor : abdomenBand, dark);
+                root = end;
+            }
+
+            // Opaque vertex colour is used by this shared portable batch, so use
+            // slim four-corner wings and darker veins instead of broad pale planes.
+            const float beat = std::sin(fly.wingPhase) * .030f * s;
+            for (const float side : {-1.0f, 1.0f}) {
+                for (int pair = 0; pair < 2; ++pair) {
+                    const float rootForward = pair == 0 ? .030f : -.020f;
+                    const float reach = pair == 0 ? .235f : .205f;
+                    const float tipForward = pair == 0 ? .080f : -.095f;
+                    const float rearForward = pair == 0 ? .035f : -.135f;
+                    const Vector3 base = centre + forward * (rootForward * s)
+                        + right * (side * .025f * s);
+                    const Vector3 shoulder = base + right * (side * .050f * s)
+                        + forward * ((pair == 0 ? .018f : -.012f) * s);
+                    const Vector3 tip = base + right * (side * reach * s)
+                        + forward * (tipForward * s)
+                        + up * (beat * (side > 0 ? 1.0f : -1.0f));
+                    const Vector3 trailing = base + right * (side * reach * .72f * s)
+                        + forward * (rearForward * s)
+                        + up * (beat * .72f * (side > 0 ? 1.0f : -1.0f));
+                    AddDoubleSidedTriangle(vertices, base, shoulder, tip, wing);
+                    AddDoubleSidedTriangle(vertices, base, tip, trailing, wing);
+                    AppendGeckoSegment(vertices, base, tip, .0032f * s, wingVein);
+                    AppendGeckoSegment(vertices, shoulder, trailing, .0024f * s, wingVein);
+                }
+            }
+
+            // Six swept legs remain subordinate to the wing silhouette but stop a
+            // close individual from looking like a finned vehicle.
+            for (int leg = 0; leg < 3; ++leg) {
+                for (const float side : {-1.0f, 1.0f}) {
+                    const Vector3 hip = centre + forward * ((.035f - leg * .034f) * s)
+                        + right * (side * .035f * s) - up * (.022f * s);
+                    const Vector3 knee = hip + right * (side * (.040f + leg * .006f) * s)
+                        - forward * ((.018f + leg * .018f) * s) - up * (.034f * s);
+                    const Vector3 foot = knee + right * (side * .030f * s)
+                        - forward * ((.020f + leg * .014f) * s) + up * (.007f * s);
+                    AppendGeckoSegment(vertices, hip, knee, .0030f * s, dark);
+                    AppendGeckoSegment(vertices, knee, foot, .0022f * s, dark);
+                }
+            }
+
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 eyeCentre = head + right * (side * .040f * s)
+                    + forward * (.020f * s) + up * (.014f * s);
+                AppendGeckoDiamond(vertices, eyeCentre, right, up, forward,
+                                   .019f * s, .022f * s, .016f * s, eye, eye);
+                const Vector3 glint = eyeCentre + right * (side * .015f * s)
+                    + forward * (.013f * s) + up * (.012f * s);
+                AddDoubleSidedTriangle(vertices, glint + up * (.005f * s),
+                    glint - forward * (.005f * s) - up * (.003f * s),
+                    glint + forward * (.005f * s) - up * (.003f * s), eyeGlint);
+            }
+        }
+
         [[nodiscard]] Vector3 LocalPoint(const Vector3& centre, const Vector3& right,
                                          const Vector3& up, const Vector3& forward,
                                          const float x, const float y, const float z,
@@ -474,10 +583,12 @@ namespace island
         std::cout << ButterflyAnatomyDiagnostic << '\n';
         std::cout << ButterflyHabitatDiagnostic << '\n';
         std::cout << GeckoDiagnostic << '\n';
+        std::cout << DragonflyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyHabitatDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(GeckoDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(DragonflyDiagnostic);
     }
 
     ButterflyRenderer::~ButterflyRenderer() = default;
@@ -486,13 +597,15 @@ namespace island
                                   const Vector3& cameraPosition,
                                   const std::span<const ButterflyState> butterflies,
                                   const std::span<const ButterflyFlowerPatch> flowerPatches,
-                                  const std::span<const GeckoState> geckos)
+                                  const std::span<const GeckoState> geckos,
+                                  const std::span<const DragonflyState> dragonflies)
     {
         stagingVertices_.clear();
         visibleButterflyCount_ = 0;
         visibleNearButterflyCount_ = 0;
         visibleFarButterflyCount_ = 0;
         visibleGeckoCount_ = 0;
+        visibleDragonflyCount_=0;
         drawCallCount_ = 0;
         const BoundingFrustum frustum(view * projection);
         for (std::size_t index = 0; index < flowerPatches.size(); ++index) {
@@ -514,6 +627,12 @@ namespace island
             }
             AppendGecko(stagingVertices_, gecko);
             ++visibleGeckoCount_;
+        }
+        for(const DragonflyState& fly:dragonflies){
+            const Vector3 centre(fly.x,fly.y,fly.z);
+            if(Vector3::DistanceSquared(centre,cameraPosition)>maximumDistance_*maximumDistance_
+                ||!frustum.Intersects(BoundingSphere(centre,.46f*fly.scale)))continue;
+            AppendDragonfly(stagingVertices_,fly);++visibleDragonflyCount_;
         }
         for (const ButterflyState& butterfly : butterflies) {
             const Vector3 centre(butterfly.x, butterfly.y, butterfly.z);

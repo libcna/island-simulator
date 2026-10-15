@@ -18,7 +18,7 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "butterflies", "geckos", "crocodiles", "fish", "shark", "dolphins", "bear", "resident")
+SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "butterflies", "geckos", "dragonflies", "crocodiles", "fish", "shark", "dolphins", "bear", "resident")
 
 
 def validate_shipwreck_report(report):
@@ -420,6 +420,28 @@ def validate_gecko_report(report):
     return frames
 
 
+def validate_dragonfly_report(report):
+    views=report.get("views",[])
+    if report.get("passed") is not True or len(views)!=1 or views[0].get("mode")!="dragonflies":
+        raise RuntimeError("dragonfly report lacks one successful focused view")
+    view=views[0];result=view.get("result",{});log=result.get("output","")
+    frames=(view.get("screenshot"),view.get("afterSimulationScreenshot"))
+    intervals=view.get("intervals",[])
+    if (view.get("passed") is not True or view.get("glError")!=0
+        or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+        or "SwiftShader" not in view.get("renderer","") or len(intervals)!=60
+        or not all(isinstance(value,(int,float)) and not isinstance(value,bool)
+                   and math.isfinite(value) and value>0 for value in intervals)
+        or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
+        or len(set(frames))!=2
+        or "nine stream and wetland dragonflies hover, patrol, and dart in the shared butterfly batch" not in log
+        or "dragonfly QA camera frames one visible wet-habitat insect broadside" not in log
+        or not re.search(r"dragonflies [1-9]/9 visible in shared draw",log)
+        or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):
+        raise RuntimeError("dragonfly view lacks current anatomy, frames or clean graphics state")
+    return frames
+
+
 def validate_crocodile_report(report):
     views = report.get("views", [])
     if report.get("passed") is not True or len(views) != 1 or views[0].get("mode") != "crocodiles":
@@ -750,6 +772,16 @@ def main(argv=None):
                 if identities[0]["sha256"]==identities[1]["sha256"]:
                     raise RuntimeError("gecko separated-time frames are byte-identical")
                 metadata["gecko_frames"]=identities
+            if args.scope == "dragonflies":
+                dragonfly_report=json.loads((evidence / "island-browser-dragonflies.json").read_text())
+                frames=validate_dragonfly_report(dragonfly_report)
+                paths=[evidence / frame for frame in frames]
+                if not all(path.is_file() for path in paths):
+                    raise RuntimeError("dragonfly image file missing")
+                identities=[artifact_identity(path) for path in paths]
+                if identities[0]["sha256"]==identities[1]["sha256"]:
+                    raise RuntimeError("dragonfly separated-time frames are byte-identical")
+                metadata["dragonfly_frames"]=identities
             if args.scope == "crocodiles":
                 crocodile_report=json.loads((evidence / "island-browser-crocodiles.json").read_text())
                 frames=validate_crocodile_report(crocodile_report)

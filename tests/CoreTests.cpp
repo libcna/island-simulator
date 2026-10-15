@@ -5,6 +5,7 @@
 #include "IslandSimulator/BirdPerchLayout.hpp"
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/GeckoPopulation.hpp"
+#include "IslandSimulator/DragonflySwarm.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/CoastalMaterial.hpp"
 #include "IslandSimulator/CoastalWindResponse.hpp"
@@ -2908,6 +2909,107 @@ int main()
               && std::hypot(hiddenGecko.x-initialReactiveGecko.x,
                             hiddenGecko.z-initialReactiveGecko.z)>.2f,
           "a nearby observer prompts a gecko to scurry away and hide");
+
+    island::DragonflySwarm dragonflies(terrain);
+    island::DragonflySwarm repeatedDragonflies(terrain);
+    island::DragonflySwarm invalidInputDragonflies(terrain);
+    Check(dragonflies.Dragonflies().size()==island::DragonflySwarm::Count
+              &&dragonflies.Homes().size()==island::DragonflySwarm::Count,
+          "dragonfly simulation exposes nine bounded wet-habitat animals");
+    for(std::size_t index=0;index<dragonflies.Dragonflies().size();++index) {
+        const auto& dragonfly=dragonflies.Dragonflies()[index];
+        const auto& repeated=repeatedDragonflies.Dragonflies()[index];
+        const auto& home=dragonflies.Homes()[index];
+        const auto sample=terrain.Sample(dragonfly.x,dragonfly.z);
+        const auto inland=island::IslandEnvironmentField::SampleInland(
+            dragonfly.x,dragonfly.z,sample.signedShoreDistance);
+        Check(dragonfly.x==repeated.x&&dragonfly.y==repeated.y
+                  &&dragonfly.z==repeated.z
+                  &&dragonfly.headingRadians==repeated.headingRadians
+                  &&dragonfly.behavior==repeated.behavior
+                  &&dragonfly.colorVariant==repeated.colorVariant,
+              "dragonfly construction is deterministic");
+        Check(std::hypot(dragonfly.x-home.x,dragonfly.z-home.z)<=home.radius
+                  &&home.radius>=8.5f&&home.radius<=10.5f,
+              "each dragonfly begins inside a compact stream or wetland range");
+        Check(sample.height>0.0f&&sample.signedShoreDistance>12.0f
+                  &&sample.slopeRadians<.55f&&inland.moisture>.34f
+                  &&dragonfly.y>=sample.height+.70f
+                  &&dragonfly.y<=sample.height+1.22f,
+              "each dragonfly begins above suitable moist inland habitat");
+        Check(dragonfly.scale>=.169f&&dragonfly.scale<=.191f,
+              "dragonflies retain a plausible sub-ten-centimetre body scale");
+    }
+    invalidInputDragonflies.Update(quietNan,quietNan,quietNan,quietNan);
+    Check(invalidInputDragonflies.DormantSimulationCount()
+                  ==static_cast<int>(island::DragonflySwarm::Count)
+              &&std::ranges::all_of(invalidInputDragonflies.Dragonflies(),
+                    [](const auto& dragonfly) {
+                        return std::isfinite(dragonfly.x)
+                            &&std::isfinite(dragonfly.y)
+                            &&std::isfinite(dragonfly.z)
+                            &&std::isfinite(dragonfly.headingRadians)
+                            &&std::isfinite(dragonfly.wingPhase);
+                    }),
+          "dragonflies reject non-finite frame and observer input without state poisoning");
+    bool observedDragonflyHover=false;
+    bool observedDragonflyPatrol=false;
+    bool observedDragonflyDart=false;
+    for(int frame=0;frame<4000;++frame) {
+        dragonflies.Update(1.0f/30.0f,0.0f,100.0f,0.0f);
+        repeatedDragonflies.Update(1.0f/30.0f,0.0f,100.0f,0.0f);
+        for(std::size_t index=0;index<dragonflies.Dragonflies().size();++index) {
+            const auto& dragonfly=dragonflies.Dragonflies()[index];
+            const auto& repeated=repeatedDragonflies.Dragonflies()[index];
+            const auto& home=dragonflies.Homes()[index];
+            const auto sample=terrain.Sample(dragonfly.x,dragonfly.z);
+            const auto inland=island::IslandEnvironmentField::SampleInland(
+                dragonfly.x,dragonfly.z,sample.signedShoreDistance);
+            Check(dragonfly.x==repeated.x&&dragonfly.y==repeated.y
+                      &&dragonfly.z==repeated.z
+                      &&dragonfly.headingRadians==repeated.headingRadians
+                      &&dragonfly.wingPhase==repeated.wingPhase
+                      &&dragonfly.behavior==repeated.behavior,
+                  "dragonfly simulation remains deterministic over a long session");
+            Check(std::hypot(dragonfly.x-home.x,dragonfly.z-home.z)<=home.radius+.01f
+                      &&sample.height>0.0f&&sample.signedShoreDistance>12.0f
+                      &&sample.slopeRadians<.55f&&inland.moisture>.34f
+                      &&dragonfly.y>=sample.height+.45f
+                      &&dragonfly.y<=sample.height+1.42f,
+                  "dragonflies remain airborne in bounded moist habitats");
+            Check(std::isfinite(dragonfly.speed)&&dragonfly.speed>=0.0f
+                      &&std::isfinite(dragonfly.wingPhase)
+                      &&std::isfinite(dragonfly.bankRadians),
+                  "dragonfly flight state remains finite");
+            observedDragonflyHover|=
+                dragonfly.behavior==island::DragonflyBehavior::Hover;
+            observedDragonflyPatrol|=
+                dragonfly.behavior==island::DragonflyBehavior::Patrol;
+            observedDragonflyDart|=
+                dragonfly.behavior==island::DragonflyBehavior::Dart;
+        }
+    }
+    Check(observedDragonflyHover&&observedDragonflyPatrol&&observedDragonflyDart,
+          "dragonflies complete hover, patrol, and dart activity states");
+    Check(dragonflies.FullSimulationCount()+dragonflies.ReducedSimulationCount()
+                  +dragonflies.DormantSimulationCount()
+              ==static_cast<int>(island::DragonflySwarm::Count),
+          "dragonfly simulation tiers account for the complete population");
+    island::DragonflySwarm reactiveDragonflies(terrain);
+    const auto initialReactiveDragonfly=reactiveDragonflies.Dragonflies()[1U];
+    bool reactiveDart=false;
+    for(int frame=0;frame<50;++frame) {
+        reactiveDragonflies.Update(1.0f/60.0f,initialReactiveDragonfly.x,
+                                   initialReactiveDragonfly.y,
+                                   initialReactiveDragonfly.z);
+        reactiveDart|=reactiveDragonflies.Dragonflies()[1U].behavior
+            ==island::DragonflyBehavior::Dart;
+    }
+    const auto& escapedDragonfly=reactiveDragonflies.Dragonflies()[1U];
+    Check(reactiveDart
+              &&std::hypot(escapedDragonfly.x-initialReactiveDragonfly.x,
+                            escapedDragonfly.z-initialReactiveDragonfly.z)>.25f,
+          "a nearby observer prompts a short dragonfly escape dart");
 
     island::SeaTurtleGroup seaTurtles(terrain);
     island::SeaTurtleGroup repeatedSeaTurtles(terrain);

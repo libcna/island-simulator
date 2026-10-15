@@ -83,7 +83,29 @@ SHA-256 `b97097bfd39510ab0a679d7ba8b8f52a9f43ce2ce1c80d0b8a03cbe55a66e52d`,
 self-shadowing. The filtered non-display regression passes 60/60 (five display-producing tests
 remain disabled). Details are in `docs/large-object-shadows.md`.
 
-## Latest ecosystem implementation — first small-fauna stage
+## Latest ecosystem implementation — second small-fauna stage
+
+Macro-ecosystem item 17 now also includes nine deterministic dragonflies in three moist inland
+habitats: the seasonal wetland and two stream sections. They hover, patrol and make short escape
+darts from a nearby player, continuously follow ground-relative altitude and use the shared
+distance-throttled wildlife policy. The close roughly ten-centimetre model has a lofted thorax,
+highlighted compound eyes, seven tapering abdominal segments, four veined wings and six swept legs.
+Bank is applied to the full local frame. All dragonfly vertices join the existing butterfly/gecko
+dynamic batch, adding no renderer, buffer, material switch or draw call.
+
+Accepted native llvmpipe evidence is
+`build-consumer/software-captures/20261015T022433.392934Z-dragonflies` (175 colour bins, 18.68
+luminance deviation, 38.59 spatial contrast; inspected). Chrome/SwiftShader evidence
+`build/browser-software/20261015T022628.199799Z-chrome-dragonflies` passes 60 finite positive
+intervals, GL0, a live context, two distinct frames and clean kernel monitoring; the first frame was
+inspected. Core tests and the valid world report fingerprint `1fa3af31990349c6` cover deterministic
+identity, habitat moisture, altitude, bounded movement, all behaviours and player reaction. ARM64
+assemble/lint passes without emulator/KVM (24,107,467-byte APK, SHA-256
+`14239a5c904f4f97be5589638eabcd84fa73244ec83846e732ec7176ff961a23`, 19,064,896-byte stripped
+`libmain.so`). This is still a partial item: skinks, hermit/coconut crabs, additional shorebirds,
+fruit bats, cicadas and beetles remain. Details are in `docs/small-fauna.md`.
+
+## Previous ecosystem implementation — first small-fauna stage
 
 Macro-ecosystem item 17 is now partially implemented rather than empty. Eight deterministic inland
 geckos occupy compact clearing, wetland-edge and interior habitats. They rest, scurry away from a
@@ -3917,10 +3939,10 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   ripples, shells, small fish, suspended particles, subtle caustics, blue-green depth extinction.
   Completed by the spatial habitat work plus the 2026-10-15 shallow-scene audit recorded above.
 - [~] 17. Small fauna with simple behaviour (for example a gecko that sits, flees, disappears):
-  eight grounded rest/flee/hide geckos are complete in the existing butterfly batch, with native,
-  WebGL and ARM64 qualification described above and in `docs/small-fauna.md`. Skinks, hermit crabs,
-  coconut crabs, more small crabs, shorebirds/seabirds, fruit bats, dragonflies, cicadas and beetles
-  remain; monkeys and boars remain.
+  eight grounded rest/flee/hide geckos and nine moist-habitat hover/patrol/dart dragonflies are
+  complete in the existing butterfly batch, with native, WebGL and ARM64 qualification described
+  above and in `docs/small-fauna.md`. Skinks, hermit crabs, coconut crabs, more small crabs,
+  shorebirds/seabirds, fruit bats, cicadas and beetles remain.
 - [x] 18. Tie wildlife to places: crabs on specific beach sections with burrows, butterflies at
   specific flowers, coastal/jungle/seabirds in their zones, reef fish at coral patches and small
   schools over sand, turtles over seagrass. The shared habitat completion and evidence are recorded

@@ -6,6 +6,7 @@
 #include "IslandSimulator/SpiderWebLayout.hpp"
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/GeckoPopulation.hpp"
+#include "IslandSimulator/DragonflySwarm.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/DolphinPod.hpp"
@@ -15,6 +16,7 @@
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/JungleGrounding.hpp"
 #include "IslandSimulator/MonkeyTroop.hpp"
@@ -115,6 +117,7 @@ namespace
         island::BirdFlock birds{terrain};
         island::ButterflyMeadow butterflies{terrain};
         island::GeckoPopulation geckos{terrain};
+        island::DragonflySwarm dragonflies{terrain};
         island::CrabColony crabs{terrain};
         island::BoarHerd boars{terrain};
         island::FishSchools fish{terrain};
@@ -417,6 +420,17 @@ namespace
             hash.AddByte(gecko.colorVariant);
             hash.AddFloat(home.x);hash.AddFloat(home.z);hash.AddFloat(home.radius);
         }
+        hash.AddSize(world.dragonflies.Dragonflies().size());
+        for(std::size_t index=0;index<world.dragonflies.Dragonflies().size();++index) {
+            const auto& dragonfly=world.dragonflies.Dragonflies()[index];
+            const auto& home=world.dragonflies.Homes()[index];
+            HashPosition(hash,dragonfly.x,dragonfly.y,dragonfly.z);
+            hash.AddFloat(dragonfly.headingRadians);
+            hash.AddFloat(dragonfly.scale);
+            hash.AddEnum(dragonfly.behavior);
+            hash.AddByte(dragonfly.colorVariant);
+            hash.AddFloat(home.x);hash.AddFloat(home.z);hash.AddFloat(home.radius);
+        }
 
         hash.AddSize(world.boars.Boars().size());
         for (const auto& boar : world.boars.Boars()) {
@@ -675,6 +689,8 @@ namespace
                 == island::ButterflyMeadow::HabitatCount
             && world.geckos.Geckos().size()==island::GeckoPopulation::Count
             && world.geckos.Homes().size()==island::GeckoPopulation::Count
+            && world.dragonflies.Dragonflies().size()==island::DragonflySwarm::Count
+            && world.dragonflies.Homes().size()==island::DragonflySwarm::Count
             && world.crabs.Crabs().size() == island::CrabColony::CrabCount
             && world.boars.Boars().size() == island::BoarHerd::BoarCount
             && world.snakes->Snakes().size() == island::SnakePopulation::Count
@@ -806,6 +822,24 @@ namespace
                 &&std::hypot(gecko.x-home.x,gecko.z-home.z)<=home.radius
                 &&sample.signedShoreDistance>=34.0f&&sample.slopeRadians<.52f
                 &&std::fabs(gecko.y-sample.height-.038f)<.001f;
+        }
+        for(std::size_t index=0;index<world.dragonflies.Dragonflies().size();++index) {
+            const auto& dragonfly=world.dragonflies.Dragonflies()[index];
+            const auto& home=world.dragonflies.Homes()[index];
+            const auto sample=world.terrain.Sample(dragonfly.x,dragonfly.z);
+            const auto inland=island::IslandEnvironmentField::SampleInland(
+                dragonfly.x,dragonfly.z,sample.signedShoreDistance);
+            finiteSpecializedData=finiteSpecializedData
+                &&AllFinite(dragonfly.x,dragonfly.y,dragonfly.z,
+                             dragonfly.headingRadians,dragonfly.speed,
+                             dragonfly.wingPhase,dragonfly.bankRadians,
+                             dragonfly.scale,home.x,home.z,home.radius)
+                &&dragonfly.scale>0.0f&&home.radius>0.0f
+                &&std::hypot(dragonfly.x-home.x,dragonfly.z-home.z)<=home.radius
+                &&sample.height>0.0f&&sample.signedShoreDistance>12.0f
+                &&sample.slopeRadians<.55f&&inland.moisture>.34f
+                &&dragonfly.y>=sample.height+.70f
+                &&dragonfly.y<=sample.height+1.22f;
         }
         for (const auto& boar : world.boars.Boars()) {
             finiteSpecializedData = finiteSpecializedData
@@ -1238,6 +1272,7 @@ namespace
                << "    \"butterflyFlowerPatches\": "
                << world.butterflies.FlowerPatches().size() << ",\n"
                << "    \"geckos\": " << world.geckos.Geckos().size() << ",\n"
+               << "    \"dragonflies\": " << world.dragonflies.Dragonflies().size() << ",\n"
                << "    \"beachCrabs\": " << world.crabs.Crabs().size() << ",\n"
                << "    \"crabBurrows\": " << world.crabs.Burrows().size() << ",\n"
                << "    \"wildBoars\": " << world.boars.Boars().size() << ",\n"
