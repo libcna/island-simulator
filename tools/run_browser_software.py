@@ -407,6 +407,7 @@ def validate_crab_report(report):
         or "near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs" not in log
         or "near crabs use low broad shells with retained lateral carapace corners" not in log
         or "six debris-linked crab colonies share visible sand burrows" not in log
+        or "live beach crabs keep 0.72m centre separation while foraging" not in log
         or "crab QA camera frames a debris-linked burrow and its foraging colony" not in log
         or not re.search(r"crab QA subject [0-9]+ is [0-9.]+m from the burrow", log)
         or not re.search(r"crabs [1-9][0-9]*/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", log)

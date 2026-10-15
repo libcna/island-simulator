@@ -65,6 +65,7 @@ namespace island
         static constexpr float MaximumShoreDistance = 17.0f;
         static constexpr float FullSimulationDistance = 82.0f;
         static constexpr float ReducedSimulationDistance = 210.0f;
+        static constexpr float MinimumAgentSeparation = 0.72f;
 
         explicit CrabColony(const IslandTerrain& terrain);
         /** @brief Transactionally reanchors six colonies beside real non-solid beach debris. */
@@ -102,7 +103,7 @@ namespace island
 
         void InitializeAgent(std::size_t index);
         void RebuildBurrows() noexcept;
-        void UpdateAgent(Agent& agent, float deltaSeconds,
+        void UpdateAgent(Agent& agent, std::size_t index, float deltaSeconds,
                          float observerX, float observerZ,
                          bool observerValid) noexcept;
         [[nodiscard]] bool IsValidHabitat(float x, float z,

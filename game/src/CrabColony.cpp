@@ -235,7 +235,7 @@ namespace island
             const std::uint32_t divisor = WildlifeActivationPolicy::UpdateDivisor(
                 agent.state.simulationTier);
             if ((frameIndex_ + index) % divisor == 0U) {
-                UpdateAgent(agent, std::min(agent.accumulatedSeconds, 0.5f),
+                UpdateAgent(agent, index, std::min(agent.accumulatedSeconds, 0.5f),
                             observerX, observerZ, observerValid);
                 agent.accumulatedSeconds = 0.0f;
             }
@@ -257,7 +257,8 @@ namespace island
 #endif
     }
 
-    void CrabColony::UpdateAgent(Agent& agent, const float deltaSeconds,
+    void CrabColony::UpdateAgent(Agent& agent, const std::size_t index,
+                                 const float deltaSeconds,
                                  const float observerX, const float observerZ,
                                  const bool observerValid) noexcept
     {
@@ -330,12 +331,24 @@ namespace island
             + std::cos(agent.state.travelHeadingRadians) * agent.state.speed * deltaSeconds;
         const float candidateZ = agent.state.z
             + std::sin(agent.state.travelHeadingRadians) * agent.state.speed * deltaSeconds;
-        if (IsValidHabitat(candidateX, candidateZ, agent.home)) {
+        const bool separated = std::ranges::all_of(agents_, [&](const Agent& other) {
+            const std::size_t otherIndex = static_cast<std::size_t>(
+                &other - agents_.data());
+            return otherIndex == index
+                || std::hypot(candidateX - other.state.x,
+                              candidateZ - other.state.z)
+                    >= MinimumAgentSeparation;
+        });
+        if (IsValidHabitat(candidateX, candidateZ, agent.home) && separated) {
             agent.state.x = candidateX;
             agent.state.z = candidateZ;
         } else {
-            agent.state.travelHeadingRadians = std::atan2(
+            const float homeHeading = std::atan2(
                 agent.home.z - agent.state.z, agent.home.x - agent.state.x);
+            agent.state.travelHeadingRadians = MoveAngle(
+                agent.state.travelHeadingRadians,
+                homeHeading + static_cast<float>(agent.preferredDirection) * 0.62f,
+                0.48f);
             agent.state.speed = std::min(agent.state.speed, 0.65f);
         }
         agent.state.bodyYawRadians = MoveAngle(

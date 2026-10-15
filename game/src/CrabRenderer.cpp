@@ -59,6 +59,8 @@ namespace island
             "island-simulator: near crabs use low broad shells with retained lateral carapace corners";
         constexpr std::string_view CrabHabitatDiagnostic =
             "island-simulator: six debris-linked crab colonies share visible sand burrows";
+        constexpr std::string_view CrabSpacingDiagnostic =
+            "island-simulator: live beach crabs keep 0.72m centre separation while foraging";
         constexpr std::string_view HermitCrabDiagnostic =
             "island-simulator: ten sheltered-beach hermit crabs pause, forage, and retreat in the shared crab batch";
         constexpr std::string_view HermitCrabAnatomyDiagnostic =
@@ -761,6 +763,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(CrabAnatomyDiagnostic);
         std::cout << CrabHabitatDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CrabHabitatDiagnostic);
+        std::cout << CrabSpacingDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(CrabSpacingDiagnostic);
         std::cout << HermitCrabDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(HermitCrabDiagnostic);
         std::cout << HermitCrabAnatomyDiagnostic << '\n';

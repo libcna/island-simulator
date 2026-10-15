@@ -837,6 +837,7 @@ try {
               && log.includes("near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs")
               && log.includes("near crabs use low broad shells with retained lateral carapace corners")
               && log.includes("six debris-linked crab colonies share visible sand burrows")
+              && log.includes("live beach crabs keep 0.72m centre separation while foraging")
               && log.includes("crab QA camera frames a debris-linked burrow and its foraging colony")
               && /crab QA subject [0-9]+ is [0-9.]+m from the burrow/.test(log)
               && /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))

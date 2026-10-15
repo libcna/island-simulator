@@ -131,6 +131,22 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest visual-audit implementation — live beach-crab spacing
+
+The aquatic matrix exposed a real crab regression: the debris-linked homes began separated, but
+live foraging had no inter-agent spacing, so several broad shells and limbs converged into a pile.
+Accepted moves now keep every beach crab at least 0.72 m from all others; blocked animals turn home
+with deterministic lateral bias and reduced speed. Thirty agents, six shared burrows, habitat,
+player scuttle response, geometry, LOD and one-draw batching remain unchanged. The 400-second CPU
+route samples all pairs every second and rejects overlap.
+
+The native capture supervisor's obsolete isolated-subject regex was also replaced by the current
+subject-to-burrow contract already used by browser/Web gates, and all gates now pin the new live
+separation diagnostic. Failed evidence `20261015T144744.062847Z-crabs` is retained. Inspected
+same-camera evidence `20261015T150132.598386Z-crabs` passes at 1280x720 with 279 colour bins, 41.08
+luminance deviation, 204.90 spatial contrast and an empty kernel delta; the five-member colony
+remains visibly associated with its burrow without overlapping bodies.
+
 ## Latest visual-audit implementation — walking-height grass pigment
 
 The post-animal vegetation matrix found the ground-broadleaf geometry and floor material coherent,

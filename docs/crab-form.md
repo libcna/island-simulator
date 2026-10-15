@@ -172,3 +172,27 @@ Geometry, thirty-agent population, palettes, 38 m LOD, one dynamic draw and audi
 Baseline `20261014T155226.177045Z-crabs` and final `20261014T160445.974296Z-crabs` were inspected;
 the latter passes at 325 colour bins, 26.46 luminance deviation and 136.09 spatial contrast and
 shows individually readable low broad shells instead of one piled mass.
+
+## Live colony separation and current habitat gate (2026-10-15)
+
+The aquatic-wildlife audit found a new failure in the current debris/burrow composition. Home
+points still began at least 1.12 m apart, but autonomous foraging had no live agent separation, so
+several broad shells, legs and claws converged into one pile. The native supervisor also retained
+the obsolete isolated-subject regex after the camera intentionally changed to show a shared burrow;
+browser/Web gates already used the new habitat composition.
+
+Every accepted movement candidate now remains at least 0.72 m from all other live beach crabs.
+A blocked candidate turns toward home with a deterministic lateral bias and reduces speed rather
+than teleporting or stopping the colony. The thirty agents, six five-member colonies, home points,
+burrows, player-triggered scuttle, habitat limits, mesh, materials, LOD and one draw are unchanged.
+The long native CPU route samples all pairs every simulated second for 400 seconds and rejects an
+overlap. A shared runtime marker pins the separation policy in native and Web capture gates. The
+native validator now checks the current subject-to-burrow composition rather than asking for a
+removed isolated-animal diagnostic.
+
+The initially failed but visually useful frame is retained at `20261015T144744.062847Z-crabs`.
+Current evidence `20261015T150132.598386Z-crabs` passes at 1280x720 with 279 colour bins, 41.08
+luminance deviation, 204.90 spatial contrast and an empty kernel delta. The inspected same-camera
+comparison keeps all five animals around their debris-linked burrow while restoring individually
+readable shells and limbs. This proves the bounded native route and one current composition, not
+physical-device performance or collision-free motion under every possible future controller.

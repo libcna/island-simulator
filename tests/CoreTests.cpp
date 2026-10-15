@@ -3666,6 +3666,16 @@ int main()
             observedPause = observedPause || crab.behavior == island::CrabBehavior::Pause;
             observedForage = observedForage || crab.behavior == island::CrabBehavior::Forage;
         }
+        if (frame % 30 == 0) {
+            for (std::size_t first = 0; first < states.size(); ++first) {
+                for (std::size_t second = first + 1; second < states.size(); ++second) {
+                    Check(std::hypot(states[first].x - states[second].x,
+                                     states[first].z - states[second].z)
+                              >= island::CrabColony::MinimumAgentSeparation - 0.001f,
+                          "live beach crabs overlap while foraging");
+                }
+            }
+        }
     }
     Check(observedPause && observedForage,
           "beach-crab colonies alternate between quiet and foraging behaviour");
