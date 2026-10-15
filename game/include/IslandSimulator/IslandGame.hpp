@@ -50,6 +50,8 @@
 #include "IslandSimulator/FruitBatRenderer.hpp"
 #include "IslandSimulator/StingrayGroup.hpp"
 #include "IslandSimulator/StingrayRenderer.hpp"
+#include "IslandSimulator/OctopusGroup.hpp"
+#include "IslandSimulator/OctopusRenderer.hpp"
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
 #include "IslandSimulator/GrassInteractionModel.hpp"
 #include "IslandSimulator/ControlTransitionDiagnostic.hpp"
@@ -164,6 +166,7 @@ namespace island
         FruitBatRoostDetail,
         FishDetail,
         StingrayDetail,
+        OctopusDetail,
         SharkDetail,
         DolphinDetail,
         MonkeyDetail,
@@ -313,6 +316,7 @@ namespace island
         std::unique_ptr<SpiderColony> spiders_;
         FishSchools fishSchools_;
         StingrayGroup stingrayGroup_;
+        OctopusGroup octopusGroup_;
         SeaTurtleGroup seaTurtleGroup_;
         SharkPatrol sharkPatrol_;
         DolphinPod dolphinPod_;
@@ -377,6 +381,7 @@ namespace island
         std::unique_ptr<DistantSceneryRenderer> distantSceneryRenderer_;
         std::unique_ptr<FishRenderer> fishRenderer_;
         std::unique_ptr<StingrayRenderer> stingrayRenderer_;
+        std::unique_ptr<OctopusRenderer> octopusRenderer_;
         std::unique_ptr<GrassRenderer> grassRenderer_;
         std::unique_ptr<JungleRenderer> jungleRenderer_;
         std::unique_ptr<MonkeyRenderer> monkeyRenderer_;

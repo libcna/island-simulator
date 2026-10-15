@@ -3820,7 +3820,15 @@ progress or require player interaction; dangerous species keep their distance li
   focused current Chrome/SwiftShader two-frame gate pass. Breaching/wakes/social motion, skin
   material polish, current Android execution and integrated performance measurement remain open; see
   `docs/dolphins.md`.
-- [ ] Octopuses (reef/rock shallows)
+- [~] Octopuses (reef/rock shallows). Four deterministic peaceful agents now use authoritative
+  shallow-seabed reef/rock dens and cycle through den, crawl, forage and short swim states. They
+  remain inside small home ranges, keep seabed/surface clearance, hide from a nearby observer and
+  use distance simulation tiers. The current one-draw near model has a pulsing rounded mantle,
+  head/eyes, eight independently curled continuous tapered arms and sparse pale suckers; a reduced
+  far silhouette is retained. The 120-second deterministic habitat test, world report, inspected
+  native Release view, WebAssembly compilation and ARM64 assemble/lint pass. A focused WebGL image
+  audit and final facial/material polish are still open, so this item is deliberately not marked
+  complete. See `docs/octopuses.md`.
 
 Human character backlog requested by the operator:
 

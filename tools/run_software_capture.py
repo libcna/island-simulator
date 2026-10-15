@@ -943,6 +943,14 @@ def main():
                         raise RuntimeError(f"stingray integration diagnostic missing: {marker}")
                 if not re.search(r"stingrays [1-5]/5 visible \(near [1-5], far [0-5]\), 1 draw",diagnostics):
                     raise RuntimeError("stingray capture did not submit a near detailed animal")
+            if args.viewpoint == "octopuses":
+                for marker in (
+                    "octopuses use pulsing mantles, expressive eyes, eight independently curled arms, and pale sucker rows in one draw",
+                    "octopuses 4 agents den, crawl, forage, and swim in reef and rocky shallows",
+                    "octopus QA camera frames one exposed reef forager and all eight arms"):
+                    if marker not in diagnostics: raise RuntimeError(f"octopus integration diagnostic missing: {marker}")
+                if not re.search(r"octopuses [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw",diagnostics):
+                    raise RuntimeError("octopus capture did not submit a near detailed animal")
             if args.viewpoint == "shark":
                 if "shark retains deep dorsal and pale ventral countershading through water tint" not in diagnostics:
                     raise RuntimeError("current shark countershading is missing; check for a stale executable")

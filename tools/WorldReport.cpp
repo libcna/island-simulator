@@ -30,6 +30,7 @@
 #include "IslandSimulator/SeaTurtleGroup.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/StingrayGroup.hpp"
+#include "IslandSimulator/OctopusGroup.hpp"
 #include "IslandSimulator/SnakePopulation.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -132,6 +133,7 @@ namespace
         island::BoarHerd boars{terrain};
         island::FishSchools fish{terrain};
         island::StingrayGroup stingrays{terrain};
+        island::OctopusGroup octopuses{terrain};
         island::SeaTurtleGroup seaTurtles{terrain};
         island::SharkPatrol shark{terrain};
         island::DolphinPod dolphins{terrain};
@@ -549,6 +551,8 @@ namespace
             hash.AddEnum(ray.behavior);hash.AddByte(ray.colorVariant);
             hash.AddFloat(home.x);hash.AddFloat(home.z);hash.AddFloat(home.radius);
         }
+        hash.AddSize(world.octopuses.Octopuses().size());
+        for(std::size_t index=0;index<world.octopuses.Octopuses().size();++index){const auto&o=world.octopuses.Octopuses()[index];const auto&d=world.octopuses.Dens()[index];HashPosition(hash,o.x,o.y,o.z);hash.AddFloat(o.headingRadians);hash.AddFloat(o.speed);hash.AddFloat(o.mantlePulse);hash.AddFloat(o.armWave);hash.AddFloat(o.hideAmount);hash.AddFloat(o.scale);hash.AddEnum(o.behavior);hash.AddByte(o.colorVariant);hash.AddFloat(d.x);hash.AddFloat(d.z);hash.AddFloat(d.radius);}
 
         hash.AddSize(world.seaTurtles.Turtles().size());
         for (std::size_t index = 0;
@@ -791,6 +795,8 @@ namespace
             && world.fish.Schools().size() == island::FishSchools::SchoolCount
             && world.stingrays.Stingrays().size()==island::StingrayGroup::Count
             && world.stingrays.Homes().size()==island::StingrayGroup::Count
+            && world.octopuses.Octopuses().size()==island::OctopusGroup::Count
+            && world.octopuses.Dens().size()==island::OctopusGroup::Count
             && world.seaTurtles.Turtles().size()
                 == island::SeaTurtleGroup::TurtleCount
             && world.seaTurtles.Homes().size()
@@ -1040,6 +1046,7 @@ namespace
                 &&sample.surface==island::TerrainSurface::ShallowSeabed
                 &&sample.height<=-.72f&&sample.height>=-6.2f;
         }
+        for(std::size_t index=0;index<world.octopuses.Octopuses().size();++index){const auto&o=world.octopuses.Octopuses()[index];const auto&d=world.octopuses.Dens()[index];const auto sample=world.terrain.Sample(o.x,o.z);finiteSpecializedData=finiteSpecializedData&&AllFinite(o.x,o.y,o.z,o.headingRadians,o.speed,o.mantlePulse,o.armWave,o.hideAmount,o.scale,d.x,d.z,d.radius)&&o.scale>0&&d.radius>0&&sample.surface==island::TerrainSurface::ShallowSeabed&&sample.height<=-.9f;}
         for (std::size_t index = 0;
              index < world.seaTurtles.Turtles().size(); ++index) {
             const island::SeaTurtleState& turtle = world.seaTurtles.Turtles()[index];
@@ -1450,6 +1457,7 @@ namespace
                << "    \"fishSchools\": " << world.fish.Schools().size() << ",\n"
                << "    \"fish\": " << world.fish.Fish().size() << ",\n"
                << "    \"stingrays\": " << world.stingrays.Stingrays().size() << ",\n"
+               << "    \"octopuses\": " << world.octopuses.Octopuses().size() << ",\n"
                << "    \"seaTurtles\": " << world.seaTurtles.Turtles().size() << ",\n"
                << "    \"sharks\": 1,\n"
                << "    \"dolphins\": " << world.dolphins.Dolphins().size() << ",\n"

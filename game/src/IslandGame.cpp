@@ -122,6 +122,7 @@ namespace island
             case FixedViewpoint::FruitBatRoostDetail: return "bat-roost";
             case FixedViewpoint::FishDetail: return "fish";
             case FixedViewpoint::StingrayDetail: return "stingrays";
+            case FixedViewpoint::OctopusDetail: return "octopuses";
             case FixedViewpoint::SharkDetail: return "shark";
             case FixedViewpoint::DolphinDetail: return "dolphins";
             case FixedViewpoint::MonkeyDetail: return "monkeys";
@@ -187,6 +188,7 @@ namespace island
           boarHerd_(terrain_),
           fishSchools_(terrain_),
           stingrayGroup_(terrain_),
+          octopusGroup_(terrain_),
           seaTurtleGroup_(terrain_),
           sharkPatrol_(terrain_),
           dolphinPod_(terrain_),
@@ -1046,6 +1048,11 @@ namespace island
             yaw_=std::atan2(toRay.X,toRay.Z);
             pitch_=std::atan2(toRay.Y,std::hypot(toRay.X,toRay.Z));
             std::cout<<"island-simulator: stingray QA camera follows one shallow-sand glide\n";
+        } else if(viewpoint_==FixedViewpoint::OctopusDetail&&!octopusGroup_.Octopuses().empty()){
+            const auto& o=octopusGroup_.Octopuses().front();Vector3 forward(std::cos(o.headingRadians),0,std::sin(o.headingRadians)),side(-forward.Z,0,forward.X);
+            cameraPosition_=Vector3(o.x,o.y+.28f,o.z)+forward*1.65f+side*.85f+Vector3::Up*.36f;
+            const Vector3 target(o.x,o.y+.24f,o.z);const auto d=target-cameraPosition_;yaw_=std::atan2(d.X,d.Z);pitch_=std::atan2(d.Y,std::hypot(d.X,d.Z));
+            std::cout<<"island-simulator: octopus QA camera frames one exposed reef forager and all eight arms\n";
         } else if (viewpoint_ == FixedViewpoint::SeaTurtleDetail
                    && !seaTurtleGroup_.Turtles().empty()) {
             const SeaTurtleState& turtle = seaTurtleGroup_.Turtles()[2U];
@@ -1652,6 +1659,7 @@ namespace island
             device, 215.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         stingrayRenderer_ = std::make_unique<StingrayRenderer>(
             device, 220.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        octopusRenderer_=std::make_unique<OctopusRenderer>(device,180.0f*qualityProfile_.wildlifeMaximumDistanceScale);
         seaTurtleRenderer_ = std::make_unique<SeaTurtleRenderer>(
             device, 190.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         sharkRenderer_ = std::make_unique<SharkRenderer>(
@@ -1821,6 +1829,8 @@ namespace island
                   << " distance-throttled shallow-water schools\n"
                   << "island-simulator: stingrays " << stingrayGroup_.Stingrays().size()
                   << " agents glide, forage, and settle over shallow sandy seabed\n"
+                  << "island-simulator: octopuses " << octopusGroup_.Octopuses().size()
+                  << " agents den, crawl, forage, and swim in reef and rocky shallows\n"
                   << "island-simulator: sea turtles " << seaTurtleGroup_.Turtles().size()
                   << " agents in bounded habitat routes, three based in the sheltered western bay\n"
                   << "island-simulator: one occasional non-hostile offshore shark patrol\n"
@@ -2260,6 +2270,9 @@ namespace island
                                      subject.y-previousStingraySubject.y,
                                      subject.z-previousStingraySubject.z);
         }
+        const auto previousOctopus=octopusGroup_.Octopuses().front();
+        octopusGroup_.Update(viewpoint_==FixedViewpoint::OctopusDetail?0.0f:deltaSeconds,cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z);
+        if(viewpoint_==FixedViewpoint::OctopusDetail){const auto& o=octopusGroup_.Octopuses().front();cameraPosition_+=Vector3(o.x-previousOctopus.x,o.y-previousOctopus.y,o.z-previousOctopus.z);}
         const SeaTurtleState previousTurtleSubject = seaTurtleGroup_.Turtles()[2U];
         seaTurtleGroup_.Update(
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
@@ -3052,6 +3065,7 @@ namespace island
             + snakeRenderer_->DrawCallCount()
             + fishRenderer_->DrawCallCount()
             + stingrayRenderer_->DrawCallCount()
+            + octopusRenderer_->DrawCallCount()
             + seaTurtleRenderer_->DrawCallCount()
             + sharkRenderer_->DrawCallCount()+dolphinRenderer_->DrawCallCount()
             + monkeyRenderer_->DrawCallCount()
@@ -3583,6 +3597,7 @@ namespace island
             stingrayRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,
                                     stingrayGroup_.Stingrays());
         }
+        {GpuDiagnosticScope gpuPass("octopuses");octopusRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,octopusGroup_.Octopuses());}
 
         {
             GpuDiagnosticScope gpuPass("sea-turtles");
@@ -4130,7 +4145,11 @@ namespace island
                       << stingrayGroup_.Stingrays().size() << " visible (near "
                       << stingrayRenderer_->NearCount() << ", far "
                       << stingrayRenderer_->FarCount() << "), "
-                      << stingrayRenderer_->DrawCallCount() << " draw; turtles "
+                      << stingrayRenderer_->DrawCallCount() << " draw; octopuses "
+                      << octopusRenderer_->VisibleCount() << '/'
+                      << octopusGroup_.Octopuses().size() << " visible (near "
+                      << octopusRenderer_->NearCount() << ", far " << octopusRenderer_->FarCount()
+                      << "), " << octopusRenderer_->DrawCallCount() << " draw; turtles "
                       << seaTurtleRenderer_->VisibleTurtleCount() << '/'
                       << seaTurtleGroup_.Turtles().size() << " visible (near "
                       << seaTurtleRenderer_->VisibleNearTurtleCount() << ", far "

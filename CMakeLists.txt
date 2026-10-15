@@ -102,6 +102,7 @@ add_library(island_core STATIC
     game/src/MonkeyTroop.cpp
     game/src/NaturalPropLayout.cpp
     game/src/OceanWaveSpectrum.cpp
+    game/src/OctopusGroup.cpp
     game/src/PerformanceStatistics.cpp
     game/src/PlayerMotion.cpp
     game/src/ProceduralMeshValidation.cpp
@@ -372,6 +373,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_stingray_group_tests)
     island_enable_first_party_sanitizers(island_stingray_group_tests)
     add_test(NAME IslandStingrayGroupTests COMMAND island_stingray_group_tests)
+    add_executable(island_octopus_group_tests tests/OctopusGroupTests.cpp)
+    target_link_libraries(island_octopus_group_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_octopus_group_tests)
+    island_enable_first_party_sanitizers(island_octopus_group_tests)
+    add_test(NAME IslandOctopusGroupTests COMMAND island_octopus_group_tests)
     add_executable(island_boar_coat_tests tests/BoarCoatTextureTests.cpp)
     target_link_libraries(island_boar_coat_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_boar_coat_tests)
@@ -630,6 +636,7 @@ if(ISLAND_BUILD_GAME)
         game/src/MonkeyRenderer.cpp
         game/src/NaturalPropRenderer.cpp
         game/src/OceanRenderer.cpp
+        game/src/OctopusRenderer.cpp
         game/src/StreamWaterRenderer.cpp
         game/src/BunkerRenderer.cpp
         game/src/CaveRenderer.cpp
