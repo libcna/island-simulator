@@ -16,6 +16,32 @@ namespace island
         bool operator==(const CanopyLeafPosture&) const = default;
     };
 
+    struct CanopyCrownFill
+    {
+        float coreX, coreY, coreZ, shellRadius, shellHeight;
+        bool operator==(const CanopyCrownFill&) const = default;
+    };
+
+    /**
+     * @brief Stable per-lobe fill proportions shared by both canopy LODs.
+     *
+     * The former single core scale and perfectly even sprig shell exposed eight repeated
+     * ellipsoids at medium distance. These bounded variations keep the same anchors, leaf
+     * identities and triangle budget while giving each lobe a different shoulder and skirt.
+     */
+    inline CanopyCrownFill MakeCanopyCrownFill(int variant, int cluster)
+    {
+        if (variant < 0 || variant >= CanopyFormCount || cluster < 0 || cluster >= 8)
+            throw std::invalid_argument("Invalid canopy crown-fill identity");
+        const float phase = variant * 1.173f + cluster * 2.39996323f;
+        return {
+            0.69f + 0.055f * std::sin(phase),
+            0.59f + 0.045f * std::cos(phase * 1.31f + 0.4f),
+            0.67f + 0.060f * std::cos(phase * 0.83f - 0.6f),
+            0.61f + 0.095f * std::sin(phase * 1.67f + 0.8f),
+            0.80f + 0.085f * std::cos(phase * 1.19f - 0.3f)};
+    }
+
     inline bool RetainCanopySprig(int identity, bool far)
     {
         if (identity < 0 || identity >= CanopySprigCount)

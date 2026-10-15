@@ -216,6 +216,15 @@ int main() try
         }
         for (int variant = 0; variant < CanopyFormCount; ++variant) {
             for (int cluster = 0; cluster < 8; ++cluster) {
+                const auto fill = MakeCanopyCrownFill(variant,cluster);
+                require(fill == MakeCanopyCrownFill(variant,cluster),
+                    "Canopy crown fill is not deterministic");
+                require(fill.coreX >= 0.6349f && fill.coreX <= 0.7451f
+                    && fill.coreY >= 0.5449f && fill.coreY <= 0.6351f
+                    && fill.coreZ >= 0.6099f && fill.coreZ <= 0.7301f
+                    && fill.shellRadius >= 0.5149f && fill.shellRadius <= 0.7051f
+                    && fill.shellHeight >= 0.7149f && fill.shellHeight <= 0.8851f,
+                    "Canopy crown fill escaped its bounded lobe envelope");
                 for (int identity = 0; identity < CanopySprigCount+2; ++identity) {
                     for (int member = 0; member < 3; ++member) {
                         const auto pose = MakeCanopyLeafPosture(variant,cluster,identity,member);
@@ -266,6 +275,14 @@ int main() try
         }
         require(upward > 600 && downward > 600 && positiveRoll > 900 && negativeRoll > 900,
             "Canopy leaf orientation still collapses into repeated horizontal layers");
+        try {
+            (void)MakeCanopyCrownFill(CanopyFormCount,0);
+            throw std::runtime_error("Invalid canopy fill variant accepted");
+        } catch (const std::invalid_argument&) { }
+        try {
+            (void)MakeCanopyCrownFill(0,8);
+            throw std::runtime_error("Invalid canopy fill cluster accepted");
+        } catch (const std::invalid_argument&) { }
         for (float yaw : {0.0f,0.7f,2.4f}) {
             const auto p = PointedLeafPositions(yaw,1.4f,0.3f,0.25f,0.16f);
             const float c = std::cos(yaw), s = std::sin(yaw);

@@ -81,6 +81,27 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest visual-audit implementation — asymmetric canopy fill
+
+The renewed whole-jungle audit found that the broadleaf crowns were readable at close range but
+their eight foliage lobes repeated the same ellipsoidal core and even shell, especially across a
+medium-distance stand. Each existing lobe now receives a deterministic bounded X/Y/Z core shape
+and independent radial/vertical shell fill. Near and far LODs call the same profile, keep the same
+anchors and retained leaf identities, and do not add vertices, triangles, textures, draws, trees or
+simulation work. Invalid form/lobe identities and all five scale envelopes have direct tests.
+
+The stale inspection coordinates were not silently reused: current `island-world-report` target 0
+is `-21985:-186920`. Exact forced near/far llvmpipe captures
+`20261015T100248.607815Z-canopy` / `20261015T100301.936606Z-canopy` pass, as does the inspected
+normal first-person jungle capture `20261015T100219.613016Z-jungle`. Focused canopy/leaf/culling
+tests pass. Web package rebuild passes; Chrome 155/SwiftShader evidence
+`20261015T100953.209242Z-chrome-canopy-light` has 60 finite intervals, GL 0, a live context and
+empty kernel deltas. The broader eight-camera vegetation gate produced its grass and jungle frames
+but honestly timed out at 240 seconds before completion, so it is not claimed. Android ARM64
+assemble/lint passes in 5 seconds; APK SHA-256 is `7ff8d94183d6444c40f525f022c1a45ea841d26708aa3f30562ca2bbdc49077b`.
+Physical-device and AMD-hardware performance remain platform gates, not defects attributed to this
+geometry-neutral crown change.
+
 ## Latest visual-audit implementation — rooted standing deadwood
 
 The jungle-floor audit selected the standing dead trunks because their straight circular bases

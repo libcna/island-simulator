@@ -291,7 +291,7 @@ try
                 }
         }
     }
-    const CanopyLodInspection inspection{-87120, -15369, true};
+    const CanopyLodInspection inspection{-21985, -186920, true};
     Invalid([] { (void)SampleCanopyTrunkSurface(-1,1,0); });
     Invalid([] { (void)SampleCanopyTrunkSurface(0,-.1f,0); });
     Invalid([] { (void)SampleCanopyTrunkSurface(0,100,0); });
@@ -313,9 +313,9 @@ try
                         && std::abs(moving[1]-rest[1]+std::abs(sway)*.035f*weight) < 1e-6f,
                         "Trunk contact deformation must match the rendering wind equation");
                 }
-    Require(inspection.Matches(-87.1201f, -15.3691f)
-        && !inspection.Matches(-87.121f, -15.3691f)
-        && !inspection.Matches(-87.1201f, -15.368f),
+    Require(inspection.Matches(-21.9851f, -186.9201f)
+        && !inspection.Matches(-21.986f, -186.9201f)
+        && !inspection.Matches(-21.9851f, -186.919f),
         "Capture inspection must match the rounded telemetry identity, not a nearby tree");
     const IslandTerrain terrain;
     for (const auto site : {std::array{120.0f, 80.0f}, std::array{-90.0f, 130.0f},

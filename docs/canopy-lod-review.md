@@ -21,6 +21,13 @@ sg systemd-journal -c 'python3 tools/run_software_capture.py build canopy --cano
 Check actual target visibility and the logged camera/variant/threshold before interpreting
 differences. The older east-camera evidence below remains unchanged and independently useful.
 
+As of the 2026-10-15 world fingerprint `f662f6e9ac0f9c45`, the current targets are:
+`-21985:-186920`, `-154087:135164`, `-133291:146013`, `-166856:83909`,
+`-156957:-107255`, `-2679:-179962`, `-114516:166946`, `-95327:166368`, and
+`-164496:-25056` for variants 0 through 8 respectively. Earlier literal coordinates in this
+historical document describe their own retained captures; they are not valid current layout
+targets and must not be copied into a new run without consulting the world report.
+
 Use the capture-only `--canopy-lod-inspection X_MM Z_MM near|far` option through
 `tools/run_software_capture.py`. See [Linux instructions](build-linux.md) for the two serial
 commands. These are forced llvmpipe/private-pixman inspections, not AMD qualification. The normal
@@ -162,6 +169,15 @@ unobscured/moving review below remains necessary. An initial metric command mist
 `magick compare -limit thread 2 -metric ...` invocation, not those errors.
 
 ### Remaining checks
+
+The 2026-10-15 asymmetric-fill follow-up replaces the one repeated core/shell proportion with
+five deterministic per-lobe scales. Both tiers share these scales and geometry counts are
+unchanged. Current variant-0 near/far evidence is
+`20261015T100248.607815Z-canopy` / `20261015T100301.936606Z-canopy`; normal jungle evidence is
+`20261015T100219.613016Z-jungle`. A focused Chrome/SwiftShader jungle run at
+`20261015T100953.209242Z-chrome-canopy-light` passes 60 frame intervals with GL zero and no context
+loss. This is a static silhouette/fill correction, not a claim that all moving LOD transitions are
+seamless.
 
 The later curved-outline pass reuses the spatial-posture pair above as its unchanged baseline.
 It keeps 24 source sprigs near and four nested source sprigs far, with paired shoots in alternate

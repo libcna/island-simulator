@@ -1030,11 +1030,11 @@ void main()
                 // leaves cover the outer volume instead of painting detail onto a solid ball.
                 // Retain the same eight lobe anchors at distance. Merging pairs into oversized
                 // cores filled near-tier sky gaps and caused a visible solid-mass LOD pop.
-                constexpr float coreWidthScale = 0.66f;
+                const auto crownFill = MakeCanopyCrownFill(variant, cluster);
                 AppendLeafCluster(geometry, centre,
-                                  Vector3(width * coreWidthScale,
-                                          crownHeight * 0.60f,
-                                          width * 0.91f * coreWidthScale),
+                                  Vector3(width * crownFill.coreX,
+                                          crownHeight * crownFill.coreY,
+                                          width * 0.91f * crownFill.coreZ),
                                   cluster % 3 == 0 ? ShadeColor(leafBase, 1.10f) : leafBase,
                                   phase, farMesh, farMesh);
                 {
@@ -1050,8 +1050,8 @@ void main()
                         const Vector3 outward(std::cos(sprigAngle), 0.0f, std::sin(sprigAngle));
                         const Vector3 sprigRoot = centre
                             + Vector3(outward.X, 0.0f, outward.Z * 0.91f)
-                                * (width * 0.66f * shellRadius)
-                            + Vector3::Up * (crownHeight * shellY * 0.82f);
+                                * (width * crownFill.shellRadius * shellRadius)
+                            + Vector3::Up * (crownHeight * shellY * crownFill.shellHeight);
                         for (int leaf = 0; leaf < CanopySprigLeafCount(cluster,sprig); ++leaf) {
                             const float leafVariation = static_cast<float>(
                                 (sprig * 5 + leaf * 3 + variant + cluster) % 7) / 6.0f;
@@ -1697,6 +1697,10 @@ void main()
             "island-simulator: eight structural crown forms share eight LOD lobe anchors and supported trunk bends";
         std::cout << crownStructureDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(crownStructureDiagnostic);
+        constexpr const char* crownFillDiagnostic =
+            "island-simulator: canopy lobes use bounded asymmetric cores and skirts across both LOD tiers";
+        std::cout << crownFillDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(crownFillDiagnostic);
         if (customShaderReady_) {
             std::cout << "island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD\n";
             constexpr const char* leafMaterialDiagnostic =
