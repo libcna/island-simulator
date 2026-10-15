@@ -34,13 +34,17 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 38.0f;
+        constexpr float TwoPi = 2.0f * std::numbers::pi_v<float>;
         constexpr int CarapaceSegments = 18;
         constexpr int NearCrabVertexCount = 1338;
         constexpr int FarCrabVertexCount = 12;
         constexpr int MaximumVerticesPerCrab = NearCrabVertexCount;
         constexpr int MaximumBurrowVertices = 1024;
+        constexpr int MaximumHermitCrabVertices =
+            static_cast<int>(HermitCrabGroup::Count) * 1024;
         constexpr int MaximumVertexCount = static_cast<int>(CrabColony::CrabCount)
-            * MaximumVerticesPerCrab + MaximumBurrowVertices;
+            * MaximumVerticesPerCrab + MaximumBurrowVertices
+            + MaximumHermitCrabVertices;
         constexpr std::string_view CrabDiagnostic =
             "island-simulator: beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch";
         constexpr std::string_view CrabDetailDiagnostic =
@@ -53,6 +57,10 @@ namespace island
             "island-simulator: near crabs use low broad shells with retained lateral carapace corners";
         constexpr std::string_view CrabHabitatDiagnostic =
             "island-simulator: six debris-linked crab colonies share visible sand burrows";
+        constexpr std::string_view HermitCrabDiagnostic =
+            "island-simulator: ten sheltered-beach hermit crabs pause, forage, and retreat in the shared crab batch";
+        constexpr std::string_view HermitCrabAnatomyDiagnostic =
+            "island-simulator: hermit crabs use raised spiral shells, projecting eyes and antennae, six walking legs, and unequal claws";
 
         struct CrabPalette
         {
@@ -222,6 +230,139 @@ namespace island
             AddTriangle(vertices, bottom, back, rightPoint, sideColor);
             AddTriangle(vertices, bottom, left, back, sideColor);
             AddTriangle(vertices, bottom, front, left, sideColor);
+        }
+
+        void AppendHermitCrab(std::vector<VertexPositionColor>& vertices,
+                              const HermitCrabState& crab)
+        {
+            const std::array<Color, 4> ShellColors = {{
+                Color(150, 111, 70, 255), Color(178, 139, 92, 255),
+                Color(118, 99, 72, 255), Color(190, 158, 112, 255)}};
+            const std::array<Color, 4> LimbColors = {{
+                Color(132, 67, 45, 255), Color(166, 89, 55, 255),
+                Color(103, 71, 52, 255), Color(176, 112, 75, 255)}};
+            const Color shell = ShellColors[crab.shellVariant % ShellColors.size()];
+            const Color shellShade = Color::Lerp(shell, Color(49, 39, 31, 255), .38f);
+            const Color shellRidge = Color::Lerp(shell, Color(226, 205, 160, 255), .28f);
+            const Color limb = LimbColors[crab.shellVariant % LimbColors.size()];
+            const Color joint = Color::Lerp(limb, Color(40, 29, 25, 255), .42f);
+            const Color eye(16, 18, 15, 255);
+            const float scale = crab.scale;
+            const Vector3 centre(crab.x, crab.y, crab.z);
+            const Vector3 forward(std::cos(crab.headingRadians), 0.0f,
+                                  std::sin(crab.headingRadians));
+            const Vector3 right(-forward.Z, 0.0f, forward.X);
+            const Vector3 up = Vector3::Up;
+
+            constexpr int RingSegments = 12;
+            constexpr std::array<float, 5> RingHeights = {{-.070f, -.025f, .032f, .105f, .165f}};
+            constexpr std::array<float, 5> RingRadii = {{.046f, .098f, .122f, .080f, .022f}};
+            const Vector3 shellCentre = centre - forward * (.075f * scale)
+                + up * (.080f * scale);
+            const auto shellPoint = [&](const std::size_t ring, const int segment) {
+                const float angle = TwoPi * static_cast<float>(segment)
+                    / static_cast<float>(RingSegments);
+                return shellCentre + up * (RingHeights[ring] * scale)
+                    + right * (std::cos(angle) * RingRadii[ring] * scale)
+                    + forward * (std::sin(angle) * RingRadii[ring] * .86f * scale);
+            };
+            for (std::size_t ring = 0; ring + 1U < RingHeights.size(); ++ring) {
+                for (int segment = 0; segment < RingSegments; ++segment) {
+                    const int next = (segment + 1) % RingSegments;
+                    const Color color = segment < RingSegments / 2 ? shell : shellShade;
+                    AddQuad(vertices, shellPoint(ring, segment),
+                            shellPoint(ring + 1U, segment),
+                            shellPoint(ring + 1U, next),
+                            shellPoint(ring, next), color);
+                }
+            }
+            const Vector3 shellTop = shellCentre + up * (.178f * scale);
+            const Vector3 shellBottom = shellCentre - up * (.085f * scale);
+            for (int segment = 0; segment < RingSegments; ++segment) {
+                const int next = (segment + 1) % RingSegments;
+                AddTriangle(vertices, shellBottom, shellPoint(0U, next),
+                            shellPoint(0U, segment), shellShade);
+                AddTriangle(vertices, shellTop, shellPoint(4U, segment),
+                            shellPoint(4U, next), shell);
+            }
+
+            // A connected raised curl reads as a gastropod shell rather than a
+            // round coconut, even with opaque vertex-colour geometry.
+            Vector3 previousSpiral = shellCentre + right * (.121f * scale)
+                + forward * (.078f * scale) + up * (.025f * scale);
+            for (int mark = 1; mark <= 11; ++mark) {
+                const float angle = .25f + static_cast<float>(mark) * .78f;
+                const float radius = .080f - static_cast<float>(mark) * .0052f;
+                const Vector3 point = shellCentre + right * (.121f * scale)
+                    + forward * (std::cos(angle) * radius * scale)
+                    + up * ((.035f + std::sin(angle) * radius) * scale);
+                AppendCrossedSegment(vertices, previousSpiral, point,
+                                     .0040f * scale, shellRidge);
+                previousSpiral = point;
+            }
+
+            const Vector3 aperture = shellCentre + forward * (.102f * scale)
+                - up * (.020f * scale);
+            AppendOctahedron(vertices, aperture, right, up, forward,
+                             .060f * scale, .050f * scale, .015f * scale,
+                             Color(45, 31, 25, 255), Color(26, 21, 18, 255));
+
+            const Vector3 head = centre + forward * (.105f * scale)
+                + up * (.050f * scale);
+            const Vector3 exposedBody = centre + forward * (.020f * scale)
+                + up * (.042f * scale);
+            AppendOctahedron(vertices, exposedBody, right, up, forward,
+                             .068f * scale, .043f * scale, .095f * scale,
+                             limb, joint);
+            AppendOctahedron(vertices, head, right, up, forward,
+                             .060f * scale, .040f * scale, .058f * scale,
+                             limb, joint);
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 eyeRoot = head + right * (side * .036f * scale)
+                    + forward * (.035f * scale) + up * (.025f * scale);
+                const Vector3 eyeTip = eyeRoot + forward * (.040f * scale)
+                    + up * (.025f * scale);
+                AppendCrossedSegment(vertices, eyeRoot, eyeTip, .006f * scale, limb);
+                AppendOctahedron(vertices, eyeTip, right, up, forward,
+                                 .012f * scale, .012f * scale, .010f * scale,
+                                 eye, eye);
+                const float antennaSwing = std::sin(crab.antennaPhase
+                    + side * .8f) * .012f * scale;
+                const Vector3 antennaTip = head + forward * (.145f * scale)
+                    + right * (side * (.045f * scale + antennaSwing))
+                    + up * (.075f * scale);
+                AppendCrossedSegment(vertices, eyeRoot, antennaTip,
+                                     .0025f * scale, joint);
+            }
+
+            for (int leg = 0; leg < 3; ++leg) {
+                for (const float side : {-1.0f, 1.0f}) {
+                    const float stride = crab.legPhase
+                        * (leg % 2 == 0 ? .018f : -.018f) * scale;
+                    const Vector3 hip = centre + right * (side * .045f * scale)
+                        + forward * ((.055f - leg * .055f) * scale);
+                    const Vector3 knee = hip + right * (side * (.070f + leg * .010f) * scale)
+                        + forward * stride - up * (.018f * scale);
+                    const Vector3 foot = knee + right * (side * .060f * scale)
+                        + forward * ((-.035f + leg * .020f) * scale)
+                        - up * (.018f * scale);
+                    AppendTaperedLimbSegment(vertices, hip, knee,
+                                             .017f * scale, .012f * scale, limb);
+                    AppendTaperedLimbSegment(vertices, knee, foot,
+                                             .012f * scale, .004f * scale, joint);
+                }
+            }
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 clawCentre = head + forward * (.075f * scale)
+                    + right * (side * (.070f + (side > 0.0f ? .018f : 0.0f)) * scale);
+                const Vector3 armRoot = head + right * (side * .035f * scale)
+                    + forward * (.015f * scale);
+                AppendTaperedLimbSegment(vertices, armRoot, clawCentre,
+                                         .016f * scale, .012f * scale, limb);
+                AppendOctahedron(vertices, clawCentre, right, up, forward,
+                    (side > 0.0f ? .034f : .025f) * scale, .020f * scale,
+                    .035f * scale, limb, joint);
+            }
         }
 
         void AppendPrismaticFinger(std::vector<VertexPositionColor>& vertices,
@@ -537,6 +678,10 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(CrabAnatomyDiagnostic);
         std::cout << CrabHabitatDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CrabHabitatDiagnostic);
+        std::cout << HermitCrabDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(HermitCrabDiagnostic);
+        std::cout << HermitCrabAnatomyDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(HermitCrabAnatomyDiagnostic);
     }
 
     CrabRenderer::~CrabRenderer() = default;
@@ -544,12 +689,14 @@ namespace island
     void CrabRenderer::Draw(const Matrix& view, const Matrix& projection,
                             const Vector3& cameraPosition,
                             const std::span<const CrabState> crabs,
-                            const std::span<const CrabBurrow> burrows)
+                            const std::span<const CrabBurrow> burrows,
+                            const std::span<const HermitCrabState> hermitCrabs)
     {
         stagingVertices_.clear();
         visibleCrabCount_ = 0;
         visibleNearCrabCount_ = 0;
         visibleFarCrabCount_ = 0;
+        visibleHermitCrabCount_ = 0;
         drawCallCount_ = 0;
         const BoundingFrustum frustum(view * projection);
         for (const CrabBurrow& burrow : burrows) {
@@ -583,6 +730,16 @@ namespace island
                 ++visibleFarCrabCount_;
             }
             ++visibleCrabCount_;
+        }
+        for (const HermitCrabState& crab : hermitCrabs) {
+            const Vector3 centre(crab.x, crab.y + .10f * crab.scale, crab.z);
+            if (Vector3::DistanceSquared(centre, cameraPosition)
+                    > maximumDistance_ * maximumDistance_
+                || !frustum.Intersects(BoundingSphere(centre, crab.scale * .34f))) {
+                continue;
+            }
+            AppendHermitCrab(stagingVertices_, crab);
+            ++visibleHermitCrabCount_;
         }
         if (stagingVertices_.empty()) return;
 

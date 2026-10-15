@@ -94,6 +94,7 @@
       ["reef", ["--viewpoint", "reef", "--debug-overlay"]],
       ["shipwreck", ["--viewpoint", "shipwreck", "--debug-overlay"]],
       ["crabs", ["--viewpoint", "crabs", "--debug-overlay"]],
+      ["hermit-crabs", ["--viewpoint", "hermit-crabs", "--debug-overlay"]],
       ["crocodiles", ["--viewpoint", "crocodiles", "--debug-overlay"]],
       ["butterflies", ["--viewpoint", "butterflies", "--debug-overlay"]],
       ["geckos", ["--viewpoint", "geckos", "--debug-overlay"]],

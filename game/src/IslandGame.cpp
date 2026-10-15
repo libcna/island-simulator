@@ -130,6 +130,7 @@ namespace island
             case FixedViewpoint::HelicopterDetail: return "helicopter";
             case FixedViewpoint::HelicopterInteriorDetail: return "helicopter-inside";
             case FixedViewpoint::CrabDetail: return "crabs";
+            case FixedViewpoint::HermitCrabDetail: return "hermit-crabs";
             case FixedViewpoint::CrocodileDetail: return "crocodiles";
             case FixedViewpoint::BoarDetail: return "boars";
             case FixedViewpoint::GoatDetail: return "goats";
@@ -172,6 +173,7 @@ namespace island
           geckoPopulation_(terrain_),
           dragonflySwarm_(terrain_),
           crabColony_(terrain_),
+          hermitCrabGroup_(terrain_),
           crocodileGroup_(terrain_),
           boarHerd_(terrain_),
           fishSchools_(terrain_),
@@ -1289,6 +1291,21 @@ namespace island
             std::cout << "island-simulator: crab QA camera frames a debris-linked burrow and its foraging colony\n";
             std::cout << "island-simulator: crab QA subject " << crabViewSubject_
                       << " is " << nearestBurrow << "m from the burrow\n";
+        } else if (viewpoint_ == FixedViewpoint::HermitCrabDetail
+                   && !hermitCrabGroup_.Crabs().empty()) {
+            const HermitCrabState& crab = hermitCrabGroup_.Crabs()[3U];
+            const Vector3 forward(std::cos(crab.headingRadians), 0.0f,
+                                  std::sin(crab.headingRadians));
+            const Vector3 side(-forward.Z, 0.0f, forward.X);
+            const float cameraX = crab.x + forward.X * .28f + side.X * .20f;
+            const float cameraZ = crab.z + forward.Z * .28f + side.Z * .20f;
+            cameraPosition_ = Vector3(cameraX,
+                std::max(terrain_.Height(cameraX, cameraZ) + .14f, crab.y + .17f), cameraZ);
+            const Vector3 target(crab.x, crab.y + .055f, crab.z);
+            const Vector3 direction = target - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+            std::cout << "island-simulator: hermit-crab QA camera frames one shell-bearing animal on sheltered sand\n";
         } else if (viewpoint_ == FixedViewpoint::CrocodileDetail
                    && !crocodileGroup_.Crocodiles().empty()) {
             const CrocodileState& crocodile=crocodileGroup_.Crocodiles()[2U];
@@ -1683,6 +1700,8 @@ namespace island
                   << " agents in three stream and wetland habitats\n"
                   << "island-simulator: beach crabs " << crabColony_.Crabs().size()
                   << " agents in deterministic sand-and-debris-constrained colonies\n"
+                  << "island-simulator: hermit crabs " << hermitCrabGroup_.Crabs().size()
+                  << " agents in deterministic sheltered-beach habitats\n"
                   << "island-simulator: crocodiles " << crocodileGroup_.Crocodiles().size()
                   << " agents bask, crawl, swim, and retreat within the stream estuary\n"
                   << "island-simulator: fish " << fishSchools_.Fish().size()
@@ -1776,6 +1795,11 @@ namespace island
                                  << crabColony_.Crabs().size()
                                  << " agents in deterministic sand-and-debris-constrained colonies";
         MirrorRuntimeDiagnosticToPlatformLog(crabPopulationDiagnostic.str());
+        std::ostringstream hermitCrabPopulationDiagnostic;
+        hermitCrabPopulationDiagnostic << "island-simulator: hermit crabs "
+            << hermitCrabGroup_.Crabs().size()
+            << " agents in deterministic sheltered-beach habitats";
+        MirrorRuntimeDiagnosticToPlatformLog(hermitCrabPopulationDiagnostic.str());
         std::ostringstream seaTurtlePopulationDiagnostic;
         seaTurtlePopulationDiagnostic << "island-simulator: sea turtles "
                                       << seaTurtleGroup_.Turtles().size()
@@ -1970,6 +1994,14 @@ namespace island
                 +outward*18.0f+Vector3::Up*1.5f;
         }
         crabColony_.Update(deltaSeconds, crabObserver.X, crabObserver.Y, crabObserver.Z);
+        Vector3 hermitCrabObserver = cameraPosition_;
+        if (viewpoint_ == FixedViewpoint::HermitCrabDetail) {
+            const auto& crab = hermitCrabGroup_.Crabs()[3U];
+            hermitCrabObserver = Vector3(crab.x, crab.y + 20.0f, crab.z);
+        }
+        hermitCrabGroup_.Update(
+            viewpoint_ == FixedViewpoint::HermitCrabDetail ? 0.0f : deltaSeconds,
+            hermitCrabObserver.X, hermitCrabObserver.Y, hermitCrabObserver.Z);
         if (viewpoint_ == FixedViewpoint::CrabDetail) {
             const CrabState& subject = crabColony_.Crabs()[crabViewSubject_];
             cameraPosition_ += Vector3(subject.x - previousCrabSubject.x,
@@ -3324,7 +3356,8 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("crabs");
             crabRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                crabColony_.Crabs(), crabColony_.Burrows());
+                                crabColony_.Crabs(), crabColony_.Burrows(),
+                                hermitCrabGroup_.Crabs());
         }
 
         {
@@ -3865,7 +3898,10 @@ namespace island
                       << crabColony_.Crabs().size() << " visible (near "
                       << crabRenderer_->VisibleNearCrabCount() << ", far "
                       << crabRenderer_->VisibleFarCrabCount() << "), "
-                      << crabRenderer_->DrawCallCount() << " draw; boars "
+                      << crabRenderer_->DrawCallCount() << " draw; hermit crabs "
+                      << crabRenderer_->VisibleHermitCrabCount() << '/'
+                      << hermitCrabGroup_.Crabs().size()
+                      << " visible in shared draw; boars "
                       << boarRenderer_->VisibleCount() << '/' << boarHerd_.Boars().size()
                       << " visible, " << boarRenderer_->DrawCallCount() << " draw; goats "
                       << goatRenderer_->VisibleCount() << '/' << goats_->Goats().size()

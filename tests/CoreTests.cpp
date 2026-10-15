@@ -6,6 +6,7 @@
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/GeckoPopulation.hpp"
 #include "IslandSimulator/DragonflySwarm.hpp"
+#include "IslandSimulator/HermitCrabGroup.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/CoastalMaterial.hpp"
 #include "IslandSimulator/CoastalWindResponse.hpp"
@@ -3010,6 +3011,91 @@ int main()
               &&std::hypot(escapedDragonfly.x-initialReactiveDragonfly.x,
                             escapedDragonfly.z-initialReactiveDragonfly.z)>.25f,
           "a nearby observer prompts a short dragonfly escape dart");
+
+    island::HermitCrabGroup hermitCrabs(terrain);
+    island::HermitCrabGroup repeatedHermitCrabs(terrain);
+    island::HermitCrabGroup invalidInputHermitCrabs(terrain);
+    Check(hermitCrabs.Crabs().size()==island::HermitCrabGroup::Count
+              &&hermitCrabs.Homes().size()==island::HermitCrabGroup::Count,
+          "hermit-crab simulation exposes ten bounded shell-bearing animals");
+    for(std::size_t index=0;index<hermitCrabs.Crabs().size();++index) {
+        const auto& crab=hermitCrabs.Crabs()[index];
+        const auto& repeated=repeatedHermitCrabs.Crabs()[index];
+        const auto& home=hermitCrabs.Homes()[index];
+        const auto sample=terrain.Sample(crab.x,crab.z);
+        Check(crab.x==repeated.x&&crab.y==repeated.y&&crab.z==repeated.z
+                  &&crab.headingRadians==repeated.headingRadians
+                  &&crab.behavior==repeated.behavior
+                  &&crab.shellVariant==repeated.shellVariant,
+              "hermit-crab construction is deterministic");
+        Check(std::hypot(crab.x-home.x,crab.z-home.z)<=home.radius
+                  &&home.radius>=3.8f&&home.radius<=4.71f,
+              "each hermit crab begins inside a compact beach home range");
+        Check(sample.height>=-.01f
+                  &&sample.signedShoreDistance>=island::HermitCrabGroup::MinimumShoreDistance
+                  &&sample.signedShoreDistance<=island::HermitCrabGroup::MaximumShoreDistance
+                  &&sample.slopeRadians<.34f
+                  &&std::fabs(crab.y-sample.height-.038f)<.001f,
+              "each hermit crab begins grounded on qualified sandy coast");
+    }
+    invalidInputHermitCrabs.Update(quietNan,quietNan,quietNan,quietNan);
+    Check(invalidInputHermitCrabs.DormantSimulationCount()
+                  ==static_cast<int>(island::HermitCrabGroup::Count)
+              &&std::ranges::all_of(invalidInputHermitCrabs.Crabs(),[](const auto& crab) {
+                     return std::isfinite(crab.x)&&std::isfinite(crab.y)
+                         &&std::isfinite(crab.z)&&std::isfinite(crab.headingRadians)
+                         &&std::isfinite(crab.legPhase)&&std::isfinite(crab.antennaPhase);
+                 }),
+          "hermit crabs reject non-finite frame and observer input without state poisoning");
+    bool observedHermitPause=false;
+    bool observedHermitForage=false;
+    for(int frame=0;frame<4000;++frame) {
+        hermitCrabs.Update(1.0f/30.0f,0.0f,100.0f,0.0f);
+        repeatedHermitCrabs.Update(1.0f/30.0f,0.0f,100.0f,0.0f);
+        for(std::size_t index=0;index<hermitCrabs.Crabs().size();++index) {
+            const auto& crab=hermitCrabs.Crabs()[index];
+            const auto& repeated=repeatedHermitCrabs.Crabs()[index];
+            const auto& home=hermitCrabs.Homes()[index];
+            const auto sample=terrain.Sample(crab.x,crab.z);
+            Check(crab.x==repeated.x&&crab.y==repeated.y&&crab.z==repeated.z
+                      &&crab.headingRadians==repeated.headingRadians
+                      &&crab.legPhase==repeated.legPhase
+                      &&crab.behavior==repeated.behavior,
+                  "hermit-crab simulation remains deterministic over a long session");
+            Check(std::hypot(crab.x-home.x,crab.z-home.z)<=home.radius+.01f
+                      &&sample.height>=-.01f
+                      &&sample.signedShoreDistance>=island::HermitCrabGroup::MinimumShoreDistance
+                      &&sample.signedShoreDistance<=island::HermitCrabGroup::MaximumShoreDistance
+                      &&sample.slopeRadians<.34f
+                      &&std::fabs(crab.y-sample.height-.038f)<.002f,
+                  "hermit crabs remain grounded inside sandy coastal habitats");
+            Check(std::isfinite(crab.speed)&&crab.speed>=0.0f
+                      &&std::isfinite(crab.legPhase)&&std::fabs(crab.legPhase)<=1.001f,
+                  "hermit-crab movement and gait remain finite and bounded");
+            observedHermitPause|=crab.behavior==island::HermitCrabBehavior::Pause;
+            observedHermitForage|=crab.behavior==island::HermitCrabBehavior::Forage;
+        }
+    }
+    Check(observedHermitPause&&observedHermitForage,
+          "hermit crabs complete pause and forage activity states");
+    Check(hermitCrabs.FullSimulationCount()+hermitCrabs.ReducedSimulationCount()
+                  +hermitCrabs.DormantSimulationCount()
+              ==static_cast<int>(island::HermitCrabGroup::Count),
+          "hermit-crab simulation tiers account for the complete population");
+    island::HermitCrabGroup reactiveHermitCrabs(terrain);
+    const auto initialReactiveHermit=reactiveHermitCrabs.Crabs()[3U];
+    bool observedRetreat=false;
+    for(int frame=0;frame<50;++frame) {
+        reactiveHermitCrabs.Update(1.0f/60.0f,initialReactiveHermit.x,
+                                   initialReactiveHermit.y,initialReactiveHermit.z);
+        observedRetreat|=reactiveHermitCrabs.Crabs()[3U].behavior
+            ==island::HermitCrabBehavior::Retreat;
+    }
+    const auto& escapedHermit=reactiveHermitCrabs.Crabs()[3U];
+    Check(observedRetreat
+              &&std::hypot(escapedHermit.x-initialReactiveHermit.x,
+                            escapedHermit.z-initialReactiveHermit.z)>.12f,
+          "a nearby observer prompts a hermit crab to retreat with its shell");
 
     island::SeaTurtleGroup seaTurtles(terrain);
     island::SeaTurtleGroup repeatedSeaTurtles(terrain);

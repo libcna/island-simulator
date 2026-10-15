@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "IslandSimulator/CrabColony.hpp"
+#include "IslandSimulator/HermitCrabGroup.hpp"
 #include "Microsoft/Xna/Framework/Matrix.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
 
@@ -35,11 +36,15 @@ namespace island
                   const Microsoft::Xna::Framework::Matrix& projection,
                   const Microsoft::Xna::Framework::Vector3& cameraPosition,
                   std::span<const CrabState> crabs,
-                  std::span<const CrabBurrow> burrows);
+                  std::span<const CrabBurrow> burrows,
+                  std::span<const HermitCrabState> hermitCrabs);
 
         [[nodiscard]] int VisibleCrabCount() const noexcept { return visibleCrabCount_; }
         [[nodiscard]] int VisibleNearCrabCount() const noexcept { return visibleNearCrabCount_; }
         [[nodiscard]] int VisibleFarCrabCount() const noexcept { return visibleFarCrabCount_; }
+        [[nodiscard]] int VisibleHermitCrabCount() const noexcept {
+            return visibleHermitCrabCount_;
+        }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
 
     private:
@@ -50,6 +55,7 @@ namespace island
         int visibleCrabCount_ = 0;
         int visibleNearCrabCount_ = 0;
         int visibleFarCrabCount_ = 0;
+        int visibleHermitCrabCount_ = 0;
         int drawCallCount_ = 0;
         float maximumDistance_ = 92.0f;
     };

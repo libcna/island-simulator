@@ -1,9 +1,9 @@
 # Small fauna
 
-Two bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos and nine
-stream/wetland dragonflies. This is not completion of the whole small-fauna list: skinks,
-hermit/coconut crabs, additional shorebirds, fruit bats, cicadas and beetles remain candidates for
-later stages.
+Three bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, nine
+stream/wetland dragonflies and ten beach hermit crabs. This is not completion of the whole
+small-fauna list: skinks, coconut crabs, additional shorebirds, fruit bats, cicadas and beetles
+remain candidates for later stages.
 
 Each gecko owns a compact 5.2--6.1 m home range in one of the two clearings, near the seasonal
 wetland, or on suitable inland ground. Placement rejects beach proximity, steep slopes and invalid
@@ -60,7 +60,7 @@ single draw, so this stage adds no renderer, material switch, GPU buffer or draw
 Deterministic core tests cover construction, habitat moisture, altitude, home bounds, all three
 behaviours, invalid input, player-triggered escape and activation-tier accounting. The world report
 fingerprints all initial states and homes, reports exactly nine dragonflies and validates as
-`1fa3af31990349c6`.
+`6feb901b29f26f0c` after the hermit-crab stage below.
 
 Current dragonfly evidence:
 
@@ -77,3 +77,39 @@ Current dragonfly evidence:
 Earlier native captures are retained as rejected evidence: they exposed an oversized aircraft-like
 silhouette, then a rear-quarter composition that hid the long abdomen, and finally a side view that
 collapsed the four wings into lines. The accepted elevated broadside uses the exact final binary.
+
+## Hermit crabs
+
+Ten deterministic hermit crabs occupy compact 3.8--4.7 m home ranges on sheltered sandy coast.
+Placement requires terrain at or above the wash edge, a signed shore distance of 2--14 m and a
+slope below 0.34 radians. They pause, forage slowly and retreat with their shells when a player
+comes within 3.5 m. Ground height is resampled continuously and the shared wildlife activation
+policy reduces distant simulation.
+
+Each close model has an asymmetric five-ring gastropod shell, a dark aperture and connected raised
+spiral, exposed body, projecting eye stalks, moving antennae, six jointed walking legs and unequal
+claws. Ten shell/limb palettes are derived from four restrained variants. They append to the
+existing beach-crab dynamic buffer and single draw, adding no renderer, GPU buffer, material switch
+or draw call.
+
+Core tests cover deterministic construction, sandy habitat and home bounds, grounding, pause and
+forage states, finite invalid-input handling, player-triggered retreat and simulation-tier
+accounting. The world report fingerprints all ten initial animals and homes and validates as
+`6feb901b29f26f0c`.
+
+Current evidence:
+
+- native 1280x720 llvmpipe capture:
+  `build-consumer/software-captures/20261015T024132.187658Z-hermit-crabs` (251 colour bins, 26.86
+  luminance deviation and 141.61 spatial contrast; inspected at full resolution);
+- Chrome/SwiftShader:
+  `build/browser-software/20261015T024746.729975Z-chrome-hermit-crabs`, 60 finite positive
+  intervals, GL0, live context, two distinct separated-time frames and no new kernel GPU fault;
+- ARM64 assemble/lint passes without launching an emulator or touching KVM; the APK is 24,128,011
+  bytes with SHA-256 `20468080cb9b924288cac60aeb58a50895da93cf54cb2f8353397f5a9f8c5f91`
+  and its stripped `libmain.so` is 19,085,440 bytes.
+
+The rejected first capture placed the camera behind an overly round shell, making the body read as
+disconnected pieces. The second introduced a conical shell and front camera but retained visible
+gaps. The accepted exact-final-binary capture adds a connected exposed body, forearms and stronger
+leg roots and uses a clean front three-quarter beach composition.

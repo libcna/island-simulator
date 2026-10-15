@@ -108,6 +108,7 @@ add_library(island_core STATIC
     game/src/SeaTurtleGroup.cpp
     game/src/DolphinPod.cpp
     game/src/DragonflySwarm.cpp
+    game/src/HermitCrabGroup.cpp
     game/src/SharkPatrol.cpp
     game/src/ShipwreckLayout.cpp
     game/src/SoundscapeModel.cpp
