@@ -34,14 +34,17 @@ namespace island
         constexpr float NearLodDistance = 25.0f;
         constexpr int MaximumVerticesPerButterfly = 228;
         constexpr int MaximumFlowerVertices = 1800;
+        constexpr int MaximumGeckoVertices = static_cast<int>(GeckoPopulation::Count) * 900;
         constexpr int MaximumVertexCount = static_cast<int>(ButterflyMeadow::ButterflyCount)
-            * MaximumVerticesPerButterfly + MaximumFlowerVertices;
+            * MaximumVerticesPerButterfly + MaximumFlowerVertices + MaximumGeckoVertices;
         constexpr std::string_view ButterflyDiagnostic =
             "island-simulator: clearing butterflies use hinged patterned wings in one culled batch";
         constexpr std::string_view ButterflyAnatomyDiagnostic =
             "island-simulator: near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins";
         constexpr std::string_view ButterflyHabitatDiagnostic =
             "island-simulator: butterflies feed at three visible deterministic nectar-flower patches";
+        constexpr std::string_view GeckoDiagnostic =
+            "island-simulator: eight inland geckos rest, scurry from the player, and hide in the shared butterfly batch";
 
         struct ButterflyPalette
         {
@@ -142,6 +145,167 @@ namespace island
                 AddTriangle(vertices, crown, east, south, centreColor);
                 AddTriangle(vertices, crown, south, west, centreColor);
                 AddTriangle(vertices, crown, west, north, centreColor);
+            }
+        }
+
+        void AppendGeckoDiamond(std::vector<VertexPositionColor>& vertices,
+                                const Vector3& centre, const Vector3& right,
+                                const Vector3& up, const Vector3& forward,
+                                const float halfX, const float halfY, const float halfZ,
+                                const Color& top, const Color& side)
+        {
+            const Vector3 crown = centre + up * halfY;
+            const Vector3 belly = centre - up * halfY;
+            const Vector3 left = centre - right * halfX;
+            const Vector3 rightPoint = centre + right * halfX;
+            const Vector3 front = centre + forward * halfZ;
+            const Vector3 rear = centre - forward * halfZ;
+            AddTriangle(vertices, crown, front, rightPoint, top);
+            AddTriangle(vertices, crown, rightPoint, rear, top);
+            AddTriangle(vertices, crown, rear, left, top);
+            AddTriangle(vertices, crown, left, front, top);
+            AddTriangle(vertices, belly, rightPoint, front, side);
+            AddTriangle(vertices, belly, rear, rightPoint, side);
+            AddTriangle(vertices, belly, left, rear, side);
+            AddTriangle(vertices, belly, front, left, side);
+        }
+
+        void AppendGeckoSegment(std::vector<VertexPositionColor>& vertices,
+                                const Vector3& a, const Vector3& b,
+                                const float halfWidth, const Color& color)
+        {
+            const Vector3 delta = b - a;
+            const float length = std::max(.001f, std::hypot(delta.X, delta.Z));
+            const Vector3 side(-delta.Z * halfWidth / length, 0.0f,
+                               delta.X * halfWidth / length);
+            AddDoubleSidedTriangle(vertices, a + side, b + side * .52f, b - side * .52f, color);
+            AddDoubleSidedTriangle(vertices, a + side, b - side * .52f, a - side, color);
+        }
+
+        template<std::size_t StationCount>
+        void AppendGeckoLoft(std::vector<VertexPositionColor>& vertices,
+                             const Vector3& centre,const Vector3& right,
+                             const Vector3& up,const Vector3& forward,
+                             const std::array<float,StationCount>& stations,
+                             const std::array<float,StationCount>& halfWidths,
+                             const std::array<float,StationCount>& halfHeights,
+                             const float scale,const Color& dorsal,
+                             const Color& flank,const Color& underside)
+        {
+            constexpr int Sides=8;
+            const auto ringPoint=[&](const std::size_t station,const int side) {
+                const float angle=6.28318530718f*static_cast<float>(side)/Sides;
+                return centre+forward*(stations[station]*scale)
+                    +right*(std::cos(angle)*halfWidths[station]*scale)
+                    +up*(std::sin(angle)*halfHeights[station]*scale);
+            };
+            for(std::size_t station=0;station+1U<StationCount;++station) {
+                for(int side=0;side<Sides;++side) {
+                    const int next=(side+1)%Sides;
+                    const float vertical=std::sin(6.28318530718f
+                        *(static_cast<float>(side)+.5f)/Sides);
+                    const Color color=vertical>.28f
+                        ? Color::Lerp(dorsal,Color(194,204,139,255),.13f)
+                        : (vertical<-.28f?underside:flank);
+                    const Vector3 a=ringPoint(station,side);
+                    const Vector3 b=ringPoint(station+1U,side);
+                    const Vector3 c=ringPoint(station+1U,next);
+                    const Vector3 d=ringPoint(station,next);
+                    AddTriangle(vertices,a,b,c,color);
+                    AddTriangle(vertices,a,c,d,color);
+                }
+            }
+            const Vector3 rear=centre+forward*(stations.front()*scale);
+            const Vector3 front=centre+forward*(stations.back()*scale);
+            for(int side=0;side<Sides;++side) {
+                const int next=(side+1)%Sides;
+                AddTriangle(vertices,rear,ringPoint(0U,next),ringPoint(0U,side),flank);
+                AddTriangle(vertices,front,ringPoint(StationCount-1U,side),
+                            ringPoint(StationCount-1U,next),dorsal);
+            }
+        }
+
+        void AppendGecko(std::vector<VertexPositionColor>& vertices, const GeckoState& gecko)
+        {
+            const std::array<Color, 4> backs = {{
+                Color(104, 139, 62, 255), Color(146, 117, 67, 255),
+                Color(73, 124, 89, 255), Color(157, 139, 77, 255)}};
+            const Color back = backs[gecko.colorVariant % backs.size()];
+            const Color flank = Color::Lerp(back, Color(49, 57, 36, 255), .32f);
+            const Color underside=Color::Lerp(back,Color(208,192,139,255),.52f);
+            const Color marking=Color::Lerp(back,Color(43,53,31,255),.58f);
+            const Color eye(207, 171, 55, 255);
+            const Color pupil(8, 11, 7, 255);
+            const float scale = gecko.scale * std::clamp(gecko.visibility, 0.0f, 1.0f);
+            const Vector3 centre(gecko.x, gecko.y + .072f * scale, gecko.z);
+            const Vector3 forward(std::cos(gecko.headingRadians), 0,
+                                  std::sin(gecko.headingRadians));
+            const Vector3 right(-forward.Z, 0, forward.X);
+            const Vector3 up = Vector3::Up;
+            const Vector3 body=centre;
+            constexpr std::array<float,5> BodyStations={{-.23f,-.14f,.0f,.14f,.22f}};
+            constexpr std::array<float,5> BodyWidths={{.045f,.105f,.13f,.115f,.075f}};
+            constexpr std::array<float,5> BodyHeights={{.035f,.072f,.082f,.076f,.052f}};
+            AppendGeckoLoft(vertices,body,right,up,forward,BodyStations,BodyWidths,
+                            BodyHeights,scale,back,flank,underside);
+            const Vector3 head=centre+forward*(.275f*scale)+up*(.018f*scale);
+            constexpr std::array<float,4> HeadStations={{-.07f,.0f,.105f,.15f}};
+            constexpr std::array<float,4> HeadWidths={{.070f,.115f,.105f,.055f}};
+            constexpr std::array<float,4> HeadHeights={{.042f,.060f,.055f,.032f}};
+            AppendGeckoLoft(vertices,head,right,up,forward,HeadStations,HeadWidths,
+                            HeadHeights,scale,back,flank,underside);
+            const float stride = std::sin(gecko.gaitPhase) * .055f * scale;
+            for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
+                const float sideSign = static_cast<float>(sideIndex);
+                for (int pair = 0; pair < 2; ++pair) {
+                    const float along = pair == 0 ? .12f : -.12f;
+                    const float opposed = (pair + (sideIndex > 0 ? 1 : 0)) % 2 == 0
+                        ? stride : -stride;
+                    const Vector3 root = body + forward * (along * scale)
+                        + right * (sideSign * .07f * scale);
+                    const Vector3 knee = root + right * (sideSign * .12f * scale)
+                        + forward * opposed;
+                    const Vector3 toe = knee + right * (sideSign * .10f * scale)
+                        + forward * ((pair == 0 ? .055f : -.045f) * scale - opposed * .35f);
+                    AppendGeckoSegment(vertices, root, knee, .016f * scale, flank);
+                    AppendGeckoSegment(vertices, knee, toe, .012f * scale, back);
+                    for(int digit=-1;digit<=1;++digit) {
+                        const Vector3 digitEnd=toe+right*(sideSign*.055f*scale)
+                            +forward*((static_cast<float>(digit)*.030f
+                                +(pair==0?.018f:-.018f))*scale);
+                        AppendGeckoSegment(vertices,toe,digitEnd,.0055f*scale,underside);
+                    }
+                }
+            }
+            Vector3 tailRoot = body - forward * (.19f * scale);
+            for (int segment = 0; segment < 4; ++segment) {
+                const float phase = gecko.gaitPhase * .35f + static_cast<float>(segment) * .72f;
+                const float length = (.15f - static_cast<float>(segment) * .018f) * scale;
+                const Vector3 tailEnd = tailRoot - forward * length
+                    + right * (std::sin(phase) * .035f * scale);
+                AppendGeckoSegment(vertices, tailRoot, tailEnd,
+                    (.036f - static_cast<float>(segment) * .006f) * scale, flank);
+                tailRoot = tailEnd;
+            }
+            for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
+                const float sideSign = static_cast<float>(sideIndex);
+                const Vector3 eyeCentre = head + forward * (.065f * scale)
+                    + right * (sideSign * .075f * scale) + up * (.035f * scale);
+                AppendGeckoDiamond(vertices, eyeCentre, right, up, forward,
+                                   .018f * scale, .018f * scale, .012f * scale, eye, eye);
+                const Vector3 pupilCentre=eyeCentre+right*(sideSign*.015f*scale)
+                    +up*(.006f*scale);
+                AddDoubleSidedTriangle(vertices,pupilCentre+up*(.009f*scale),
+                    pupilCentre-forward*(.010f*scale)-up*(.007f*scale),
+                    pupilCentre+forward*(.010f*scale)-up*(.007f*scale),pupil);
+            }
+            for(int spot=0;spot<5;++spot) {
+                const float z=(-.15f+static_cast<float>(spot)*.075f)*scale;
+                const float width=(spot%2==0?.045f:.032f)*scale;
+                const Vector3 spotCentre=body+forward*z+up*(.086f*scale);
+                AddDoubleSidedTriangle(vertices,spotCentre+forward*(.018f*scale),
+                    spotCentre-right*width-forward*(.014f*scale),
+                    spotCentre+right*width-forward*(.014f*scale),marking);
             }
         }
 
@@ -309,9 +473,11 @@ namespace island
         std::cout << ButterflyDiagnostic << '\n';
         std::cout << ButterflyAnatomyDiagnostic << '\n';
         std::cout << ButterflyHabitatDiagnostic << '\n';
+        std::cout << GeckoDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyHabitatDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(GeckoDiagnostic);
     }
 
     ButterflyRenderer::~ButterflyRenderer() = default;
@@ -319,12 +485,14 @@ namespace island
     void ButterflyRenderer::Draw(const Matrix& view, const Matrix& projection,
                                   const Vector3& cameraPosition,
                                   const std::span<const ButterflyState> butterflies,
-                                  const std::span<const ButterflyFlowerPatch> flowerPatches)
+                                  const std::span<const ButterflyFlowerPatch> flowerPatches,
+                                  const std::span<const GeckoState> geckos)
     {
         stagingVertices_.clear();
         visibleButterflyCount_ = 0;
         visibleNearButterflyCount_ = 0;
         visibleFarButterflyCount_ = 0;
+        visibleGeckoCount_ = 0;
         drawCallCount_ = 0;
         const BoundingFrustum frustum(view * projection);
         for (std::size_t index = 0; index < flowerPatches.size(); ++index) {
@@ -335,6 +503,17 @@ namespace island
                 && frustum.Intersects(BoundingSphere(centre, patch.radius + .5f))) {
                 AppendFlowerPatch(stagingVertices_, patch, index);
             }
+        }
+        for (const GeckoState& gecko : geckos) {
+            if (gecko.visibility <= .035f) continue;
+            const Vector3 centre(gecko.x, gecko.y + .08f, gecko.z);
+            if (Vector3::DistanceSquared(centre, cameraPosition)
+                    > maximumDistance_ * maximumDistance_
+                || !frustum.Intersects(BoundingSphere(centre, gecko.scale * .55f))) {
+                continue;
+            }
+            AppendGecko(stagingVertices_, gecko);
+            ++visibleGeckoCount_;
         }
         for (const ButterflyState& butterfly : butterflies) {
             const Vector3 centre(butterfly.x, butterfly.y, butterfly.z);

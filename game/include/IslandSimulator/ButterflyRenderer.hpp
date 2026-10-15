@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "IslandSimulator/ButterflyMeadow.hpp"
+#include "IslandSimulator/GeckoPopulation.hpp"
 #include "Microsoft/Xna/Framework/Matrix.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
 
@@ -36,7 +37,8 @@ namespace island
                   const Microsoft::Xna::Framework::Matrix& projection,
                   const Microsoft::Xna::Framework::Vector3& cameraPosition,
                   std::span<const ButterflyState> butterflies,
-                  std::span<const ButterflyFlowerPatch> flowerPatches);
+                  std::span<const ButterflyFlowerPatch> flowerPatches,
+                  std::span<const GeckoState> geckos);
 
         [[nodiscard]] int VisibleButterflyCount() const noexcept {
             return visibleButterflyCount_;
@@ -48,6 +50,7 @@ namespace island
             return visibleFarButterflyCount_;
         }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
+        [[nodiscard]] int VisibleGeckoCount() const noexcept { return visibleGeckoCount_; }
 
     private:
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
@@ -57,6 +60,7 @@ namespace island
         int visibleButterflyCount_ = 0;
         int visibleNearButterflyCount_ = 0;
         int visibleFarButterflyCount_ = 0;
+        int visibleGeckoCount_ = 0;
         int drawCallCount_ = 0;
         float maximumDistance_ = 72.0f;
     };

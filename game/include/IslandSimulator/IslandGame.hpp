@@ -34,6 +34,7 @@
 #endif
 #include "IslandSimulator/DebugOverlay.hpp"
 #include "IslandSimulator/FlightMotion.hpp"
+#include "IslandSimulator/GeckoPopulation.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/DistantSceneryRenderer.hpp"
 #include "IslandSimulator/DolphinPod.hpp"
@@ -171,6 +172,7 @@ namespace island
         SnakeDetail,
         SnakeHeadDetail,
         ButterflyDetail,
+        GeckoDetail,
         SeaTurtleDetail,
         BenchmarkTraversal
     };
@@ -280,6 +282,7 @@ namespace island
         DistantSceneryLayout distantSceneryLayout_;
         BirdFlock birdFlock_;
         ButterflyMeadow butterflyMeadow_;
+        GeckoPopulation geckoPopulation_;
         CrabColony crabColony_;
         CrocodileGroup crocodileGroup_;
         BoarHerd boarHerd_;

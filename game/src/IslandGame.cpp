@@ -139,6 +139,7 @@ namespace island
             case FixedViewpoint::SnakeDetail: return "snakes";
             case FixedViewpoint::SnakeHeadDetail: return "snake-head";
             case FixedViewpoint::ButterflyDetail: return "butterflies";
+            case FixedViewpoint::GeckoDetail: return "geckos";
             case FixedViewpoint::SeaTurtleDetail: return "turtles";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
             case FixedViewpoint::None: return "interactive";
@@ -167,6 +168,7 @@ namespace island
         : graphics_(this),
           birdFlock_(terrain_),
           butterflyMeadow_(terrain_),
+          geckoPopulation_(terrain_),
           crabColony_(terrain_),
           crocodileGroup_(terrain_),
           boarHerd_(terrain_),
@@ -1318,6 +1320,21 @@ namespace island
             pitch_ = std::atan2(
                 toGroup.Y, std::hypot(toGroup.X, toGroup.Z));
             std::cout << "island-simulator: butterfly QA camera frames one concrete nectar patch and its six animals\n";
+        } else if (viewpoint_ == FixedViewpoint::GeckoDetail
+                   && geckoPopulation_.Geckos().size() > 2U) {
+            const GeckoState& gecko=geckoPopulation_.Geckos()[2U];
+            const Vector3 forward(std::cos(gecko.headingRadians),0.0f,
+                                  std::sin(gecko.headingRadians));
+            const Vector3 side(-forward.Z,0.0f,forward.X);
+            const float cameraX=gecko.x-forward.X*.55f+side.X*.40f;
+            const float cameraZ=gecko.z-forward.Z*.55f+side.Z*.40f;
+            cameraPosition_=Vector3(cameraX,
+                std::max(terrain_.Height(cameraX,cameraZ)+.40f,gecko.y+.37f),cameraZ);
+            const Vector3 target(gecko.x,gecko.y+.080f,gecko.z);
+            const Vector3 direction=target-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+            std::cout << "island-simulator: gecko QA camera frames a resting inland lizard at ground level\n";
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferMultiSamplingProperty(qualityProfile_.preferredBackBufferSamples > 0);
@@ -1641,6 +1658,8 @@ namespace island
                   << "island-simulator: clearing butterflies "
                   << butterflyMeadow_.Butterflies().size()
                   << " agents in deterministic low-altitude habitats\n"
+                  << "island-simulator: geckos " << geckoPopulation_.Geckos().size()
+                  << " agents in deterministic inland rest, flee, and hide habitats\n"
                   << "island-simulator: beach crabs " << crabColony_.Crabs().size()
                   << " agents in deterministic sand-and-debris-constrained colonies\n"
                   << "island-simulator: crocodiles " << crocodileGroup_.Crocodiles().size()
@@ -1722,6 +1741,11 @@ namespace island
                                       << butterflyMeadow_.Butterflies().size()
                                       << " agents in deterministic low-altitude habitats";
         MirrorRuntimeDiagnosticToPlatformLog(butterflyPopulationDiagnostic.str());
+        std::ostringstream geckoPopulationDiagnostic;
+        geckoPopulationDiagnostic << "island-simulator: geckos "
+                                  << geckoPopulation_.Geckos().size()
+                                  << " agents in deterministic inland rest, flee, and hide habitats";
+        MirrorRuntimeDiagnosticToPlatformLog(geckoPopulationDiagnostic.str());
         std::ostringstream crabPopulationDiagnostic;
         crabPopulationDiagnostic << "island-simulator: beach crabs "
                                  << crabColony_.Crabs().size()
@@ -1889,6 +1913,25 @@ namespace island
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         butterflyMeadow_.Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,
             cameraPosition_.Z);
+        const GeckoState previousGeckoSubject=geckoPopulation_.Geckos()[2U];
+        Vector3 geckoObserver=cameraPosition_;
+        if(viewpoint_==FixedViewpoint::GeckoDetail) {
+            const GeckoState& gecko=geckoPopulation_.Geckos()[2U];
+            geckoObserver=Vector3(gecko.x,gecko.y+18.0f,gecko.z);
+        }
+        geckoPopulation_.Update(viewpoint_==FixedViewpoint::GeckoDetail?0.0f:deltaSeconds,
+                                geckoObserver.X,geckoObserver.Y,
+                                geckoObserver.Z);
+        if(viewpoint_==FixedViewpoint::GeckoDetail) {
+            const GeckoState& gecko=geckoPopulation_.Geckos()[2U];
+            cameraPosition_+=Vector3(gecko.x-previousGeckoSubject.x,
+                                     gecko.y-previousGeckoSubject.y,
+                                     gecko.z-previousGeckoSubject.z);
+            const Vector3 target(gecko.x,gecko.y+.080f,gecko.z);
+            const Vector3 direction=target-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+        }
         const CrabState previousCrabSubject = crabColony_.Crabs()[crabViewSubject_];
         Vector3 crabObserver=cameraPosition_;
         if(viewpoint_==FixedViewpoint::CrabDetail) {
@@ -3245,7 +3288,8 @@ namespace island
             GpuDiagnosticScope gpuPass("butterflies");
             butterflyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                      butterflyMeadow_.Butterflies(),
-                                     butterflyMeadow_.FlowerPatches());
+                                     butterflyMeadow_.FlowerPatches(),
+                                     geckoPopulation_.Geckos());
         }
 
         {
@@ -3781,7 +3825,10 @@ namespace island
                       << butterflyMeadow_.Butterflies().size() << " visible (near "
                       << butterflyRenderer_->VisibleNearButterflyCount() << ", far "
                       << butterflyRenderer_->VisibleFarButterflyCount() << "), "
-                      << butterflyRenderer_->DrawCallCount() << " draw; crabs "
+                      << butterflyRenderer_->DrawCallCount() << " draw; geckos "
+                      << butterflyRenderer_->VisibleGeckoCount() << '/'
+                      << geckoPopulation_.Geckos().size()
+                      << " visible in shared draw; crabs "
                       << crabRenderer_->VisibleCrabCount() << '/'
                       << crabColony_.Crabs().size() << " visible (near "
                       << crabRenderer_->VisibleNearCrabCount() << ", far "

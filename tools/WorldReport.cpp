@@ -5,6 +5,7 @@
 #include "IslandSimulator/SpiderColony.hpp"
 #include "IslandSimulator/SpiderWebLayout.hpp"
 #include "IslandSimulator/ButterflyMeadow.hpp"
+#include "IslandSimulator/GeckoPopulation.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/DolphinPod.hpp"
@@ -113,6 +114,7 @@ namespace
         island::DistantSceneryLayout distantScenery;
         island::BirdFlock birds{terrain};
         island::ButterflyMeadow butterflies{terrain};
+        island::GeckoPopulation geckos{terrain};
         island::CrabColony crabs{terrain};
         island::BoarHerd boars{terrain};
         island::FishSchools fish{terrain};
@@ -404,6 +406,17 @@ namespace
             hash.AddFloat(patch.groundSlopeX);
             hash.AddFloat(patch.groundSlopeZ);
         }
+        hash.AddSize(world.geckos.Geckos().size());
+        for(std::size_t index=0;index<world.geckos.Geckos().size();++index) {
+            const auto& gecko=world.geckos.Geckos()[index];
+            const auto& home=world.geckos.Homes()[index];
+            HashPosition(hash,gecko.x,gecko.y,gecko.z);
+            hash.AddFloat(gecko.headingRadians);
+            hash.AddFloat(gecko.scale);
+            hash.AddEnum(gecko.behavior);
+            hash.AddByte(gecko.colorVariant);
+            hash.AddFloat(home.x);hash.AddFloat(home.z);hash.AddFloat(home.radius);
+        }
 
         hash.AddSize(world.boars.Boars().size());
         for (const auto& boar : world.boars.Boars()) {
@@ -660,6 +673,8 @@ namespace
                 == island::ButterflyMeadow::ButterflyCount
             && world.butterflies.FlowerPatches().size()
                 == island::ButterflyMeadow::HabitatCount
+            && world.geckos.Geckos().size()==island::GeckoPopulation::Count
+            && world.geckos.Homes().size()==island::GeckoPopulation::Count
             && world.crabs.Crabs().size() == island::CrabColony::CrabCount
             && world.boars.Boars().size() == island::BoarHerd::BoarCount
             && world.snakes->Snakes().size() == island::SnakePopulation::Count
@@ -778,6 +793,19 @@ namespace
                              patch.groundSlopeX, patch.groundSlopeZ)
                 && patch.radius > 0.0f
                 && std::fabs(patch.y - world.terrain.Height(patch.x, patch.z)) < .001f;
+        }
+        for(std::size_t index=0;index<world.geckos.Geckos().size();++index) {
+            const auto& gecko=world.geckos.Geckos()[index];
+            const auto& home=world.geckos.Homes()[index];
+            const auto sample=world.terrain.Sample(gecko.x,gecko.z);
+            finiteSpecializedData=finiteSpecializedData
+                &&AllFinite(gecko.x,gecko.y,gecko.z,gecko.headingRadians,
+                             gecko.speed,gecko.gaitPhase,gecko.visibility,gecko.scale,
+                             home.x,home.z,home.radius)
+                &&gecko.scale>0.0f&&home.radius>0.0f
+                &&std::hypot(gecko.x-home.x,gecko.z-home.z)<=home.radius
+                &&sample.signedShoreDistance>=34.0f&&sample.slopeRadians<.52f
+                &&std::fabs(gecko.y-sample.height-.038f)<.001f;
         }
         for (const auto& boar : world.boars.Boars()) {
             finiteSpecializedData = finiteSpecializedData
@@ -1209,6 +1237,7 @@ namespace
                << world.butterflies.Butterflies().size() << ",\n"
                << "    \"butterflyFlowerPatches\": "
                << world.butterflies.FlowerPatches().size() << ",\n"
+               << "    \"geckos\": " << world.geckos.Geckos().size() << ",\n"
                << "    \"beachCrabs\": " << world.crabs.Crabs().size() << ",\n"
                << "    \"crabBurrows\": " << world.crabs.Burrows().size() << ",\n"
                << "    \"wildBoars\": " << world.boars.Boars().size() << ",\n"

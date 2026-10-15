@@ -4,6 +4,7 @@
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BirdPerchLayout.hpp"
 #include "IslandSimulator/ButterflyMeadow.hpp"
+#include "IslandSimulator/GeckoPopulation.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/CoastalMaterial.hpp"
 #include "IslandSimulator/CoastalWindResponse.hpp"
@@ -2821,6 +2822,92 @@ int main()
               && escapedButterfly.y > terrain.Height(
                      escapedButterfly.x, escapedButterfly.z) + 0.35f,
           "a nearby observer prompts a mild airborne butterfly retreat");
+
+    island::GeckoPopulation geckos(terrain);
+    island::GeckoPopulation repeatedGeckos(terrain);
+    island::GeckoPopulation invalidInputGeckos(terrain);
+    Check(geckos.Geckos().size() == island::GeckoPopulation::Count
+              && geckos.Homes().size() == island::GeckoPopulation::Count,
+          "gecko simulation exposes eight bounded inland animals");
+    for (std::size_t index=0;index<geckos.Geckos().size();++index) {
+        const auto& gecko=geckos.Geckos()[index];
+        const auto& repeated=repeatedGeckos.Geckos()[index];
+        const auto& home=geckos.Homes()[index];
+        const auto sample=terrain.Sample(gecko.x,gecko.z);
+        Check(gecko.x==repeated.x && gecko.y==repeated.y && gecko.z==repeated.z
+                  && gecko.headingRadians==repeated.headingRadians
+                  && gecko.behavior==repeated.behavior
+                  && gecko.colorVariant==repeated.colorVariant,
+              "gecko construction is deterministic");
+        Check(std::hypot(gecko.x-home.x,gecko.z-home.z)<=home.radius
+                  && home.radius>=5.2f && home.radius<=6.2f,
+              "each gecko begins inside its compact home range");
+        Check(sample.signedShoreDistance>=34.0f && sample.slopeRadians<.52f
+                  && (sample.surface==island::TerrainSurface::CoastalGround
+                      || sample.surface==island::TerrainSurface::InteriorGround
+                      || sample.surface==island::TerrainSurface::RockyGround)
+                  && std::fabs(gecko.y-sample.height-.038f)<.001f,
+              "each gecko begins grounded in suitable inland habitat");
+    }
+    invalidInputGeckos.Update(quietNan,quietNan,quietNan,quietNan);
+    Check(invalidInputGeckos.DormantSimulationCount()
+                  ==static_cast<int>(island::GeckoPopulation::Count)
+              && std::ranges::all_of(invalidInputGeckos.Geckos(),[](const auto& gecko) {
+                     return std::isfinite(gecko.x)&&std::isfinite(gecko.y)
+                         &&std::isfinite(gecko.z)&&std::isfinite(gecko.headingRadians)
+                         &&std::isfinite(gecko.visibility);
+                 }),
+          "geckos reject non-finite frame and observer input without state poisoning");
+    bool observedGeckoRest=false;
+    bool observedGeckoScurry=false;
+    bool observedGeckoHidden=false;
+    bool observedInvisibleGecko=false;
+    for(int frame=0;frame<4000;++frame) {
+        geckos.Update(1.0f/30.0f,0.0f,100.0f,0.0f);
+        repeatedGeckos.Update(1.0f/30.0f,0.0f,100.0f,0.0f);
+        for(std::size_t index=0;index<geckos.Geckos().size();++index) {
+            const auto& gecko=geckos.Geckos()[index];
+            const auto& repeated=repeatedGeckos.Geckos()[index];
+            const auto& home=geckos.Homes()[index];
+            const auto sample=terrain.Sample(gecko.x,gecko.z);
+            Check(gecko.x==repeated.x && gecko.y==repeated.y && gecko.z==repeated.z
+                      && gecko.headingRadians==repeated.headingRadians
+                      && gecko.visibility==repeated.visibility
+                      && gecko.behavior==repeated.behavior,
+                  "gecko simulation remains deterministic over a long session");
+            Check(std::hypot(gecko.x-home.x,gecko.z-home.z)<=home.radius+.01f
+                      && sample.signedShoreDistance>=33.99f
+                      && sample.slopeRadians<.521f
+                      && std::fabs(gecko.y-sample.height-.038f)<.002f,
+                  "geckos remain grounded in bounded inland habitats");
+            Check(std::isfinite(gecko.speed)&&gecko.speed>=0.0f
+                      && gecko.visibility>=0.0f&&gecko.visibility<=1.0f,
+                  "gecko motion and visibility remain finite and bounded");
+            observedGeckoRest|=gecko.behavior==island::GeckoBehavior::Rest;
+            observedGeckoScurry|=gecko.behavior==island::GeckoBehavior::Scurry;
+            observedGeckoHidden|=gecko.behavior==island::GeckoBehavior::Hidden;
+            observedInvisibleGecko|=gecko.visibility<.04f;
+        }
+    }
+    Check(observedGeckoRest&&observedGeckoScurry&&observedGeckoHidden
+              &&observedInvisibleGecko,
+          "geckos complete visible rest, scurry, and hidden activity states");
+    Check(geckos.FullSimulationCount()+geckos.ReducedSimulationCount()
+                  +geckos.DormantSimulationCount()
+              ==static_cast<int>(island::GeckoPopulation::Count),
+          "gecko simulation tiers account for the complete population");
+    island::GeckoPopulation reactiveGeckos(terrain);
+    const auto initialReactiveGecko=reactiveGeckos.Geckos()[1U];
+    for(int frame=0;frame<75;++frame) {
+        reactiveGeckos.Update(1.0f/60.0f,initialReactiveGecko.x,
+                             initialReactiveGecko.y,initialReactiveGecko.z);
+    }
+    const auto& hiddenGecko=reactiveGeckos.Geckos()[1U];
+    Check(hiddenGecko.behavior==island::GeckoBehavior::Hidden
+              && hiddenGecko.visibility<.3f
+              && std::hypot(hiddenGecko.x-initialReactiveGecko.x,
+                            hiddenGecko.z-initialReactiveGecko.z)>.2f,
+          "a nearby observer prompts a gecko to scurry away and hide");
 
     island::SeaTurtleGroup seaTurtles(terrain);
     island::SeaTurtleGroup repeatedSeaTurtles(terrain);

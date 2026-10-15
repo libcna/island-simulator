@@ -60,6 +60,30 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest ecosystem implementation — first small-fauna stage
+
+Macro-ecosystem item 17 is now partially implemented rather than empty. Eight deterministic inland
+geckos occupy compact clearing, wetland-edge and interior habitats. They rest, scurry away from a
+nearby player, disappear into cover and later return, while using the shared distance-throttled
+wildlife policy. Their close geometry has a lofted trunk and flattened head, long tapered tail,
+four splayed articulated legs, three toes per foot, raised amber eyes, dorsal markings and four
+palettes at a bounded 37--47 cm total length. All geometry joins the existing butterfly dynamic
+batch: no renderer, GPU buffer or draw was added.
+
+The accepted exact-final-binary native anatomy evidence is
+`build-consumer/software-captures/20261015T013548.592879Z-geckos` (281 colour bins, 19.41
+luminance deviation, 73.04 spatial contrast; inspected at full resolution). Chrome/SwiftShader
+`build/browser-software/20261015T013200.753923Z-chrome-geckos` passes 60 finite positive intervals,
+GL0, live context, distinct separated-time frames and clean kernel monitoring; its image was
+inspected with the animal visible. Deterministic core tests and the world report pin behaviour,
+grounding, home bounds and all eight identities; the valid fingerprint is `c4874b5d2f4ed411`.
+ARM64 assemble/lint passes without emulator/KVM
+(24,086,939-byte APK, SHA-256
+`c07a93dcf4f55d7bd075d59b3fddde1aaa3f3cd25811e9269f5188602fe9b6d7`, 19,044,368-byte
+`libmain.so`). This closes only the gecko slice; the remaining item-17 species are not claimed.
+The correctly filtered non-display regression passes 60/60 (five display-producing tests remain
+disabled). Details are in `docs/small-fauna.md`.
+
 ## Latest ecosystem implementation — wildlife belongs to concrete places
 
 Macro-ecosystem item 18 is complete. The existing bird flock already separates ten coastal,
@@ -3865,9 +3889,11 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
 - [x] 16. Underwater environment for swimming: seagrass patches, simple coral heads, stones, sand
   ripples, shells, small fish, suspended particles, subtle caustics, blue-green depth extinction.
   Completed by the spatial habitat work plus the 2026-10-15 shallow-scene audit recorded above.
-- [ ] 17. Small fauna with simple behaviour (for example a gecko that sits, flees, disappears):
-  geckos, skinks, hermit crabs, coconut crabs, more small crabs, shorebirds and seabirds, fruit bats,
-  dragonflies, cicadas, beetles, small lizards. Monkeys and boars remain.
+- [~] 17. Small fauna with simple behaviour (for example a gecko that sits, flees, disappears):
+  eight grounded rest/flee/hide geckos are complete in the existing butterfly batch, with native,
+  WebGL and ARM64 qualification described above and in `docs/small-fauna.md`. Skinks, hermit crabs,
+  coconut crabs, more small crabs, shorebirds/seabirds, fruit bats, dragonflies, cicadas and beetles
+  remain; monkeys and boars remain.
 - [x] 18. Tie wildlife to places: crabs on specific beach sections with burrows, butterflies at
   specific flowers, coastal/jungle/seabirds in their zones, reef fish at coral patches and small
   schools over sand, turtles over seagrass. The shared habitat completion and evidence are recorded
