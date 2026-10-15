@@ -140,6 +140,7 @@ namespace island
             case FixedViewpoint::CrocodileDetail: return "crocodiles";
             case FixedViewpoint::BoarDetail: return "boars";
             case FixedViewpoint::GoatDetail: return "goats";
+            case FixedViewpoint::DeerDetail: return "deer";
             case FixedViewpoint::SpiderDetail: return "spiders";
             case FixedViewpoint::SpiderBrightDetail: return "spiders-bright";
             case FixedViewpoint::SpiderWebDetail: return "spider-web";
@@ -258,6 +259,7 @@ namespace island
         snakes_ = std::make_unique<SnakePopulation>(
             terrain_,jungleLayout_,wildlifeObstacles);
         goats_ = std::make_unique<GoatHerd>(terrain_,jungleLayout_,wildlifeObstacles);
+        deer_ = std::make_unique<DeerHerd>(terrain_,wildlifeObstacles);
         spiders_ = std::make_unique<SpiderColony>(terrain_,jungleLayout_,wildlifeObstacles);
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
@@ -1329,6 +1331,17 @@ namespace island
             const auto direction=Vector3(goat.x,goat.y+.75f,goat.z)-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+        } else if (viewpoint_ == FixedViewpoint::DeerDetail) {
+            const auto& deer=deer_->Deer().front();
+            const Vector3 forward(std::cos(deer.headingRadians),0,std::sin(deer.headingRadians));
+            const Vector3 side(-forward.Z,0,forward.X);
+            const float x=deer.x-forward.X*2.4f+side.X*7.0f;
+            const float z=deer.z-forward.Z*2.4f+side.Z*7.0f;
+            cameraPosition_=Vector3(x,std::max(terrain_.Height(x,z)+.45f,deer.y+2.1f),z);
+            const auto direction=Vector3(deer.x,deer.y+1.05f,deer.z)-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+            std::cout<<"island-simulator: deer QA camera frames one antlered clearing animal broadside\n";
         } else if (viewpoint_ == FixedViewpoint::BoarDetail) {
             const auto& boar = boarHerd_.Boars().front();
             // Telephoto inspection outside the 6m retreat trigger; habitat stays unchanged.
@@ -1668,6 +1681,8 @@ namespace island
         auto snakeRenderer = std::make_unique<SnakeRenderer>(device,canopyLighting->Field());
         auto goatRenderer = std::make_unique<GoatRenderer>(device,canopyLighting->Field(),
             120.0f*qualityProfile_.wildlifeMaximumDistanceScale);
+        auto deerRenderer = std::make_unique<DeerRenderer>(device,canopyLighting->Field(),
+            190.0f*qualityProfile_.wildlifeMaximumDistanceScale);
         auto spiderRenderer = std::make_unique<SpiderRenderer>(device,canopyLighting->Field());
         auto spiderWebRenderer=std::make_unique<SpiderWebRenderer>(device,terrain_,jungleLayout_,spiderWebSites_);
         fishRenderer_ = std::make_unique<FishRenderer>(
@@ -1719,6 +1734,7 @@ namespace island
         boarRenderer_ = std::move(boarRenderer);
         snakeRenderer_ = std::move(snakeRenderer);
         goatRenderer_ = std::move(goatRenderer);
+        deerRenderer_ = std::move(deerRenderer);
         spiderRenderer_ = std::move(spiderRenderer);
         spiderWebRenderer_=std::move(spiderWebRenderer);
         std::cout << "island-simulator: ground spiders " << spiders_->Spiders().size()
@@ -1726,6 +1742,8 @@ namespace island
                   << spiderWebRenderer_->SiteCount()<<" qualified sites in one bounded translucent batch\n";
         std::cout << "island-simulator: goats " << goats_->Goats().size()
                   << " agents on shared-field dry open slopes, terrain-fitted limbs, directional fur material\n";
+        std::cout << "island-simulator: deer " << deer_->Deer().size()
+                  << " agents graze and walk in two inland clearings and retreat non-aggressively\n";
         std::cout << "island-simulator: boars " << boarHerd_.Boars().size()
                   << " agents in moist non-channel interior habitat\n";
         std::cout << "island-simulator: snakes " << snakes_->Snakes().size()
@@ -2221,6 +2239,7 @@ namespace island
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         }
         const auto previousGoat=goats_->Goats().front();
+        const auto previousDeer=deer_->Deer().front();
         SpiderPoint spiderObserver{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z};
         if(UsesSpiderViewpoint()) {
             // The inspection camera follows the animal's front quarter. Keep the
@@ -2247,6 +2266,13 @@ namespace island
         if(viewpoint_==FixedViewpoint::GoatDetail) {
             const auto& current=goats_->Goats().front();
             cameraPosition_+=Vector3(current.x-previousGoat.x,current.y-previousGoat.y,current.z-previousGoat.z);
+        }
+        deer_->Update(viewpoint_==FixedViewpoint::DeerDetail?0.0f:deltaSeconds,
+            cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z);
+        if(viewpoint_==FixedViewpoint::DeerDetail) {
+            const auto& current=deer_->Deer().front();
+            cameraPosition_+=Vector3(current.x-previousDeer.x,current.y-previousDeer.y,
+                                     current.z-previousDeer.z);
         }
         const auto snakeCentre = [this]() {
             Vector3 centre = Vector3::Zero;
@@ -3027,6 +3053,7 @@ namespace island
                                            Vector3::Up);
         cameraProjection_ = Matrix::CreatePerspectiveFieldOfView(
             (viewpoint_==FixedViewpoint::BoarDetail||viewpoint_==FixedViewpoint::GoatDetail
+                ||viewpoint_==FixedViewpoint::DeerDetail
                 ||viewpoint_==FixedViewpoint::ResidentDetail||viewpoint_==FixedViewpoint::BearDetail||UsesSpiderViewpoint())
                 ?0.50f:std::numbers::pi_v<float> / 3.0f,
             aspect, 0.08f, 1200.0f);
@@ -3077,6 +3104,7 @@ namespace island
             + crocodileRenderer_->DrawCallCount()
             + boarRenderer_->DrawCallCount()
             + goatRenderer_->DrawCallCount()
+            + deerRenderer_->DrawCallCount()
             + spiderRenderer_->DrawCallCount()
             + spiderWebRenderer_->DrawCallCount()
             + residentRenderer_->DrawCallCount()
@@ -3579,6 +3607,10 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("goats");
             goatRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,goats_->Goats());
+        }
+        {
+            GpuDiagnosticScope gpuPass("deer");
+            deerRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,deer_->Deer());
         }
         {
             GpuDiagnosticScope gpuPass("spiders");
@@ -4140,7 +4172,9 @@ namespace island
                       << boarRenderer_->VisibleCount() << '/' << boarHerd_.Boars().size()
                       << " visible, " << boarRenderer_->DrawCallCount() << " draw; goats "
                       << goatRenderer_->VisibleCount() << '/' << goats_->Goats().size()
-                      << " visible, " << goatRenderer_->DrawCallCount() << " draw; resident "
+                      << " visible, " << goatRenderer_->DrawCallCount() << " draw; deer "
+                      << deerRenderer_->VisibleCount() << '/' << deer_->Deer().size()
+                      << " visible, " << deerRenderer_->DrawCallCount() << " draw; resident "
                       << residentRenderer_->VisibleCount() << "/1 visible, "
                       << residentRenderer_->DrawCallCount() << " draws, "
                       << residentRenderer_->TriangleCount() << " body triangles; bear "
@@ -4275,6 +4309,14 @@ namespace island
             std::ostringstream report;
             report << "island-simulator: goat render proof: goats " << goatRenderer_->VisibleCount()
                 << '/' << goats_->Goats().size() << " visible, " << goatRenderer_->DrawCallCount() << " draw;";
+            std::cout << report.str() << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(report.str());
+        }
+        if(viewpoint_==FixedViewpoint::DeerDetail&&drawnFrames_==1U) {
+            std::ostringstream report;
+            report << "island-simulator: deer render proof: deer "
+                << deerRenderer_->VisibleCount() << '/' << deer_->Deer().size()
+                << " visible, " << deerRenderer_->DrawCallCount() << " draw";
             std::cout << report.str() << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(report.str());
         }

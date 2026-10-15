@@ -122,6 +122,7 @@
       ["helicopter-inside", ["--viewpoint", "helicopter-inside", "--debug-overlay"]],
       ["monkeys", ["--viewpoint", "monkeys"]],
       ["goats", ["--viewpoint", "goats"]],
+      ["deer", ["--viewpoint", "deer"]],
       ["spiders", ["--viewpoint", "spiders"]],
       ["spider-web", ["--viewpoint", "spider-web"]],
       ["boars", ["--viewpoint", "boars"]],

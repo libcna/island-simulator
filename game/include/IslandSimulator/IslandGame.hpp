@@ -40,6 +40,8 @@
 #include "IslandSimulator/DistantSceneryRenderer.hpp"
 #include "IslandSimulator/DolphinPod.hpp"
 #include "IslandSimulator/DolphinRenderer.hpp"
+#include "IslandSimulator/DeerHerd.hpp"
+#include "IslandSimulator/DeerRenderer.hpp"
 #include "IslandSimulator/DragonflySwarm.hpp"
 #include "IslandSimulator/FrogPopulation.hpp"
 #include "IslandSimulator/HermitCrabGroup.hpp"
@@ -184,6 +186,7 @@ namespace island
         CrocodileDetail,
         BoarDetail,
         GoatDetail,
+        DeerDetail,
         SpiderDetail,
         SpiderBrightDetail,
         SpiderWebDetail,
@@ -314,6 +317,7 @@ namespace island
         BoarHerd boarHerd_;
         std::unique_ptr<SnakePopulation> snakes_;
         std::unique_ptr<GoatHerd> goats_;
+        std::unique_ptr<DeerHerd> deer_;
         std::unique_ptr<SpiderColony> spiders_;
         FishSchools fishSchools_;
         StingrayGroup stingrayGroup_;
@@ -375,6 +379,7 @@ namespace island
         std::unique_ptr<CrocodileRenderer> crocodileRenderer_;
         std::unique_ptr<BoarRenderer> boarRenderer_;
         std::unique_ptr<GoatRenderer> goatRenderer_;
+        std::unique_ptr<DeerRenderer> deerRenderer_;
         std::unique_ptr<SpiderRenderer> spiderRenderer_;
         std::unique_ptr<SpiderWebRenderer> spiderWebRenderer_;
         std::unique_ptr<SnakeRenderer> snakeRenderer_;

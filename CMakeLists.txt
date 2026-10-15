@@ -112,6 +112,7 @@ add_library(island_core STATIC
     game/src/SeaTurtleGroup.cpp
     game/src/DolphinPod.cpp
     game/src/DragonflySwarm.cpp
+    game/src/DeerHerd.cpp
     game/src/HermitCrabGroup.cpp
     game/src/CoconutCrabGroup.cpp
     game/src/SharkPatrol.cpp
@@ -323,6 +324,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_goat_herd_tests)
     island_enable_first_party_sanitizers(island_goat_herd_tests)
     add_test(NAME IslandGoatHerdTests COMMAND island_goat_herd_tests)
+    add_executable(island_deer_herd_tests tests/DeerHerdTests.cpp)
+    target_link_libraries(island_deer_herd_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_deer_herd_tests)
+    island_enable_first_party_sanitizers(island_deer_herd_tests)
+    add_test(NAME IslandDeerHerdTests COMMAND island_deer_herd_tests)
     add_executable(island_goat_mesh_tests tests/GoatMeshTests.cpp)
     target_link_libraries(island_goat_mesh_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_goat_mesh_tests)
@@ -623,6 +629,7 @@ if(ISLAND_BUILD_GAME)
         game/src/DebugOverlay.cpp
         game/src/DistantSceneryRenderer.cpp
         game/src/DolphinRenderer.cpp
+        game/src/DeerRenderer.cpp
         game/src/FishRenderer.cpp
         game/src/FruitBatRenderer.cpp
         game/src/ForestFloorMaterial.cpp

@@ -18,7 +18,7 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "birds", "bats", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "skinks", "dragonflies", "frogs", "crocodiles", "fish", "stingrays", "octopuses", "shark", "dolphins", "bear", "resident")
+SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "birds", "bats", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "deer", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "skinks", "dragonflies", "frogs", "crocodiles", "fish", "stingrays", "octopuses", "shark", "dolphins", "bear", "resident")
 
 
 def validate_shipwreck_report(report):
@@ -700,6 +700,25 @@ def validate_goat_report(report):
     return frames
 
 
+def validate_deer_report(report):
+    views = report.get("views", [])
+    if report.get("passed") is not True or len(views) != 1 or views[0].get("mode") != "deer":
+        raise RuntimeError("deer report lacks one successful focused view")
+    view = views[0]
+    result = view.get("result", {})
+    log = result.get("output", "")
+    frame = view.get("screenshot")
+    if (view.get("passed") is not True or view.get("glError") != 0
+        or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+        or not re.search(r"deer [1-4]/4 visible, 1 draw", log)
+        or "four inland deer use long legs, pointed ears, spotted coats and one antlered silhouette" not in log
+        or "deer QA camera frames one antlered clearing animal broadside" not in log
+        or "fallback:" in log
+        or not isinstance(frame, str) or not frame.endswith(".png")):
+        raise RuntimeError("deer view lacks current anatomy, visible batch or live graphics state")
+    return (frame,)
+
+
 def validate_hut_report(report):
     views = report.get("views", [])
     if not report.get("passed") or [v.get("mode") for v in views] != ["hut", "hut-material"]:
@@ -1052,6 +1071,12 @@ def main(argv=None):
             if args.scope == "goats":
                 goat_report=json.loads((evidence / "island-browser-goats.json").read_text())
                 metadata["goat_pose_images"]=validate_goat_report(goat_report)
+            if args.scope == "deer":
+                deer_report=json.loads((evidence / "island-browser-deer.json").read_text())
+                frames=validate_deer_report(deer_report)
+                if not all((evidence / frame).is_file() for frame in frames):
+                    raise RuntimeError("deer image file missing")
+                metadata["deer_frames"]=[artifact_identity(evidence / frame) for frame in frames]
             if args.scope == "spiders":
                 spider_report=json.loads((evidence / "island-browser-spiders.json").read_text())
                 frames=validate_spider_report(spider_report)

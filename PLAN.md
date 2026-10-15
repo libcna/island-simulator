@@ -67,7 +67,7 @@ historical incident next steps, rejected visual iterations and superseded accept
 remaining material work is:
 
 - finish the requested fauna list with bounded, habitat-appropriate implementations (notably
-  the smaller insects/rodents/deer are lower-value explicit entries and should follow
+  the smaller insects/rodents are lower-value explicit entries and should follow
   visual/ecological fit rather than raw species count);
 - continue whole-island visual critique, especially jungle-floor/canopy repetition, continuous
   camera LOD transitions and moving-edge aliasing;
@@ -3637,7 +3637,12 @@ progress or require player interaction; dangerous species keep their distance li
   appearance are tracked by the current implementation note rather than inferred here.
 - [ ] Mice
 - [ ] Rats
-- [ ] Deer
+- [x] Deer. Four deterministic non-hostile feral deer occupy the two inland clearings. They
+  alternate grazing, resting and bounded walking, retreat from a player inside 9 m, respect dry
+  terrain, slope, shoreline, obstacle and home-range limits, and use full/reduced/dormant
+  simulation tiers. One shared portable draw provides long articulated legs, raised shoulders,
+  pointed ears, tapered muzzle, pale tail/underside accents, restrained flank spots and one
+  branched-antler silhouette. See `docs/deer.md`.
 - [~] Goats (feral island goats on open slopes). **Six live goats now integrated;
   generated coat, detailed eyes/ears, planted-foot motion and behaviour-aware positional
   calls, not visually or acoustically accepted.** Earlier foundation
