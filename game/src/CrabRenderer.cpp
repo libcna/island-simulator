@@ -42,9 +42,11 @@ namespace island
         constexpr int MaximumBurrowVertices = 1024;
         constexpr int MaximumHermitCrabVertices =
             static_cast<int>(HermitCrabGroup::Count) * 1024;
+        constexpr int MaximumCoconutCrabVertices =
+            static_cast<int>(CoconutCrabGroup::Count) * 1800;
         constexpr int MaximumVertexCount = static_cast<int>(CrabColony::CrabCount)
             * MaximumVerticesPerCrab + MaximumBurrowVertices
-            + MaximumHermitCrabVertices;
+            + MaximumHermitCrabVertices + MaximumCoconutCrabVertices;
         constexpr std::string_view CrabDiagnostic =
             "island-simulator: beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch";
         constexpr std::string_view CrabDetailDiagnostic =
@@ -61,6 +63,10 @@ namespace island
             "island-simulator: ten sheltered-beach hermit crabs pause, forage, and retreat in the shared crab batch";
         constexpr std::string_view HermitCrabAnatomyDiagnostic =
             "island-simulator: hermit crabs use raised spiral shells, projecting eyes and antennae, six walking legs, and unequal claws";
+        constexpr std::string_view CoconutCrabDiagnostic =
+            "island-simulator: six coastal palm-zone coconut crabs rest, forage, and retreat in the shared crab batch";
+        constexpr std::string_view CoconutCrabAnatomyDiagnostic =
+            "island-simulator: coconut crabs use broad armored bodies, segmented terrestrial abdomens, robust walking legs, and massive unequal claws";
 
         struct CrabPalette
         {
@@ -591,6 +597,83 @@ namespace island
             }
         }
 
+        void AppendCoconutCrab(std::vector<VertexPositionColor>& vertices,
+                               const CoconutCrabState& crab)
+        {
+            CrabState base;
+            base.x = crab.x;
+            base.y = crab.y;
+            base.z = crab.z;
+            base.bodyYawRadians = crab.headingRadians;
+            base.travelHeadingRadians = crab.headingRadians;
+            base.speed = crab.speed;
+            base.legPhase = crab.legPhase;
+            base.clawPose = crab.clawPose;
+            base.scale = crab.scale;
+            base.behavior = CrabBehavior::Forage;
+            base.simulationTier = crab.simulationTier;
+            base.colorVariant = crab.colorVariant;
+            AppendNearCrab(vertices, base);
+
+            const Vector3 centre(crab.x, crab.y, crab.z);
+            const Vector3 forward(std::cos(crab.headingRadians), 0.0f,
+                                  std::sin(crab.headingRadians));
+            const Vector3 right(-forward.Z, 0.0f, forward.X);
+            const Vector3 up = Vector3::Up;
+            const float scale = crab.scale;
+            const std::array<Color, 4> plates = {{
+                Color(82, 88, 70, 255), Color(105, 82, 66, 255),
+                Color(91, 72, 58, 255), Color(119, 91, 61, 255)}};
+            const Color plate = plates[crab.colorVariant % plates.size()];
+            const Color plateShade = Color::Lerp(plate, Color(25, 28, 25, 255), .42f);
+            constexpr int Segments = 12;
+            constexpr std::array<float, 4> Stations = {{-.20f, -.125f, -.045f, .025f}};
+            constexpr std::array<float, 4> Widths = {{.18f, .28f, .30f, .20f}};
+            constexpr std::array<float, 4> Heights = {{.09f, .14f, .15f, .10f}};
+            const auto ringPoint = [&](std::size_t station, int segment) {
+                const float angle = TwoPi * static_cast<float>(segment)
+                    / static_cast<float>(Segments);
+                return centre + forward * (Stations[station] * scale)
+                    + right * (std::cos(angle) * Widths[station] * scale)
+                    + up * ((.12f + std::sin(angle) * Heights[station]) * scale);
+            };
+            for (std::size_t station = 0; station + 1U < Stations.size(); ++station) {
+                for (int segment = 0; segment < Segments; ++segment) {
+                    const int next = (segment + 1) % Segments;
+                    AddQuad(vertices, ringPoint(station, segment),
+                            ringPoint(station + 1U, segment),
+                            ringPoint(station + 1U, next),
+                            ringPoint(station, next),
+                            segment < Segments / 2 ? plate : plateShade);
+                }
+            }
+            const Vector3 rear = centre + forward * (Stations.front() * scale)
+                + up * (.12f * scale);
+            for (int segment = 0; segment < Segments; ++segment) {
+                const int next = (segment + 1) % Segments;
+                AddTriangle(vertices, rear, ringPoint(0U, next),
+                            ringPoint(0U, segment), plateShade);
+            }
+            // Raised transverse plates retain a readable terrestrial abdomen at
+            // close range while using the same opaque batch as the beach crabs.
+            for (int band = 0; band < 4; ++band) {
+                const float z = (-.165f + static_cast<float>(band) * .052f) * scale;
+                const Vector3 a = centre + forward * z - right * (.21f * scale)
+                    + up * (.245f * scale);
+                const Vector3 b = centre + forward * z + right * (.21f * scale)
+                    + up * (.245f * scale);
+                AppendCrossedSegment(vertices, a, b, .009f * scale, plateShade);
+            }
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 palm = centre + forward * (.35f * scale)
+                    + right * (side * (side > 0.0f ? .48f : .43f) * scale)
+                    + up * (.13f * scale);
+                AppendOctahedron(vertices, palm, right, up, forward,
+                    (side > 0.0f ? .115f : .090f) * scale, .075f * scale,
+                    .110f * scale, plate, plateShade);
+            }
+        }
+
         void AppendFarCrab(std::vector<VertexPositionColor>& vertices,
                            const CrabState& crab)
         {
@@ -682,6 +765,10 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(HermitCrabDiagnostic);
         std::cout << HermitCrabAnatomyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(HermitCrabAnatomyDiagnostic);
+        std::cout << CoconutCrabDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(CoconutCrabDiagnostic);
+        std::cout << CoconutCrabAnatomyDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(CoconutCrabAnatomyDiagnostic);
     }
 
     CrabRenderer::~CrabRenderer() = default;
@@ -690,13 +777,15 @@ namespace island
                             const Vector3& cameraPosition,
                             const std::span<const CrabState> crabs,
                             const std::span<const CrabBurrow> burrows,
-                            const std::span<const HermitCrabState> hermitCrabs)
+                            const std::span<const HermitCrabState> hermitCrabs,
+                            const std::span<const CoconutCrabState> coconutCrabs)
     {
         stagingVertices_.clear();
         visibleCrabCount_ = 0;
         visibleNearCrabCount_ = 0;
         visibleFarCrabCount_ = 0;
         visibleHermitCrabCount_ = 0;
+        visibleCoconutCrabCount_ = 0;
         drawCallCount_ = 0;
         const BoundingFrustum frustum(view * projection);
         for (const CrabBurrow& burrow : burrows) {
@@ -740,6 +829,16 @@ namespace island
             }
             AppendHermitCrab(stagingVertices_, crab);
             ++visibleHermitCrabCount_;
+        }
+        for (const CoconutCrabState& crab : coconutCrabs) {
+            const Vector3 centre(crab.x, crab.y + .18f * crab.scale, crab.z);
+            if (Vector3::DistanceSquared(centre, cameraPosition)
+                    > maximumDistance_ * maximumDistance_
+                || !frustum.Intersects(BoundingSphere(centre, crab.scale * .85f))) {
+                continue;
+            }
+            AppendCoconutCrab(stagingVertices_, crab);
+            ++visibleCoconutCrabCount_;
         }
         if (stagingVertices_.empty()) return;
 

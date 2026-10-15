@@ -41,6 +41,7 @@
 #include "IslandSimulator/DolphinRenderer.hpp"
 #include "IslandSimulator/DragonflySwarm.hpp"
 #include "IslandSimulator/HermitCrabGroup.hpp"
+#include "IslandSimulator/CoconutCrabGroup.hpp"
 #include "IslandSimulator/FishRenderer.hpp"
 #include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
@@ -166,6 +167,7 @@ namespace island
         HelicopterInteriorDetail,
         CrabDetail,
         HermitCrabDetail,
+        CoconutCrabDetail,
         CrocodileDetail,
         BoarDetail,
         GoatDetail,
@@ -290,6 +292,7 @@ namespace island
         DragonflySwarm dragonflySwarm_;
         CrabColony crabColony_;
         HermitCrabGroup hermitCrabGroup_;
+        CoconutCrabGroup coconutCrabGroup_;
         CrocodileGroup crocodileGroup_;
         BoarHerd boarHerd_;
         std::unique_ptr<SnakePopulation> snakes_;

@@ -1,9 +1,9 @@
 # Small fauna
 
-Three bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, nine
-stream/wetland dragonflies and ten beach hermit crabs. This is not completion of the whole
-small-fauna list: skinks, coconut crabs, additional shorebirds, fruit bats, cicadas and beetles
-remain candidates for later stages.
+Four bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, nine
+stream/wetland dragonflies, ten beach hermit crabs and six coconut crabs. This is not completion of
+the whole small-fauna list: skinks, additional shorebirds, fruit bats, cicadas and beetles remain
+candidates for later stages.
 
 Each gecko owns a compact 5.2--6.1 m home range in one of the two clearings, near the seasonal
 wetland, or on suitable inland ground. Placement rejects beach proximity, steep slopes and invalid
@@ -60,7 +60,7 @@ single draw, so this stage adds no renderer, material switch, GPU buffer or draw
 Deterministic core tests cover construction, habitat moisture, altitude, home bounds, all three
 behaviours, invalid input, player-triggered escape and activation-tier accounting. The world report
 fingerprints all initial states and homes, reports exactly nine dragonflies and validates as
-`6feb901b29f26f0c` after the hermit-crab stage below.
+`2754a52691f4b662` after the coconut-crab stage below.
 
 Current dragonfly evidence:
 
@@ -113,3 +113,34 @@ The rejected first capture placed the camera behind an overly round shell, makin
 disconnected pieces. The second introduced a conical shell and front camera but retained visible
 gaps. The accepted exact-final-binary capture adds a connected exposed body, forearms and stronger
 leg roots and uses a clean front three-quarter beach composition.
+
+## Coconut crabs
+
+Six deterministic coconut crabs occupy compact 7.5--9.1 m home ranges on dry coastal palm-zone
+ground 22--58 m inland. Placement rejects beach surfaces, steep slopes and low terrain. They rest,
+forage beneath the palms and retreat from a player within 5.5 m, continuously resampling terrain
+height and using the shared full/reduced/dormant wildlife policy.
+
+The close model has a broad armoured carapace, compact segmented terrestrial abdomen, robust
+jointed walking legs, stalked eyes and massive unequal palms and claws. It extends each standard
+near-crab mesh within the existing beach-crab dynamic buffer and single draw, so this stage adds no
+renderer, GPU buffer, material switch or draw call.
+
+Core tests cover deterministic construction, qualified dry habitat, grounding and home bounds,
+rest/forage/retreat behaviour, invalid input, player reaction and activation-tier accounting. The
+world report fingerprints all six initial animals and homes and validates as `2754a52691f4b662`.
+
+Current evidence:
+
+- native 1280x720 llvmpipe capture:
+  `build-consumer/software-captures/20261015T030303.964102Z-coconut-crabs` (271 colour bins, 44.50
+  luminance deviation and 218.26 spatial contrast; inspected at full resolution);
+- Chrome/SwiftShader:
+  `build/browser-software/20261015T030704.036881Z-chrome-coconut-crabs`, 60 finite positive
+  intervals, GL0, live context, two distinct separated-time frames and no new kernel GPU fault;
+- ARM64 assemble/lint passes without launching an emulator or touching KVM; the APK is 24,146,555
+  bytes with SHA-256 `25d754f9303bc1fa3c716a9745c09438f7b0c6253987d8cedf453630f67a3f9a`
+  and its stripped `libmain.so` is 19,103,984 bytes.
+
+Two rejected native captures document the correction from a lobster-like long abdomen and weak
+side silhouette to the accepted compact front-facing terrestrial animal.

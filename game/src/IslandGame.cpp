@@ -131,6 +131,7 @@ namespace island
             case FixedViewpoint::HelicopterInteriorDetail: return "helicopter-inside";
             case FixedViewpoint::CrabDetail: return "crabs";
             case FixedViewpoint::HermitCrabDetail: return "hermit-crabs";
+            case FixedViewpoint::CoconutCrabDetail: return "coconut-crabs";
             case FixedViewpoint::CrocodileDetail: return "crocodiles";
             case FixedViewpoint::BoarDetail: return "boars";
             case FixedViewpoint::GoatDetail: return "goats";
@@ -174,6 +175,7 @@ namespace island
           dragonflySwarm_(terrain_),
           crabColony_(terrain_),
           hermitCrabGroup_(terrain_),
+          coconutCrabGroup_(terrain_),
           crocodileGroup_(terrain_),
           boarHerd_(terrain_),
           fishSchools_(terrain_),
@@ -1306,6 +1308,21 @@ namespace island
             yaw_ = std::atan2(direction.X, direction.Z);
             pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
             std::cout << "island-simulator: hermit-crab QA camera frames one shell-bearing animal on sheltered sand\n";
+        } else if (viewpoint_ == FixedViewpoint::CoconutCrabDetail
+                   && coconutCrabGroup_.Crabs().size() > 2U) {
+            const CoconutCrabState& crab = coconutCrabGroup_.Crabs()[2U];
+            const Vector3 forward(std::cos(crab.headingRadians), 0.0f,
+                                  std::sin(crab.headingRadians));
+            const Vector3 side(-forward.Z, 0.0f, forward.X);
+            const float cameraX = crab.x + forward.X * 2.15f + side.X * .48f;
+            const float cameraZ = crab.z + forward.Z * 2.15f + side.Z * .48f;
+            cameraPosition_ = Vector3(cameraX,
+                std::max(terrain_.Height(cameraX, cameraZ) + .76f, crab.y + .92f), cameraZ);
+            const Vector3 target(crab.x, crab.y + .18f, crab.z);
+            const Vector3 direction = target - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+            std::cout << "island-simulator: coconut-crab QA camera frames one large terrestrial animal in coastal vegetation\n";
         } else if (viewpoint_ == FixedViewpoint::CrocodileDetail
                    && !crocodileGroup_.Crocodiles().empty()) {
             const CrocodileState& crocodile=crocodileGroup_.Crocodiles()[2U];
@@ -1702,6 +1719,8 @@ namespace island
                   << " agents in deterministic sand-and-debris-constrained colonies\n"
                   << "island-simulator: hermit crabs " << hermitCrabGroup_.Crabs().size()
                   << " agents in deterministic sheltered-beach habitats\n"
+                  << "island-simulator: coconut crabs " << coconutCrabGroup_.Crabs().size()
+                  << " agents in deterministic coastal palm-zone habitats\n"
                   << "island-simulator: crocodiles " << crocodileGroup_.Crocodiles().size()
                   << " agents bask, crawl, swim, and retreat within the stream estuary\n"
                   << "island-simulator: fish " << fishSchools_.Fish().size()
@@ -1800,6 +1819,11 @@ namespace island
             << hermitCrabGroup_.Crabs().size()
             << " agents in deterministic sheltered-beach habitats";
         MirrorRuntimeDiagnosticToPlatformLog(hermitCrabPopulationDiagnostic.str());
+        std::ostringstream coconutCrabPopulationDiagnostic;
+        coconutCrabPopulationDiagnostic << "island-simulator: coconut crabs "
+            << coconutCrabGroup_.Crabs().size()
+            << " agents in deterministic coastal palm-zone habitats";
+        MirrorRuntimeDiagnosticToPlatformLog(coconutCrabPopulationDiagnostic.str());
         std::ostringstream seaTurtlePopulationDiagnostic;
         seaTurtlePopulationDiagnostic << "island-simulator: sea turtles "
                                       << seaTurtleGroup_.Turtles().size()
@@ -2002,6 +2026,14 @@ namespace island
         hermitCrabGroup_.Update(
             viewpoint_ == FixedViewpoint::HermitCrabDetail ? 0.0f : deltaSeconds,
             hermitCrabObserver.X, hermitCrabObserver.Y, hermitCrabObserver.Z);
+        Vector3 coconutCrabObserver = cameraPosition_;
+        if (viewpoint_ == FixedViewpoint::CoconutCrabDetail) {
+            const auto& crab = coconutCrabGroup_.Crabs()[2U];
+            coconutCrabObserver = Vector3(crab.x, crab.y + 20.0f, crab.z);
+        }
+        coconutCrabGroup_.Update(
+            viewpoint_ == FixedViewpoint::CoconutCrabDetail ? 0.0f : deltaSeconds,
+            coconutCrabObserver.X, coconutCrabObserver.Y, coconutCrabObserver.Z);
         if (viewpoint_ == FixedViewpoint::CrabDetail) {
             const CrabState& subject = crabColony_.Crabs()[crabViewSubject_];
             cameraPosition_ += Vector3(subject.x - previousCrabSubject.x,
@@ -3357,7 +3389,7 @@ namespace island
             GpuDiagnosticScope gpuPass("crabs");
             crabRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                 crabColony_.Crabs(), crabColony_.Burrows(),
-                                hermitCrabGroup_.Crabs());
+                                hermitCrabGroup_.Crabs(), coconutCrabGroup_.Crabs());
         }
 
         {
@@ -3901,6 +3933,9 @@ namespace island
                       << crabRenderer_->DrawCallCount() << " draw; hermit crabs "
                       << crabRenderer_->VisibleHermitCrabCount() << '/'
                       << hermitCrabGroup_.Crabs().size()
+                      << " visible in shared draw; coconut crabs "
+                      << crabRenderer_->VisibleCoconutCrabCount() << '/'
+                      << coconutCrabGroup_.Crabs().size()
                       << " visible in shared draw; boars "
                       << boarRenderer_->VisibleCount() << '/' << boarHerd_.Boars().size()
                       << " visible, " << boarRenderer_->DrawCallCount() << " draw; goats "

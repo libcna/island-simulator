@@ -18,7 +18,7 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "butterflies", "geckos", "dragonflies", "crocodiles", "fish", "shark", "dolphins", "bear", "resident")
+SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "dragonflies", "crocodiles", "fish", "shark", "dolphins", "bear", "resident")
 
 
 def validate_shipwreck_report(report):
@@ -465,6 +465,29 @@ def validate_hermit_crab_report(report):
     return frames
 
 
+def validate_coconut_crab_report(report):
+    views=report.get("views",[])
+    if report.get("passed") is not True or len(views)!=1 or views[0].get("mode")!="coconut-crabs":
+        raise RuntimeError("coconut-crab report lacks one successful focused view")
+    view=views[0];result=view.get("result",{});log=result.get("output","")
+    frames=(view.get("screenshot"),view.get("afterSimulationScreenshot"))
+    intervals=view.get("intervals",[])
+    if (view.get("passed") is not True or view.get("glError")!=0
+        or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+        or "SwiftShader" not in view.get("renderer","") or len(intervals)!=60
+        or not all(isinstance(value,(int,float)) and not isinstance(value,bool)
+                   and math.isfinite(value) and value>0 for value in intervals)
+        or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
+        or len(set(frames))!=2
+        or "six coastal palm-zone coconut crabs rest, forage, and retreat in the shared crab batch" not in log
+        or "coconut crabs use broad armored bodies, segmented terrestrial abdomens, robust walking legs, and massive unequal claws" not in log
+        or "coconut-crab QA camera frames one large terrestrial animal in coastal vegetation" not in log
+        or not re.search(r"coconut crabs [1-6]/6 visible in shared draw",log)
+        or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):
+        raise RuntimeError("coconut-crab view lacks current anatomy, frames or clean graphics state")
+    return frames
+
+
 def validate_crocodile_report(report):
     views = report.get("views", [])
     if report.get("passed") is not True or len(views) != 1 or views[0].get("mode") != "crocodiles":
@@ -815,6 +838,16 @@ def main(argv=None):
                 if identities[0]["sha256"]==identities[1]["sha256"]:
                     raise RuntimeError("hermit-crab separated-time frames are byte-identical")
                 metadata["hermit_crab_frames"]=identities
+            if args.scope == "coconut-crabs":
+                coconut_report=json.loads((evidence / "island-browser-coconut-crabs.json").read_text())
+                frames=validate_coconut_crab_report(coconut_report)
+                paths=[evidence / frame for frame in frames]
+                if not all(path.is_file() for path in paths):
+                    raise RuntimeError("coconut-crab image file missing")
+                identities=[artifact_identity(path) for path in paths]
+                if identities[0]["sha256"]==identities[1]["sha256"]:
+                    raise RuntimeError("coconut-crab separated-time frames are byte-identical")
+                metadata["coconut_crab_frames"]=identities
             if args.scope == "crocodiles":
                 crocodile_report=json.loads((evidence / "island-browser-crocodiles.json").read_text())
                 frames=validate_crocodile_report(crocodile_report)

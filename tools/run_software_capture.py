@@ -547,7 +547,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "geckos", "dragonflies", "hermit-crabs", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "geckos", "dragonflies", "hermit-crabs", "coconut-crabs", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -1006,6 +1006,15 @@ def main():
                     raise RuntimeError("current hermit-crab inspection composition is missing")
                 if not re.search(r"hermit crabs [1-9][0-9]*/10 visible in shared draw",diagnostics):
                     raise RuntimeError("hermit-crab capture did not submit a shell-bearing animal")
+            if args.viewpoint == "coconut-crabs":
+                if "six coastal palm-zone coconut crabs rest, forage, and retreat in the shared crab batch" not in diagnostics:
+                    raise RuntimeError("current coconut-crab renderer is missing; check for a stale executable")
+                if "coconut crabs use broad armored bodies, segmented terrestrial abdomens, robust walking legs, and massive unequal claws" not in diagnostics:
+                    raise RuntimeError("current coconut-crab anatomy is missing; check for a stale executable")
+                if "coconut-crab QA camera frames one large terrestrial animal in coastal vegetation" not in diagnostics:
+                    raise RuntimeError("current coconut-crab inspection composition is missing")
+                if not re.search(r"coconut crabs [1-6]/6 visible in shared draw",diagnostics):
+                    raise RuntimeError("coconut-crab capture did not submit a terrestrial animal")
             if args.viewpoint == "bush" and "bush QA target variant 0 at player-eye detail distance" not in diagnostics:
                 raise RuntimeError("bush camera did not select the intended shrub")
             if args.viewpoint == "ground-broadleaf" and "ground-broadleaf QA target variant 1 at player-eye detail distance" not in diagnostics:

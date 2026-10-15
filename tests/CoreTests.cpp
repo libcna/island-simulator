@@ -7,6 +7,7 @@
 #include "IslandSimulator/GeckoPopulation.hpp"
 #include "IslandSimulator/DragonflySwarm.hpp"
 #include "IslandSimulator/HermitCrabGroup.hpp"
+#include "IslandSimulator/CoconutCrabGroup.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/CoastalMaterial.hpp"
 #include "IslandSimulator/CoastalWindResponse.hpp"
@@ -3096,6 +3097,91 @@ int main()
               &&std::hypot(escapedHermit.x-initialReactiveHermit.x,
                             escapedHermit.z-initialReactiveHermit.z)>.12f,
           "a nearby observer prompts a hermit crab to retreat with its shell");
+
+    island::CoconutCrabGroup coconutCrabs(terrain);
+    island::CoconutCrabGroup repeatedCoconutCrabs(terrain);
+    island::CoconutCrabGroup invalidInputCoconutCrabs(terrain);
+    Check(coconutCrabs.Crabs().size()==island::CoconutCrabGroup::Count
+              &&coconutCrabs.Homes().size()==island::CoconutCrabGroup::Count,
+          "coconut-crab simulation exposes six bounded terrestrial animals");
+    for(std::size_t index=0;index<coconutCrabs.Crabs().size();++index) {
+        const auto& crab=coconutCrabs.Crabs()[index];
+        const auto& repeated=repeatedCoconutCrabs.Crabs()[index];
+        const auto& home=coconutCrabs.Homes()[index];
+        const auto sample=terrain.Sample(crab.x,crab.z);
+        Check(crab.x==repeated.x&&crab.y==repeated.y&&crab.z==repeated.z
+                  &&crab.headingRadians==repeated.headingRadians
+                  &&crab.behavior==repeated.behavior
+                  &&crab.colorVariant==repeated.colorVariant,
+              "coconut-crab construction is deterministic");
+        Check(std::hypot(crab.x-home.x,crab.z-home.z)<=home.radius
+                  &&home.radius>=7.5f&&home.radius<=9.11f,
+              "each coconut crab begins inside a coastal home range");
+        Check(sample.height>.15f
+                  &&sample.signedShoreDistance>=island::CoconutCrabGroup::MinimumShoreDistance
+                  &&sample.signedShoreDistance<=island::CoconutCrabGroup::MaximumShoreDistance
+                  &&sample.slopeRadians<.42f
+                  &&std::fabs(crab.y-sample.height-.080f)<.001f,
+              "each coconut crab begins grounded in coastal palm-zone terrain");
+    }
+    invalidInputCoconutCrabs.Update(quietNan,quietNan,quietNan,quietNan);
+    Check(invalidInputCoconutCrabs.DormantSimulationCount()
+                  ==static_cast<int>(island::CoconutCrabGroup::Count)
+              &&std::ranges::all_of(invalidInputCoconutCrabs.Crabs(),[](const auto& crab) {
+                     return std::isfinite(crab.x)&&std::isfinite(crab.y)
+                         &&std::isfinite(crab.z)&&std::isfinite(crab.headingRadians)
+                         &&std::isfinite(crab.legPhase)&&std::isfinite(crab.clawPose);
+                 }),
+          "coconut crabs reject non-finite frame and observer input without state poisoning");
+    bool observedCoconutRest=false;
+    bool observedCoconutForage=false;
+    for(int frame=0;frame<4000;++frame) {
+        coconutCrabs.Update(1.0f/30.0f,0.0f,100.0f,0.0f);
+        repeatedCoconutCrabs.Update(1.0f/30.0f,0.0f,100.0f,0.0f);
+        for(std::size_t index=0;index<coconutCrabs.Crabs().size();++index) {
+            const auto& crab=coconutCrabs.Crabs()[index];
+            const auto& repeated=repeatedCoconutCrabs.Crabs()[index];
+            const auto& home=coconutCrabs.Homes()[index];
+            const auto sample=terrain.Sample(crab.x,crab.z);
+            Check(crab.x==repeated.x&&crab.y==repeated.y&&crab.z==repeated.z
+                      &&crab.headingRadians==repeated.headingRadians
+                      &&crab.legPhase==repeated.legPhase
+                      &&crab.behavior==repeated.behavior,
+                  "coconut-crab simulation remains deterministic over a long session");
+            Check(std::hypot(crab.x-home.x,crab.z-home.z)<=home.radius+.01f
+                      &&sample.signedShoreDistance>=island::CoconutCrabGroup::MinimumShoreDistance
+                      &&sample.signedShoreDistance<=island::CoconutCrabGroup::MaximumShoreDistance
+                      &&sample.slopeRadians<.42f
+                      &&std::fabs(crab.y-sample.height-.080f)<.002f,
+                  "coconut crabs remain grounded in bounded coastal habitats");
+            Check(std::isfinite(crab.speed)&&crab.speed>=0.0f
+                      &&std::isfinite(crab.legPhase)&&std::fabs(crab.legPhase)<=1.001f
+                      &&crab.clawPose>=.13f&&crab.clawPose<=.51f,
+                  "coconut-crab movement and claw state remain finite and bounded");
+            observedCoconutRest|=crab.behavior==island::CoconutCrabBehavior::Rest;
+            observedCoconutForage|=crab.behavior==island::CoconutCrabBehavior::Forage;
+        }
+    }
+    Check(observedCoconutRest&&observedCoconutForage,
+          "coconut crabs complete rest and forage activity states");
+    Check(coconutCrabs.FullSimulationCount()+coconutCrabs.ReducedSimulationCount()
+                  +coconutCrabs.DormantSimulationCount()
+              ==static_cast<int>(island::CoconutCrabGroup::Count),
+          "coconut-crab simulation tiers account for the complete population");
+    island::CoconutCrabGroup reactiveCoconutCrabs(terrain);
+    const auto initialReactiveCoconut=reactiveCoconutCrabs.Crabs()[2U];
+    bool observedCoconutRetreat=false;
+    for(int frame=0;frame<70;++frame) {
+        reactiveCoconutCrabs.Update(1.0f/60.0f,initialReactiveCoconut.x,
+                                    initialReactiveCoconut.y,initialReactiveCoconut.z);
+        observedCoconutRetreat|=reactiveCoconutCrabs.Crabs()[2U].behavior
+            ==island::CoconutCrabBehavior::Retreat;
+    }
+    const auto& escapedCoconut=reactiveCoconutCrabs.Crabs()[2U];
+    Check(observedCoconutRetreat
+              &&std::hypot(escapedCoconut.x-initialReactiveCoconut.x,
+                            escapedCoconut.z-initialReactiveCoconut.z)>.20f,
+          "a nearby observer prompts a coconut crab to retreat");
 
     island::SeaTurtleGroup seaTurtles(terrain);
     island::SeaTurtleGroup repeatedSeaTurtles(terrain);
