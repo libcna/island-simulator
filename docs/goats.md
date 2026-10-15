@@ -648,6 +648,32 @@ with 235 colour bins, 58.25 luminance deviation, 252.91 spatial contrast and an 
 it shows a fuller planted lower leg and a visible rear hock break without disturbing the cloven
 hoof contact. Continuous all-angle gait and physical Android/AMD appearance remain open.
 
+## Shoulder, waist, neck and herd-colour refinement — 2026-10-16
+
+The next cross-species audit selected the goats as the weakest ordinary close terrestrial animal.
+Although the planted legs and fur source were sound, the barrel still read as one pale round mass,
+the shoulder entered the neck through a visible short collar and all six animals shared the same
+near-white coat. The thirteen body rings now separate a fuller haunch, tucked waist and raised
+shoulder. The neck grows from four abrupt circular stations to six closely spaced taper stations
+that bury their root in the chest and carry the line continuously toward the head.
+
+The shared neutral hair image now receives six deterministic cream, fawn, grey, warm-brown and
+sable vertex tints, plus a restrained darker-belly/lighter-topline response. This creates distinct
+feral individuals without another texture, material, draw or state field. The expanded body-height
+projection remains based on undeformed physical coordinates, so fur does not swim with body bob or
+squeeze around the new shoulder profile. Near/far meshes contain 7,620/4,260 vertices; six all-near
+animals require 45,720 vertices beneath the unchanged 49,152 batch guard and remain exactly two
+draws.
+
+All five focused native groups (`IslandCoreTests`, goat habitat, herd, mesh and world-report) pass,
+as do all 41 browser/capture harness tests. Inspected native eight-stage evidence
+`20261015T223701.422223Z-goats` passes at 1280x720 with 218 colour bins, 58.32 luminance deviation,
+252.91 spatial contrast and an empty kernel delta. The sequence shows the raised shoulder, waist,
+continuous neck and distinct tan/dark animals through walking poses without detached limbs.
+Focused Chrome/SwiftShader `20261015T224046.143766Z-chrome-goats` passes four distinct inspected
+motion frames, 60 finite intervals, GL error zero, a live context and an empty final kernel delta.
+Physical Android/AMD appearance and subjective call listening remain outside this focused pass.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

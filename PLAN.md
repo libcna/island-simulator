@@ -148,6 +148,24 @@ diagnostic, image-diversity and empty-kernel gates. Focused Chrome/SwiftShader
 GL0, live contexts and kernel `[]`. This closes the bounded seat-shape pass, not physical
 AMD/Android rendering or interactive sitting.
 
+## Latest terrestrial-fauna visual pass — varied feral goats
+
+The next full animal comparison selected the goats: their planted gait and textured coat were
+present, but a uniformly pale round barrel, short collar-like neck and six identical coats still
+made the herd look duplicated. The existing thirteen-ring trunk now separates a fuller haunch,
+tucked waist and raised shoulder. Six closely spaced taper stations replace the abrupt four-stage
+neck. The same neutral fur atlas receives six deterministic cream, fawn, grey, warm-brown and sable
+vertex tints with restrained body-height tone, adding individual identity without another texture,
+state field or draw.
+
+Near/far geometry rises from 7,476/4,188 to 7,620/4,260 vertices; the six-goat worst case is 45,720
+beneath the unchanged 49,152 batch capacity and remains two draws. All five focused native test
+groups and all 41 browser/capture harness tests pass. Inspected native eight-stage evidence
+`20261015T223701.422223Z-goats` passes with 218 colour bins, 58.32 luminance deviation, 252.91
+spatial contrast and kernel `[]`. Focused Chrome/SwiftShader
+`20261015T224046.143766Z-chrome-goats` passes four distinct inspected motion frames, 60 finite
+intervals, GL0, a live context and kernel `[]`. Movement, population and species audio are unchanged.
+
 ## Latest forest-floor visual pass — pointed folded litter clusters
 
 The overview/jungle/litter review retained the exposed-soil material but selected the close dry

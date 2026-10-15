@@ -66,7 +66,7 @@ int main() {
             if(vertex.part==GoatPart::Body) {
                 check(std::abs(vertex.u-(vertex.position.z+.62f)/1.22f)<1e-5f,
                     "goat body coat stretches according to ring index rather than physical length");
-                check(std::abs(vertex.v-(vertex.position.y-pose.bodyBob-.52f)/.56f)<1e-5f,
+                check(std::abs(vertex.v-(vertex.position.y-pose.bodyBob-.50f)/.64f)<1e-5f,
                     "goat body coat squeezes around taper or swims with body bob");
                 check(std::abs(uv[0]-(.06f+.88f*(1-vertex.u)))<1e-6f
                     &&std::abs(uv[1]-(.06f+.88f*vertex.v))<1e-6f,

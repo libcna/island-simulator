@@ -36,6 +36,11 @@ Vector3 Point(GoatPoint p){return {p.x,p.y,p.z};}
 // Coat artwork supplies local strand albedo; bare parts must not sample fur.
 const std::array<Color,7> Materials{Color(244,238,222),Color(145,116,92),
     Color(108,91,66),Color(58,54,45),Color(18,16,13),Color(63,57,48),Color(166,122,53)};
+// Feral herds are not six copies of one white animal.  The shared neutral fur
+// artwork supplies hair detail while these bounded vertex tints provide natural
+// cream, fawn, grey and sable individuals without another texture or draw.
+const std::array<Color,6> CoatPalettes{Color(221,199,161),Color(242,235,216),
+    Color(169,158,139),Color(190,151,111),Color(126,112,94),Color(232,220,198)};
 }
 GoatRenderer::GoatRenderer(GraphicsDevice& device,
     const CanopyLightField& canopy,float maximumDistance)
@@ -56,6 +61,8 @@ GoatRenderer::GoatRenderer(GraphicsDevice& device,
     }
     const char* message="island-simulator: goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes";
     std::cout<<message<<'\n';MirrorRuntimeDiagnosticToPlatformLog(message);
+    const char* anatomy="island-simulator: goats use separated haunch, waist and raised shoulder masses, six-station necks, and six deterministic natural coat tints";
+    std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
     effect_->setVertexColorEnabledProperty(true);
     effect_->setLightingEnabledProperty(false);
     effect_->setTextureEnabledProperty(false);
@@ -71,7 +78,8 @@ void GoatRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector
     if(goats.size()>GoatHabitat::Count)throw std::length_error("Goat population exceeds render capacity");
     vertices_.clear();solidVertices_.clear();visible_=draws_=0;
     const BoundingFrustum frustum(view*projection);
-    for(const auto& goat:goats) {
+    for(std::size_t goatIndex=0;goatIndex<goats.size();++goatIndex) {
+        const auto& goat=goats[goatIndex];
         const Vector3 centre(goat.x,goat.y+.75f*goat.scale,goat.z);
         const float distanceSquared=Vector3::DistanceSquared(centre,camera);
         if(distanceSquared>maximumDistance_*maximumDistance_
@@ -85,9 +93,15 @@ void GoatRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector
             const float light=.61f+.37f*std::max(0.0f,Vector3::Dot(n,wildlife_render::FixedSunDirection))
                 +.10f*std::max(0.0f,n.Y);
             const auto tint=CanopyTransmissionTint(canopy_.SampleReceiver(world.X,world.Y,world.Z,goat.y));
-            const auto color=Materials.at(static_cast<std::size_t>(vertex.material));
-            const auto channel=[light](int value,float transmission){
-                return static_cast<int>(std::clamp(std::lround(value*light*transmission),0L,255L));};
+            const auto color=vertex.material==GoatMaterial::Coat
+                ?CoatPalettes[goatIndex%CoatPalettes.size()]
+                :Materials.at(static_cast<std::size_t>(vertex.material));
+            // A restrained darker belly/warmer topline prevents the textured barrel
+            // from reading as one flat pale sphere; non-body fur keeps its palette.
+            const float coatTone=vertex.material==GoatMaterial::Coat&&vertex.part==GoatPart::Body
+                ?.91f+.10f*std::clamp((vertex.position.y-.53f)/.58f,0.0f,1.0f):1.0f;
+            const auto channel=[light,coatTone](int value,float transmission){
+                return static_cast<int>(std::clamp(std::lround(value*light*coatTone*transmission),0L,255L));};
             const auto uv=GoatCoatUv(vertex);
             auto& target=vertex.material==GoatMaterial::Coat?vertices_:solidVertices_;
             target.emplace_back(world,Color(channel(color.getRProperty(),tint.red),

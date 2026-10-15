@@ -40,7 +40,7 @@ struct Builder {
             // taper. Angular ring coordinates squeeze a full fur window into every
             // shrinking ring. Author before body bob so the coat cannot swim.
             u=(p.z+.62f)/1.22f;
-            v=std::clamp((p.y-.52f)/.56f,0.0f,1.0f);
+            v=std::clamp((p.y-.50f)/.64f,0.0f,1.0f);
         }
         if(attachment==Attachment::Head) {
             const float c=std::cos(pitch),s=std::sin(pitch);
@@ -208,16 +208,20 @@ GoatMesh BuildGoatMesh(const GoatGroundPose& pose,float grazing,bool detailed) {
     // and brisket into the old two sharp cones. The broad middle rings supply a
     // recognisable barrel, shoulder and hindquarter rather than one uniform tube.
     const std::array<Ring,13> body{{
-        {-.62f,.82f,.025f,.06f},{-.57f,.81f,.12f,.17f},{-.49f,.80f,.22f,.245f},
-        {-.40f,.80f,.265f,.27f},{-.25f,.80f,.27f,.275f},{-.08f,.80f,.27f,.275f},
-        {.10f,.81f,.25f,.265f},{.24f,.81f,.255f,.26f},{.36f,.80f,.26f,.265f},
-        {.46f,.80f,.235f,.245f},{.52f,.80f,.17f,.20f},{.57f,.81f,.08f,.12f},
+        {-.62f,.82f,.025f,.06f},{-.57f,.82f,.12f,.17f},{-.49f,.82f,.22f,.245f},
+        {-.40f,.82f,.268f,.278f},{-.25f,.81f,.272f,.282f},{-.08f,.79f,.247f,.258f},
+        {.10f,.80f,.252f,.265f},{.24f,.83f,.272f,.282f},{.36f,.84f,.282f,.288f},
+        {.46f,.83f,.242f,.252f},{.52f,.82f,.175f,.205f},{.57f,.81f,.08f,.12f},
         {.60f,.81f,.025f,.055f}}};
     b.Loft(body,sides,GoatMaterial::Coat,Attachment::Body);
     b.part=GoatPart::Neck;
-    std::array<Tube,4> neck{{{{0,.86f,.22f},.14f},{{0,.98f,.35f},.115f},
-        {{0,1.07f,.43f},.095f},{{0,1.09f,.47f},.08f}}};
-    constexpr std::array<float,4> neckWeights{0,.45f,.85f,1};
+    // Six closely spaced stations carry the raised shoulder into the head.  The old
+    // four-circle sweep changed radius and direction too abruptly and exposed a
+    // collar-like kink in broadside walking poses.
+    std::array<Tube,6> neck{{{{0,.85f,.20f},.16f},{{0,.90f,.26f},.152f},
+        {{0,.96f,.32f},.138f},{{0,1.015f,.38f},.12f},{{0,1.06f,.43f},.098f},
+        {{0,1.09f,.47f},.08f}}};
+    constexpr std::array<float,6> neckWeights{0,.20f,.42f,.66f,.86f,1};
     for(std::size_t i=0;i<neck.size();++i)
         neck[i].centre=Add(neck[i].centre,Mul(Sub(b.HeadPoint(neck[i].centre),neck[i].centre),neckWeights[i]));
     b.Sweep(neck,sides,GoatMaterial::Coat,Attachment::Body);

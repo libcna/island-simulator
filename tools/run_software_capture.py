@@ -1254,8 +1254,12 @@ def main():
                 validate_spider_render_log(diagnostics)
             if args.viewpoint=="spider-web":
                 validate_spider_web_render_log(diagnostics)
-            if args.viewpoint == "goats" and "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
-                raise RuntimeError("goat fur material was not loaded")
+            if args.viewpoint == "goats":
+                for marker in (
+                    "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes",
+                    "goats use separated haunch, waist and raised shoulder masses, six-station necks, and six deterministic natural coat tints"):
+                    if marker not in diagnostics:
+                        raise RuntimeError(f"current goat material/anatomy diagnostic missing: {marker}")
             if "boar bristle loaded Content/wildlife/boar-bristle.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
                 raise RuntimeError("current boar coat is missing; check for a stale executable")
             if args.viewpoint=="boars" and not re.search(r"boars [1-6]/6 visible, 2 draw", diagnostics):
