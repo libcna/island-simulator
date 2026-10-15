@@ -131,6 +131,23 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest helicopter interior pass — rounded framed seating
+
+The renewed paired audit accepted the fuller canopy, open doors, rotors and controls but selected
+the four rectangular seat slabs as the cabin's weakest remaining geometry. Both pilot seats now
+use closed rounded base/back cushions and retained headrests on exposed slim metal frames. The rear
+bench uses separate rounded pads with two recessed upholstery seams instead of intersecting boxes.
+Harnesses, controls, panel, supported floor, collision and all four entry corridors are unchanged.
+
+The pass adds 996 triangles, taking the complete procedural helicopter from 4,206 to 5,202
+triangles in the same opaque/glass two draws. `IslandHelicopterLayoutTests`, `IslandCoreTests` and
+all 41 browser/capture harness tests pass. Inspected native evidence
+`20261015T222400.802943Z-helicopter` and `20261015T222411.215556Z-helicopter-inside` passes the
+diagnostic, image-diversity and empty-kernel gates. Focused Chrome/SwiftShader
+`20261015T222548.070086Z-chrome-helicopter` passes both inspected views with 60 finite intervals,
+GL0, live contexts and kernel `[]`. This closes the bounded seat-shape pass, not physical
+AMD/Android rendering or interactive sitting.
+
 ## Latest forest-floor visual pass — pointed folded litter clusters
 
 The overview/jungle/litter review retained the exposed-soil material but selected the close dry

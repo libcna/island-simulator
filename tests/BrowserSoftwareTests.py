@@ -86,6 +86,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             "parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep",
             "lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands",
             "helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs",
+            "helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench",
             "helicopter 2 draw",
         ))
         def view(mode):
@@ -121,6 +122,10 @@ class BrowserSoftwareTests(unittest.TestCase):
             gate.validate_helicopter_report(report)
         report["views"][1]["result"]["output"] = markers.replace(
             "helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs\n", "")
+        with self.assertRaises(RuntimeError):
+            gate.validate_helicopter_report(report)
+        report["views"][1]["result"]["output"] = markers.replace(
+            "helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench\n", "")
         with self.assertRaises(RuntimeError):
             gate.validate_helicopter_report(report)
 

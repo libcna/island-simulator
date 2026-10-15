@@ -435,12 +435,21 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     // Two pilot seats, rear bench and articulated primary flight controls. Curved
     // cyclic shafts and separate collectives read as controls rather than seat braces.
     for(const float x:{-.46f,.46f}) {
-        box({x-.27f,.46f,.08f},{x+.27f,.76f,.66f},seat,Surface::Upholstery);
-        box({x-.28f,.72f,.08f},{x+.28f,1.43f,.25f},seat,Surface::Upholstery);
-        ellipsoid({x,.77f,.43f},{.29f,.13f,.31f},4,10,
+        // Closed rounded cushions replace the old exposed rectangular seat blocks.
+        // A slim frame carries their weight without filling the walkable footwell.
+        ellipsoid({x,.70f,.40f},{.29f,.14f,.31f},5,12,
                   Color(72,76,64),Surface::Upholstery);
+        ellipsoid({x,1.09f,.17f},{.27f,.36f,.12f},8,16,
+                  Color(69,74,62),Surface::Upholstery);
         ellipsoid({x,1.42f,.17f},{.20f,.16f,.12f},4,10,
                   Color(65,69,59),Surface::Upholstery);
+        for(const float frameSide:{-1.0f,1.0f}) {
+            tube({x+frameSide*.19f,.48f,.18f},{x+frameSide*.19f,.61f,.38f},.022f,
+                 metal,Surface::Metal);
+            tube({x+frameSide*.19f,.57f,.18f},{x+frameSide*.19f,1.34f,.12f},.022f,
+                 metal,Surface::Metal);
+        }
+        tube({x-.20f,.53f,.18f},{x+.20f,.53f,.18f},.022f,metal,Surface::Metal);
         // Muted harness webbing provides human scale without turning the empty
         // aircraft into an occupied vehicle.
         beam({x-.15f,1.37f,.06f},{x+.02f,.83f,.31f},.028f,Color(151,140,96),Surface::Upholstery);
@@ -459,8 +468,15 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
                 rubber,Surface::Rubber);
         }
     }
-    box({-.72f,.48f,-1.72f},{.72f,.79f,-1.43f},seat,Surface::Upholstery);
-    box({-.72f,.75f,-1.70f},{.72f,1.38f,-1.52f},seat,Surface::Upholstery);
+    // The rear bench uses two continuous rounded pads rather than an intersecting
+    // pair of slabs. Thin recessed seams retain three readable seating positions.
+    ellipsoid({0,.70f,-1.56f},{.73f,.14f,.29f},5,14,
+              Color(72,76,64),Surface::Upholstery);
+    ellipsoid({0,1.07f,-1.61f},{.73f,.34f,.13f},8,18,
+              Color(67,72,61),Surface::Upholstery);
+    for(const float seam:{-.24f,.24f})
+        beam({seam,.80f,-1.477f},{seam,1.33f,-1.477f},.014f,
+             Color(48,52,45),Surface::Upholstery);
     // A tapered, shallow instrument binnacle replaces the former full-width black box.
     // Its narrower crown follows the windscreen and leaves the door-side sightlines open.
     const std::array<Vector3,4> panelFront{{
@@ -784,6 +800,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<tailRotorShape<<'\n';MirrorRuntimeDiagnosticToPlatformLog(tailRotorShape);
     const std::string entrySteps="island-simulator: helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs";
     std::cout<<entrySteps<<'\n';MirrorRuntimeDiagnosticToPlatformLog(entrySteps);
+    const std::string seating="island-simulator: helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench";
+    std::cout<<seating<<'\n';MirrorRuntimeDiagnosticToPlatformLog(seating);
 }
 
 HelicopterRenderer::~HelicopterRenderer()=default;

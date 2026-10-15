@@ -670,7 +670,8 @@ def main():
                                "helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen",
                                "parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep",
                                "lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands",
-                               "helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs"):
+                               "helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs",
+                               "helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"helicopter integration diagnostic missing: {marker}")
                 if not re.search(r"helicopter 2 draw", diagnostics):

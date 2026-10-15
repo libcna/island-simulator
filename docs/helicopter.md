@@ -1,5 +1,30 @@
 # Grounded helicopter
 
+## Rounded framed cabin seating — 2026-10-16
+
+The next exterior/interior audit retained the recognisable airframe, glazing and avionics, but
+selected the four rectangular pilot-seat slabs and intersecting rear-bench boxes as the weakest
+remaining cabin shapes. Each pilot position now has a closed rounded base cushion, a taller rounded
+back cushion and retained headrest carried by two exposed side frames and a lower crossbar. The rear
+bench uses separate rounded base and back pads with two recessed vertical upholstery seams instead
+of two intersecting cuboids. Harnesses, cyclics, collectives, pedals, panel and displays are unchanged.
+
+The denser closed cushions and slim frames add 996 triangles, raising the complete procedural model
+from 4,206 to 5,202 triangles while retaining the existing opaque/glass two draws, generated atlas,
+collision model, supported floor and all four open entry corridors. `IslandHelicopterLayoutTests`,
+`IslandCoreTests` and all 41 browser/capture harness tests pass.
+
+Inspected current-binary native evidence is `20261015T222400.802943Z-helicopter` (318 colour bins,
+54.79 luminance deviation, 232.21 spatial contrast) and
+`20261015T222411.215556Z-helicopter-inside` (195 bins, 22.33 deviation, 97.06 contrast); both have
+empty kernel deltas. The exterior confirms that the open doors, skids and tubular steps remain
+clear, while the cockpit view shows shaped seat pans and exposed frames without blocking the
+footwell. Focused Chrome/SwiftShader evidence
+`20261015T222548.070086Z-chrome-helicopter` passes both inspected views with 60 finite intervals,
+GL error zero, live contexts, two helicopter draws and an empty final kernel delta. An earlier
+parallel exterior attempt `20261015T221739.349269Z-helicopter` failed to start with `EAGAIN` during
+the simultaneous process launch and is explicitly rejected; the unchanged sequential retry passed.
+
 ## Flight-control cockpit pass
 
 The previous cabin contained two seats, a flat panel and small rectangular lamps, but the
