@@ -1142,6 +1142,8 @@ def main():
                     raise RuntimeError("current coconut-crab anatomy is missing; check for a stale executable")
                 if "coconut crabs use elevated compact bodies, planted high-jointed legs, and arched abdominal plates" not in diagnostics:
                     raise RuntimeError("current coconut-crab profile is missing; check for a stale executable")
+                if "near coconut crabs use rounded unequal claw palms over separated solid pincer fingers" not in diagnostics:
+                    raise RuntimeError("current coconut-crab rounded claws are missing; check for a stale executable")
                 if "coconut-crab QA camera frames one large terrestrial animal in coastal vegetation" not in diagnostics:
                     raise RuntimeError("current coconut-crab inspection composition is missing")
                 if not re.search(r"coconut crabs [1-6]/6 visible in shared draw",diagnostics):

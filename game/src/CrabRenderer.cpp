@@ -42,8 +42,9 @@ namespace island
         constexpr int MaximumBurrowVertices = 1024;
         constexpr int MaximumHermitCrabVertices =
             static_cast<int>(HermitCrabGroup::Count) * 1024;
+        constexpr int CoconutCrabVertexCount = 1998;
         constexpr int MaximumCoconutCrabVertices =
-            static_cast<int>(CoconutCrabGroup::Count) * 1800;
+            static_cast<int>(CoconutCrabGroup::Count) * CoconutCrabVertexCount;
         constexpr int MaximumVertexCount = static_cast<int>(CrabColony::CrabCount)
             * MaximumVerticesPerCrab + MaximumBurrowVertices
             + MaximumHermitCrabVertices + MaximumCoconutCrabVertices;
@@ -71,6 +72,8 @@ namespace island
             "island-simulator: coconut crabs use broad armored bodies, segmented terrestrial abdomens, robust walking legs, and massive unequal claws";
         constexpr std::string_view CoconutCrabProfileDiagnostic =
             "island-simulator: coconut crabs use elevated compact bodies, planted high-jointed legs, and arched abdominal plates";
+        constexpr std::string_view CoconutCrabClawDiagnostic =
+            "island-simulator: near coconut crabs use rounded unequal claw palms over separated solid pincer fingers";
 
         struct CrabPalette
         {
@@ -242,6 +245,59 @@ namespace island
             AddTriangle(vertices, bottom, front, left, sideColor);
         }
 
+        void AppendRoundedCoconutPalm(std::vector<VertexPositionColor>& vertices,
+                                      const Vector3& centre, const Vector3& right,
+                                      const Vector3& up, const Vector3& forward,
+                                      const float halfX, const float halfY,
+                                      const float halfZ, const Color& topColor,
+                                      const Color& sideColor)
+        {
+            constexpr int Segments = 10;
+            constexpr std::array<float, 3> RingHeights = {{-.58f, 0.0f, .58f}};
+            constexpr std::array<float, 3> RingRadii = {{.815f, 1.0f, .815f}};
+            const auto point = [&](const std::size_t ring, const int segment) {
+                const float angle = TwoPi * static_cast<float>(segment)
+                    / static_cast<float>(Segments);
+                return centre + right * (std::cos(angle) * RingRadii[ring] * halfX)
+                    + forward * (std::sin(angle) * RingRadii[ring] * halfZ)
+                    + up * (RingHeights[ring] * halfY);
+            };
+            const auto color = [&](const std::size_t ring, const int segment) {
+                const float angle = TwoPi * static_cast<float>(segment)
+                    / static_cast<float>(Segments);
+                const Vector3 normal = Vector3::Normalize(
+                    right * (std::cos(angle) * RingRadii[ring] / halfX)
+                    + forward * (std::sin(angle) * RingRadii[ring] / halfZ)
+                    + up * (RingHeights[ring] / halfY));
+                const float direct = std::max(
+                    0.0f, Vector3::Dot(normal, wildlife_render::FixedSunDirection));
+                const Color base = Color::Lerp(
+                    sideColor, topColor, std::clamp(.50f + RingHeights[ring] * .52f,
+                                                     0.0f, 1.0f));
+                return wildlife_render::ScaleColor(base, .76f + .28f * direct);
+            };
+
+            const Vector3 bottom = centre - up * halfY;
+            const Vector3 top = centre + up * halfY;
+            const Color bottomColor = wildlife_render::ScaleColor(sideColor, .72f);
+            const Color topCapColor = wildlife_render::ScaleColor(topColor, 1.03f);
+            for (int segment = 0; segment < Segments; ++segment) {
+                const int next = (segment + 1) % Segments;
+                AddGradientTriangle(vertices, bottom, point(0U, segment),
+                                    point(0U, next), bottomColor,
+                                    color(0U, segment), color(0U, next));
+                for (std::size_t ring = 0; ring + 1U < RingHeights.size(); ++ring) {
+                    AddGradientQuad(vertices, point(ring, segment),
+                                    point(ring + 1U, segment),
+                                    point(ring + 1U, next), point(ring, next),
+                                    color(ring, segment), color(ring + 1U, segment),
+                                    color(ring + 1U, next), color(ring, next));
+                }
+                AddGradientTriangle(vertices, top, point(2U, next), point(2U, segment),
+                                    topCapColor, color(2U, next), color(2U, segment));
+            }
+        }
+
         void AppendHermitCrab(std::vector<VertexPositionColor>& vertices,
                               const HermitCrabState& crab)
         {
@@ -391,7 +447,8 @@ namespace island
         }
 
         void AppendNearCrab(std::vector<VertexPositionColor>& vertices,
-                            const CrabState& crab)
+                            const CrabState& crab,
+                            const bool useRoundedUnequalPalms = false)
         {
             const CrabPalette& palette = Palettes[crab.colorVariant % Palettes.size()];
             const Vector3 centre(crab.x, crab.y, crab.z);
@@ -536,9 +593,18 @@ namespace island
                                      palette.limb);
                 const Vector3 palm = LocalPoint(
                     centre, right, up, forward, side * 0.49f, 0.15f, 0.350f, scale);
-                AppendOctahedron(vertices, palm, right, up, forward,
-                                 0.105f * scale, 0.075f * scale, 0.110f * scale,
-                                 palette.claw, palette.shellSide);
+                if (useRoundedUnequalPalms) {
+                    AppendRoundedCoconutPalm(
+                        vertices, palm, right, up, forward,
+                        (side > 0.0f ? .110f : .090f) * scale,
+                        (side > 0.0f ? .061f : .055f) * scale,
+                        (side > 0.0f ? .145f : .125f) * scale,
+                        palette.claw, palette.shellSide);
+                } else {
+                    AppendOctahedron(vertices, palm, right, up, forward,
+                                     .105f * scale, .075f * scale, .110f * scale,
+                                     palette.claw, palette.shellSide);
+                }
                 const Vector3 outerTip = LocalPoint(
                     centre, right, up, forward, side * (0.46f + clawSpread),
                     0.165f, 0.485f, scale);
@@ -549,10 +615,25 @@ namespace island
                     + forward * (0.035f * scale);
                 const Vector3 innerBase = palm - right * (side * 0.025f * scale)
                     + forward * (0.035f * scale);
-                AppendPrismaticFinger(vertices, outerBase, palm, outerTip,
-                                      0.012f * scale, palette.claw, palette.shellSide);
-                AppendPrismaticFinger(vertices, palm, innerBase, innerTip,
-                                      0.010f * scale, palette.shellHighlight, palette.shellSide);
+                if (useRoundedUnequalPalms) {
+                    const Vector3 outerMid = palm + forward * (.105f * scale)
+                        + right * (side * .058f * scale) + up * (.013f * scale);
+                    const Vector3 innerMid = palm + forward * (.105f * scale)
+                        - right * (side * .050f * scale) - up * (.006f * scale);
+                    AppendPrismaticFinger(vertices, outerBase, outerMid, outerTip,
+                                          .020f * scale, palette.claw,
+                                          palette.shellSide);
+                    AppendPrismaticFinger(vertices, innerBase, innerMid, innerTip,
+                                          .017f * scale, palette.shellHighlight,
+                                          palette.shellSide);
+                } else {
+                    AppendPrismaticFinger(vertices, outerBase, palm, outerTip,
+                                          .012f * scale, palette.claw,
+                                          palette.shellSide);
+                    AppendPrismaticFinger(vertices, palm, innerBase, innerTip,
+                                          .010f * scale, palette.shellHighlight,
+                                          palette.shellSide);
+                }
             }
 
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
@@ -624,7 +705,7 @@ namespace island
             const Vector3 up = Vector3::Up;
             const float scale = crab.scale;
             const std::size_t baseFirst=vertices.size();
-            AppendNearCrab(vertices, base);
+            AppendNearCrab(vertices, base, true);
             // Beach crabs are low and broad. Preserve their detailed shared anatomy but
             // compact only this terrestrial form laterally and lift its positive-height
             // joints, producing the characteristic high planted coconut-crab stance.
@@ -681,14 +762,6 @@ namespace island
                 const Vector3 crown=centre+forward*z+up*(.305f*scale);
                 AppendCrossedSegment(vertices,a,crown,.006f*scale,plateShade);
                 AppendCrossedSegment(vertices,crown,b,.006f*scale,plateShade);
-            }
-            for (const float side : {-1.0f, 1.0f}) {
-                const Vector3 palm = centre + forward * (.35f * scale)
-                    + right * (side * (side > 0.0f ? .48f : .43f) * scale)
-                    + up * (.13f * scale);
-                AppendOctahedron(vertices, palm, right, up, forward,
-                    (side > 0.0f ? .115f : .090f) * scale, .075f * scale,
-                    .110f * scale, plate, plateShade);
             }
         }
 
@@ -791,6 +864,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(CoconutCrabAnatomyDiagnostic);
         std::cout << CoconutCrabProfileDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CoconutCrabProfileDiagnostic);
+        std::cout << CoconutCrabClawDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(CoconutCrabClawDiagnostic);
     }
 
     CrabRenderer::~CrabRenderer() = default;
@@ -859,7 +934,12 @@ namespace island
                 || !frustum.Intersects(BoundingSphere(centre, crab.scale * .85f))) {
                 continue;
             }
+            const std::size_t firstVertex = stagingVertices_.size();
             AppendCoconutCrab(stagingVertices_, crab);
+            if (stagingVertices_.size() - firstVertex != CoconutCrabVertexCount) {
+                throw std::logic_error(
+                    "Coconut crab geometry violated its exact vertex budget");
+            }
             ++visibleCoconutCrabCount_;
         }
         if (stagingVertices_.empty()) return;

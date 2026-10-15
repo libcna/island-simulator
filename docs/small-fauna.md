@@ -376,6 +376,29 @@ higher body and articulated stance. The final 1280x720 frame passes with 282 col
 luminance deviation, 216.92 spatial contrast and an empty kernel delta. Native and Web gates now
 pin the elevated-profile diagnostic.
 
+### Rounded chela pass (2026-10-15)
+
+A later current-binary animal audit found that the two inherited octahedral palms still read as
+pyramids in a close view. The accepted replacement is applied inside the shared near-crab builder,
+only for coconut crabs: each palm is a closed ten-sided, three-ring ellipsoidal volume with analytic
+vertex light, unequal major/minor dimensions and a flattened vertical profile. The original two
+solid pincer fingers remain attached but use thicker separated bent centre lines for this species.
+Ordinary beach-crab palms are byte-for-byte on their previous path.
+
+The former 1,734 vertices become an exact runtime-checked 1,998 vertices per close coconut crab,
+adding 88 triangles per animal and 1,188 allocated worst-case vertices (about 19 KiB) for all six.
+There is no new draw, texture, material or simulation work. Inspected baseline
+`20261015T195442.123468Z-coconut-crabs` and accepted llvmpipe/pixman evidence
+`20261015T200537.538658Z-coconut-crabs` show the two pyramids replaced by lower rounded unequal
+chelae with visible pincer gaps. The accepted frame passes at 1280x720 with 285 colour bins, 44.34
+luminance deviation, 216.91 spatial contrast and an empty kernel delta. Two intermediate renders
+were visually rejected: the first retained a hidden inherited pyramid above the new volume and the
+second produced palms that were too spherical. Native capture and Web gates pin the new rounded-
+claw diagnostic. Focused Chrome/SwiftShader evidence
+`20261015T200935.227024Z-chrome-coconut-crabs` passes 60 finite intervals, two distinct inspected
+frames, GL error zero, a live context and an empty final kernel delta. Android packaging remains
+grouped with later integration.
+
 ## Skinks
 
 Eight deterministic diurnal skinks occupy 6.4--7.5 m homes around clearings, a wetland edge and

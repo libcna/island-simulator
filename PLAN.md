@@ -440,6 +440,30 @@ coconut-crab capacity and add no buffer or draw. Inspected baseline
 1280x720 frame passes with 282 colour bins, 44.35 luminance deviation, 216.92 spatial contrast and
 an empty kernel delta.
 
+## Latest terrestrial-fauna visual pass — rounded coconut-crab chelae
+
+The next current-binary crab comparison found a more conspicuous close defect than further body
+polish: both coconut-crab claw palms were inherited eight-triangle octahedra, so the large animal
+carried two pyramids at its front. The first replacement was correctly rejected because it merely
+placed a rounded volume beneath the inherited pyramid. The accepted implementation instead swaps
+the inherited palm itself for a closed ten-sided, three-ring ellipsoidal chela. The dominant and
+subordinate palms have different dimensions, are vertically flattened and elongated toward their
+existing pincers; their two solid fingers are thicker and follow separated bent centre lines.
+
+Each close coconut crab now has an exact checked 1,998-vertex budget instead of the former 1,734
+vertices, an increase of 88 triangles per animal. The six-animal worst-case allocation grows by
+only 1,188 vertices (about 19 KiB) and retains the shared opaque crab buffer, one material and one
+draw. Population, habitat, motion, grounding, LOD and ordinary beach-crab geometry are unchanged.
+Inspected baseline `20261015T195442.123468Z-coconut-crabs` and accepted native evidence
+`20261015T200537.538658Z-coconut-crabs` show the pyramidal palms replaced by lower rounded unequal
+chelae with visible pincer gaps. The final 1280x720 frame passes with 285 colour bins, 44.34
+luminance deviation, 216.91 spatial contrast and an empty kernel delta. Rejected intermediate
+captures `20261015T200315.356206Z-coconut-crabs` and
+`20261015T200418.470395Z-coconut-crabs` retain the duplication and overly spherical trials.
+Focused Chrome/SwiftShader evidence
+`20261015T200935.227024Z-chrome-coconut-crabs` passes 60 finite intervals, two distinct inspected
+frames, GL error zero, a live context and an empty final kernel delta.
+
 ## Latest aquatic visual pass — octopus mantle and skin light
 
 After the stingray repair, the same coastal-animal matrix left the octopus as the next weakest
