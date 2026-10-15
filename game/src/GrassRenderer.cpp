@@ -408,9 +408,9 @@ void main()
             const float blueCure = 1.0f - curedProfile * 0.82f;
             // Stable pigment families keep a whole field from reading as one artificial green.
             const int family = (blade * 5 + 2) % 7;
-            const float baseRed = family < 2 ? 75.0f : (family < 5 ? 64.0f : 56.0f);
-            const float baseGreen = family < 2 ? 127.0f : (family < 5 ? 124.0f : 116.0f);
-            const float baseBlue = family < 2 ? 36.0f : (family < 5 ? 43.0f : 49.0f);
+            const float baseRed = family < 2 ? 80.0f : (family < 5 ? 70.0f : 62.0f);
+            const float baseGreen = family < 2 ? 122.0f : (family < 5 ? 119.0f : 111.0f);
+            const float baseBlue = family < 2 ? 39.0f : (family < 5 ? 44.0f : 48.0f);
             // Sunlit tropical grasses are yellow-green, not emerald; keep per-blade spread.
             const int red = static_cast<int>(std::lround(
                 (baseRed + bladeShift * 12.0f) * light * redCure));

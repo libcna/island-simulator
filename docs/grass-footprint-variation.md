@@ -1,5 +1,21 @@
 # Grass footprint and pigment variation
 
+## 2026-10-15 walking-height pigment restraint
+
+The renewed vegetation matrix found the ground-broadleaf silhouettes and floor material coherent,
+but ordinary walking views still made the shared grass field more saturated green than the soil and
+neighbouring foliage. The three existing deterministic pigment families now move by only five to
+six byte values per channel toward warmer olive/yellow-green: red increases, green decreases and
+blue changes minimally. Blade-to-blade variation, cured tips, biome tint, basal tint, canopy and
+campfire light, wind, density, geometry, LOD, buffers and draws are unchanged.
+
+The same `grass` camera was inspected against `20261015T093802.407944Z-grass`. Current native
+evidence `20261015T144157.782224Z-grass` passes at 1280x720 with 205 colour bins, 21.12 luminance
+deviation, 60.41 spatial contrast and an empty kernel delta. The result is a restrained shift, not
+a density or lighting redesign: foreground blades sit closer to the brown-green forest floor while
+remaining visibly green. Physical hardware, Web and Android appearances were not rerun for this
+constant-only palette pass.
+
 ## Visual finding
 
 The fixed close-grass view already contained curved blades, low turf, folds, seed heads and

@@ -131,6 +131,20 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest visual-audit implementation — walking-height grass pigment
+
+The post-animal vegetation matrix found the ground-broadleaf geometry and floor material coherent,
+but the shared grass still read too saturated green beside soil and surrounding leaves at normal
+walking height. Its three deterministic pigment families now shift only five to six byte values
+per channel toward warmer olive/yellow-green. Cured tips, per-blade and biome variation, basal
+material, lighting, wind, density, geometry, LOD, buffers and draws are unchanged.
+
+The focused grass geometry test passes. Same-camera native evidence
+`20261015T144157.782224Z-grass` passes at 1280x720 with 205 colour bins, 21.12 luminance deviation,
+60.41 spatial contrast and an empty kernel delta. The inspected comparison against
+`20261015T093802.407944Z-grass` shows a restrained desaturation rather than a new material or
+density change. Current Web/Android grass frames predate this constant-only palette adjustment.
+
 ## Latest visual-audit implementation — crocodile limb attachment
 
 After the monkey head pass, the animal matrix selected the crocodile's near legs: the long torso,
