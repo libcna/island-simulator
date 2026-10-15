@@ -67,8 +67,9 @@ historical incident next steps, rejected visual iterations and superseded accept
 remaining material work is:
 
 - finish the requested fauna list with bounded, habitat-appropriate implementations (notably
-  parrots/doves, fruit bats, stingrays and octopuses; small insects/rodents/deer are lower-value
-  explicit plan entries and should follow visual/ecological fit rather than raw species count);
+  parrot-specific calls and ground-dove behaviour, fruit bats, stingrays and octopuses; frog calls
+  and the smaller insects/rodents/deer are lower-value explicit entries and should follow
+  visual/ecological fit rather than raw species count);
 - continue whole-island visual critique, especially jungle-floor/canopy repetition, continuous
   camera LOD transitions and moving-edge aliasing;
 - complete three recorded whole-island passes for traversal/scale, materials/lighting and
@@ -3616,7 +3617,9 @@ progress or require player interaction; dangerous species keep their distance li
   GL error and no context loss. The ARM64 Android APK builds and contains the implementation;
   Android runtime/device capture remains open because the emulator is intentionally untouched.
   Sound is not part of the current crocodile requirement. See docs/crocodiles.md.
-- [ ] Frogs (near damp ground/water, calls)
+- [~] Frogs (near damp ground/water, calls). Ten deterministic moist-bank agents already rest,
+  hop and retreat in bounded stream/wetland homes with one shared render batch; a distinct local
+  frog-call voice remains open. See `docs/small-fauna.md`.
 - [ ] Bats (fruit bats roosting/flying; the fixed daytime limits active flight)
 - [ ] Mice
 - [ ] Rats
