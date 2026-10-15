@@ -18,7 +18,7 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "birds", "bats", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "deer", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "skinks", "dragonflies", "frogs", "crocodiles", "fish", "stingrays", "octopuses", "shark", "dolphins", "bear", "resident")
+SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "birds", "bats", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "deer", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "skinks", "dragonflies", "frogs", "rodents", "crocodiles", "fish", "stingrays", "octopuses", "shark", "dolphins", "bear", "resident")
 
 
 def validate_shipwreck_report(report):
@@ -529,6 +529,35 @@ def validate_frog_report(report):
     return frames
 
 
+def validate_rodent_report(report):
+    views=report.get("views",[])
+    if (report.get("passed") is not True or len(views)!=2
+        or [view.get("mode") for view in views] != ["mice", "rats"]):
+        raise RuntimeError("rodent report lacks successful mouse and rat views")
+    all_frames=[]
+    for view,species,total,camera_marker in (
+        (views[0],"mice",12,"mouse QA camera frames one field mouse at ground level"),
+        (views[1],"rats",8,"rat QA camera frames one larger inland rat at ground level")):
+        result=view.get("result",{});log=result.get("output","")
+        frames=(view.get("screenshot"),view.get("afterSimulationScreenshot"))
+        intervals=view.get("intervals",[])
+        if (view.get("passed") is not True or view.get("glError")!=0
+            or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+            or "SwiftShader" not in view.get("renderer","") or len(intervals)!=60
+            or not all(isinstance(value,(int,float)) and not isinstance(value,bool)
+                       and math.isfinite(value) and value>0 for value in intervals)
+            or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
+            or len(set(frames))!=2
+            or "twelve field mice and eight rats forage, scurry, and hide in the shared small-fauna batch" not in log
+            or "near rodents use species-scaled lofted bodies, pointed muzzles, rounded ears, whiskers, paws, eyes, and long segmented tails" not in log
+            or camera_marker not in log
+            or not re.search(rf"{species} [1-9][0-9]*/{total} visible in shared draw",log)
+            or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):
+            raise RuntimeError(f"{species} view lacks current anatomy, frames or clean graphics state")
+        all_frames.extend(frames)
+    return all_frames
+
+
 def validate_hermit_crab_report(report):
     views=report.get("views",[])
     if report.get("passed") is not True or len(views)!=1 or views[0].get("mode")!="hermit-crabs":
@@ -954,6 +983,17 @@ def main(argv=None):
                 if identities[0]["sha256"]==identities[1]["sha256"]:
                     raise RuntimeError("frog separated-time frames are byte-identical")
                 metadata["frog_frames"]=identities
+            if args.scope == "rodents":
+                rodent_report=json.loads((evidence / "island-browser-rodents.json").read_text())
+                frames=validate_rodent_report(rodent_report)
+                paths=[evidence / frame for frame in frames]
+                if not all(path.is_file() for path in paths):
+                    raise RuntimeError("rodent image file missing")
+                identities=[artifact_identity(path) for path in paths]
+                if (identities[0]["sha256"]==identities[1]["sha256"]
+                    or identities[2]["sha256"]==identities[3]["sha256"]):
+                    raise RuntimeError("rodent separated-time frames are byte-identical")
+                metadata["rodent_frames"]=identities
             if args.scope == "hermit-crabs":
                 hermit_report=json.loads((evidence / "island-browser-hermit-crabs.json").read_text())
                 frames=validate_hermit_crab_report(hermit_report)

@@ -102,6 +102,8 @@ namespace
         case FixedViewpoint::SkinkDetail: return "skinks";
         case FixedViewpoint::DragonflyDetail: return "dragonflies";
         case FixedViewpoint::FrogDetail: return "frogs";
+        case FixedViewpoint::MouseDetail: return "mice";
+        case FixedViewpoint::RatDetail: return "rats";
         case FixedViewpoint::SeaTurtleDetail: return "turtles";
         case FixedViewpoint::BenchmarkTraversal: return "traversal";
         }
@@ -333,6 +335,10 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::DragonflyDetail;
             } else if (name == "frogs") {
                 viewpoint = island::FixedViewpoint::FrogDetail;
+            } else if (name == "mice") {
+                viewpoint = island::FixedViewpoint::MouseDetail;
+            } else if (name == "rats") {
+                viewpoint = island::FixedViewpoint::RatDetail;
             } else if (name == "turtles") {
                 viewpoint = island::FixedViewpoint::SeaTurtleDetail;
             } else if (name == "traversal") {

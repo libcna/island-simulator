@@ -1,10 +1,42 @@
 # Small fauna
 
-Six bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, eight
+Seven bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, eight
 open-ground skinks, nine stream/wetland dragonflies, ten stream/wetland frogs, ten beach hermit
-crabs and six coconut crabs.
-This is not completion of the whole small-fauna list: additional shorebirds, fruit bats, cicadas
-and beetles remain candidates for later stages.
+crabs, six coconut crabs, twelve field mice and eight rats.
+This is not completion of every optional small-fauna candidate: cicadas and beetles remain.
+
+## Mice and rats
+
+One deterministic rodent simulation supplies twelve field mice and eight larger rats without a
+new renderer or draw call. Each animal owns a 4.2--6.9 m inland home on dry interior, coastal or
+rocky ground, remains more than 28 m from the shore and rejects steep terrain. The shared wildlife
+activation policy reduces or sleeps distant updates. Ordinary agents alternate rest and slow
+foraging. A player within 2.5 m of a mouse or 3.3 m of a rat triggers a short fast scurry followed
+by a visibility-faded hiding interval before the animal returns.
+
+Both species use lofted low bodies and pointed heads, articulated short legs and paws, highlighted
+eyes, a dark nose, six whiskers and a volumetric three-section tail. Mice have warmer coats and
+large round ears. Rats use darker palettes, smaller relative ears, a longer narrower muzzle and a
+longer silhouette. Breathing/sniffing and diagonal stride motion are computed on the CPU. All
+twenty append to the existing butterfly/gecko/skink/dragonfly/frog dynamic buffer and one draw;
+hidden animals append no geometry.
+
+The dedicated CPU test covers exact species counts, deterministic construction and long-running
+simulation, valid dry habitats, home bounds, rest/forage states, player-triggered scurry/hide and
+non-finite input containment. The exact-final native llvmpipe captures are
+`build-consumer/software-captures/20261015T083214.554735Z-mice` (187 colour bins, 22.00 luminance
+deviation and 109.47 spatial contrast) and
+`build-consumer/software-captures/20261015T083425.592907Z-rats` (66 colour bins, 25.62 luminance
+deviation and 82.42 spatial contrast). Both 1280x720 frames were inspected at original resolution;
+the first overly tight cameras and a steep rat habitat were rejected and revised. WebGL and ARM64
+qualification also pass. Chrome/SwiftShader evidence is
+`build/browser-software/20261015T084209.265876Z-chrome-rodents`: both views complete 60 finite
+positive intervals with GL0, live contexts, distinct separated-time frames and clean kernel
+monitoring; both initial frames were inspected. The Web package is 11,410,304 bytes of Wasm,
+2,230,701 bytes of data and 280,439 bytes of JavaScript. ARM64 `assembleDebug` and `lintDebug`
+pass with two workers and without launching an emulator or touching KVM. The APK is 24,440,739
+bytes with SHA-256 `62f90fc83e90364de79ec507e3a1de6d8d1bc88ae44251f2aeaab2f42daf25be`;
+its stripped `libmain.so` is 19,398,168 bytes. Physical Android appearance remains final-device work.
 
 ## Frogs
 

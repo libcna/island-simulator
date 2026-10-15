@@ -39,10 +39,11 @@ namespace island
         constexpr int MaximumDragonflyVertices =
             static_cast<int>(DragonflySwarm::Count) * 720;
         constexpr int MaximumFrogVertices = static_cast<int>(FrogPopulation::Count) * 720;
+        constexpr int MaximumRodentVertices = static_cast<int>(RodentPopulation::Count) * 720;
         constexpr int MaximumVertexCount = static_cast<int>(ButterflyMeadow::ButterflyCount)
             * MaximumVerticesPerButterfly + MaximumFlowerVertices + MaximumGeckoVertices
             + MaximumSkinkVertices
-            +MaximumDragonflyVertices + MaximumFrogVertices;
+            +MaximumDragonflyVertices + MaximumFrogVertices + MaximumRodentVertices;
         constexpr std::string_view ButterflyDiagnostic =
             "island-simulator: clearing butterflies use hinged patterned wings in one culled batch";
         constexpr std::string_view ButterflyAnatomyDiagnostic =
@@ -59,6 +60,10 @@ namespace island
             "island-simulator: nine stream and wetland dragonflies hover, patrol, and dart in the shared butterfly batch";
         constexpr std::string_view FrogDiagnostic =
             "island-simulator: ten stream and wetland frogs rest, hop, and retreat in the shared butterfly batch";
+        constexpr std::string_view RodentDiagnostic =
+            "island-simulator: twelve field mice and eight rats forage, scurry, and hide in the shared small-fauna batch";
+        constexpr std::string_view RodentAnatomyDiagnostic =
+            "island-simulator: near rodents use species-scaled lofted bodies, pointed muzzles, rounded ears, whiskers, paws, eyes, and long segmented tails";
 
         struct ButterflyPalette
         {
@@ -633,6 +638,127 @@ namespace island
             }
         }
 
+        void AppendRodentEar(std::vector<VertexPositionColor>& vertices,
+                             const Vector3& centre, const Vector3& horizontal,
+                             const Vector3& vertical, const float radius,
+                             const Color& outer, const Color& inner)
+        {
+            constexpr int Segments = 10;
+            for (int segment = 0; segment < Segments; ++segment) {
+                const float a = 6.28318530718f * static_cast<float>(segment) / Segments;
+                const float b = 6.28318530718f * static_cast<float>(segment + 1) / Segments;
+                const Vector3 edgeA = centre + horizontal * (std::cos(a) * radius)
+                    + vertical * (std::sin(a) * radius * 1.08f);
+                const Vector3 edgeB = centre + horizontal * (std::cos(b) * radius)
+                    + vertical * (std::sin(b) * radius * 1.08f);
+                AddDoubleSidedTriangle(vertices, centre, edgeA, edgeB,
+                    segment % 2 == 0 ? inner : outer);
+            }
+        }
+
+        void AppendRodent(std::vector<VertexPositionColor>& vertices,
+                          const RodentState& rodent)
+        {
+            const bool rat = rodent.species == RodentSpecies::Rat;
+            const std::array<Color, 4> mouseCoats = {{Color(139, 119, 92), Color(116, 105, 91),
+                Color(154, 132, 100), Color(96, 91, 82)}};
+            const std::array<Color, 4> ratCoats = {{Color(100, 89, 76), Color(83, 79, 72),
+                Color(119, 101, 79), Color(72, 69, 65)}};
+            const Color coat = rat ? ratCoats[rodent.colorVariant % ratCoats.size()]
+                                   : mouseCoats[rodent.colorVariant % mouseCoats.size()];
+            const Color flank = Color::Lerp(coat, Color(54, 48, 42), .28f);
+            const Color underside = Color::Lerp(coat, Color(210, 194, 165), rat ? .48f : .62f);
+            const Color ear = Color::Lerp(coat, Color(184, 116, 112), .46f);
+            const Color tail = Color::Lerp(coat, Color(174, 126, 119), .55f);
+            const Color eye(11, 10, 8), glint(229, 220, 188), whisker(177, 168, 148);
+            const float visibility = std::clamp(rodent.visibility, 0.0f, 1.0f);
+            const float unit = (rat ? 1.0f : .67f) * visibility;
+            if (unit <= .04f) return;
+            const Vector3 forward(std::cos(rodent.headingRadians), 0,
+                                  std::sin(rodent.headingRadians));
+            const Vector3 right(-forward.Z, 0, forward.X), up = Vector3::Up;
+            const float bob = std::abs(std::sin(rodent.gaitPhase)) * .012f * unit;
+            const Vector3 centre(rodent.x, rodent.y + (rat ? .095f : .072f) * unit + bob,
+                                 rodent.z);
+            constexpr std::array<float, 6> BodyStations = {{-.18f, -.12f, -.02f, .10f, .19f, .24f}};
+            constexpr std::array<float, 6> BodyWidths = {{.055f, .11f, .14f, .135f, .095f, .045f}};
+            constexpr std::array<float, 6> BodyHeights = {{.045f, .085f, .105f, .10f, .075f, .035f}};
+            AppendGeckoLoft(vertices, centre, right, up, forward, BodyStations, BodyWidths,
+                            BodyHeights, unit, coat, flank, underside);
+            const float sniff = std::sin(rodent.sniffPhase) * .008f * unit;
+            const Vector3 head = centre + forward * (.245f * unit)
+                + up * ((rat ? .018f : .028f) * unit + sniff);
+            constexpr std::array<float, 5> MouseHeadStations = {{-.08f, -.01f, .075f, .145f, .20f}};
+            constexpr std::array<float, 5> MouseHeadWidths = {{.075f, .11f, .095f, .055f, .018f}};
+            constexpr std::array<float, 5> MouseHeadHeights = {{.055f, .092f, .080f, .045f, .018f}};
+            constexpr std::array<float, 5> RatHeadStations = {{-.08f, -.01f, .09f, .18f, .24f}};
+            constexpr std::array<float, 5> RatHeadWidths = {{.070f, .105f, .082f, .043f, .016f}};
+            constexpr std::array<float, 5> RatHeadHeights = {{.052f, .086f, .068f, .038f, .016f}};
+            AppendGeckoLoft(vertices, head, right, up, forward,
+                            rat ? RatHeadStations : MouseHeadStations,
+                            rat ? RatHeadWidths : MouseHeadWidths,
+                            rat ? RatHeadHeights : MouseHeadHeights,
+                            unit, coat, flank, underside);
+
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 earCentre = head - forward * (.035f * unit)
+                    + right * (side * .085f * unit) + up * (.080f * unit);
+                const float earSize = (rat ? .040f : .072f) * unit;
+                AppendRodentEar(vertices, earCentre, forward, up, earSize, flank, ear);
+                const Vector3 eyeCentre = head + forward * (.070f * unit)
+                    + right * (side * .083f * unit) + up * (.026f * unit);
+                const float eyeSize = (rat ? .016f : .022f) * unit;
+                AppendGeckoDiamond(vertices, eyeCentre, right, up, forward,
+                    eyeSize, eyeSize * 1.09f, eyeSize * .68f, eye, eye);
+                const Vector3 highlight = eyeCentre + right * (side * .016f * unit)
+                    + up * (.009f * unit) + forward * (.004f * unit);
+                AddDoubleSidedTriangle(vertices, highlight + up * (.004f * unit),
+                    highlight - forward * (.004f * unit) - up * (.003f * unit),
+                    highlight + forward * (.004f * unit) - up * (.003f * unit), glint);
+                const Vector3 whiskerRoot = head + forward * (.17f * unit)
+                    + right * (side * .035f * unit) - up * (.015f * unit);
+                for (int whiskerIndex = -1; whiskerIndex <= 1; ++whiskerIndex) {
+                    const Vector3 tip = whiskerRoot + forward * (.045f * unit)
+                        + right * (side * (.16f + .018f * whiskerIndex) * unit)
+                        + up * (.023f * whiskerIndex * unit);
+                    AppendGeckoSegment(vertices, whiskerRoot, tip, .0022f * unit, whisker);
+                }
+            }
+            const Vector3 nose = head + forward * ((rat ? .242f : .202f) * unit)
+                - up * (.006f * unit);
+            AppendGeckoDiamond(vertices, nose, right, up, forward,
+                .019f * unit, .018f * unit, .023f * unit, eye, eye);
+            const float stride = std::sin(rodent.gaitPhase) * .045f * unit;
+            for (int leg = 0; leg < 4; ++leg) {
+                const float side = leg % 2 == 0 ? -1.0f : 1.0f;
+                const float along = leg < 2 ? .12f : -.10f;
+                const float phaseStride = (leg == 0 || leg == 3) ? stride : -stride;
+                const Vector3 hip = centre + forward * (along * unit)
+                    + right * (side * .09f * unit) - up * (.045f * unit);
+                const Vector3 ankle = hip + forward * phaseStride
+                    + right * (side * .055f * unit) - up * (.055f * unit);
+                const Vector3 paw = ankle + forward * (.055f * unit - phaseStride * .4f)
+                    + right * (side * .025f * unit);
+                AppendGeckoSegment(vertices, hip, ankle, .014f * unit, flank);
+                AppendGeckoSegment(vertices, ankle, paw, .009f * unit, underside);
+            }
+            // Three gently curved segments keep the tail volumetric enough to avoid a wire.
+            Vector3 tailRoot = centre - forward * (.19f * unit) - up * (.015f * unit);
+            const float tailLength = (rat ? .36f : .31f) * unit;
+            for (int segment = 0; segment < 3; ++segment) {
+                const float a = static_cast<float>(segment) / 3.0f;
+                const float b = static_cast<float>(segment + 1) / 3.0f;
+                const Vector3 start = tailRoot - forward * (tailLength * a)
+                    + right * (std::sin(a * 2.7f + rodent.gaitPhase * .18f) * .045f * unit)
+                    + up * (a * .025f * unit);
+                const Vector3 end = tailRoot - forward * (tailLength * b)
+                    + right * (std::sin(b * 2.7f + rodent.gaitPhase * .18f) * .045f * unit)
+                    + up * (b * .025f * unit);
+                AppendGeckoSegment(vertices, start, end,
+                    (.012f - .0025f * segment) * unit, tail);
+            }
+        }
+
         [[nodiscard]] Vector3 LocalPoint(const Vector3& centre, const Vector3& right,
                                          const Vector3& up, const Vector3& forward,
                                          const float x, const float y, const float z,
@@ -802,6 +928,8 @@ namespace island
         std::cout << SkinkAnatomyDiagnostic << '\n';
         std::cout << DragonflyDiagnostic << '\n';
         std::cout << FrogDiagnostic << '\n';
+        std::cout << RodentDiagnostic << '\n';
+        std::cout << RodentAnatomyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyHabitatDiagnostic);
@@ -810,6 +938,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(SkinkAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(DragonflyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(FrogDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(RodentDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(RodentAnatomyDiagnostic);
     }
 
     ButterflyRenderer::~ButterflyRenderer() = default;
@@ -821,7 +951,8 @@ namespace island
                                   const std::span<const GeckoState> geckos,
                                   const std::span<const SkinkState> skinks,
                                   const std::span<const DragonflyState> dragonflies,
-                                  const std::span<const FrogState> frogs)
+                                  const std::span<const FrogState> frogs,
+                                  const std::span<const RodentState> rodents)
     {
         stagingVertices_.clear();
         visibleButterflyCount_ = 0;
@@ -831,6 +962,8 @@ namespace island
         visibleSkinkCount_ = 0;
         visibleDragonflyCount_=0;
         visibleFrogCount_ = 0;
+        visibleMouseCount_ = 0;
+        visibleRatCount_ = 0;
         drawCallCount_ = 0;
         const BoundingFrustum frustum(view * projection);
         for (std::size_t index = 0; index < flowerPatches.size(); ++index) {
@@ -878,6 +1011,17 @@ namespace island
             }
             AppendFrog(stagingVertices_, frog);
             ++visibleFrogCount_;
+        }
+        for (const RodentState& rodent : rodents) {
+            if (rodent.visibility <= .035f) continue;
+            const Vector3 centre(rodent.x, rodent.y + .08f, rodent.z);
+            if (Vector3::DistanceSquared(centre, cameraPosition)
+                    > maximumDistance_ * maximumDistance_
+                || !frustum.Intersects(BoundingSphere(centre,
+                    rodent.species == RodentSpecies::Rat ? .55f : .38f))) continue;
+            AppendRodent(stagingVertices_, rodent);
+            if (rodent.species == RodentSpecies::Mouse) ++visibleMouseCount_;
+            else ++visibleRatCount_;
         }
         for (const ButterflyState& butterfly : butterflies) {
             const Vector3 centre(butterfly.x, butterfly.y, butterfly.z);

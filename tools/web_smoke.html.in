@@ -102,6 +102,8 @@
       ["skinks", ["--viewpoint", "skinks", "--debug-overlay"]],
       ["dragonflies", ["--viewpoint", "dragonflies", "--debug-overlay"]],
       ["frogs", ["--viewpoint", "frogs", "--debug-overlay"]],
+      ["mice", ["--viewpoint", "mice", "--debug-overlay"]],
+      ["rats", ["--viewpoint", "rats", "--debug-overlay"]],
       ["water", ["--viewpoint", "water", "--debug-overlay"]],
       ["current", ["--viewpoint", "current", "--debug-overlay"]],
       ["distant", ["--viewpoint", "distant", "--debug-overlay"]],

@@ -67,7 +67,7 @@ historical incident next steps, rejected visual iterations and superseded accept
 remaining material work is:
 
 - finish the requested fauna list with bounded, habitat-appropriate implementations (notably
-  the smaller insects/rodents are lower-value explicit entries and should follow
+  the remaining smaller insects are lower-value explicit entries and should follow
   visual/ecological fit rather than raw species count);
 - continue whole-island visual critique, especially jungle-floor/canopy repetition, continuous
   camera LOD transitions and moving-edge aliasing;
@@ -3635,8 +3635,13 @@ progress or require player interaction; dangerous species keep their distance li
   native and Chrome/SwiftShader views cover both flight and inverted roosting; native tests,
   Web packaging and command-line validation pass. ARM64 package verification and physical-device
   appearance are tracked by the current implementation note rather than inferred here.
-- [ ] Mice
-- [ ] Rats
+- [x] Mice. Twelve deterministic field mice occupy bounded dry inland edge habitats, alternate
+  rest and forage, scurry from a nearby player and disappear briefly into cover. Rounded ears,
+  short paws, a pointed muzzle, eyes, whiskers and a segmented tail share the existing portable
+  small-fauna draw. See `docs/small-fauna.md`.
+- [x] Rats. Eight larger deterministic rats share the bounded rodent simulation while retaining
+  darker coats, smaller relative ears, a longer narrower muzzle and longer tail. They use the
+  same activation tiers and shared draw as the mice. See `docs/small-fauna.md`.
 - [x] Deer. Four deterministic non-hostile feral deer occupy the two inland clearings. They
   alternate grazing, resting and bounded walking, retreat from a player inside 9 m, respect dry
   terrain, slope, shoreline, obstacle and home-range limits, and use full/reduced/dormant
@@ -4207,10 +4212,9 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
 - [~] 17. Small fauna with simple behaviour (for example a gecko that sits, flees, disappears):
   eight grounded rest/flee/hide geckos, eight bask/forage/flee skinks, nine moist-habitat
   hover/patrol/dart dragonflies, ten moist-bank rest/hop/retreat frogs, ten sheltered-beach hermit
-  crabs and six palm-zone coconut crabs
+  crabs, six palm-zone coconut crabs, twelve field mice and eight rats
   are complete in existing shared batches, with native, WebGL and ARM64 qualification described
-  above and in `docs/small-fauna.md`. More small crabs, shorebirds/seabirds, fruit bats, cicadas and
-  beetles remain.
+  above and in `docs/small-fauna.md`. Cicadas and beetles remain explicit candidates.
 - [x] 18. Tie wildlife to places: crabs on specific beach sections with burrows, butterflies at
   specific flowers, coastal/jungle/seabirds in their zones, reef fish at coral patches and small
   schools over sand, turtles over seagrass. The shared habitat completion and evidence are recorded

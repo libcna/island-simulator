@@ -151,6 +151,8 @@ namespace island
             case FixedViewpoint::SkinkDetail: return "skinks";
             case FixedViewpoint::DragonflyDetail: return "dragonflies";
             case FixedViewpoint::FrogDetail: return "frogs";
+            case FixedViewpoint::MouseDetail: return "mice";
+            case FixedViewpoint::RatDetail: return "rats";
             case FixedViewpoint::SeaTurtleDetail: return "turtles";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
             case FixedViewpoint::None: return "interactive";
@@ -183,6 +185,7 @@ namespace island
           skinkPopulation_(terrain_),
           dragonflySwarm_(terrain_),
           frogPopulation_(terrain_),
+          rodentPopulation_(terrain_),
           crabColony_(terrain_),
           hermitCrabGroup_(terrain_),
           coconutCrabGroup_(terrain_),
@@ -1500,6 +1503,25 @@ namespace island
             yaw_ = std::atan2(direction.X, direction.Z);
             pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
             std::cout << "island-simulator: frog QA camera frames one resting stream-bank animal\n";
+        } else if (viewpoint_ == FixedViewpoint::MouseDetail) {
+            const RodentState& mouse = rodentPopulation_.Rodents().front();
+            const Vector3 forward(std::cos(mouse.headingRadians),0,std::sin(mouse.headingRadians));
+            const Vector3 side(-forward.Z,0,forward.X);
+            cameraPosition_=Vector3(mouse.x,mouse.y+.34f,mouse.z)
+                +forward*.88f+side*.62f;
+            const Vector3 direction=Vector3(mouse.x,mouse.y+.055f,mouse.z)-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+            std::cout<<"island-simulator: mouse QA camera frames one field mouse at ground level\n";
+        } else if (viewpoint_ == FixedViewpoint::RatDetail) {
+            const RodentState& rat = rodentPopulation_.Rodents()[RodentPopulation::MouseCount + 6U];
+            const Vector3 forward(std::cos(rat.headingRadians),0,std::sin(rat.headingRadians));
+            const Vector3 side(-forward.Z,0,forward.X);
+            cameraPosition_=Vector3(rat.x,rat.y+.43f,rat.z)+forward*1.18f-side*.80f;
+            const Vector3 direction=Vector3(rat.x,rat.y+.075f,rat.z)-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+            std::cout<<"island-simulator: rat QA camera frames one larger inland rat at ground level\n";
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferMultiSamplingProperty(qualityProfile_.preferredBackBufferSamples > 0);
@@ -1850,6 +1872,9 @@ namespace island
                   << " agents in three stream and wetland habitats\n"
                   << "island-simulator: frogs " << frogPopulation_.Frogs().size()
                   << " agents rest, hop, and retreat beside the stream and wetland\n"
+                  << "island-simulator: field mice " << RodentPopulation::MouseCount
+                  << " and rats " << RodentPopulation::RatCount
+                  << " forage, scurry, and hide in bounded inland edge habitats\n"
                   << "island-simulator: beach crabs " << crabColony_.Crabs().size()
                   << " agents in deterministic sand-and-debris-constrained colonies\n"
                   << "island-simulator: hermit crabs " << hermitCrabGroup_.Crabs().size()
@@ -1958,6 +1983,11 @@ namespace island
             << frogPopulation_.Frogs().size()
             << " agents rest, hop, and retreat beside the stream and wetland";
         MirrorRuntimeDiagnosticToPlatformLog(frogPopulationDiagnostic.str());
+        std::ostringstream rodentPopulationDiagnostic;
+        rodentPopulationDiagnostic << "island-simulator: field mice "
+            << RodentPopulation::MouseCount << " and rats " << RodentPopulation::RatCount
+            << " forage, scurry, and hide in bounded inland edge habitats";
+        MirrorRuntimeDiagnosticToPlatformLog(rodentPopulationDiagnostic.str());
         std::ostringstream crabPopulationDiagnostic;
         crabPopulationDiagnostic << "island-simulator: beach crabs "
                                  << crabColony_.Crabs().size()
@@ -2184,6 +2214,19 @@ namespace island
         }
         frogPopulation_.Update(viewpoint_ == FixedViewpoint::FrogDetail ? 0.0f : deltaSeconds,
                                frogObserver.X, frogObserver.Y, frogObserver.Z);
+        Vector3 rodentObserver = cameraPosition_;
+        if (viewpoint_ == FixedViewpoint::MouseDetail
+            || viewpoint_ == FixedViewpoint::RatDetail) {
+            const std::size_t subject = viewpoint_ == FixedViewpoint::MouseDetail
+                ? 0U : RodentPopulation::MouseCount + 6U;
+            const RodentState& rodent = rodentPopulation_.Rodents()[subject];
+            rodentObserver = Vector3(rodent.x, rodent.y + 18.0f, rodent.z);
+        }
+        rodentPopulation_.Update(
+            viewpoint_ == FixedViewpoint::MouseDetail
+                    || viewpoint_ == FixedViewpoint::RatDetail
+                ? 0.0f : deltaSeconds,
+            rodentObserver.X, rodentObserver.Y, rodentObserver.Z);
         const CrabState previousCrabSubject = crabColony_.Crabs()[crabViewSubject_];
         Vector3 crabObserver=cameraPosition_;
         if(viewpoint_==FixedViewpoint::CrabDetail) {
@@ -3054,7 +3097,9 @@ namespace island
         cameraProjection_ = Matrix::CreatePerspectiveFieldOfView(
             (viewpoint_==FixedViewpoint::BoarDetail||viewpoint_==FixedViewpoint::GoatDetail
                 ||viewpoint_==FixedViewpoint::DeerDetail
-                ||viewpoint_==FixedViewpoint::ResidentDetail||viewpoint_==FixedViewpoint::BearDetail||UsesSpiderViewpoint())
+                ||viewpoint_==FixedViewpoint::ResidentDetail||viewpoint_==FixedViewpoint::BearDetail
+                ||viewpoint_==FixedViewpoint::MouseDetail||viewpoint_==FixedViewpoint::RatDetail
+                ||UsesSpiderViewpoint())
                 ?0.50f:std::numbers::pi_v<float> / 3.0f,
             aspect, 0.08f, 1200.0f);
     }
@@ -3586,7 +3631,8 @@ namespace island
                                      butterflyMeadow_.Butterflies(),
                                      butterflyMeadow_.FlowerPatches(),
                                      geckoPopulation_.Geckos(), skinkPopulation_.Skinks(),
-                                     dragonflySwarm_.Dragonflies(), frogPopulation_.Frogs());
+                                     dragonflySwarm_.Dragonflies(), frogPopulation_.Frogs(),
+                                     rodentPopulation_.Rodents());
         }
 
         {
@@ -4157,6 +4203,12 @@ namespace island
                       << " visible in shared draw; frogs "
                       << butterflyRenderer_->VisibleFrogCount() << '/'
                       << frogPopulation_.Frogs().size()
+                      << " visible in shared draw; mice "
+                      << butterflyRenderer_->VisibleMouseCount() << '/'
+                      << RodentPopulation::MouseCount
+                      << " visible in shared draw; rats "
+                      << butterflyRenderer_->VisibleRatCount() << '/'
+                      << RodentPopulation::RatCount
                       << " visible in shared draw; crabs "
                       << crabRenderer_->VisibleCrabCount() << '/'
                       << crabColony_.Crabs().size() << " visible (near "
@@ -4317,6 +4369,19 @@ namespace island
             report << "island-simulator: deer render proof: deer "
                 << deerRenderer_->VisibleCount() << '/' << deer_->Deer().size()
                 << " visible, " << deerRenderer_->DrawCallCount() << " draw";
+            std::cout << report.str() << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(report.str());
+        }
+        if ((viewpoint_ == FixedViewpoint::MouseDetail
+             || viewpoint_ == FixedViewpoint::RatDetail) && drawnFrames_ == 1U) {
+            const bool mouse = viewpoint_ == FixedViewpoint::MouseDetail;
+            std::ostringstream report;
+            report << "island-simulator: " << (mouse ? "mouse" : "rat")
+                << " render proof: " << (mouse ? "mice " : "rats ")
+                << (mouse ? butterflyRenderer_->VisibleMouseCount()
+                          : butterflyRenderer_->VisibleRatCount())
+                << '/' << (mouse ? RodentPopulation::MouseCount : RodentPopulation::RatCount)
+                << " visible in shared draw";
             std::cout << report.str() << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(report.str());
         }

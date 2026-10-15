@@ -76,6 +76,7 @@ add_library(island_core STATIC
     game/src/GeckoPopulation.cpp
     game/src/SkinkPopulation.cpp
     game/src/FrogPopulation.cpp
+    game/src/RodentPopulation.cpp
     game/src/GroundBroadleaf.cpp
     game/src/SplitGroundLeaf.cpp
     game/src/BushProfile.cpp
@@ -329,6 +330,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_deer_herd_tests)
     island_enable_first_party_sanitizers(island_deer_herd_tests)
     add_test(NAME IslandDeerHerdTests COMMAND island_deer_herd_tests)
+    add_executable(island_rodent_population_tests tests/RodentPopulationTests.cpp)
+    target_link_libraries(island_rodent_population_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_rodent_population_tests)
+    island_enable_first_party_sanitizers(island_rodent_population_tests)
+    add_test(NAME IslandRodentPopulationTests COMMAND island_rodent_population_tests)
     add_executable(island_goat_mesh_tests tests/GoatMeshTests.cpp)
     target_link_libraries(island_goat_mesh_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_goat_mesh_tests)
