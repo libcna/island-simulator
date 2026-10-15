@@ -570,12 +570,48 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
              stabilizer[static_cast<std::size_t>(next)]+stabilizerLift,
              stabilizer[static_cast<std::size_t>(next)],olive);
     }
-    beam({.18f,1.92f,-6.84f},{.30f,1.92f,-6.84f},.10f,metal,Surface::Metal);
+    // The anti-torque rotor turns about the lateral shaft, so its disc belongs in
+    // the Y/Z plane. The former X/Y cross was effectively a front-facing propeller:
+    // it almost disappeared in the normal broadside view and described the wrong
+    // mechanism. A projecting gearbox and two closed tapered spans per blade now
+    // give the parked rotor visible chord, thickness, sweep and muted tip markings.
+    tube({-.05f,1.92f,-6.84f},{-.43f,1.92f,-6.84f},.090f,metal,Surface::Metal);
+    ellipsoid({-.45f,1.92f,-6.84f},{.105f,.16f,.16f},3,10,
+              Color(72,76,70),Surface::Metal);
+    const Vector3 tailRotorCentre(-.50f,1.92f,-6.84f);
     for(int blade=0;blade<4;++blade) {
-        const float angle=blade*std::numbers::pi_v<float>*.5f;
-        const Vector3 radial(std::cos(angle),std::sin(angle),0);
-        beam({.31f,1.92f,-6.84f},{.31f+radial.X*.78f,1.92f+radial.Y*.78f,-6.84f},
-             .075f,Color(49,52,48));
+        const float angle=.20f+blade*std::numbers::pi_v<float>*.5f;
+        const Vector3 radial(0,std::cos(angle),std::sin(angle));
+        const Vector3 tangent(0,-radial.Z,radial.Y);
+        const auto tailBladePoint=[&](const float distance,const float fraction) {
+            return tailRotorCentre+radial*distance+tangent*(.08f*fraction*fraction);
+        };
+        const auto closedTailBlade=[&](const float innerDistance,const float outerDistance,
+            const float innerHalfChord,const float outerHalfChord,
+            const float innerFraction,const float outerFraction,
+            const Color& upper,const Color& lower) {
+            constexpr float halfThickness=.028f;
+            const Vector3 depth(halfThickness,0,0);
+            const Vector3 inner=tailBladePoint(innerDistance,innerFraction);
+            const Vector3 outer=tailBladePoint(outerDistance,outerFraction);
+            const std::array<Vector3,4> outline{{inner-tangent*innerHalfChord,
+                outer-tangent*outerHalfChord,outer+tangent*outerHalfChord,
+                inner+tangent*innerHalfChord}};
+            quad(outline[0]+depth,outline[1]+depth,outline[2]+depth,
+                 outline[3]+depth,upper);
+            quad(outline[3]-depth,outline[2]-depth,outline[1]-depth,
+                 outline[0]-depth,lower);
+            for(std::size_t edge=0;edge<outline.size();++edge) {
+                const std::size_t next=(edge+1U)%outline.size();
+                quad(outline[edge]-depth,outline[next]-depth,outline[next]+depth,
+                     outline[edge]+depth,Color(39,43,40));
+            }
+        };
+        closedTailBlade(.15f,.69f,.105f,.074f,0,.74f,
+            blade%2?Color(59,64,59):Color(70,75,68),
+            blade%2?Color(40,44,41):Color(47,51,47));
+        closedTailBlade(.69f,.88f,.074f,.052f,.74f,1.0f,
+            Color(177,154,62),Color(118,101,43));
     }
 
     // Ground-following tubular skid rails and four struts. The two rising nose
@@ -734,6 +770,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<bubble<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bubble);
     const std::string bladeShape="island-simulator: parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep";
     std::cout<<bladeShape<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bladeShape);
+    const std::string tailRotorShape="island-simulator: lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands";
+    std::cout<<tailRotorShape<<'\n';MirrorRuntimeDiagnosticToPlatformLog(tailRotorShape);
 }
 
 HelicopterRenderer::~HelicopterRenderer()=default;

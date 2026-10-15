@@ -814,6 +814,7 @@ try {
               && log.includes("helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry")
               && log.includes("helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen")
               && log.includes("parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep")
+              && log.includes("lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands")
               && /helicopter 2 draw/.test(log)))
             && (!focusedCampfireCheck || (log.includes("campfire first visible animated draw")
               && log.includes("campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke")

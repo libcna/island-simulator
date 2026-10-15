@@ -282,6 +282,27 @@ grips, pitch links, tip bands, doors, floor and cabin remain unchanged. `IslandH
 blade sag and taper. The final 1280x720 frame passes with 314 colour bins, 54.76 luminance
 deviation, 230.71 spatial contrast and an empty kernel delta.
 
+## Latest helicopter silhouette pass — correctly oriented tail rotor
+
+The renewed broadside audit found a mechanical rather than cosmetic error at the tail: the old
+four-beam anti-torque rotor turned in the local X/Y plane, even though the helicopter's longitudinal
+axis is Z. It therefore behaved like a front-facing propeller and nearly disappeared from the
+ordinary side view. The rotor now turns in the physically correct Y/Z plane about a lateral shaft
+on the visible port side. A projecting gearbox feeds four blades built from two closed swept spans
+with real chord and thickness; restrained yellow outer spans retain scale and parked-rotor
+readability without implying powered motion.
+
+The change replaces five box beams with one eight-sided shaft, one compact hub and eight closed
+blade spans. It adds 92 triangles, taking the complete helicopter from 3,778 to 3,870 triangles in
+the same two opaque/glass draws. Tail-boom geometry, rotor radius, collision, entry corridors,
+interior and the deliberately non-flying state are unchanged. `IslandHelicopterLayoutTests` and
+`IslandCoreTests` pass. Inspected baseline `20261015T190813.243002Z-helicopter` and accepted
+current-binary evidence `20261015T191511.970681Z-helicopter` show the formerly absent broadside
+rotor as a readable anti-torque assembly. The accepted 1280x720 frame passes with 320 colour bins,
+54.77 luminance deviation, 230.68 spatial contrast and an empty kernel delta. Independent interior
+guard `20261015T191453.213246Z-helicopter-inside` retains the panel, controls, floor and four open
+exit sightlines at 194 bins, 21.80 deviation and 94.02 contrast with an empty kernel delta.
+
 ## Latest helicopter visual pass — readable open-cabin avionics
 
 The current exterior/interior audit found the grounded exterior recognisable and proportionally

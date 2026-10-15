@@ -290,3 +290,27 @@ evidence `20261015T184819.938307Z-helicopter` show the long parked blades carryi
 instead of forming a ruler-straight line. The accepted 1280x720 frame passes with 314 colour bins,
 54.76 luminance deviation, 230.71 spatial contrast and an empty kernel delta. This is a static
 silhouette improvement, not rotor animation or a helicopter flight feature.
+
+## Correctly oriented anti-torque rotor — 2026-10-15
+
+The next exterior broadside exposed an actual mechanical orientation error. With local Z as the
+aircraft longitudinal axis, the former four tail-rotor beams varied in X/Y and therefore formed a
+front-facing disc normal to the tail boom. They disappeared into the fin from the normal side view
+and did not describe a helicopter anti-torque rotor.
+
+The tail rotor now occupies the Y/Z plane and turns about a projecting lateral X shaft on the
+visible port side. Its compact gearbox hub carries four blades; every blade has an inner and a
+yellow-tipped outer closed span, progressive chord taper, 56 mm total thickness and restrained
+planform sweep. This adds no animation or flight ability: the entire assembly remains visibly
+parked. Replacing the five old beams adds 92 triangles, taking the helicopter from 3,778 to 3,870
+triangles in the existing opaque/glass two draws. Tail-boom geometry, collision, vegetation
+reservation, all four door corridors, the supported floor and interior controls are unchanged.
+
+`IslandHelicopterLayoutTests` and `IslandCoreTests` pass. Inspected baseline
+`20261015T190813.243002Z-helicopter` and accepted current-binary
+`20261015T191511.970681Z-helicopter` show the rotor disc and gearbox readable at the tail instead
+of hidden as a mechanically incorrect front-facing cross. The accepted 1280x720 frame passes with
+320 colour bins, 54.77 luminance deviation, 230.68 spatial contrast and an empty kernel delta.
+Independent interior guard `20261015T191453.213246Z-helicopter-inside` retains the panel, controls,
+floor and open exit sightlines at 194 bins, 21.80 deviation and 94.02 contrast with an empty kernel
+delta.
