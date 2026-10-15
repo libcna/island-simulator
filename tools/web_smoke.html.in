@@ -111,6 +111,7 @@
       ["bat-roost", ["--viewpoint", "bat-roost", "--debug-overlay"]],
       ["fish", ["--viewpoint", "fish", "--debug-overlay"]],
       ["stingrays", ["--viewpoint", "stingrays", "--debug-overlay"]],
+      ["octopuses", ["--viewpoint", "octopuses", "--debug-overlay"]],
       ["turtles", ["--viewpoint", "turtles", "--debug-overlay"]],
       ["shark", ["--viewpoint", "shark", "--debug-overlay"]],
       ["dolphins", ["--viewpoint", "dolphins", "--debug-overlay"]],

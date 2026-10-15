@@ -9,19 +9,22 @@ habitat, hides when the observer comes within 2.7 metres and maintains both seab
 clearance. Mantle pulse and independent arm phase remain renderer-independent. Full, reduced and
 dormant distance tiers bound work; invalid input fails dormant.
 
-The one-draw near model uses rounded multi-ring mantle/head volumes, paired eyes and eight
-continuous tapered ribbon arms with independent curl plus sparse pale sucker marks. Three muted
+The one-draw near model uses rounded multi-ring mantle/head volumes, compact amber eyes with
+horizontal pupils and eight continuous tapered diamond-section arms with independent curl plus sparse pale sucker marks. Three muted
 reef palettes and a reduced far silhouette keep the feature portable. The rejected first native
 capture used a pointed five-ring mantle and disconnected triangular arms. After replacing those
-with an eight-ring/sixteen-side mantle and continuous quads, the inspected current native evidence
-is `build-consumer/software-captures/20261015T070526.758025Z-octopuses` (104 colour bins, 31.04
-luminance deviation, 174.53 spatial contrast).
+with an eight-ring/sixteen-side mantle and continuous volumes, the inspected final native evidence
+is `build-consumer/software-captures/20261015T071621.426076Z-octopuses` (106 colour bins, 31.20
+luminance deviation, 176.62 spatial contrast). An intermediate oversized eye pass was rejected as
+too cartoon-like before the smaller horizontal-pupil treatment was accepted.
 
 `IslandOctopusGroupTests` runs two exact colonies for 120 seconds and verifies deterministic
 movement, four shallow dens, bounded homes, actual travel, seabed/surface clearance, activation
 accounting and invalid-input dormancy. The world report exports four animals and validates with
-fingerprint `f662f6e9ac0f9c45`. WebAssembly compilation passes. ARM64 Android assemble/lint passes
-without an emulator or KVM; the 24,358,979-byte APK has SHA-256
-`eee224db4323c5528744db071f59c430f996736e8d1a48158b21f9ffc7112211` and its stripped
-`libmain.so` is 19,316,408 bytes. A focused WebGL image audit and another facial/material pass
-remain open; this document does not claim those gates.
+fingerprint `f662f6e9ac0f9c45`. The focused Chrome/SwiftShader audit
+`build/browser-software/20261015T071824.635104Z-chrome-octopuses` passes 60 live intervals with
+a clean WebGL context and an inspected matching image. ARM64 Android assemble/lint passes without
+an emulator or KVM; the refreshed 24,363,299-byte APK has SHA-256
+`00895083b4cff088b89e1a91be621602e3cd9421f151d63a923c6accfc21ddac` and its stripped
+`libmain.so` is 19,320,728 bytes. Physical Android rendering remains part of the release-wide
+device qualification rather than this species gate.

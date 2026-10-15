@@ -67,7 +67,7 @@ historical incident next steps, rejected visual iterations and superseded accept
 remaining material work is:
 
 - finish the requested fauna list with bounded, habitat-appropriate implementations (notably
-  parrot-specific calls and ground-dove behaviour and octopuses; frog calls
+  parrot-specific calls and ground-dove behaviour; frog calls
   and the smaller insects/rodents/deer are lower-value explicit entries and should follow
   visual/ecological fit rather than raw species count);
 - continue whole-island visual critique, especially jungle-floor/canopy repetition, continuous
@@ -3820,15 +3820,14 @@ progress or require player interaction; dangerous species keep their distance li
   focused current Chrome/SwiftShader two-frame gate pass. Breaching/wakes/social motion, skin
   material polish, current Android execution and integrated performance measurement remain open; see
   `docs/dolphins.md`.
-- [~] Octopuses (reef/rock shallows). Four deterministic peaceful agents now use authoritative
+- [x] Octopuses (reef/rock shallows). Four deterministic peaceful agents now use authoritative
   shallow-seabed reef/rock dens and cycle through den, crawl, forage and short swim states. They
   remain inside small home ranges, keep seabed/surface clearance, hide from a nearby observer and
-  use distance simulation tiers. The current one-draw near model has a pulsing rounded mantle,
-  head/eyes, eight independently curled continuous tapered arms and sparse pale suckers; a reduced
-  far silhouette is retained. The 120-second deterministic habitat test, world report, inspected
-  native Release view, WebAssembly compilation and ARM64 assemble/lint pass. A focused WebGL image
-  audit and final facial/material polish are still open, so this item is deliberately not marked
-  complete. See `docs/octopuses.md`.
+  use distance simulation tiers. The final one-draw near model has a pulsing rounded mantle,
+  compact amber eyes with horizontal pupils, eight independently curled continuous volumetric arms
+  and sparse pale suckers; a reduced far silhouette is retained. The 120-second deterministic
+  habitat test, world report, inspected native Release view, focused Chrome/SwiftShader image gate,
+  WebAssembly compilation and refreshed ARM64 assemble/lint pass. See `docs/octopuses.md`.
 
 Human character backlog requested by the operator:
 

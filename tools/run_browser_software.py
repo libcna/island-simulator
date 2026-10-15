@@ -18,7 +18,7 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "birds", "bats", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "skinks", "dragonflies", "frogs", "crocodiles", "fish", "stingrays", "shark", "dolphins", "bear", "resident")
+SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "birds", "bats", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "skinks", "dragonflies", "frogs", "crocodiles", "fish", "stingrays", "octopuses", "shark", "dolphins", "bear", "resident")
 
 
 def validate_shipwreck_report(report):
@@ -362,6 +362,27 @@ def validate_stingray_report(report):
         or not re.search(r"stingrays [1-5]/5 visible \(near [1-5], far [0-5]\), 1 draw",log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):
         raise RuntimeError("stingray view lacks current anatomy or clean graphics state")
+    return frame
+
+
+def validate_octopus_report(report):
+    views=report.get("views",[])
+    if report.get("passed") is not True or len(views)!=1 or views[0].get("mode")!="octopuses":
+        raise RuntimeError("octopus report lacks one successful focused view")
+    view=views[0];result=view.get("result",{});log=result.get("output","")
+    frame=view.get("screenshot");intervals=view.get("intervals",[])
+    if (view.get("passed") is not True or view.get("glError")!=0
+        or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+        or "SwiftShader" not in view.get("renderer","") or len(intervals)!=60
+        or not all(isinstance(value,(int,float)) and not isinstance(value,bool)
+                   and math.isfinite(value) and value>0 for value in intervals)
+        or not isinstance(frame,str) or not frame.endswith(".png")
+        or "octopuses use pulsing mantles, expressive eyes, eight independently curled arms, and pale sucker rows in one draw" not in log
+        or "octopuses 4 agents den, crawl, forage, and swim in reef and rocky shallows" not in log
+        or "octopus QA camera frames one exposed reef forager and all eight arms" not in log
+        or not re.search(r"octopuses [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw",log)
+        or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):
+        raise RuntimeError("octopus view lacks current anatomy or clean graphics state")
     return frame
 
 
@@ -961,6 +982,13 @@ def main(argv=None):
                 if not path.is_file():
                     raise RuntimeError("stingray image file missing")
                 metadata["stingray_frame"]=artifact_identity(path)
+            if args.scope == "octopuses":
+                octopus_report=json.loads((evidence / "island-browser-octopuses.json").read_text())
+                frame=validate_octopus_report(octopus_report)
+                path=evidence/frame
+                if not path.is_file():
+                    raise RuntimeError("octopus image file missing")
+                metadata["octopus_frame"]=artifact_identity(path)
             if args.scope == "shark":
                 shark_report=json.loads((evidence / "island-browser-shark.json").read_text())
                 frames=validate_shark_report(shark_report)
