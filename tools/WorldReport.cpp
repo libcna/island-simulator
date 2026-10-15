@@ -29,6 +29,7 @@
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
 #include "IslandSimulator/SeaTurtleGroup.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
+#include "IslandSimulator/StingrayGroup.hpp"
 #include "IslandSimulator/SnakePopulation.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -130,6 +131,7 @@ namespace
         island::CrabColony crabs{terrain};
         island::BoarHerd boars{terrain};
         island::FishSchools fish{terrain};
+        island::StingrayGroup stingrays{terrain};
         island::SeaTurtleGroup seaTurtles{terrain};
         island::SharkPatrol shark{terrain};
         island::DolphinPod dolphins{terrain};
@@ -537,6 +539,17 @@ namespace
             hash.AddByte(fish.colorVariant);
         }
 
+        hash.AddSize(world.stingrays.Stingrays().size());
+        for(std::size_t index=0;index<world.stingrays.Stingrays().size();++index) {
+            const auto& ray=world.stingrays.Stingrays()[index];
+            const auto& home=world.stingrays.Homes()[index];
+            HashPosition(hash,ray.x,ray.y,ray.z);
+            hash.AddFloat(ray.headingRadians);hash.AddFloat(ray.bankRadians);
+            hash.AddFloat(ray.speed);hash.AddFloat(ray.wingWave);hash.AddFloat(ray.scale);
+            hash.AddEnum(ray.behavior);hash.AddByte(ray.colorVariant);
+            hash.AddFloat(home.x);hash.AddFloat(home.z);hash.AddFloat(home.radius);
+        }
+
         hash.AddSize(world.seaTurtles.Turtles().size());
         for (std::size_t index = 0;
              index < world.seaTurtles.Turtles().size(); ++index) {
@@ -776,6 +789,8 @@ namespace
             && world.crabs.Burrows().size() == 6U
             && world.fish.Fish().size() == island::FishSchools::FishCount
             && world.fish.Schools().size() == island::FishSchools::SchoolCount
+            && world.stingrays.Stingrays().size()==island::StingrayGroup::Count
+            && world.stingrays.Homes().size()==island::StingrayGroup::Count
             && world.seaTurtles.Turtles().size()
                 == island::SeaTurtleGroup::TurtleCount
             && world.seaTurtles.Homes().size()
@@ -1013,6 +1028,17 @@ namespace
             finiteSpecializedData = finiteSpecializedData
                 && AllFinite(fish.x, fish.y, fish.z, fish.headingRadians,
                              fish.speed, fish.scale);
+        }
+        for(std::size_t index=0;index<world.stingrays.Stingrays().size();++index) {
+            const auto& ray=world.stingrays.Stingrays()[index];
+            const auto& home=world.stingrays.Homes()[index];
+            const auto sample=world.terrain.Sample(ray.x,ray.z);
+            finiteSpecializedData=finiteSpecializedData
+                &&AllFinite(ray.x,ray.y,ray.z,ray.headingRadians,ray.bankRadians,
+                             ray.speed,ray.wingWave,ray.scale,home.x,home.z,home.radius)
+                &&ray.scale>0.0f&&home.radius>0.0f
+                &&sample.surface==island::TerrainSurface::ShallowSeabed
+                &&sample.height<=-.72f&&sample.height>=-6.2f;
         }
         for (std::size_t index = 0;
              index < world.seaTurtles.Turtles().size(); ++index) {
@@ -1423,6 +1449,7 @@ namespace
                << "    \"canopyWebs\": " << world.spiderWebs.size() << ",\n"
                << "    \"fishSchools\": " << world.fish.Schools().size() << ",\n"
                << "    \"fish\": " << world.fish.Fish().size() << ",\n"
+               << "    \"stingrays\": " << world.stingrays.Stingrays().size() << ",\n"
                << "    \"seaTurtles\": " << world.seaTurtles.Turtles().size() << ",\n"
                << "    \"sharks\": 1,\n"
                << "    \"dolphins\": " << world.dolphins.Dolphins().size() << ",\n"

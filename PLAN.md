@@ -67,7 +67,7 @@ historical incident next steps, rejected visual iterations and superseded accept
 remaining material work is:
 
 - finish the requested fauna list with bounded, habitat-appropriate implementations (notably
-  parrot-specific calls and ground-dove behaviour, stingrays and octopuses; frog calls
+  parrot-specific calls and ground-dove behaviour and octopuses; frog calls
   and the smaller insects/rodents/deer are lower-value explicit entries and should follow
   visual/ecological fit rather than raw species count);
 - continue whole-island visual critique, especially jungle-floor/canopy repetition, continuous
@@ -3800,7 +3800,15 @@ progress or require player interaction; dangerous species keep their distance li
   continuous gait, mobile performance, lifecycle or AMD qualification. docs/goats.md.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
-- [ ] Stingrays (shallow sandy water)
+- [x] Stingrays (shallow sandy water). Five deterministic peaceful agents occupy bounded shallow
+  sandy homes, cycle through glide, forage and settle states, maintain seabed/surface clearance,
+  avoid a nearby observer and use full/reduced/dormant distance tiers. Their portable one-draw
+  near form has a broad thin diamond disc with a live bilateral wave, raised eyes and spiracles,
+  dorsal spots, pale underside, narrow margin and a long segmented tapered tail; the far form is
+  reduced. A 120-second deterministic habitat test, world-report coverage, inspected native
+  Release and Chrome/SwiftShader WebGL views pass. ARM64 assemble/lint also passes without an
+  emulator; physical-device appearance remains a platform qualification item. Details are in
+  `docs/stingrays.md`.
 - [~] Dolphins (offshore pod surfacing beyond the reef). Four original procedural agents now use
   bounded authoritative-water homes and cruise/surface/dive cycles with depth pitch, turn bank and
   a vertical tail-stock stroke through animated horizontal flukes. One culled dynamic batch uses

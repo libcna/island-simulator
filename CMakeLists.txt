@@ -114,6 +114,7 @@ add_library(island_core STATIC
     game/src/HermitCrabGroup.cpp
     game/src/CoconutCrabGroup.cpp
     game/src/SharkPatrol.cpp
+    game/src/StingrayGroup.cpp
     game/src/ShipwreckLayout.cpp
     game/src/SoundscapeModel.cpp
     game/src/TouchControls.cpp
@@ -366,6 +367,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_fruit_bat_tests)
     island_enable_first_party_sanitizers(island_fruit_bat_tests)
     add_test(NAME IslandFruitBatColonyTests COMMAND island_fruit_bat_tests)
+    add_executable(island_stingray_group_tests tests/StingrayGroupTests.cpp)
+    target_link_libraries(island_stingray_group_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_stingray_group_tests)
+    island_enable_first_party_sanitizers(island_stingray_group_tests)
+    add_test(NAME IslandStingrayGroupTests COMMAND island_stingray_group_tests)
     add_executable(island_boar_coat_tests tests/BoarCoatTextureTests.cpp)
     target_link_libraries(island_boar_coat_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_boar_coat_tests)
@@ -634,6 +640,7 @@ if(ISLAND_BUILD_GAME)
         game/src/RenderedTerrainHeightMap.cpp
         game/src/SeaTurtleRenderer.cpp
         game/src/SharkRenderer.cpp
+        game/src/StingrayRenderer.cpp
         game/src/ShipwreckRenderer.cpp
         game/src/HutRenderer.cpp
         game/src/HelicopterRenderer.cpp

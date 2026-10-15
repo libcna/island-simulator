@@ -18,7 +18,7 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "birds", "bats", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "skinks", "dragonflies", "frogs", "crocodiles", "fish", "shark", "dolphins", "bear", "resident")
+SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "birds", "bats", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "skinks", "dragonflies", "frogs", "crocodiles", "fish", "stingrays", "shark", "dolphins", "bear", "resident")
 
 
 def validate_shipwreck_report(report):
@@ -342,6 +342,27 @@ def validate_fish_report(report):
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("fish view lacks current anatomy, frames or clean graphics state")
     return frames
+
+
+def validate_stingray_report(report):
+    views=report.get("views",[])
+    if report.get("passed") is not True or len(views)!=1 or views[0].get("mode")!="stingrays":
+        raise RuntimeError("stingray report lacks one successful focused view")
+    view=views[0];result=view.get("result",{});log=result.get("output","")
+    frame=view.get("screenshot");intervals=view.get("intervals",[])
+    if (view.get("passed") is not True or view.get("glError")!=0
+        or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+        or "SwiftShader" not in view.get("renderer","") or len(intervals)!=60
+        or not all(isinstance(value,(int,float)) and not isinstance(value,bool)
+                   and math.isfinite(value) and value>0 for value in intervals)
+        or not isinstance(frame,str) or not frame.endswith(".png")
+        or "stingrays use broad undulating discs, raised eyes, dorsal spots, pale undersides, and long tapered tails in one draw" not in log
+        or "stingrays 5 agents glide, forage, and settle over shallow sandy seabed" not in log
+        or "stingray QA camera follows one shallow-sand glide" not in log
+        or not re.search(r"stingrays [1-5]/5 visible \(near [1-5], far [0-5]\), 1 draw",log)
+        or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):
+        raise RuntimeError("stingray view lacks current anatomy or clean graphics state")
+    return frame
 
 
 def validate_crab_report(report):
@@ -933,6 +954,13 @@ def main(argv=None):
                 if identities[0]["sha256"] == identities[1]["sha256"]:
                     raise RuntimeError("fish separated-time frames are byte-identical")
                 metadata["fish_frames"]=identities
+            if args.scope == "stingrays":
+                stingray_report=json.loads((evidence / "island-browser-stingrays.json").read_text())
+                frame=validate_stingray_report(stingray_report)
+                path=evidence/frame
+                if not path.is_file():
+                    raise RuntimeError("stingray image file missing")
+                metadata["stingray_frame"]=artifact_identity(path)
             if args.scope == "shark":
                 shark_report=json.loads((evidence / "island-browser-shark.json").read_text())
                 frames=validate_shark_report(shark_report)

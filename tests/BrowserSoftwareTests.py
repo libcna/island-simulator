@@ -329,6 +329,34 @@ class BrowserSoftwareTests(unittest.TestCase):
             invalid = report(); mutate(invalid)
             with self.assertRaises(RuntimeError): gate.validate_turtle_report(invalid)
 
+    def test_stingray_scope_requires_current_anatomy_and_live_context(self):
+        self.assertIn("stingrays",gate.SCOPES)
+        self.assertIn('["stingrays", ["--viewpoint", "stingrays", "--debug-overlay"]]',
+                      (ROOT / "tools/web_smoke.html.in").read_text())
+        anatomy=("stingrays use broad undulating discs, raised eyes, dorsal spots, pale "
+                 "undersides, and long tapered tails in one draw")
+        population="stingrays 5 agents glide, forage, and settle over shallow sandy seabed"
+        camera="stingray QA camera follows one shallow-sand glide"
+        def report():
+            return {"passed":True,"views":[{"mode":"stingrays","passed":True,
+                "glError":0,"contextLost":False,"renderer":"ANGLE SwiftShader",
+                "screenshot":"stingrays.png","intervals":[16.7]*60,
+                "result":{"output":anatomy+"\n"+population+"\n"+camera
+                    +"\nstingrays 1/5 visible (near 1, far 0), 1 draw"}}]}
+        self.assertEqual(gate.validate_stingray_report(report()),"stingrays.png")
+        for mutate in (
+            lambda value:value.update(passed=False),
+            lambda value:value["views"][0].update(glError=1282),
+            lambda value:value["views"][0].update(contextLost=True),
+            lambda value:value["views"][0].update(intervals=[16.7]*59),
+            lambda value:value["views"][0]["result"].update(output=population),
+            lambda value:value["views"][0]["result"].update(
+                output=anatomy+"\n"+population+"\n"+camera
+                    +"\nstingrays 0/5 visible (near 0, far 0), 0 draw"),
+        ):
+            invalid=report();mutate(invalid)
+            with self.assertRaises(RuntimeError):gate.validate_stingray_report(invalid)
+
     def test_crab_scope_requires_current_anatomy_two_frames_and_live_context(self):
         self.assertIn("crabs", gate.SCOPES)
         self.assertIn('["crabs", ["--viewpoint", "crabs", "--debug-overlay"]]',
@@ -337,14 +365,16 @@ class BrowserSoftwareTests(unittest.TestCase):
         silhouette = "near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms"
         surface = "near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs"
         anatomy = "near crabs use low broad shells with retained lateral carapace corners"
-        camera = "crab QA camera frames one foraging subject without camera-triggered colony retreat"
+        habitat = "six debris-linked crab colonies share visible sand burrows"
+        camera = "crab QA camera frames a debris-linked burrow and its foraging colony"
         def report():
             return {"passed": True, "views": [{"mode": "crabs", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "crabs.png", "afterSimulationScreenshot": "crabs-after.png",
                 "intervals": [16.7] * 60,
                 "result": {"output": marker + "\n" + silhouette + "\n" + surface + "\n" + anatomy
-                    + "\n" + camera + "\ncrab QA isolated subject 28 nearest-neighbour 1.28294m"
+                    + "\n" + habitat + "\n" + camera
+                    + "\ncrab QA subject 28 is 1.28294m from the burrow"
                     + "\ncrabs 5/30 visible (near 5, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_crab_report(report()), ("crabs.png", "crabs-after.png"))
         for mutate in (

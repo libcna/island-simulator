@@ -934,6 +934,15 @@ def main():
                     raise RuntimeError("current close fish anatomy is missing; check for a stale executable")
                 if not re.search(r"fish [1-9][0-9]*/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):
                     raise RuntimeError("fish capture did not submit a near detailed school")
+            if args.viewpoint == "stingrays":
+                for marker in (
+                    "stingrays use broad undulating discs, raised eyes, dorsal spots, pale undersides, and long tapered tails in one draw",
+                    "stingrays 5 agents glide, forage, and settle over shallow sandy seabed",
+                    "stingray QA camera follows one shallow-sand glide"):
+                    if marker not in diagnostics:
+                        raise RuntimeError(f"stingray integration diagnostic missing: {marker}")
+                if not re.search(r"stingrays [1-5]/5 visible \(near [1-5], far [0-5]\), 1 draw",diagnostics):
+                    raise RuntimeError("stingray capture did not submit a near detailed animal")
             if args.viewpoint == "shark":
                 if "shark retains deep dorsal and pale ventral countershading through water tint" not in diagnostics:
                     raise RuntimeError("current shark countershading is missing; check for a stale executable")

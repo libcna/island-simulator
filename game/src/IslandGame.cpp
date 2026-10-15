@@ -121,6 +121,7 @@ namespace island
             case FixedViewpoint::FruitBatDetail: return "bats";
             case FixedViewpoint::FruitBatRoostDetail: return "bat-roost";
             case FixedViewpoint::FishDetail: return "fish";
+            case FixedViewpoint::StingrayDetail: return "stingrays";
             case FixedViewpoint::SharkDetail: return "shark";
             case FixedViewpoint::DolphinDetail: return "dolphins";
             case FixedViewpoint::MonkeyDetail: return "monkeys";
@@ -185,6 +186,7 @@ namespace island
           crocodileGroup_(terrain_),
           boarHerd_(terrain_),
           fishSchools_(terrain_),
+          stingrayGroup_(terrain_),
           seaTurtleGroup_(terrain_),
           sharkPatrol_(terrain_),
           dolphinPod_(terrain_),
@@ -1032,6 +1034,18 @@ namespace island
             const Vector3 toFish = Vector3(fish.x, fish.y, fish.z) - cameraPosition_;
             yaw_ = std::atan2(toFish.X, toFish.Z);
             pitch_ = std::atan2(toFish.Y, std::hypot(toFish.X, toFish.Z));
+        } else if (viewpoint_ == FixedViewpoint::StingrayDetail
+                   && !stingrayGroup_.Stingrays().empty()) {
+            const StingrayState& ray = stingrayGroup_.Stingrays().front();
+            const Vector3 forward(std::cos(ray.headingRadians),0.0f,
+                                  std::sin(ray.headingRadians));
+            const Vector3 side(-forward.Z,0.0f,forward.X);
+            cameraPosition_=Vector3(ray.x,ray.y,ray.z)
+                +side*1.55f+forward*2.45f+Vector3::Up*.72f;
+            const Vector3 toRay=Vector3(ray.x,ray.y,ray.z)-cameraPosition_;
+            yaw_=std::atan2(toRay.X,toRay.Z);
+            pitch_=std::atan2(toRay.Y,std::hypot(toRay.X,toRay.Z));
+            std::cout<<"island-simulator: stingray QA camera follows one shallow-sand glide\n";
         } else if (viewpoint_ == FixedViewpoint::SeaTurtleDetail
                    && !seaTurtleGroup_.Turtles().empty()) {
             const SeaTurtleState& turtle = seaTurtleGroup_.Turtles()[2U];
@@ -1636,6 +1650,8 @@ namespace island
         auto spiderWebRenderer=std::make_unique<SpiderWebRenderer>(device,terrain_,jungleLayout_,spiderWebSites_);
         fishRenderer_ = std::make_unique<FishRenderer>(
             device, 215.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        stingrayRenderer_ = std::make_unique<StingrayRenderer>(
+            device, 220.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         seaTurtleRenderer_ = std::make_unique<SeaTurtleRenderer>(
             device, 190.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         sharkRenderer_ = std::make_unique<SharkRenderer>(
@@ -1803,6 +1819,8 @@ namespace island
                   << "island-simulator: fish " << fishSchools_.Fish().size()
                   << " agents in " << FishSchools::SchoolCount
                   << " distance-throttled shallow-water schools\n"
+                  << "island-simulator: stingrays " << stingrayGroup_.Stingrays().size()
+                  << " agents glide, forage, and settle over shallow sandy seabed\n"
                   << "island-simulator: sea turtles " << seaTurtleGroup_.Turtles().size()
                   << " agents in bounded habitat routes, three based in the sheltered western bay\n"
                   << "island-simulator: one occasional non-hostile offshore shark patrol\n"
@@ -1916,6 +1934,11 @@ namespace island
                                       << seaTurtleGroup_.Turtles().size()
                                       << " agents in bounded near-shore cruise, forage, and surface routes";
         MirrorRuntimeDiagnosticToPlatformLog(seaTurtlePopulationDiagnostic.str());
+        std::ostringstream stingrayPopulationDiagnostic;
+        stingrayPopulationDiagnostic << "island-simulator: stingrays "
+                                     << stingrayGroup_.Stingrays().size()
+                                     << " agents glide, forage, and settle over shallow sandy seabed";
+        MirrorRuntimeDiagnosticToPlatformLog(stingrayPopulationDiagnostic.str());
     }
 
     void IslandGame::TryStartSoundscape() noexcept
@@ -2225,6 +2248,17 @@ namespace island
             cameraPosition_ += Vector3(subject.x - previousFishSubject.x,
                                        subject.y - previousFishSubject.y,
                                        subject.z - previousFishSubject.z);
+        }
+        const StingrayState previousStingraySubject=stingrayGroup_.Stingrays().front();
+        // Keep the focused anatomy frame symmetric; the deterministic CPU test separately
+        // exercises the full undulating glide over 120 seconds.
+        stingrayGroup_.Update(viewpoint_==FixedViewpoint::StingrayDetail?0.0f:deltaSeconds,
+                              cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z);
+        if(viewpoint_==FixedViewpoint::StingrayDetail) {
+            const StingrayState& subject=stingrayGroup_.Stingrays().front();
+            cameraPosition_+=Vector3(subject.x-previousStingraySubject.x,
+                                     subject.y-previousStingraySubject.y,
+                                     subject.z-previousStingraySubject.z);
         }
         const SeaTurtleState previousTurtleSubject = seaTurtleGroup_.Turtles()[2U];
         seaTurtleGroup_.Update(
@@ -3017,6 +3051,7 @@ namespace island
             + bearRenderer_->DrawCallCount()
             + snakeRenderer_->DrawCallCount()
             + fishRenderer_->DrawCallCount()
+            + stingrayRenderer_->DrawCallCount()
             + seaTurtleRenderer_->DrawCallCount()
             + sharkRenderer_->DrawCallCount()+dolphinRenderer_->DrawCallCount()
             + monkeyRenderer_->DrawCallCount()
@@ -3541,6 +3576,12 @@ namespace island
             GpuDiagnosticScope gpuPass("fish");
             fishRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                 fishSchools_.Fish(), timeSeconds);
+        }
+
+        {
+            GpuDiagnosticScope gpuPass("stingrays");
+            stingrayRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,
+                                    stingrayGroup_.Stingrays());
         }
 
         {
@@ -4084,7 +4125,12 @@ namespace island
                       << fishSchools_.Fish().size() << " visible (near "
                       << fishRenderer_->VisibleNearFishCount() << ", far "
                       << fishRenderer_->VisibleFarFishCount() << "), "
-                      << fishRenderer_->DrawCallCount() << " draw; turtles "
+                      << fishRenderer_->DrawCallCount() << " draw; stingrays "
+                      << stingrayRenderer_->VisibleCount() << '/'
+                      << stingrayGroup_.Stingrays().size() << " visible (near "
+                      << stingrayRenderer_->NearCount() << ", far "
+                      << stingrayRenderer_->FarCount() << "), "
+                      << stingrayRenderer_->DrawCallCount() << " draw; turtles "
                       << seaTurtleRenderer_->VisibleTurtleCount() << '/'
                       << seaTurtleGroup_.Turtles().size() << " visible (near "
                       << seaTurtleRenderer_->VisibleNearTurtleCount() << ", far "

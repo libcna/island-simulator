@@ -23,7 +23,7 @@ FAULT = re.compile(
 GL_ERROR = re.compile(r"gl-error |gl-debug .*severity=high\b")
 CAPTURE_VIEWPOINTS = frozenset(
     "overview bay bay-ground headland tide-pools beach jungle snags sapling east clearing-edge west stream mangroves grass ground ground-broadleaf bush litter contact movement palms fallen-palm broken-palm water wet-sand current "
-    "distant props driftwood reef reef-habitat fronds birds bats bat-roost fish shark dolphins monkeys shipwreck crabs crocodiles butterflies turtles"
+    "distant props driftwood reef reef-habitat fronds birds bats bat-roost fish stingrays shark dolphins monkeys shipwreck crabs crocodiles butterflies turtles"
     .split()
 )
 
