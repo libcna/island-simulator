@@ -406,6 +406,7 @@ class SoftwareCaptureTests(unittest.TestCase):
                  "monkey face skin uses muted brown palettes and a recessed perimeter shade\n"
                  "near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail\n"
                  "near monkeys use a lower tapered trunk, separated crown, and restrained furry tail root\n"
+                 "near monkeys use a shallow waisted torso and shortened facial projection\n"
                  "monkey shoulder and hip mantles blend the trunk into all four animated limbs")
         validate_monkey_capture_log(valid)
         validate_monkey_capture_log(valid+"\nmonkey subject paired tree grips 1", True)

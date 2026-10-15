@@ -689,7 +689,28 @@ the previous side view has a different animation/camera angle, this is independe
 not a pixel-matched A/B claim. Fine snout planes, sampled skin and physical Android appearance remain
 outside this bounded pass.
 
-## Latest visual-audit implementation — compact monkey facial planes
+## Latest visual-audit implementation — shallow monkey torso and shortened face
+
+The renewed close audit still found a rodent/anteater read in the ordinary monkey view. The
+cause was geometric rather than another colour problem: a deep, long body capsule flowed into an
+oversized round head and the face projected too far forward. The accepted pass retains the same
+thirteen-ring skinned surface but makes it shallower and shorter, separates rump/chest through a
+waist, and tapers into the neck earlier. The cranium and cheek ruffs are restrained, the complete
+twelve-row face plus eyes/lids/muzzle/nose/nostrils is shortened, and a closed curved mouth seam
+replaces the former planar rectangular bar. Seven agents, gait, tree contacts, fourteen bones,
+prehensile furry tail, atlas, materials and draw structure are unchanged.
+
+The first candidate `20261015T205423.712682Z-monkeys` was rejected after inspection because its
+head and cheek ruffs were still oversized and the mouth remained rectangular. Final current-binary
+llvmpipe `20261015T205933.155783Z-monkeys` passes at 215 colour bins, 42.45 luminance deviation, 211.25
+spatial contrast and an empty kernel delta. The full inspected nine-stage tree sequence
+`20261015T205605.441023Z-monkey-tree` passes at 218--224 bins, 45.16--45.79 deviation and
+192.44--197.75 contrast; limbs and tail remain attached through tree reach and release. First
+Chrome/SwiftShader210104.717090Z wrote five frames but timed out at240s and remains rejected.
+Unchanged retry210556.773923Z PASS60 finite intervals/GL0/live context/kernel[]; all six images
+were inspected. Current Android runtime evidence remains open.
+
+## Earlier visual-audit implementation — compact monkey facial planes
 
 The next close-animal cycle selected the monkey after the goat correction. Its current body,
 quadrupedal gait and tree interaction read as a primate, but a broad low-relief skin surface still
@@ -3040,7 +3061,7 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   60finite intervals/GL0/context intact/kernel[]. Core/herd/coat/pose/112 harness tests and ARM64
   assemble/lint pass without emulator execution.
   Broader joint/gait realism and subjective audio acceptance remain open.
-- [ ] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
+- [~] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
   tail. Rework head/body proportions and a fur-covered tail together, not just a colour
   change. Inspect actual island images and movement; previous fur/rig implementation
   does not satisfy the user's renewed visual rejection.
@@ -3104,6 +3125,17 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   initial/four intermediate/final frames were inspected together and retain the broader
   face, deeper trunk and compact attached tail through the scripted turn. Android,
   continuous gait and finer shoulder/hip topology remain open.
+  Ninth follow-up uses the renewed ordinary close audit rather than accepting prior markers:
+  the thirteen-ring body is now materially shallower and shorter, with a readable waist,
+  separate chest and earlier neck taper. The cranium/cheek ruffs are reduced, the complete
+  face and fitted features move18--24mm rearward, and a closed shallow mouth seam replaces
+  the rectangular planar bar. Rejected first candidate205423.712682Z exposed the remaining
+  oversized head/lip problem. Final current-binary native205933.155783Z-monkeys
+  PASS/inspected/kernel[];
+  complete nine-stage205605.441023Z-monkey-tree PASS/montage-inspected and retains connected
+  shoulders, hips, hands and furry hook through reach/release. Chrome210104.717090Z timed out
+  after five frames and remains rejected; unchanged retry210556.773923Z PASS60intervals/GL0/
+  context live/kernel[], all six images inspected. Current Android runtime evidence remains open.
   Seventh follow-up uses a fresh current-binary141856.054706Z side inspection: the
   remaining rat cues were the hard oval face-mask boundary and smooth tubular tail.
   Paired fur-material cheek ruffs now frame the skin mask on the head bone; tail root

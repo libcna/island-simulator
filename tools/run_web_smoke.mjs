@@ -1337,6 +1337,8 @@ try {
     && result.output?.includes(
       "island-simulator: near monkeys use a lower tapered trunk, separated crown, and restrained furry tail root")
     && result.output?.includes(
+      "island-simulator: near monkeys use a shallow waisted torso and shortened facial projection")
+    && result.output?.includes(
       "island-simulator: monkey shoulder and hip mantles blend the trunk into all four animated limbs")
     && result.output?.includes(
       "island-simulator: near monkey tails keep a compact muscular hook and thirty-six raised fur clumps")
@@ -2633,6 +2635,8 @@ try {
       "island-simulator: near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail")
     && monkeyResult.output?.includes(
       "island-simulator: near monkeys use a lower tapered trunk, separated crown, and restrained furry tail root")
+    && monkeyResult.output?.includes(
+      "island-simulator: near monkeys use a shallow waisted torso and shortened facial projection")
     && monkeyResult.output?.includes(
       "island-simulator: monkey shoulder and hip mantles blend the trunk into all four animated limbs")
     && monkeyResult.output?.includes(

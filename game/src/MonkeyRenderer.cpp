@@ -656,19 +656,19 @@ namespace island
             const int segments = near ? 14 : 8;
             const float w = shape.width;
             const std::array<BodySection, 13> body{{
-                {Vector3(0, .60f, -.50f), .008f, .015f, Pelvis, Spine, 0},
-                {Vector3(0, .61f, -.45f), .145f*w, .160f, Pelvis, Spine, 0},
-                {Vector3(0, .63f, -.36f), .205f*w, .205f, Pelvis, Spine, .05f},
-                {Vector3(0, .65f, -.25f), .220f*w, .220f, Pelvis, Spine, .18f},
-                {Vector3(0, .66f, -.13f), .200f*w, .205f, Pelvis, Spine, .42f},
-                {Vector3(0, .67f, -.01f), .170f*w, .190f, Pelvis, Spine, .72f},
-                {Vector3(0, .68f, .11f), .185f*w, .205f, Pelvis, Spine, 1},
-                {Vector3(0, .69f, .21f), .225f*w, .225f, Spine, Head, .03f},
-                {Vector3(0, .71f, .30f), .215f*w, .215f, Spine, Head, .27f},
-                {Vector3(0, .74f, .37f), .175f*w, .180f, Spine, Head, .56f},
-                {Vector3(0, .77f, .42f), .110f*w, .130f, Spine, Head, .86f},
-                {Vector3(0, .79f, .45f), .055f*w, .075f, Spine, Head, 1},
-                {Vector3(0, .80f, .47f), .008f, .015f, Spine, Head, 1}}};
+                {Vector3(0, .59f, -.47f), .008f, .015f, Pelvis, Spine, 0},
+                {Vector3(0, .60f, -.43f), .140f*w, .145f, Pelvis, Spine, 0},
+                {Vector3(0, .62f, -.35f), .190f*w, .180f, Pelvis, Spine, .05f},
+                {Vector3(0, .64f, -.25f), .200f*w, .182f, Pelvis, Spine, .18f},
+                {Vector3(0, .65f, -.14f), .180f*w, .170f, Pelvis, Spine, .42f},
+                {Vector3(0, .66f, -.03f), .155f*w, .155f, Pelvis, Spine, .72f},
+                {Vector3(0, .67f,  .08f), .170f*w, .170f, Pelvis, Spine, 1},
+                {Vector3(0, .68f,  .17f), .195f*w, .180f, Spine, Head, .03f},
+                {Vector3(0, .70f,  .25f), .190f*w, .175f, Spine, Head, .27f},
+                {Vector3(0, .73f,  .31f), .150f*w, .145f, Spine, Head, .56f},
+                {Vector3(0, .76f,  .35f), .090f*w, .105f, Spine, Head, .86f},
+                {Vector3(0, .78f,  .38f), .045f*w, .060f, Spine, Head, 1},
+                {Vector3(0, .79f,  .40f), .008f, .015f, Spine, Head, 1}}};
             AddBodyLoft(mesh, body, segments);
             const auto centre=MonkeyFaceProfile::CraniumCentre;
             const auto radii=MonkeyFaceProfile::CraniumRadii;
@@ -680,8 +680,8 @@ namespace island
                 // paired volumes replace the former hard oval edge with a broader primate
                 // face silhouette while remaining on the existing head bone and material.
                 for (float side : {-1.0f, 1.0f})
-                    AddEllipsoid(mesh, Vector3(side*.123f,.842f,.536f),
-                                 Vector3(.057f,.096f,.061f)*shape.headSize,
+                    AddEllipsoid(mesh, Vector3(side*.118f,.842f,.515f),
+                                 Vector3(.052f,.085f,.052f)*shape.headSize,
                                  Head, 6, 10);
             }
             for (float side : {-1.0f, 1.0f})
@@ -830,30 +830,19 @@ namespace island
                 // brightened by the skinning shader, avoiding flat featureless black slits.
                 const std::size_t catchlightStart = mesh.vertices.size();
                 AddEllipsoid(mesh, Vector3(side * MonkeyFaceProfile::EyeCentreX - .004f,
-                                           MonkeyFaceProfile::EyeCentreY + .004f, .658f),
+                                           MonkeyFaceProfile::EyeCentreY + .004f, .640f),
                              Vector3(.0036f, .0030f, .0020f), Head, 3, 6);
                 for (std::size_t vertex = catchlightStart; vertex < mesh.vertices.size(); ++vertex)
                     mesh.vertices[vertex].TextureCoordinate = Vector2(-1.5f, -1.0f);
                 // One fitted nostril per side. The former second pair read as four holes
                 // on a pig-like nasal disc in the actual close audit.
-                AddEllipsoid(mesh, Vector3(side * .012f, .814f, .693f),
+                AddEllipsoid(mesh, Vector3(side * .012f, .814f, .669f),
                              Vector3(.0060f, .0038f, .0030f), Head, 3, 6);
             }
-            // Follow the curved muzzle instead of floating a straight mouth bar in front.
-            const auto mouthBase = static_cast<std::uint16_t>(mesh.vertices.size());
-            for (int step = 0; step <= 8; ++step) {
-                const float x = -.045f + .090f * step / 8.0f;
-                const float normalized = x / .045f;
-                const float z = .685f + .0035f * (1.0f - normalized * normalized);
-                for (float y : {.7770f, .7800f})
-                    AddVertex(mesh, Vector3(x,y,z), Vector3(0,0,1), Head, Vector2(.5f,.5f));
-            }
-            for (int step = 0; step < 8; ++step) {
-                const auto a = static_cast<std::uint16_t>(mouthBase + step*2);
-                mesh.indices.insert(mesh.indices.end(), {a, static_cast<std::uint16_t>(a+2),
-                    static_cast<std::uint16_t>(a+1), static_cast<std::uint16_t>(a+1),
-                    static_cast<std::uint16_t>(a+2), static_cast<std::uint16_t>(a+3)});
-            }
+            // A closed, shallow curved seam sits inside the muzzle rather than extending
+            // as the former planar rectangular bar beyond its silhouette.
+            AddEllipsoid(mesh, Vector3(0,.7785f,.6605f), Vector3(.041f,.0032f,.0040f),
+                         Head, 3, 12);
             return mesh;
         }
 

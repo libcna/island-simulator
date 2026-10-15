@@ -1,5 +1,37 @@
 # Monkey fur material
 
+## Shallow waisted trunk and shortened face — 2026-10-15
+
+The latest ordinary close capture still read as a large rodent or anteater despite the existing
+fur, cheek ruffs and muscular hooked tail. The dominant cause was geometric: the thirteen-ring
+trunk kept a nearly metre-long, 440mm-deep barrel, its shoulder taper ran into a 368mm-high round
+cranium, and the face projected too far beyond that volume. A first correction was retained for
+its torso but rejected as final evidence because the close frontal view exposed an oversized head,
+large circular cheek ruffs and a planar rectangular mouth strip.
+
+The accepted pass makes the existing continuous trunk shallower and shorter, with an explicit
+waist, separate chest and earlier neck taper while keeping all four fixed gait roots inside the
+surface. The cranium and cheek ruffs are reduced, the twelve-row facial surface is shortened by
+roughly 18--24mm, and eyes, lids, muzzle, nose, nostrils and mouth follow it. A closed shallow
+ellipsoid replaces the floating planar mouth strip. The three-bone tail, thirty-six fur clumps,
+fourteen-bone rig, seven agents, tree interaction, fur atlas, materials and draw structure are
+unchanged. Only the face-detail mesh changes slightly; runtime geometry remains 2,623/937 body
+vertices and 3,928/1,400 body triangles for near/far variant zero.
+
+The rejected first close image is `20261015T205423.712682Z-monkeys`. Final current-binary native
+llvmpipe evidence `20261015T205933.155783Z-monkeys` passes at 1280x720 with 215 colour bins,
+42.45 luminance deviation, 211.25 spatial contrast and an empty kernel delta. Its inspected frontal
+pose shows a distinct waist, primate muzzle and curved mouth rather than the old long barrel and
+rectangular lip. The complete nine-image tree/contact sequence
+`20261015T205605.441023Z-monkey-tree` also passes (218--224 bins, 45.16--45.79 deviation,
+192.44--197.75 contrast) and was inspected as a montage: shoulder/hip joins, both reaching hands
+and the furry hooked tail remain attached through approach, contact and release. The first focused
+Chrome/SwiftShader attempt `20261015T210104.717090Z-chrome-monkeys` wrote five images but exceeded
+its 240-second limit and remains rejected. Its unchanged longer-limit retry
+`20261015T210556.773923Z-chrome-monkeys` passes 60 finite positive intervals, `glError=0`, a live
+context and an empty kernel delta; all six moving views were inspected. Current Android rendering
+remains to be recorded before this pass is cross-platform complete.
+
 ## Lower compact torso and restrained tail root — 2026-10-14
 
 A renewed close side audit found that the fur and quadrupedal gait were working, but the trunk

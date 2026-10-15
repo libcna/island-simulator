@@ -91,7 +91,7 @@ try {
             Require(std::isfinite(p.x) && std::isfinite(p.y) && std::isfinite(p.z), "finite face profile");
             Require(std::fabs(p.x+mirror.x) < 1e-6f && std::fabs(p.z-mirror.z) < 1e-6f,
                     "continuous bilateral face profile");
-            Require(p.z >= .5649f && p.z <= .690f, "face stays within authored head envelope");
+            Require(p.z >= .5549f && p.z <= .670f, "face stays within authored head envelope");
             const float ambient=face::AmbientRetention(p.x,p.y);
             Require(ambient>=.8f&&ambient<=1,"socket ambient retention outside bounded range");
             Require(std::abs(ambient-face::AmbientRetention(-p.x,p.y))<1e-6f,
@@ -101,7 +101,7 @@ try {
     Require(face::Rows[4].halfWidth>=.110f&&face::Rows[8].halfWidth>=.082f
             &&face::Rows[8].halfWidth<face::Rows[4].halfWidth,
         "short monkey face lost its compact heart-shaped brow and tapered muzzle");
-    Require(face::CraniumRadii.x>=.17f&&face::CraniumRadii.y>=.18f
+    Require(face::CraniumRadii.x>=.15f&&face::CraniumRadii.y>=.165f
         &&face::EarCentre.x+face::EarRadii.x>face::CraniumRadii.x,
         "compact monkey cranium or visible outer ear became too small");
     Require(face::Relief(face::EyeCentreX,face::EyeCentreY)<-.004f,"orbit must be recessed");
@@ -118,13 +118,15 @@ try {
         &&face::EyeCentreZ+face::EyeRadiusZ>orbitalSurface,
         "eye cornea must straddle the recessed orbital surface, not float outside");
     Require(face::Rows[7].front > face::Rows[4].front, "muzzle projects beyond orbital plane");
-    Require(face::EyeCentreZ>.640f&&face::EyeRadiusX>=.019f,
+    Require(face::Rows[7].front<.650f&&face::Rows[4].front<.630f,
+        "monkey face regained a long rodent-like forward projection");
+    Require(face::EyeCentreZ>.620f&&face::EyeRadiusX>=.019f,
         "close monkey corneas remain readable above the face surface");
     Require(face::NoseRadii.x>=.023f&&face::NoseRadii.y>=.012f
-            &&face::NoseCentre.z+face::NoseRadii.z>.680f,
+            &&face::NoseCentre.z+face::NoseRadii.z>.665f,
         "fitted low-profile nose pad remains visible on the short muzzle");
     Require(face::MuzzlePadRadii.x>=.038f&&face::MuzzlePadRadii.y>=.029f
-            &&face::MuzzlePadCentre.z+face::MuzzlePadRadii.z>.682f,
+            &&face::MuzzlePadCentre.z+face::MuzzlePadRadii.z>.660f,
         "paired compact muzzle pads still project beyond the facial skin");
     for(float side:{-1.0f,1.0f}) for(bool upper:{false,true}) for(int i=0;i<=10;++i) {
         const float t=-.92f+1.84f*i/10.0f;
@@ -132,7 +134,7 @@ try {
         const auto inner=face::Eyelid(side,t,upper,false);
         Require(std::isfinite(outer.x)&&std::isfinite(outer.y)&&std::isfinite(outer.z),
             "eyelid profile must stay finite");
-        Require(outer.z>=.6365f&&inner.z<=.640f,"eyelid leaves the facial relief envelope");
+        Require(outer.z>=.6185f&&inner.z<=.622f,"eyelid leaves the facial relief envelope");
         Require(upper ? outer.y>inner.y : outer.y<inner.y,
             "upper/lower eyelid bands must retain nonzero ordered width");
         const auto mirror=face::Eyelid(-side,-t,upper,true);
