@@ -770,6 +770,25 @@ void main()
                             variant == 0 ? -.82f : .56f),
                     Vector3(.05f, .04f, variant == 0 ? -.08f : .09f),
                     .16f, .078f, bark, false, .34f + .17f * variant, true);
+
+                // Dead trunks still retain broad structural roots. Four low, unequal spurs
+                // break the planted-pole base silhouette and visibly transfer weight into soil.
+                for (int root = 0; root < 5; ++root) {
+                    const float angle = .37f + static_cast<float>(root)
+                        * 2.0f * std::numbers::pi_v<float> / 5.0f
+                        + static_cast<float>(variant) * .29f;
+                    const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
+                    const Vector3 tangent(-direction.Z, 0.0f, direction.X);
+                    const float length = 1.18f
+                        + .18f * static_cast<float>((root + variant) % 3);
+                    AppendStandingSnagSection(geometry,
+                        direction * .26f + Vector3::Up * (.31f + .04f * (root % 2)),
+                        direction * length + Vector3::Up * .035f,
+                        tangent * (.07f * (root % 2 == 0 ? 1.0f : -1.0f))
+                            + Vector3::Up * .14f,
+                        .19f, .042f, ShadeColor(bark, .88f), false,
+                        .19f + .13f * static_cast<float>(root) + .07f * variant, false);
+                }
             }
             return geometry;
         }

@@ -81,6 +81,25 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest visual-audit implementation — rooted standing deadwood
+
+The jungle-floor audit selected the standing dead trunks because their straight circular bases
+read as poles planted into the soil. Each near-LOD snag now carries five low, unequal structural
+root spurs with varied length, rise and lateral bow. They share the existing deadwood geometry,
+bark palette, instancing and draw; the far LOD remains unchanged, so the improvement adds no draw,
+buffer, material or texture. The dedicated inspection camera was lowered to include the soil contact
+instead of hiding it below frame.
+
+Exact-final native evidence is
+`build-consumer/software-captures/20261015T050551.611871Z-snags` (199 colour bins, 42.06
+luminance deviation, 189.17 spatial contrast; inspected). Chrome/SwiftShader evidence is
+`build/browser-software/20261015T050856.083534Z-chrome-snags`: the inspected frame matches the
+grounded native silhouette, all 60 sampled intervals are positive and finite, GL error is zero,
+the context remains live and kernel monitoring is clean. ARM64 assemble/lint passes without
+emulator/KVM (24,191,747-byte APK, SHA-256
+`6d2ab4119a61b3b623337b82c9a02d6d8cf0bda0910bfa48364a3c78abde5fc1`, 19,149,176-byte stripped
+`libmain.so`); physical-device appearance remains unqualified.
+
 ## Latest ecosystem implementation — stream-bank frogs
 
 Small-fauna item 17 now adds ten deterministic frogs across eight permanent-stream banks and two

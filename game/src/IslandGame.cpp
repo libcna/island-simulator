@@ -422,8 +422,8 @@ namespace island
             const float cameraX = snag.x + forward.X * 7.2f + right.X * 2.8f;
             const float cameraZ = snag.z + forward.Z * 7.2f + right.Z * 2.8f;
             cameraPosition_ = Vector3(cameraX,
-                terrain_.Height(cameraX, cameraZ) + 3.0f, cameraZ);
-            const Vector3 target(snag.x, snag.y + 5.7f * snag.scale, snag.z);
+                terrain_.Height(cameraX, cameraZ) + 2.5f, cameraZ);
+            const Vector3 target(snag.x, snag.y + 3.7f * snag.scale, snag.z);
             const Vector3 direction = target - cameraPosition_;
             yaw_ = std::atan2(direction.X, direction.Z);
             pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));

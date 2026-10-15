@@ -30,6 +30,9 @@ trees of one height.
   Two shared silhouettes use bent tapered stems, asymmetric thick broken branches, a short lower
   scar, desaturated sun-bleached bark and pale uneven fracture caps. Near/far meshes are instanced,
   cell-culled and bounded by the same terrain-grounded renderer path as living jungle plants.
+  Their near LOD also carries five uneven, low structural root spurs. The spurs vary in length,
+  rise and sideways bow so the dead trunks transfer weight visibly into the soil instead of reading
+  as cylindrical poles; they reuse the same mesh, bark material and draw.
 
 Current default population after the later ecology passes: 261 living canopy trees including 16
 saplings and 22 emergents, plus 12 separate standing snags; 1,737 understory plants, 569 bushes, 2,903 ground
@@ -67,3 +70,13 @@ native, all 60 intervals are positive and finite, GL error is zero, the context 
 the kernel delta is empty. The ARM64 debug APK assembles to 24,014,955 bytes with SHA-256
 `25ae9ff46e6acafba0079a570f2516a986b45bca51cab1386d5c0227f11e5372`; no emulator or KVM was
 started, so physical GLES runtime evidence is still not claimed.
+
+The renewed 2026-10-15 soil-contact audit is evidenced by exact-final native capture
+`build-consumer/software-captures/20261015T050551.611871Z-snags` (199 colour bins, 42.06 luminance
+deviation, 189.17 spatial contrast) and Chrome/SwiftShader capture
+`build/browser-software/20261015T050856.083534Z-chrome-snags`. Both inspected frames show the five
+root spurs grounding the near trunk; WebGL passes 60 finite positive intervals, GL0 and live-context
+checks with no kernel fault. The far mesh and render resource counts are unchanged.
+ARM64 assemble/lint passes without emulator/KVM (24,191,747-byte APK, SHA-256
+`6d2ab4119a61b3b623337b82c9a02d6d8cf0bda0910bfa48364a3c78abde5fc1`, 19,149,176-byte stripped
+`libmain.so`); physical-device appearance remains unqualified.
