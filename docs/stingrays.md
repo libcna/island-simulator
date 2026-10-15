@@ -46,3 +46,27 @@ The fixed `--viewpoint stingrays` camera holds a symmetric anatomy pose for repe
 comparison. Continuous undulation and route validity belong to the deterministic CPU test rather
 than being inferred from one screenshot. A physical Android-device visual/performance run remains
 open even after package-only verification.
+
+## Curved diamond and raised-body pass (2026-10-15)
+
+A new stingray/octopus/coconut-crab comparison selected the stingray as the weakest close coastal
+animal. Despite the intended diamond construction, the previous power outline and almost coplanar
+centre projected as a rounded, concentric oval carpet from swimming height. Its single horizontal
+tail ribbon also became a nearly invisible line against the seabed.
+
+The near outline is now a low-power superellipse with separate front and rear lengths, producing a
+clear wedge nose and broad pointed wings. The flexible disc has a deeper central crown and receives
+bounded per-facet daylight. A twelve-section shallow head/shoulder loft adds real height above it,
+with the existing eyes and spiracles refitted to that surface. The dark margin is narrower and less
+contrasting, and the five tail sections combine horizontal and vertical tapered faces. Matching far
+coordinates retain the characteristic silhouette. The fixed QA camera is slightly higher and more
+lateral to expose the crown and tail in one repeatable frame.
+
+The close form uses exactly 846 vertices and the far tier 18, with a fixed 900-vertex per-animal
+capacity. The population, habitat, controller, wing wave, banking, culling, LOD and single batch are
+unchanged. Inspected baseline `20261015T155635.743252Z-stingrays` and accepted current-binary
+llvmpipe/pixman evidence `20261015T160522.697524Z-stingrays` show a substantially stronger diamond
+profile, raised centre and visible tapered tail. The final 1280x720 frame passes with 94 colour
+bins, 26.66 luminance deviation, 164.60 spatial contrast and an empty kernel delta. Native and Web
+gates pin the new profile and exact geometry diagnostics so a stale executable cannot satisfy the
+focused view.

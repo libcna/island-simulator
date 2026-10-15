@@ -946,6 +946,8 @@ def main():
             if args.viewpoint == "stingrays":
                 for marker in (
                     "stingrays use broad undulating discs, raised eyes, dorsal spots, pale undersides, and long tapered tails in one draw",
+                    "near stingrays use a curved diamond disc, raised central body, wedge nose, and restrained dark rim",
+                    "stingray near/far geometry 846/18 vertices with a crossed-volume tapered tail",
                     "stingrays 5 agents glide, forage, and settle over shallow sandy seabed",
                     "stingray QA camera follows one shallow-sand glide"):
                     if marker not in diagnostics:

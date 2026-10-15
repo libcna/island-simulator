@@ -1119,7 +1119,7 @@ namespace island
                                   std::sin(ray.headingRadians));
             const Vector3 side(-forward.Z,0.0f,forward.X);
             cameraPosition_=Vector3(ray.x,ray.y,ray.z)
-                +side*1.55f+forward*2.45f+Vector3::Up*.72f;
+                +side*2.35f+forward*1.70f+Vector3::Up*1.02f;
             const Vector3 toRay=Vector3(ray.x,ray.y,ray.z)-cameraPosition_;
             yaw_=std::atan2(toRay.X,toRay.Z);
             pitch_=std::atan2(toRay.Y,std::hypot(toRay.X,toRay.Z));

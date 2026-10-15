@@ -131,6 +131,25 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest aquatic visual pass — stingray volume and silhouette
+
+The coastal-animal audit compared stingrays, octopuses and coconut crabs and selected the stingray
+as the weakest close subject. Its old rounded concentric disc projected as a flat oval carpet, and
+the thin tail nearly disappeared against the sand. The near form now uses a curved low-power-
+superellipse diamond outline with distinct wing tips, an asymmetric wedge nose, a raised twelve-
+section head/shoulder loft and higher fitted eyes. A narrow, less contrasting rim replaces the broad
+ring, while the tail has crossed horizontal/vertical volume and a clearer taper. The far tier gets
+the same wider diamond proportions. The QA camera is modestly higher and more lateral so the fixed
+anatomy view exposes both the crown and tail rather than hiding them behind the nose.
+
+The exact near/far inventory is 846/18 vertices per animal, within the fixed 900-vertex near
+capacity. Five deterministic agents, sandy habitat, glide/forage/settle controller, wing wave,
+banking, LOD and one shared draw are unchanged. Inspected native baseline
+`20261015T155635.743252Z-stingrays` and accepted current-binary evidence
+`20261015T160522.697524Z-stingrays` show the new volume and diamond profile. The final 1280x720
+frame passes with 94 colour bins, 26.66 luminance deviation, 164.60 spatial contrast and an empty
+kernel delta.
+
 ## Latest aquatic visual pass — shark contrast and fin profile
 
 The current shark audit found the fourteen-station body and fitted anatomy recognisable, but its
