@@ -7,6 +7,7 @@
 #include "IslandSimulator/GeckoPopulation.hpp"
 #include "IslandSimulator/SkinkPopulation.hpp"
 #include "IslandSimulator/DragonflySwarm.hpp"
+#include "IslandSimulator/FrogPopulation.hpp"
 #include "IslandSimulator/HermitCrabGroup.hpp"
 #include "IslandSimulator/CoconutCrabGroup.hpp"
 #include "IslandSimulator/CrabColony.hpp"
@@ -3098,6 +3099,68 @@ int main()
               &&std::hypot(escapedDragonfly.x-initialReactiveDragonfly.x,
                             escapedDragonfly.z-initialReactiveDragonfly.z)>.25f,
           "a nearby observer prompts a short dragonfly escape dart");
+
+    island::FrogPopulation frogs(terrain);
+    island::FrogPopulation repeatedFrogs(terrain);
+    island::FrogPopulation invalidInputFrogs(terrain);
+    Check(frogs.Frogs().size()==island::FrogPopulation::Count
+              &&frogs.Homes().size()==island::FrogPopulation::Count,
+          "frog population and homes have exact deterministic counts");
+    for(std::size_t index=0;index<frogs.Frogs().size();++index) {
+        const auto& frog=frogs.Frogs()[index];
+        const auto& repeated=repeatedFrogs.Frogs()[index];
+        const auto& home=frogs.Homes()[index];
+        const auto sample=terrain.Sample(frog.x,frog.z);
+        const auto inland=island::IslandEnvironmentField::SampleInland(
+            frog.x,frog.z,sample.signedShoreDistance);
+        Check(std::isfinite(frog.x)&&std::isfinite(frog.y)&&std::isfinite(frog.z)
+                  &&std::hypot(frog.x-home.x,frog.z-home.z)<=home.radius+.001f,
+              "frogs start finite inside bounded homes");
+        Check(std::abs(frog.y-terrain.Height(frog.x,frog.z)-.045f)<.001f
+                  &&inland.moisture>.52f&&sample.slopeRadians<.48f,
+              "frogs start grounded in moist stream or wetland habitat");
+        Check(frog.x==repeated.x&&frog.y==repeated.y&&frog.z==repeated.z
+                  &&frog.headingRadians==repeated.headingRadians
+                  &&frog.colorVariant==repeated.colorVariant,
+              "frog construction is deterministic");
+    }
+    invalidInputFrogs.Update(quietNan,quietNan,quietNan,quietNan);
+    Check(invalidInputFrogs.DormantSimulationCount()
+                  ==static_cast<int>(island::FrogPopulation::Count),
+          "frogs reject non-finite frame and observer input without state poisoning");
+    bool observedFrogRest=false,observedFrogHop=false;
+    for(int frame=0;frame<1800;++frame) {
+        frogs.Update(1.0f/30.0f,0.0f,100.0f,0.0f);
+        repeatedFrogs.Update(1.0f/30.0f,0.0f,100.0f,0.0f);
+        for(std::size_t index=0;index<frogs.Frogs().size();++index) {
+            const auto& frog=frogs.Frogs()[index];
+            const auto& repeated=repeatedFrogs.Frogs()[index];
+            const auto& home=frogs.Homes()[index];
+            observedFrogRest|=frog.behavior==island::FrogBehavior::Rest;
+            observedFrogHop|=frog.behavior==island::FrogBehavior::Hop;
+            Check(std::hypot(frog.x-home.x,frog.z-home.z)<=home.radius+.02f
+                      &&std::isfinite(frog.y)&&frog.y>=terrain.Height(frog.x,frog.z)+.044f,
+                  "frogs stay finite, above ground, and inside wet homes");
+            Check(frog.x==repeated.x&&frog.y==repeated.y&&frog.z==repeated.z
+                      &&frog.behavior==repeated.behavior,
+                  "frog rest and hopping remain deterministic");
+        }
+    }
+    Check(observedFrogRest&&observedFrogHop,
+          "frogs complete both resting and ordinary hopping states");
+    island::FrogPopulation reactiveFrogs(terrain);
+    const auto initialReactiveFrog=reactiveFrogs.Frogs()[1U];
+    bool observedFrogFlee=false;
+    for(int frame=0;frame<120;++frame) {
+        reactiveFrogs.Update(1.0f/60.0f,initialReactiveFrog.x,
+                            initialReactiveFrog.y,initialReactiveFrog.z);
+        observedFrogFlee|=reactiveFrogs.Frogs()[1U].behavior
+            ==island::FrogBehavior::Flee;
+    }
+    Check(observedFrogFlee
+              &&std::hypot(reactiveFrogs.Frogs()[1U].x-initialReactiveFrog.x,
+                            reactiveFrogs.Frogs()[1U].z-initialReactiveFrog.z)>.20f,
+          "nearby observer triggers a visible bounded frog retreat");
 
     island::HermitCrabGroup hermitCrabs(terrain);
     island::HermitCrabGroup repeatedHermitCrabs(terrain);

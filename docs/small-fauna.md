@@ -1,9 +1,43 @@
 # Small fauna
 
-Five bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, eight
-open-ground skinks, nine stream/wetland dragonflies, ten beach hermit crabs and six coconut crabs.
+Six bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, eight
+open-ground skinks, nine stream/wetland dragonflies, ten stream/wetland frogs, ten beach hermit
+crabs and six coconut crabs.
 This is not completion of the whole small-fauna list: additional shorebirds, fruit bats, cicadas
 and beetles remain candidates for later stages.
+
+## Frogs
+
+Ten deterministic frogs occupy eight compact bank homes along qualified permanent-stream sections
+and two homes in the seasonal wetland. Placement uses `IslandEnvironmentField::moisture`, requires
+more than 18 m of shore clearance, moderate slope and valid dry ground, and keeps every animal in a
+4.8--6.5 m range. They alternate between still breathing and short hops; a player within 2.8 m
+triggers a faster two-or-more-hop retreat. The whole body follows a bounded sine arc while folded
+hind legs extend, and the shared full/reduced/dormant policy limits distant simulation.
+
+The close procedural animal has a broad low lofted head and body, attached green eye mounds with
+small gold irises, dark pupils and highlights, paired dorsolateral folds, three restrained dorsal
+spots, stout folded hind legs, shorter forelegs and splayed toes. All ten append to the existing
+butterfly/gecko/skink/dragonfly dynamic buffer and single draw, adding no renderer, GPU buffer,
+texture, material switch or draw call. CPU tests cover deterministic construction, wet habitat,
+grounding, home bounds, invalid input, rest/hop/flee states and player reaction. The world report
+fingerprints all states and homes and validates as `e989290219afffa4`.
+
+Current evidence:
+
+- exact-final native llvmpipe capture
+  `build-consumer/software-captures/20261015T043811.339015Z-frogs` (193 colour bins, 21.71
+  luminance deviation and 91.86 spatial contrast; inspected at original resolution);
+- Chrome/SwiftShader
+  `build/browser-software/20261015T044850.271176Z-chrome-frogs`, 60 finite positive intervals,
+  GL0, live context, two distinct separated-time frames and no new kernel GPU fault;
+- ARM64 assemble/lint passes without emulator/KVM; the APK is 24,190,467 bytes with SHA-256
+  `15d65a61c8d34063fff82ac2efa99eb4ae005ebaf368eee7a6ae29fc40f1459e` and its stripped
+  `libmain.so` is 19,147,896 bytes.
+
+The first rejected native view exposed gold whole-eye volumes and threadlike rear legs. The second
+confirmed the corrected attached eyes and stronger legs but viewed the face from behind. The
+accepted front-quarter view uses the exact final geometry and camera.
 
 Each gecko owns a compact 5.2--6.1 m home range in one of the two clearings, near the seasonal
 wetland, or on suitable inland ground. Placement rejects beach proximity, steep slopes and invalid

@@ -38,10 +38,11 @@ namespace island
         constexpr int MaximumSkinkVertices = static_cast<int>(SkinkPopulation::Count) * 900;
         constexpr int MaximumDragonflyVertices =
             static_cast<int>(DragonflySwarm::Count) * 720;
+        constexpr int MaximumFrogVertices = static_cast<int>(FrogPopulation::Count) * 720;
         constexpr int MaximumVertexCount = static_cast<int>(ButterflyMeadow::ButterflyCount)
             * MaximumVerticesPerButterfly + MaximumFlowerVertices + MaximumGeckoVertices
             + MaximumSkinkVertices
-            +MaximumDragonflyVertices;
+            +MaximumDragonflyVertices + MaximumFrogVertices;
         constexpr std::string_view ButterflyDiagnostic =
             "island-simulator: clearing butterflies use hinged patterned wings in one culled batch";
         constexpr std::string_view ButterflyAnatomyDiagnostic =
@@ -56,6 +57,8 @@ namespace island
             "island-simulator: skinks use smooth elongated trunks, short articulated limbs, tapered tails, longitudinal stripes, and highlighted eyes";
         constexpr std::string_view DragonflyDiagnostic=
             "island-simulator: nine stream and wetland dragonflies hover, patrol, and dart in the shared butterfly batch";
+        constexpr std::string_view FrogDiagnostic =
+            "island-simulator: ten stream and wetland frogs rest, hop, and retreat in the shared butterfly batch";
 
         struct ButterflyPalette
         {
@@ -521,6 +524,115 @@ namespace island
             }
         }
 
+        void AppendFrog(std::vector<VertexPositionColor>& vertices, const FrogState& frog)
+        {
+            const std::array<Color, 4> backs = {{
+                Color(76, 111, 49, 255), Color(102, 126, 55, 255),
+                Color(68, 96, 63, 255), Color(117, 105, 55, 255)}};
+            const Color back = backs[frog.colorVariant % backs.size()];
+            const Color flank = Color::Lerp(back, Color(35, 50, 30, 255), .34f);
+            const Color underside = Color::Lerp(back, Color(204, 190, 132, 255), .62f);
+            const Color marking = Color::Lerp(back, Color(30, 48, 25, 255), .62f);
+            const Color iris(176, 150, 54, 255);
+            const Color pupil(9, 13, 7, 255);
+            const Color glint(223, 218, 171, 255);
+            const float scale = frog.scale;
+            const float hop = std::sin(3.14159265359f * frog.hopPhase);
+            const float extension = frog.behavior == FrogBehavior::Rest ? 0.0f : hop;
+            const float breathing = 1.0f + .045f * std::sin(frog.breathPhase);
+            const Vector3 forward(std::cos(frog.headingRadians), 0.0f,
+                                  std::sin(frog.headingRadians));
+            const Vector3 right(-forward.Z, 0.0f, forward.X);
+            const Vector3 up = Vector3::Up;
+            const Vector3 centre(frog.x, frog.y + .095f * scale, frog.z);
+
+            constexpr std::array<float, 5> BodyStations = {{-.25f, -.14f, .02f, .17f, .25f}};
+            constexpr std::array<float, 5> BodyWidths = {{.10f, .22f, .27f, .23f, .12f}};
+            constexpr std::array<float, 5> BodyHeights = {{.07f, .15f, .18f, .15f, .08f}};
+            std::array<float, 5> bodyHeights = BodyHeights;
+            for (float& height : bodyHeights) height *= breathing;
+            AppendGeckoLoft(vertices, centre, right, up, forward, BodyStations,
+                            BodyWidths, bodyHeights, scale, back, flank, underside);
+
+            const Vector3 head = centre + forward * (.265f * scale) + up * (.035f * scale);
+            constexpr std::array<float, 4> HeadStations = {{-.08f, .0f, .12f, .19f}};
+            constexpr std::array<float, 4> HeadWidths = {{.17f, .25f, .23f, .13f}};
+            constexpr std::array<float, 4> HeadHeights = {{.10f, .16f, .14f, .07f}};
+            AppendGeckoLoft(vertices, head, right, up, forward, HeadStations,
+                            HeadWidths, HeadHeights, scale, back, flank, underside);
+
+            // Long folded hind legs and shorter forelegs preserve the characteristic
+            // crouched silhouette; the hop phase extends both pairs without a skeleton.
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 hip = centre - forward * (.10f * scale)
+                    + right * (side * .18f * scale);
+                const Vector3 knee = hip - forward * ((.18f + extension * .17f) * scale)
+                    + right * (side * (.19f - extension * .05f) * scale)
+                    - up * ((.035f - extension * .055f) * scale);
+                const Vector3 ankle = knee + forward * ((.23f + extension * .24f) * scale)
+                    + right * (side * .07f * scale) - up * (.035f * scale);
+                const Vector3 rearToe = ankle + forward * (.18f * scale)
+                    + right * (side * .025f * scale);
+                AppendGeckoSegment(vertices, hip, knee, .055f * scale, flank);
+                AppendGeckoSegment(vertices, knee, ankle, .039f * scale, back);
+                AppendGeckoSegment(vertices, ankle, rearToe, .020f * scale, underside);
+                for (int toe = -1; toe <= 1; ++toe) {
+                    const Vector3 tip = rearToe + forward * (.095f * scale)
+                        + right * ((side * .025f + static_cast<float>(toe) * .045f) * scale);
+                    AppendGeckoSegment(vertices, rearToe, tip, .008f * scale, underside);
+                }
+
+                const Vector3 shoulder = head - forward * (.075f * scale)
+                    + right * (side * .17f * scale) - up * (.04f * scale);
+                const Vector3 wrist = shoulder + forward * ((.15f + extension * .10f) * scale)
+                    + right * (side * .055f * scale) - up * (.11f * scale);
+                AppendGeckoSegment(vertices, shoulder, wrist, .026f * scale, flank);
+                for (int toe = -1; toe <= 1; ++toe) {
+                    const Vector3 tip = wrist + forward * (.095f * scale)
+                        + right * ((side * .025f + static_cast<float>(toe) * .025f) * scale);
+                    AppendGeckoSegment(vertices, wrist, tip, .007f * scale, underside);
+                }
+            }
+
+            // Raised dorsolateral folds and a few restrained spots break the smooth green shell.
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 foldA = centre - forward * (.16f * scale)
+                    + right * (side * .13f * scale) + up * (.15f * scale);
+                const Vector3 foldB = centre + forward * (.19f * scale)
+                    + right * (side * .15f * scale) + up * (.13f * scale);
+                AppendGeckoSegment(vertices, foldA, foldB, .010f * scale, marking);
+            }
+            for (int spot = 0; spot < 3; ++spot) {
+                const float side = spot == 1 ? -1.0f : 1.0f;
+                const Vector3 spotCentre = centre + forward * ((-.12f + spot * .12f) * scale)
+                    + right * (side * .09f * scale) + up * (.18f * scale);
+                AddDoubleSidedTriangle(vertices, spotCentre + forward * (.025f * scale),
+                    spotCentre - right * (.025f * scale) - forward * (.018f * scale),
+                    spotCentre + right * (.025f * scale) - forward * (.018f * scale), marking);
+            }
+
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 eyeCentre = head + forward * (.045f * scale)
+                    + right * (side * .195f * scale) + up * (.115f * scale);
+                AppendGeckoDiamond(vertices, eyeCentre, right, up, forward,
+                                   .060f * scale, .058f * scale, .046f * scale, back, flank);
+                const Vector3 irisCentre = eyeCentre + right * (side * .050f * scale)
+                    + forward * (.012f * scale) + up * (.004f * scale);
+                AppendGeckoDiamond(vertices, irisCentre, right, up, forward,
+                                   .023f * scale, .029f * scale, .014f * scale, iris, iris);
+                const Vector3 pupilCentre = irisCentre + right * (side * .015f * scale)
+                    + forward * (.005f * scale);
+                AddDoubleSidedTriangle(vertices, pupilCentre + up * (.035f * scale),
+                    pupilCentre - forward * (.012f * scale) - up * (.035f * scale),
+                    pupilCentre + forward * (.012f * scale) - up * (.035f * scale), pupil);
+                const Vector3 highlight = pupilCentre + up * (.020f * scale)
+                    + right * (side * .004f * scale);
+                AddDoubleSidedTriangle(vertices, highlight + up * (.007f * scale),
+                    highlight - forward * (.006f * scale) - up * (.004f * scale),
+                    highlight + forward * (.006f * scale) - up * (.004f * scale), glint);
+            }
+        }
+
         [[nodiscard]] Vector3 LocalPoint(const Vector3& centre, const Vector3& right,
                                          const Vector3& up, const Vector3& forward,
                                          const float x, const float y, const float z,
@@ -689,6 +801,7 @@ namespace island
         std::cout << SkinkDiagnostic << '\n';
         std::cout << SkinkAnatomyDiagnostic << '\n';
         std::cout << DragonflyDiagnostic << '\n';
+        std::cout << FrogDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyHabitatDiagnostic);
@@ -696,6 +809,7 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(SkinkDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(SkinkAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(DragonflyDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(FrogDiagnostic);
     }
 
     ButterflyRenderer::~ButterflyRenderer() = default;
@@ -706,7 +820,8 @@ namespace island
                                   const std::span<const ButterflyFlowerPatch> flowerPatches,
                                   const std::span<const GeckoState> geckos,
                                   const std::span<const SkinkState> skinks,
-                                  const std::span<const DragonflyState> dragonflies)
+                                  const std::span<const DragonflyState> dragonflies,
+                                  const std::span<const FrogState> frogs)
     {
         stagingVertices_.clear();
         visibleButterflyCount_ = 0;
@@ -715,6 +830,7 @@ namespace island
         visibleGeckoCount_ = 0;
         visibleSkinkCount_ = 0;
         visibleDragonflyCount_=0;
+        visibleFrogCount_ = 0;
         drawCallCount_ = 0;
         const BoundingFrustum frustum(view * projection);
         for (std::size_t index = 0; index < flowerPatches.size(); ++index) {
@@ -752,6 +868,16 @@ namespace island
             if(Vector3::DistanceSquared(centre,cameraPosition)>maximumDistance_*maximumDistance_
                 ||!frustum.Intersects(BoundingSphere(centre,.46f*fly.scale)))continue;
             AppendDragonfly(stagingVertices_,fly);++visibleDragonflyCount_;
+        }
+        for (const FrogState& frog : frogs) {
+            const Vector3 centre(frog.x, frog.y + .08f, frog.z);
+            if (Vector3::DistanceSquared(centre, cameraPosition)
+                    > maximumDistance_ * maximumDistance_
+                || !frustum.Intersects(BoundingSphere(centre, frog.scale * .75f))) {
+                continue;
+            }
+            AppendFrog(stagingVertices_, frog);
+            ++visibleFrogCount_;
         }
         for (const ButterflyState& butterfly : butterflies) {
             const Vector3 centre(butterfly.x, butterfly.y, butterfly.z);

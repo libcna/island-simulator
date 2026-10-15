@@ -144,6 +144,7 @@ namespace island
             case FixedViewpoint::GeckoDetail: return "geckos";
             case FixedViewpoint::SkinkDetail: return "skinks";
             case FixedViewpoint::DragonflyDetail: return "dragonflies";
+            case FixedViewpoint::FrogDetail: return "frogs";
             case FixedViewpoint::SeaTurtleDetail: return "turtles";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
             case FixedViewpoint::None: return "interactive";
@@ -175,6 +176,7 @@ namespace island
           geckoPopulation_(terrain_),
           skinkPopulation_(terrain_),
           dragonflySwarm_(terrain_),
+          frogPopulation_(terrain_),
           crabColony_(terrain_),
           hermitCrabGroup_(terrain_),
           coconutCrabGroup_(terrain_),
@@ -1399,6 +1401,21 @@ namespace island
             const Vector3 direction=Vector3(fly.x,fly.y,fly.z)-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
             std::cout<<"island-simulator: dragonfly QA camera frames one visible wet-habitat insect broadside\n";
+        } else if (viewpoint_ == FixedViewpoint::FrogDetail
+                   && frogPopulation_.Frogs().size() > 1U) {
+            const FrogState& frog = frogPopulation_.Frogs()[1U];
+            const Vector3 forward(std::cos(frog.headingRadians), 0.0f,
+                                  std::sin(frog.headingRadians));
+            const Vector3 side(-forward.Z, 0.0f, forward.X);
+            const float cameraX = frog.x + forward.X * .46f + side.X * .34f;
+            const float cameraZ = frog.z + forward.Z * .46f + side.Z * .34f;
+            cameraPosition_ = Vector3(cameraX,
+                std::max(terrain_.Height(cameraX, cameraZ) + .34f, frog.y + .31f), cameraZ);
+            const Vector3 direction = Vector3(frog.x, frog.y + .075f, frog.z)
+                - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+            std::cout << "island-simulator: frog QA camera frames one resting stream-bank animal\n";
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferMultiSamplingProperty(qualityProfile_.preferredBackBufferSamples > 0);
@@ -1734,6 +1751,8 @@ namespace island
                   << " agents in deterministic open-ground bask, forage, and flee habitats\n"
                   << "island-simulator: dragonflies " << dragonflySwarm_.Dragonflies().size()
                   << " agents in three stream and wetland habitats\n"
+                  << "island-simulator: frogs " << frogPopulation_.Frogs().size()
+                  << " agents rest, hop, and retreat beside the stream and wetland\n"
                   << "island-simulator: beach crabs " << crabColony_.Crabs().size()
                   << " agents in deterministic sand-and-debris-constrained colonies\n"
                   << "island-simulator: hermit crabs " << hermitCrabGroup_.Crabs().size()
@@ -1833,6 +1852,11 @@ namespace island
         dragonflyPopulationDiagnostic<<"island-simulator: dragonflies "
             <<dragonflySwarm_.Dragonflies().size()<<" agents in three stream and wetland habitats";
         MirrorRuntimeDiagnosticToPlatformLog(dragonflyPopulationDiagnostic.str());
+        std::ostringstream frogPopulationDiagnostic;
+        frogPopulationDiagnostic << "island-simulator: frogs "
+            << frogPopulation_.Frogs().size()
+            << " agents rest, hop, and retreat beside the stream and wetland";
+        MirrorRuntimeDiagnosticToPlatformLog(frogPopulationDiagnostic.str());
         std::ostringstream crabPopulationDiagnostic;
         crabPopulationDiagnostic << "island-simulator: beach crabs "
                                  << crabColony_.Crabs().size()
@@ -2040,6 +2064,13 @@ namespace island
         if(viewpoint_==FixedViewpoint::DragonflyDetail){const auto& fly=dragonflySwarm_.Dragonflies()[1U];dragonflyObserver=Vector3(fly.x,fly.y+20,fly.z);}
         dragonflySwarm_.Update(viewpoint_==FixedViewpoint::DragonflyDetail?0.0f:deltaSeconds,
             dragonflyObserver.X,dragonflyObserver.Y,dragonflyObserver.Z);
+        Vector3 frogObserver = cameraPosition_;
+        if (viewpoint_ == FixedViewpoint::FrogDetail) {
+            const auto& frog = frogPopulation_.Frogs()[1U];
+            frogObserver = Vector3(frog.x, frog.y + 18.0f, frog.z);
+        }
+        frogPopulation_.Update(viewpoint_ == FixedViewpoint::FrogDetail ? 0.0f : deltaSeconds,
+                               frogObserver.X, frogObserver.Y, frogObserver.Z);
         const CrabState previousCrabSubject = crabColony_.Crabs()[crabViewSubject_];
         Vector3 crabObserver=cameraPosition_;
         if(viewpoint_==FixedViewpoint::CrabDetail) {
@@ -3414,7 +3445,7 @@ namespace island
                                      butterflyMeadow_.Butterflies(),
                                      butterflyMeadow_.FlowerPatches(),
                                      geckoPopulation_.Geckos(), skinkPopulation_.Skinks(),
-                                     dragonflySwarm_.Dragonflies());
+                                     dragonflySwarm_.Dragonflies(), frogPopulation_.Frogs());
         }
 
         {
@@ -3960,6 +3991,9 @@ namespace island
                       << " visible in shared draw; dragonflies "
                       << butterflyRenderer_->VisibleDragonflyCount() << '/'
                       << dragonflySwarm_.Dragonflies().size()
+                      << " visible in shared draw; frogs "
+                      << butterflyRenderer_->VisibleFrogCount() << '/'
+                      << frogPopulation_.Frogs().size()
                       << " visible in shared draw; crabs "
                       << crabRenderer_->VisibleCrabCount() << '/'
                       << crabColony_.Crabs().size() << " visible (near "

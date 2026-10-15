@@ -41,6 +41,7 @@
 #include "IslandSimulator/DolphinPod.hpp"
 #include "IslandSimulator/DolphinRenderer.hpp"
 #include "IslandSimulator/DragonflySwarm.hpp"
+#include "IslandSimulator/FrogPopulation.hpp"
 #include "IslandSimulator/HermitCrabGroup.hpp"
 #include "IslandSimulator/CoconutCrabGroup.hpp"
 #include "IslandSimulator/FishRenderer.hpp"
@@ -181,6 +182,7 @@ namespace island
         GeckoDetail,
         SkinkDetail,
         DragonflyDetail,
+        FrogDetail,
         SeaTurtleDetail,
         BenchmarkTraversal
     };
@@ -293,6 +295,7 @@ namespace island
         GeckoPopulation geckoPopulation_;
         SkinkPopulation skinkPopulation_;
         DragonflySwarm dragonflySwarm_;
+        FrogPopulation frogPopulation_;
         CrabColony crabColony_;
         HermitCrabGroup hermitCrabGroup_;
         CoconutCrabGroup coconutCrabGroup_;

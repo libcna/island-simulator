@@ -60,6 +60,48 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Current significant unfinished work — 2026-10-15
+
+The unchecked-marker count below is not the current backlog: this long ledger deliberately retains
+historical incident next steps, rejected visual iterations and superseded acceptance notes. The
+remaining material work is:
+
+- finish the requested fauna list with bounded, habitat-appropriate implementations (notably
+  parrots/doves, fruit bats, stingrays and octopuses; small insects/rodents/deer are lower-value
+  explicit plan entries and should follow visual/ecological fit rather than raw species count);
+- continue whole-island visual critique, especially jungle-floor/canopy repetition, continuous
+  camera LOD transitions and moving-edge aliasing;
+- complete three recorded whole-island passes for traversal/scale, materials/lighting and
+  animation/sound, including long-session silence and control/lifecycle checks;
+- qualify final release behavior on actual AMD hardware, Firefox and a physical Android device.
+
+Helicopter, bunker, hut relocation, cave, campfire, resident, bear, crocodiles, 50 snakes, 200
+spiders, boar/goat/snake sound, flight/diving controls, stream/wetland/mangroves/reef, shipwreck and
+the latest animal repairs already exist and are not reopened merely because an older section still
+contains an unchecked or partial marker. Those stale markers should be normalized incrementally
+when their owning area is touched, without rewriting historical evidence.
+
+## Latest ecosystem implementation — stream-bank frogs
+
+Small-fauna item 17 now adds ten deterministic frogs across eight permanent-stream banks and two
+seasonal-wetland homes. Placement uses the shared moisture field, rejects shore proximity and steep
+or invalid ground, and keeps each frog in a 4.8--6.5 m home. Rest, ordinary hop and a short bounded
+retreat from a player within 2.8 m use the existing full/reduced/dormant activation policy. The
+close procedural form has a broad low head and body, attached green eye mounds with small gold
+irises, dorsolateral folds, restrained spots, stout folded hind legs, short forelegs and splayed
+toes. Hop phase extends the legs and raises the whole body along a bounded arc.
+
+All frog vertices join the existing butterfly/gecko/skink/dragonfly dynamic buffer and single draw;
+there is no renderer, texture, material switch, GPU buffer or draw-call addition. Exact-final native
+evidence is `build-consumer/software-captures/20261015T043811.339015Z-frogs` (193 colour bins,
+21.71 luminance deviation, 91.86 spatial contrast; inspected). Chrome/SwiftShader evidence
+`build/browser-software/20261015T044850.271176Z-chrome-frogs` passes 60 finite positive intervals,
+GL0, a live context, distinct separated-time frames and clean kernel monitoring; the close frame was
+inspected. Deterministic simulation/core and world-report tests pass; current world fingerprint is
+`e989290219afffa4`. ARM64 assemble/lint passes without emulator/KVM (24,190,467-byte APK, SHA-256
+`15d65a61c8d34063fff82ac2efa99eb4ae005ebaf368eee7a6ae29fc40f1459e`, 19,147,896-byte stripped
+`libmain.so`). Details are in `docs/small-fauna.md`; physical-device appearance remains unqualified.
+
 ## Latest visual-audit implementation — compact primate head and readable eyes
 
 The renewed close animal comparison selected the monkey ahead of the bear and boar as the weakest
@@ -4065,7 +4107,8 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   Completed by the spatial habitat work plus the 2026-10-15 shallow-scene audit recorded above.
 - [~] 17. Small fauna with simple behaviour (for example a gecko that sits, flees, disappears):
   eight grounded rest/flee/hide geckos, eight bask/forage/flee skinks, nine moist-habitat
-  hover/patrol/dart dragonflies, ten sheltered-beach hermit crabs and six palm-zone coconut crabs
+  hover/patrol/dart dragonflies, ten moist-bank rest/hop/retreat frogs, ten sheltered-beach hermit
+  crabs and six palm-zone coconut crabs
   are complete in existing shared batches, with native, WebGL and ARM64 qualification described
   above and in `docs/small-fauna.md`. More small crabs, shorebirds/seabirds, fruit bats, cicadas and
   beetles remain.

@@ -8,6 +8,7 @@
 #include "IslandSimulator/GeckoPopulation.hpp"
 #include "IslandSimulator/SkinkPopulation.hpp"
 #include "IslandSimulator/DragonflySwarm.hpp"
+#include "IslandSimulator/FrogPopulation.hpp"
 #include "Microsoft/Xna/Framework/Matrix.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
 
@@ -42,7 +43,8 @@ namespace island
                   std::span<const ButterflyFlowerPatch> flowerPatches,
                   std::span<const GeckoState> geckos,
                   std::span<const SkinkState> skinks,
-                  std::span<const DragonflyState> dragonflies);
+                  std::span<const DragonflyState> dragonflies,
+                  std::span<const FrogState> frogs);
 
         [[nodiscard]] int VisibleButterflyCount() const noexcept {
             return visibleButterflyCount_;
@@ -57,6 +59,7 @@ namespace island
         [[nodiscard]] int VisibleGeckoCount() const noexcept { return visibleGeckoCount_; }
         [[nodiscard]] int VisibleSkinkCount() const noexcept { return visibleSkinkCount_; }
         [[nodiscard]] int VisibleDragonflyCount() const noexcept { return visibleDragonflyCount_; }
+        [[nodiscard]] int VisibleFrogCount() const noexcept { return visibleFrogCount_; }
 
     private:
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
@@ -69,6 +72,7 @@ namespace island
         int visibleGeckoCount_ = 0;
         int visibleSkinkCount_ = 0;
         int visibleDragonflyCount_ = 0;
+        int visibleFrogCount_ = 0;
         int drawCallCount_ = 0;
         float maximumDistance_ = 72.0f;
     };

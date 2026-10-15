@@ -8,6 +8,7 @@
 #include "IslandSimulator/GeckoPopulation.hpp"
 #include "IslandSimulator/SkinkPopulation.hpp"
 #include "IslandSimulator/DragonflySwarm.hpp"
+#include "IslandSimulator/FrogPopulation.hpp"
 #include "IslandSimulator/HermitCrabGroup.hpp"
 #include "IslandSimulator/CoconutCrabGroup.hpp"
 #include "IslandSimulator/CrabColony.hpp"
@@ -122,6 +123,7 @@ namespace
         island::GeckoPopulation geckos{terrain};
         island::SkinkPopulation skinks{terrain};
         island::DragonflySwarm dragonflies{terrain};
+        island::FrogPopulation frogs{terrain};
         island::HermitCrabGroup hermitCrabs{terrain};
         island::CoconutCrabGroup coconutCrabs{terrain};
         island::CrabColony crabs{terrain};
@@ -446,6 +448,15 @@ namespace
             hash.AddByte(dragonfly.colorVariant);
             hash.AddFloat(home.x);hash.AddFloat(home.z);hash.AddFloat(home.radius);
         }
+        hash.AddSize(world.frogs.Frogs().size());
+        for(std::size_t index=0;index<world.frogs.Frogs().size();++index) {
+            const auto& frog=world.frogs.Frogs()[index];
+            const auto& home=world.frogs.Homes()[index];
+            HashPosition(hash,frog.x,frog.y,frog.z);
+            hash.AddFloat(frog.headingRadians);hash.AddFloat(frog.scale);
+            hash.AddEnum(frog.behavior);hash.AddByte(frog.colorVariant);
+            hash.AddFloat(home.x);hash.AddFloat(home.z);hash.AddFloat(home.radius);
+        }
         hash.AddSize(world.hermitCrabs.Crabs().size());
         for(std::size_t index=0;index<world.hermitCrabs.Crabs().size();++index) {
             const auto& crab=world.hermitCrabs.Crabs()[index];
@@ -728,6 +739,8 @@ namespace
             && world.skinks.Homes().size()==island::SkinkPopulation::Count
             && world.dragonflies.Dragonflies().size()==island::DragonflySwarm::Count
             && world.dragonflies.Homes().size()==island::DragonflySwarm::Count
+            && world.frogs.Frogs().size()==island::FrogPopulation::Count
+            && world.frogs.Homes().size()==island::FrogPopulation::Count
             && world.hermitCrabs.Crabs().size()==island::HermitCrabGroup::Count
             && world.hermitCrabs.Homes().size()==island::HermitCrabGroup::Count
             && world.coconutCrabs.Crabs().size()==island::CoconutCrabGroup::Count
@@ -895,6 +908,22 @@ namespace
                 &&sample.slopeRadians<.55f&&inland.moisture>.34f
                 &&dragonfly.y>=sample.height+.70f
                 &&dragonfly.y<=sample.height+1.22f;
+        }
+        for(std::size_t index=0;index<world.frogs.Frogs().size();++index) {
+            const auto& frog=world.frogs.Frogs()[index];
+            const auto& home=world.frogs.Homes()[index];
+            const auto sample=world.terrain.Sample(frog.x,frog.z);
+            const auto inland=island::IslandEnvironmentField::SampleInland(
+                frog.x,frog.z,sample.signedShoreDistance);
+            finiteSpecializedData=finiteSpecializedData
+                &&AllFinite(frog.x,frog.y,frog.z,frog.headingRadians,
+                             frog.hopPhase,frog.breathPhase,frog.scale,
+                             home.x,home.z,home.radius)
+                &&frog.scale>0.0f&&home.radius>0.0f
+                &&std::hypot(frog.x-home.x,frog.z-home.z)<=home.radius
+                &&sample.height>.05f&&sample.signedShoreDistance>18.0f
+                &&sample.slopeRadians<.48f&&inland.moisture>.52f
+                &&std::fabs(frog.y-sample.height-.045f)<.001f;
         }
         for(std::size_t index=0;index<world.hermitCrabs.Crabs().size();++index) {
             const auto& crab=world.hermitCrabs.Crabs()[index];
@@ -1361,6 +1390,7 @@ namespace
                << "    \"geckos\": " << world.geckos.Geckos().size() << ",\n"
                << "    \"skinks\": " << world.skinks.Skinks().size() << ",\n"
                << "    \"dragonflies\": " << world.dragonflies.Dragonflies().size() << ",\n"
+               << "    \"frogs\": " << world.frogs.Frogs().size() << ",\n"
                << "    \"hermitCrabs\": " << world.hermitCrabs.Crabs().size() << ",\n"
                << "    \"coconutCrabs\": " << world.coconutCrabs.Crabs().size() << ",\n"
                << "    \"beachCrabs\": " << world.crabs.Crabs().size() << ",\n"

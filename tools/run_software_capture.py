@@ -547,7 +547,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "geckos", "skinks", "dragonflies", "hermit-crabs", "coconut-crabs", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "geckos", "skinks", "dragonflies", "frogs", "hermit-crabs", "coconut-crabs", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -1005,6 +1005,13 @@ def main():
                     raise RuntimeError("current dragonfly inspection composition is missing")
                 if not re.search(r"dragonflies [1-9]/9 visible in shared draw",diagnostics):
                     raise RuntimeError("dragonfly capture did not submit a wet-habitat insect")
+            if args.viewpoint == "frogs":
+                if "ten stream and wetland frogs rest, hop, and retreat in the shared butterfly batch" not in diagnostics:
+                    raise RuntimeError("current frog renderer is missing; check for a stale executable")
+                if "frog QA camera frames one resting stream-bank animal" not in diagnostics:
+                    raise RuntimeError("current frog inspection composition is missing")
+                if not re.search(r"frogs [1-9][0-9]*/10 visible in shared draw", diagnostics):
+                    raise RuntimeError("frog capture did not submit a wet-habitat animal")
             if args.viewpoint == "hermit-crabs":
                 if "ten sheltered-beach hermit crabs pause, forage, and retreat in the shared crab batch" not in diagnostics:
                     raise RuntimeError("current hermit-crab renderer is missing; check for a stale executable")
