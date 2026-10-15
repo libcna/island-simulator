@@ -234,14 +234,18 @@ GoatMesh BuildGoatMesh(const GoatGroundPose& pose,float grazing,bool detailed) {
         // Preserve longitudinal masses in both LODs, reducing only ring tessellation.
         const auto upper=Add(leg.root,Mul(Sub(leg.knee,leg.root),.36f));
         const auto upperLower=Add(leg.root,Mul(Sub(leg.knee,leg.root),.68f));
-        const auto lower=Add(leg.knee,Mul(Sub(leg.hoof,leg.knee),.55f));
+        auto lower=Add(leg.knee,Mul(Sub(leg.hoof,leg.knee),.55f));
+        // The planted target remains authoritative, but the visible lower limb should not
+        // collapse into one straight pipe. A small rearward hock/carpal offset produces the
+        // characteristic broken goat-leg profile without changing either fixed bone length.
+        lower.z+=front?-.024f:-.052f;
         // Bury a generous shoulder/haunch root inside the barrel, then taper
         // through a separate upper-limb station. Joint and hoof locations remain
         // the authored planted-foot chain; only the visible flesh silhouette grows.
         const std::array<Tube,7> limb{{{Add(leg.root,{0,.14f,0}),front?.105f:.125f},
             {leg.root,front?.095f:.115f},{upper,front?.075f:.090f},
             {upperLower,front?.060f:.072f},{leg.knee,front?.045f:.050f},
-            {lower,front?.030f:.035f},{leg.hoof,.024f}}};
+            {lower,front?.038f:.045f},{leg.hoof,.028f}}};
         b.Sweep(limb,detailed?8:5,GoatMaterial::Coat,Attachment::Leg);
         b.part=GoatPart::Hoof;
         b.hoofPivot=Add(leg.hoof,{0,-GoatLegPose::HoofHeight,GoatLegPose::SoleForward});

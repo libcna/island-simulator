@@ -131,6 +131,25 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest terrestrial-fauna visual pass — planted goat hocks
+
+The bear/resident/goat comparison selected the goats' lower legs as the weakest remaining close
+animal silhouette. Their fitted upper limbs, coat and cloven hooves were sound, but the thin
+knee-to-hoof sweep still read as one straight stick, especially on the rear legs. The existing
+authoritative root, knee, hoof and sole targets remain untouched. One intermediate lower-limb
+station now carries a restrained front/rear-specific sagittal offset, with a slightly fuller
+cannon/pastern taper and ankle attachment. This exposes a readable hock break while preserving
+the planted gait and terrain contact.
+
+The change only moves and resizes existing sweep rings: near/far geometry remains 7476/4188
+vertices, the six-goat capacity remains 44856 vertices, and population, animation, fur, sound,
+collision and the existing two draws are unchanged. `IslandGoatMeshTests` and `IslandCoreTests`
+pass. Inspected same-camera native evidence compares baseline
+`20261015T171900.703139Z-goats` with accepted current-binary capture
+`20261015T172630.933666Z-goats`; the latter passes at 1280x720 with 235 colour bins, 58.25
+luminance deviation, 252.91 spatial contrast and an empty kernel delta. This closes the specific
+straight lower-leg defect, not all-angle gait acceptance or physical-device qualification.
+
 ## Latest vegetation visual pass — flexible juvenile canopy form
 
 The bush/sapling/standing-snag detail matrix selected saplings as the weakest middle-storey form.

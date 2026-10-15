@@ -630,6 +630,24 @@ silhouette and vertically falling flank hair rather than the prior bands. This i
 appearance check, not physical AMD/Android qualification or proof of natural motion from every
 angle. Hoof rotational locking, self-contact and subjective call listening remain open.
 
+## Lower-leg and hock refinement
+
+A later bear/resident/goat comparison found the goat's lower leg to be the weakest close-view
+animal detail. The planted-foot solver already supplied fixed-length root, knee and hoof targets,
+but the mesh joined the knee to the hoof as an almost straight narrow tube. The existing
+intermediate lower-limb ring now receives a small sagittal offset: 24 mm on front legs and 52 mm
+on rear legs in local model space. The cannon/pastern ring grows from 30/35 mm to 38/45 mm and the
+ankle attachment from 24 to 28 mm. The actual knee, hoof, support normal and sole pivot do not move.
+
+This is a coordinate/radius-only edit to the existing seven-ring sweep. Near/far counts remain
+7476/4188 vertices, the all-near six-goat load remains 44856 vertices, and there is no added
+buffer, draw, texture, collision or simulation work. `IslandGoatMeshTests` and `IslandCoreTests`
+pass. Same-camera baseline `20261015T171900.703139Z-goats` and accepted capture
+`20261015T172630.933666Z-goats` were inspected side by side. The accepted 1280x720 image passes
+with 235 colour bins, 58.25 luminance deviation, 252.91 spatial contrast and an empty kernel delta;
+it shows a fuller planted lower leg and a visible rear hock break without disturbing the cloven
+hoof contact. Continuous all-angle gait and physical Android/AMD appearance remain open.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.
@@ -644,7 +662,7 @@ angle. Hoof rotational locking, self-contact and subjective call listening remai
 - [~] Actual population/update/renderer integration, lighting/contact shadows and vertex
   capacity implemented above; CPU/performance budgets and portable runtime remain open.
 - [x] Live diagnostic counts and initial WorldReport coverage after runtime integration.
-- [~] Unobscured native appearance is current for the latest barrel/limb/coat pass. Web/Android
+- [~] Unobscured native appearance is current for the latest barrel/limb/coat and hock pass. Web/Android
   captures still predate it, and continuous all-angle motion remains open.
 
 The AMD hardware stop latch remains unchanged. No Android emulator/KVM or dependency
