@@ -309,8 +309,16 @@ namespace island
                     const Vector3 shoulder=Local(centre,axes,side*.52f,.34f,rootZ,scale);
                     const Vector3 elbow=Local(centre,axes,side*.83f,.18f,rootZ+stride,scale);
                     const Vector3 wrist=Local(centre,axes,side*.91f,.02f,rootZ+.24f+stride,scale);
-                    AppendTaperedSegment(vertices,shoulder,elbow,.15f*scale,.12f*scale,palette.side,7);
-                    AppendTaperedSegment(vertices,elbow,wrist,.12f*scale,.075f*scale,palette.side,7);
+                    // A low pectoral/hip mass hides the old tube-to-barrel seam and
+                    // gives the splayed limb a muscular crocodilian root. It remains
+                    // centred on the existing animated joint and adds no simulation state.
+                    const float rootWidth=(pair==0?.24f:.27f)*scale;
+                    const float rootHeight=(pair==0?.14f:.16f)*scale;
+                    const float rootLength=(pair==0?.28f:.30f)*scale;
+                    AppendEllipsoid(vertices,shoulder,axes,1.0f,rootWidth,rootHeight,rootLength,
+                                    palette.back,palette.side,3,8);
+                    AppendTaperedSegment(vertices,shoulder,elbow,.17f*scale,.125f*scale,palette.side,8);
+                    AppendTaperedSegment(vertices,elbow,wrist,.125f*scale,.075f*scale,palette.side,8);
                     for(int toe=0;toe<3;++toe) {
                         const float toeSide=(static_cast<float>(toe)-1.0f)*.075f;
                         const Vector3 toeTip=wrist+axes.forward*(.25f*scale)

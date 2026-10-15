@@ -16,6 +16,20 @@ wave and lowers the body toward the water. Beyond 86 m a reduced long-body silho
 
 ## Evidence and honest limits
 
+The 2026-10-15 follow-up animal audit found that the near torso, skull, tail and scutes were
+recognisable, but all four legs still met the barrel as narrow tubes. Each existing animated
+shoulder/hip joint now carries a low three-ring, eight-sided pectoral or pelvic ellipsoid embedded
+in the torso. Upper limb tubes increase from seven to eight sides and taper from the new mass into
+the unchanged elbow, wrist and three toes. Simulation joints, gait phase, habitat, population,
+palette, LOD threshold, allocation and one-draw batching are unchanged.
+
+The current native capture `20261015T143659.327901Z-crocodiles` passes at 1280x720 with 313 colour
+bins, 38.84 luminance deviation, 156.72 spatial contrast and an empty kernel delta. It was inspected
+at a front-quarter angle and shows attached shoulder/hip volumes rather than floating tubular legs.
+The older side-on frame and current frame are different animation/camera angles, so they are not
+claimed as a pixel-matched A/B comparison. Snout planar detail, sampled skin texture and physical
+Android appearance remain outside this small pass.
+
 - `island_crocodile_tests` checks a population of three, stream-mouth locality, valid initial and
   120-second habitat containment, deterministic state, initial bask/swim diversity and a moving
   retreat response.

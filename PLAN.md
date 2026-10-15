@@ -131,6 +131,21 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest visual-audit implementation — crocodile limb attachment
+
+After the monkey head pass, the animal matrix selected the crocodile's near legs: the long torso,
+skull, tail and scutes were recognisable, but four narrow tubes met the barrel without pectoral or
+pelvic mass. Each existing animated shoulder/hip now carries a low embedded ellipsoid and the two
+upper limb segments use eight rather than seven sides. Elbow, wrist, toes, gait phase, three-agent
+population, habitat, palettes, LOD threshold, allocation and one-draw batching are unchanged.
+
+The focused population test passes. Actual llvmpipe evidence `20261015T143659.327901Z-crocodiles`
+passes at 1280x720 with 313 colour bins, 38.84 luminance deviation, 156.72 spatial contrast and an
+empty kernel delta. The inspected front-quarter view shows attached muscular limb roots. Because
+the previous side view has a different animation/camera angle, this is independent current evidence,
+not a pixel-matched A/B claim. Fine snout planes, sampled skin and physical Android appearance remain
+outside this bounded pass.
+
 ## Latest visual-audit implementation — compact monkey facial planes
 
 The next close-animal cycle selected the monkey after the goat correction. Its current body,
