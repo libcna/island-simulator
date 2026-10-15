@@ -897,6 +897,7 @@ try {
               && log.includes("fish fins inherit body-family pigment with dark fitted root edges")
               && log.includes("fish use narrow caudal peduncles and shallow swept forked tails")
               && log.includes("near fish use capped smooth-lit bodies, caudal peduncles and progressive rear-body bends")
+              && log.includes("fish profile pass uses six-facet oval eyes, tapered fork tips, and a lower rear-swept dorsal")
               && /fish [1-9][0-9]*\/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedStingrayCheck || (log.includes("stingrays use broad undulating discs, raised eyes, dorsal spots, pale undersides, and long tapered tails in one draw")
               && log.includes("stingrays 5 agents glide, forage, and settle over shallow sandy seabed")
@@ -1295,7 +1296,7 @@ try {
     && result.output?.includes(
       "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
     && result.output?.includes(
-      "island-simulator: fish near/far geometry 1362/12 vertices, closed fins and CPU faceted daylight")
+      "island-simulator: fish near/far geometry 1386/12 vertices, closed fins and CPU faceted daylight")
     && result.output?.includes(
       "island-simulator: shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
@@ -2478,9 +2479,11 @@ try {
     && fishResult.output?.includes(
       "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
     && fishResult.output?.includes(
-      "island-simulator: fish near/far geometry 1362/12 vertices, closed fins and CPU faceted daylight")
+      "island-simulator: fish near/far geometry 1386/12 vertices, closed fins and CPU faceted daylight")
     && fishResult.output?.includes(
       "island-simulator: near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes")
+    && fishResult.output?.includes(
+      "island-simulator: fish profile pass uses six-facet oval eyes, tapered fork tips, and a lower rear-swept dorsal")
     && /fish [1-9][0-9]*\/48 visible/.test(fishResult.output ?? "")
     && !fishResult.error;
 

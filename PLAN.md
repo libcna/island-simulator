@@ -131,6 +131,22 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest aquatic visual pass — fish eyes and fin profile
+
+The next current aquatic audit found the 48-agent fish schools readable as a whole, but their
+large dark-edged tail lobes still looked like crossed rectangular plates and the two-triangle eye
+read as a diamond. Tail coordinates now form a narrower, longer fork with tapered tips and a deeper
+central notch; the unchanged six-point dorsal outline is lower and more rear-swept. Each near eye
+is now a fitted six-facet oval with the existing restrained highlight.
+
+The eye change adds only 24 vertices per near fish, raising the near/far inventory from 1,362/12
+to 1,386/12 vertices and the deliberately conservative all-48-near capacity to 1,064,448 bytes.
+Schools, four palettes and patterns, habitat, LOD, progressive tail motion and one dynamic draw are
+unchanged. Inspected native baseline `20261015T152048.597141Z-fish` and accepted evidence
+`20261015T152714.068234Z-fish` show sharper forked tails and round eye silhouettes; the final frame
+passes at 1280x720 with 119 colour bins, 20.22 luminance deviation, 110.65 spatial contrast and an
+empty kernel delta.
+
 ## Latest aquatic visual pass — dolphin skin and profile
 
 The current shark/dolphin/turtle/crab matrix selected the dolphin as the weakest aquatic close
@@ -2282,8 +2298,8 @@ docs/stream-course.md and docs/environment-field-design.md.
   remains pending. A fourth audit pass replaces the pointed seven-station/ten-facet body with an
   eleven-station/sixteen-sided capped surface, analytic smooth body daylight, interpolated
   countershading and restrained five/six-point tail/dorsal/pectoral outlines. An initial oversized
-  fin version was rendered and rejected. Near/far geometry is1362/12vertices (maximum all-near
-  1046016bytes), still48agents/one draw. Inspected native
+  fin version was rendered and rejected. The later oval-eye pass raises current near/far geometry
+  to1386/12vertices (maximum all-near1064448bytes), still48agents/one draw. Inspected native
   `20261014T024923.271904Z-fish` PASS114bins/std20.10/spatial132.11/kernel[]; Chrome/SwiftShader
   `20261014T025156.580245Z-chrome-fish` passes two inspected different-time views/60finite
   intervals/GL0/context intact/kernel[]. See `docs/fish-form.md`.

@@ -1,5 +1,25 @@
 # Shallow-water fish form
 
+## Oval eyes and tapered fin profile (2026-10-15)
+
+The current close school audit found that the body loft, gills, mouth, family pigment and movement
+were readable, but the broad dark-edged tail lobes still resembled crossed rectangular plates and
+the old two-triangle eye remained a conspicuous diamond. Coordinate-only fin changes now give both
+caudal lobes a narrower leading edge, farther swept pointed tip, deeper central notch and shorter
+trailing edge. The six-point dorsal is lower and bends farther rearward instead of peaking as a
+rigid triangle. No fin vertex or polygon is added.
+
+Each near eye now uses a fitted six-facet oval plus the retained small highlight. This replaces two
+dark eye triangles per side and adds only 24 vertices per near fish. The near/far inventory becomes
+1,386/12 vertices; even the conservative all-48-near allocation is 66,528 vertices or 1,064,448
+bytes. School count, patterns, palettes, habitat, LOD, progressive rear-body bend and one dynamic
+draw are unchanged.
+
+Inspected native baseline `20261015T152048.597141Z-fish` and accepted evidence
+`20261015T152714.068234Z-fish` show a thinner fork rather than crossed slabs and small oval eyes
+rather than black diamonds. The accepted 1280x720 frame passes with 119 colour bins, 20.22
+luminance deviation, 110.65 spatial contrast and an empty kernel delta.
+
 ## Swept caudal silhouette (2026-10-14)
 
 The renewed school audit found that otherwise readable bodies ended in tall, short caudal lobes
