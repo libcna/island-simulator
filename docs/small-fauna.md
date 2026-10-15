@@ -1,10 +1,38 @@
 # Small fauna
 
-Nine bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, eight
+Ten bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, eight
 open-ground skinks, nine stream/wetland dragonflies, ten stream/wetland frogs, ten beach hermit
 crabs, six coconut crabs, twelve field mice, eight rats, twenty-four flies in four swarms and
-sixty-four ants in four trails.
-This is not completion of every optional small-fauna candidate: cicadas and beetles remain.
+sixty-four ants in four trails, plus twelve trunk-hosted cicadas.
+This is not completion of every optional small-fauna candidate: beetles remain.
+
+## Cicadas
+
+Twelve harmless deterministic cicadas use real non-mangrove broadleaf hosts selected from the
+current `JungleLayout`. Each home follows its rendered trunk's scale, radius and surface frame.
+Animals rest against bark, enter sparse call intervals and make short bounded flights around their
+own crown before returning. Full simulation ends at 28 m, reduced simulation at 65 m and the shared
+wildlife policy sleeps more distant agents.
+
+The close form uses a broad head, paired highlighted eyes, tapered thorax and segmented abdomen,
+six legs and two roof-folded veined wings. It is intentionally a compact angular low-poly detail,
+not a photoreal hero asset. Cicada geometry appends to the existing small-fauna dynamic buffer and
+draw, adding no renderer, GPU buffer, texture, material switch or draw call. Two original
+procedural 1.4-second pulsed buzz clips use the existing positional wildlife voice. Scheduling is
+restricted to calling, non-dormant animals inside 48 m and uses a sparse deterministic cooldown.
+
+The dedicated CPU test runs three simulated minutes and covers exact count, determinism, finite
+normalized frames, actual host contact, rest/call/flight cycling, bounded excursion and all three
+distance tiers. Audio tests cover deterministic/distinct PCM with silent endpoints, scheduling,
+real playback, range and mute behavior. The inspected native llvmpipe capture is
+`build-consumer/software-captures/20261015T105838.525179Z-cicadas`: 117 colour bins, 20.62
+luminance deviation and 95.24 spatial contrast. Chrome/SwiftShader evidence is
+`build/browser-software/20261015T110742.564194Z-chrome-cicadas`: 60 finite positive intervals,
+GL0, live context, two captured frames and no new kernel GPU fault. Native release build plus the
+active non-display range pass 70/70 tests. ARM64 assemble/lint passes with the two-worker wrapper
+and no emulator/KVM; the 24,506,323-byte APK has SHA-256
+`f4f08230d715d87dfd943c1070a7764c904956a2c03440bb8e3bd55e6bdeed09` and packages a
+19,463,752-byte `libmain.so`. Physical-device appearance remains final acceptance work.
 
 ## Ants
 

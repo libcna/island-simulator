@@ -76,7 +76,8 @@ namespace island
                     std::span<const SnakeState> snakes,
                     const BearState* bear=nullptr,
                     float submergedDepth=0.0f,
-                    std::span<const FrogState> frogs={}) noexcept;
+                    std::span<const FrogState> frogs={},
+                    std::span<const CicadaState> cicadas={}) noexcept;
 
         /** @brief Refreshes diagnostic emitter candidates even when audio playback is disabled. */
         void RefreshDebugSources(float listenerX, float listenerY, float listenerZ,
@@ -130,6 +131,7 @@ namespace island
         [[nodiscard]] int PlayedSnakeHissCount() const noexcept { return playedSnakeHissCount_; }
         [[nodiscard]] int PlayedBearCallCount() const noexcept{return playedBearCallCount_;}
         [[nodiscard]] int PlayedFrogCallCount() const noexcept{return playedFrogCallCount_;}
+        [[nodiscard]] int PlayedCicadaCallCount() const noexcept{return playedCicadaCallCount_;}
         [[nodiscard]] bool IsWildlifeCallActive() const noexcept
         {
             return wildlifeSecondsRemaining_ > 0.0f;
@@ -153,16 +155,19 @@ namespace island
         SnakeHissScheduler snakeHissScheduler_;
         BearCallScheduler bearCallScheduler_;
         FrogCallScheduler frogCallScheduler_;
+        CicadaCallScheduler cicadaCallScheduler_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 6> boarEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 6> goatEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 2> snakeHissEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>,6> bearEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>,2> frogEffects_;
+        std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>,2> cicadaEffects_;
         BoarCallRequest activeBoarCall_;
         GoatCallRequest activeGoatCall_;
         SnakeHissRequest activeSnakeHiss_;
         BearCallRequest activeBearCall_;
         FrogCallRequest activeFrogCall_;
+        CicadaCallRequest activeCicadaCall_;
         float boarVoiceGain_ = 1.0f;
         float goatVoiceGain_ = 1.0f;
         float snakeVoiceGain_ = 1.0f;
@@ -247,6 +252,7 @@ namespace island
         int playedSnakeHissCount_ = 0;
         int playedBearCallCount_=0;
         int playedFrogCallCount_=0;
+        int playedCicadaCallCount_=0;
         float shipwreckX_ = 0.0f;
         float shipwreckY_ = 0.0f;
         float shipwreckZ_ = 0.0f;

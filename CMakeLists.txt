@@ -50,6 +50,7 @@ add_library(island_core STATIC
     game/src/ButterflyMeadow.cpp
     game/src/CanopyLightField.cpp
     game/src/CanopyProfile.cpp
+    game/src/CicadaColony.cpp
     game/src/CrabColony.cpp
     game/src/CrocodileGroup.cpp
     game/src/BunkerLayout.cpp
@@ -347,6 +348,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_ant_trails_tests)
     island_enable_first_party_sanitizers(island_ant_trails_tests)
     add_test(NAME IslandAntTrailsTests COMMAND island_ant_trails_tests)
+    add_executable(island_cicada_colony_tests tests/CicadaColonyTests.cpp)
+    target_link_libraries(island_cicada_colony_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_cicada_colony_tests)
+    island_enable_first_party_sanitizers(island_cicada_colony_tests)
+    add_test(NAME IslandCicadaColonyTests COMMAND island_cicada_colony_tests)
     add_executable(island_goat_mesh_tests tests/GoatMeshTests.cpp)
     target_link_libraries(island_goat_mesh_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_goat_mesh_tests)

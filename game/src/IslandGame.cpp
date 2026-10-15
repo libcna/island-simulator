@@ -155,6 +155,7 @@ namespace island
             case FixedViewpoint::RatDetail: return "rats";
             case FixedViewpoint::FlyDetail: return "flies";
             case FixedViewpoint::AntDetail: return "ants";
+            case FixedViewpoint::CicadaDetail: return "cicadas";
             case FixedViewpoint::SeaTurtleDetail: return "turtles";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
             case FixedViewpoint::None: return "interactive";
@@ -204,6 +205,7 @@ namespace island
           vegetationLayout_(terrain_),
           jungleLayout_(terrain_),
           antTrails_(terrain_,jungleLayout_),
+          cicadaColony_(jungleLayout_),
           fruitBatColony_(terrain_, jungleLayout_.Canopy()),
           spiderWebSites_(SpiderWebLayout::Propose(jungleLayout_,RenderedTerrainSurface(terrain_))),
           canopyLightField_(terrain_, MakeCanopyOccluders(
@@ -1547,6 +1549,18 @@ namespace island
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
             std::cout<<"island-simulator: ant QA camera frames a visible worker on one inland soil trail\n";
+        } else if (viewpoint_ == FixedViewpoint::CicadaDetail) {
+            const CicadaState& cicada = cicadaColony_.Cicadas()[1U];
+            const Vector3 outward(cicada.normalX, cicada.normalY, cicada.normalZ);
+            const Vector3 forward(cicada.forwardX, cicada.forwardY, cicada.forwardZ);
+            const Vector3 side = Vector3::Normalize(Vector3::Cross(outward, forward));
+            cameraPosition_ = Vector3(cicada.x, cicada.y, cicada.z)
+                + outward * .35f + side * .10f + forward * .02f;
+            const Vector3 direction = Vector3(cicada.x, cicada.y, cicada.z)
+                + outward * .025f - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+            std::cout << "island-simulator: cicada QA camera frames one trunk-resting animal broadside\n";
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferMultiSamplingProperty(qualityProfile_.preferredBackBufferSamples > 0);
@@ -1904,6 +1918,8 @@ namespace island
                   << " agents in four close-range inland organic-ground swarms\n"
                   << "island-simulator: ants " << AntTrails::Count
                   << " agents in three soil trails and one real broadleaf-trunk trail\n"
+                  << "island-simulator: cicadas " << CicadaColony::Count
+                  << " agents resting, calling, and making short flights from real broadleaf trunks\n"
                   << "island-simulator: beach crabs " << crabColony_.Crabs().size()
                   << " agents in deterministic sand-and-debris-constrained colonies\n"
                   << "island-simulator: hermit crabs " << hermitCrabGroup_.Crabs().size()
@@ -2025,6 +2041,10 @@ namespace island
         antPopulationDiagnostic << "island-simulator: ants " << AntTrails::Count
             << " agents in three soil trails and one real broadleaf-trunk trail";
         MirrorRuntimeDiagnosticToPlatformLog(antPopulationDiagnostic.str());
+        std::ostringstream cicadaPopulationDiagnostic;
+        cicadaPopulationDiagnostic << "island-simulator: cicadas " << CicadaColony::Count
+            << " agents resting, calling, and making short flights from real broadleaf trunks";
+        MirrorRuntimeDiagnosticToPlatformLog(cicadaPopulationDiagnostic.str());
         std::ostringstream crabPopulationDiagnostic;
         crabPopulationDiagnostic << "island-simulator: beach crabs "
                                  << crabColony_.Crabs().size()
@@ -2278,6 +2298,13 @@ namespace island
         }
         antTrails_.Update(viewpoint_==FixedViewpoint::AntDetail?0.0f:deltaSeconds,
                           antObserver.X,antObserver.Y,antObserver.Z);
+        Vector3 cicadaObserver = cameraPosition_;
+        if (viewpoint_ == FixedViewpoint::CicadaDetail) {
+            const auto& cicada = cicadaColony_.Cicadas()[1U];
+            cicadaObserver = Vector3(cicada.x, cicada.y + 20.0f, cicada.z);
+        }
+        cicadaColony_.Update(viewpoint_ == FixedViewpoint::CicadaDetail ? 0.0f : deltaSeconds,
+                             cicadaObserver.X, cicadaObserver.Y, cicadaObserver.Z);
         const CrabState previousCrabSubject = crabColony_.Crabs()[crabViewSubject_];
         Vector3 crabObserver=cameraPosition_;
         if(viewpoint_==FixedViewpoint::CrabDetail) {
@@ -2516,6 +2543,8 @@ namespace island
                         << " wildlife " << static_cast<int>(audio.activeWildlifeCall.type)
                         << " snake-hisses " << soundscape_->PlayedSnakeHissCount()
                         << " goats " << soundscape_->PlayedGoatCallCount()
+                        << " frogs " << soundscape_->PlayedFrogCallCount()
+                        << " cicadas " << soundscape_->PlayedCicadaCallCount()
                         << " underwater " << audio.underwaterAudio.immersion
                         << " air-gain " << audio.underwaterAudio.airGain
                         << " water-gain " << audio.underwaterAudio.waterGain
@@ -3113,7 +3142,7 @@ namespace island
             birdFlock_.Birds(), monkeyTroop_.Monkeys(), boarHerd_.Boars(),
             goats_->Goats(),snakes_->Snakes(),&bear_->State(),
             flightMotion_.IsActive()?0.0f:playerMotion_.SubmergedDepth(),
-            frogPopulation_.Frogs());
+            frogPopulation_.Frogs(), cicadaColony_.Cicadas());
     }
 
     bool IslandGame::IsDebugFreeCameraActive() const noexcept
@@ -3151,6 +3180,7 @@ namespace island
                 ||viewpoint_==FixedViewpoint::ResidentDetail||viewpoint_==FixedViewpoint::BearDetail
                 ||viewpoint_==FixedViewpoint::MouseDetail||viewpoint_==FixedViewpoint::RatDetail
                 ||viewpoint_==FixedViewpoint::FlyDetail||viewpoint_==FixedViewpoint::AntDetail
+                ||viewpoint_==FixedViewpoint::CicadaDetail
                 ||UsesSpiderViewpoint())
                 ?0.50f:std::numbers::pi_v<float> / 3.0f,
             aspect, 0.08f, 1200.0f);
@@ -3685,7 +3715,7 @@ namespace island
                                      geckoPopulation_.Geckos(), skinkPopulation_.Skinks(),
                                      dragonflySwarm_.Dragonflies(), frogPopulation_.Frogs(),
                                      rodentPopulation_.Rodents(), flySwarms_.Flies(),
-                                     antTrails_.Ants());
+                                     antTrails_.Ants(), cicadaColony_.Cicadas());
         }
 
         {
@@ -4268,6 +4298,9 @@ namespace island
                       << " visible in shared draw; ants "
                       << butterflyRenderer_->VisibleAntCount() << '/'
                       << AntTrails::Count
+                      << " visible in shared draw; cicadas "
+                      << butterflyRenderer_->VisibleCicadaCount() << '/'
+                      << CicadaColony::Count
                       << " visible in shared draw; crabs "
                       << crabRenderer_->VisibleCrabCount() << '/'
                       << crabColony_.Crabs().size() << " visible (near "
@@ -4458,6 +4491,14 @@ namespace island
                 <<butterflyRenderer_->VisibleAntCount()<<'/'<<AntTrails::Count
                 <<" visible in shared draw";
             std::cout<<report.str()<<'\n';
+            MirrorRuntimeDiagnosticToPlatformLog(report.str());
+        }
+        if (viewpoint_ == FixedViewpoint::CicadaDetail && drawnFrames_ == 1U) {
+            std::ostringstream report;
+            report << "island-simulator: cicada render proof: cicadas "
+                << butterflyRenderer_->VisibleCicadaCount() << '/' << CicadaColony::Count
+                << " visible in shared draw";
+            std::cout << report.str() << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(report.str());
         }
         const bool snakeCapture = UsesSnakeCaptureClock();

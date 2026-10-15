@@ -18,7 +18,7 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "birds", "bats", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "deer", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "skinks", "dragonflies", "frogs", "rodents", "flies", "ants", "crocodiles", "fish", "stingrays", "octopuses", "shark", "dolphins", "bear", "resident")
+SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "birds", "bats", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "deer", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "skinks", "dragonflies", "frogs", "rodents", "flies", "ants", "cicadas", "crocodiles", "fish", "stingrays", "octopuses", "shark", "dolphins", "bear", "resident")
 
 
 def validate_shipwreck_report(report):
@@ -604,6 +604,29 @@ def validate_ant_report(report):
     return frames
 
 
+def validate_cicada_report(report):
+    views=report.get("views",[])
+    if report.get("passed") is not True or len(views)!=1 or views[0].get("mode")!="cicadas":
+        raise RuntimeError("cicada report lacks one successful focused view")
+    view=views[0];result=view.get("result",{});log=result.get("output","")
+    frames=(view.get("screenshot"),view.get("afterSimulationScreenshot"))
+    intervals=view.get("intervals",[])
+    if (view.get("passed") is not True or view.get("glError")!=0
+        or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+        or "SwiftShader" not in view.get("renderer","") or len(intervals)!=60
+        or not all(isinstance(value,(int,float)) and not isinstance(value,bool)
+                   and math.isfinite(value) and value>0 for value in intervals)
+        or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
+        or len(set(frames))!=2
+        or "twelve cicadas rest, call, and make short flights from real broadleaf trunks in the shared small-fauna batch" not in log
+        or "close cicadas use broad heads, highlighted eyes, stout tapered bodies, six legs, and two veined roof-folded wings" not in log
+        or "cicada QA camera frames one trunk-resting animal broadside" not in log
+        or not re.search(r"cicadas [1-9][0-9]*/12 visible in shared draw",log)
+        or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):
+        raise RuntimeError("cicada view lacks current habitat, anatomy or clean graphics state")
+    return frames
+
+
 def validate_hermit_crab_report(report):
     views=report.get("views",[])
     if report.get("passed") is not True or len(views)!=1 or views[0].get("mode")!="hermit-crabs":
@@ -1057,6 +1080,13 @@ def main(argv=None):
                 if not all(path.is_file() for path in paths):
                     raise RuntimeError("ant image file missing")
                 metadata["ant_frames"]=[artifact_identity(path) for path in paths]
+            if args.scope == "cicadas":
+                cicada_report=json.loads((evidence / "island-browser-cicadas.json").read_text())
+                frames=validate_cicada_report(cicada_report)
+                paths=[evidence / frame for frame in frames]
+                if not all(path.is_file() for path in paths):
+                    raise RuntimeError("cicada image file missing")
+                metadata["cicada_frames"]=[artifact_identity(path) for path in paths]
             if args.scope == "hermit-crabs":
                 hermit_report=json.loads((evidence / "island-browser-hermit-crabs.json").read_text())
                 frames=validate_hermit_crab_report(hermit_report)

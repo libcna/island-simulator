@@ -67,7 +67,7 @@ historical incident next steps, rejected visual iterations and superseded accept
 remaining material work is:
 
 - finish the requested fauna list with bounded, habitat-appropriate implementations (notably
-  cicadas and beetles remain lower-value explicit entries and should follow
+  beetles remain the lower-value explicit entry and should follow
   visual/ecological fit rather than raw species count);
 - continue whole-island visual critique, especially jungle-floor/canopy repetition, continuous
   camera LOD transitions and moving-edge aliasing;
@@ -80,6 +80,36 @@ spiders, boar/goat/snake sound, flight/diving controls, stream/wetland/mangroves
 the latest animal repairs already exist and are not reopened merely because an older section still
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
+
+## Latest ecosystem implementation — trunk cicadas
+
+Macro-ecosystem item 17 now also contains twelve deterministic cicadas hosted by real current
+non-mangrove broadleaf trunks from `JungleLayout`. They alternate resting, sparse calling and short
+crown-local flights while retaining the rendered trunk radius, scale and surface frame. Full,
+reduced and dormant distance tiers bound CPU work; no independent free-roaming swarm or unrelated
+placeholder cylinder is used.
+
+The close portable form has a broad head, paired highlighted eyes, a stout tapered thorax and
+abdomen, six legs and two roof-folded wings with geometric vein lines. It deliberately remains a
+compact angular low-poly animal rather than a hero model. Geometry appends to the existing
+small-fauna dynamic buffer and draw. Two original procedural 1.4-second pulsed buzz variants feed
+the existing shared positional wildlife voice, with distance/state/cooldown scheduling and no new
+audio source. The deterministic three-minute CPU test covers count, real host contact, normalized
+frames, all behaviours, bounded excursions, repeatability and all simulation tiers; sound tests
+cover generation, scheduling, playback, range and mute behavior.
+
+The inspected final native capture is
+`build-consumer/software-captures/20261015T105838.525179Z-cicadas` (117 colour bins, 20.62
+luminance deviation and 95.24 spatial contrast). Chrome 155/SwiftShader evidence
+`build/browser-software/20261015T110742.564194Z-chrome-cicadas` passes 60 finite positive
+intervals, GL0, a live context, two captured frames and clean kernel monitoring. Native release
+build plus the complete active non-display range pass 70/70 tests, and command-line validation
+passes separately. The current Web package is 11,500,569 bytes of Wasm, 2,230,701 bytes of data
+and 281,161 bytes of JavaScript. ARM64 `assembleDebug` and `lintDebug` pass with the two-worker
+wrapper and without emulator/KVM; the APK is 24,506,323 bytes with SHA-256
+`f4f08230d715d87dfd943c1070a7764c904956a2c03440bb8e3bd55e6bdeed09` and contains a
+19,463,752-byte `libmain.so`. Physical-device appearance and ordinary-player discovery remain
+final integration checks. Beetles remain the last explicit small-fauna candidate.
 
 ## Latest ecosystem implementation — ground and trunk ant trails
 
@@ -4274,9 +4304,9 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   eight grounded rest/flee/hide geckos, eight bask/forage/flee skinks, nine moist-habitat
   hover/patrol/dart dragonflies, ten moist-bank rest/hop/retreat frogs, ten sheltered-beach hermit
   crabs, six palm-zone coconut crabs, twelve field mice, eight rats and four six-agent fly swarms
-  plus four sixteen-worker soil/trunk ant trails are complete in existing shared batches, with
-  native, WebGL and ARM64 qualification described above and in `docs/small-fauna.md`. Cicadas and
-  beetles remain explicit candidates.
+  plus four sixteen-worker soil/trunk ant trails and twelve trunk-rest/call/flight cicadas are
+  complete in existing shared batches, with native, WebGL and ARM64 qualification described above
+  and in `docs/small-fauna.md`. Beetles remain the explicit candidate.
 - [x] 18. Tie wildlife to places: crabs on specific beach sections with burrows, butterflies at
   specific flowers, coastal/jungle/seabirds in their zones, reef fish at coral patches and small
   schools over sand, turtles over seagrass. The shared habitat completion and evidence are recorded

@@ -106,6 +106,7 @@
       ["rats", ["--viewpoint", "rats", "--debug-overlay"]],
       ["flies", ["--viewpoint", "flies", "--debug-overlay"]],
       ["ants", ["--viewpoint", "ants", "--debug-overlay"]],
+      ["cicadas", ["--viewpoint", "cicadas", "--debug-overlay"]],
       ["water", ["--viewpoint", "water", "--debug-overlay"]],
       ["current", ["--viewpoint", "current", "--debug-overlay"]],
       ["distant", ["--viewpoint", "distant", "--debug-overlay"]],

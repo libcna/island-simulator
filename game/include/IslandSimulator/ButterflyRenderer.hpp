@@ -12,6 +12,7 @@
 #include "IslandSimulator/RodentPopulation.hpp"
 #include "IslandSimulator/FlySwarms.hpp"
 #include "IslandSimulator/AntTrails.hpp"
+#include "IslandSimulator/CicadaColony.hpp"
 #include "Microsoft/Xna/Framework/Matrix.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
 
@@ -50,7 +51,8 @@ namespace island
                   std::span<const FrogState> frogs,
                   std::span<const RodentState> rodents,
                   std::span<const FlyState> flies,
-                  std::span<const AntState> ants);
+                  std::span<const AntState> ants,
+                  std::span<const CicadaState> cicadas);
 
         [[nodiscard]] int VisibleButterflyCount() const noexcept {
             return visibleButterflyCount_;
@@ -70,6 +72,7 @@ namespace island
         [[nodiscard]] int VisibleRatCount() const noexcept { return visibleRatCount_; }
         [[nodiscard]] int VisibleFlyCount() const noexcept { return visibleFlyCount_; }
         [[nodiscard]] int VisibleAntCount() const noexcept { return visibleAntCount_; }
+        [[nodiscard]] int VisibleCicadaCount() const noexcept { return visibleCicadaCount_; }
 
     private:
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
@@ -87,6 +90,7 @@ namespace island
         int visibleRatCount_ = 0;
         int visibleFlyCount_ = 0;
         int visibleAntCount_ = 0;
+        int visibleCicadaCount_ = 0;
         int drawCallCount_ = 0;
         float maximumDistance_ = 72.0f;
     };

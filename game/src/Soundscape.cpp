@@ -332,6 +332,12 @@ namespace island
                 frogEffects_[i]->setNameProperty(
                     "Original procedural stream frog call " + std::to_string(i));
             }
+            for (std::size_t i = 0; i < cicadaEffects_.size(); ++i) {
+                cicadaEffects_[i] = CreateOneShotSoundEffect(
+                    GenerateCicadaCall(static_cast<std::uint8_t>(i)));
+                cicadaEffects_[i]->setNameProperty(
+                    "Original procedural trunk cicada buzz " + std::to_string(i));
+            }
 
             // CNA's 3D approximation uses this as the full-volume radius before inverse falloff.
             // Island world units are meters, so 24 m keeps calls local without disappearing.
@@ -380,6 +386,7 @@ namespace island
             snakeHissScheduler_.Reset();
             bearCallScheduler_.Reset();
             frogCallScheduler_.Reset();
+            cicadaCallScheduler_.Reset();
             waveAccentsEnabled_ = true;
             waterTransitionsEnabled_ = true;
             footstepsEnabled_ = true;
@@ -417,6 +424,8 @@ namespace island
             std::cout<<"island-simulator: positional peaceful bear breathing/snuffling/huffing enabled "
                          "(shared wildlife voice, six original clips)\n";
             std::cout<<"island-simulator: positional stream and wetland frog croaks enabled "
+                         "(shared wildlife voice, two original clips)\n";
+            std::cout << "island-simulator: positional trunk cicada buzzes enabled "
                          "(shared wildlife voice, two original clips)\n";
 #ifdef __ANDROID__
             // SDLActivity does not expose stdout through logcat. Mirror only the bounded set
@@ -456,6 +465,7 @@ namespace island
             for (auto& effect : snakeHissEffects_) effect.reset();
             for(auto& effect:bearEffects_)effect.reset();
             for(auto& effect:frogEffects_)effect.reset();
+            for(auto& effect:cicadaEffects_)effect.reset();
             monkeyCallEffect_.reset();
             parrotCallAlternateEffect_.reset();
             parrotCallEffect_.reset();
@@ -494,7 +504,8 @@ namespace island
         const std::span<const GoatState> goats,
         const std::span<const SnakeState> snakes,
         const BearState* bear,const float submergedDepth,
-        const std::span<const FrogState> frogs) noexcept
+        const std::span<const FrogState> frogs,
+        const std::span<const CicadaState> cicadas) noexcept
     {
         const float safeDelta = std::isfinite(deltaSeconds)
             ? std::clamp(deltaSeconds, 0.0f, 0.25f) : 0.0f;
@@ -976,6 +987,13 @@ namespace island
             wildlifeCall = {WildlifeCallType::Frog, frogCall.variant,
                 frogCall.volume, frogCall.pitch, frogCall.source};
         }
+        const CicadaCallRequest cicadaCall = cicadaCallScheduler_.Update(safeDelta,
+            listenerState.x, listenerState.y, listenerState.z, cicadas,
+            wildlifeSlotAvailable && wildlifeCall.type == WildlifeCallType::None);
+        if (cicadaCall.trigger) {
+            wildlifeCall = {WildlifeCallType::Cicada, cicadaCall.variant,
+                cicadaCall.volume, cicadaCall.pitch, cicadaCall.source};
+        }
         if (wildlifeCall.type == WildlifeCallType::None) {
             return;
         }
@@ -1007,6 +1025,8 @@ namespace island
             wildlifeEffect=bearEffects_.at(index).get();
         } else if (wildlifeCall.type == WildlifeCallType::Frog) {
             wildlifeEffect = frogEffects_.at(wildlifeCall.variant).get();
+        } else if (wildlifeCall.type == WildlifeCallType::Cicada) {
+            wildlifeEffect = cicadaEffects_.at(wildlifeCall.variant).get();
         }
         if (!wildlifeEffect) {
             return;
@@ -1051,11 +1071,14 @@ namespace island
                 bearVoiceGain_=bearCall.volume/std::max(.0001f,BearCallVolume(bearCall.kind,distance));
             } else if (wildlifeCall.type == WildlifeCallType::Frog) {
                 activeFrogCall_ = frogCall;
+            } else if (wildlifeCall.type == WildlifeCallType::Cicada) {
+                activeCicadaCall_ = cicadaCall;
             }
             wildlifeSecondsRemaining_ = wildlifeCall.type == WildlifeCallType::Monkey
                 ? 2.35f : wildlifeCall.type == WildlifeCallType::Snake ? 1.05f
                 :wildlifeCall.type==WildlifeCallType::Bear?1.60f
-                :wildlifeCall.type==WildlifeCallType::Goat?1.25f:1.50f;
+                :wildlifeCall.type==WildlifeCallType::Goat?1.25f
+                :wildlifeCall.type==WildlifeCallType::Cicada?1.40f:1.50f;
             if (wildlifeCall.type == WildlifeCallType::Bird) {
                 ++playedBirdCallCount_;
                 if (playedBirdCallCount_ == 1) {
@@ -1096,6 +1119,11 @@ namespace island
                 if (playedFrogCallCount_ == 1) std::cout
                     << "island-simulator: first positional frog call played; animal "
                     << frogCall.animalIndex << '\n' << std::flush;
+            } else if (wildlifeCall.type == WildlifeCallType::Cicada) {
+                ++playedCicadaCallCount_;
+                if (playedCicadaCallCount_ == 1) std::cout
+                    << "island-simulator: first positional cicada buzz played; animal "
+                    << cicadaCall.animalIndex << '\n' << std::flush;
             }
         } catch (const std::exception& exception) {
             wildlifeInstance_.reset();
@@ -1201,6 +1229,7 @@ namespace island
         for (auto& effect : snakeHissEffects_) effect.reset();
         for(auto& effect:bearEffects_)effect.reset();
         for(auto& effect:frogEffects_)effect.reset();
+        for(auto& effect:cicadaEffects_)effect.reset();
         monkeyCallEffect_.reset();
         parrotCallAlternateEffect_.reset();
         parrotCallEffect_.reset();

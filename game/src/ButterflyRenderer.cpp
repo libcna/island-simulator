@@ -44,11 +44,14 @@ namespace island
         // 48 eyes and 72 legs. Keep a small per-agent margin for later detail edits.
         constexpr int MaximumFlyVertices = static_cast<int>(FlySwarms::Count) * 360;
         constexpr int MaximumAntVertices = static_cast<int>(AntTrails::Count) * 360;
+        // A close cicada uses at most 684 vertices including the broad lofted head,
+        // segmented abdomen, wing veins and all six two-section legs.
+        constexpr int MaximumCicadaVertices = static_cast<int>(CicadaColony::Count) * 720;
         constexpr int MaximumVertexCount = static_cast<int>(ButterflyMeadow::ButterflyCount)
             * MaximumVerticesPerButterfly + MaximumFlowerVertices + MaximumGeckoVertices
             + MaximumSkinkVertices
             +MaximumDragonflyVertices + MaximumFrogVertices + MaximumRodentVertices
-            + MaximumFlyVertices + MaximumAntVertices;
+            + MaximumFlyVertices + MaximumAntVertices + MaximumCicadaVertices;
         constexpr std::string_view ButterflyDiagnostic =
             "island-simulator: clearing butterflies use hinged patterned wings in one culled batch";
         constexpr std::string_view ButterflyAnatomyDiagnostic =
@@ -77,6 +80,10 @@ namespace island
             "island-simulator: four close-range ant trails use sixty-four soil and trunk-climbing agents in the shared small-fauna batch";
         constexpr std::string_view AntAnatomyDiagnostic =
             "island-simulator: close ants use three-part bodies, six articulated legs, paired antennae, and visible carried leaf fragments";
+        constexpr std::string_view CicadaDiagnostic =
+            "island-simulator: twelve cicadas rest, call, and make short flights from real broadleaf trunks in the shared small-fauna batch";
+        constexpr std::string_view CicadaAnatomyDiagnostic =
+            "island-simulator: close cicadas use broad heads, highlighted eyes, stout tapered bodies, six legs, and two veined roof-folded wings";
 
         struct ButterflyPalette
         {
@@ -773,6 +780,91 @@ namespace island
             }
         }
 
+        void AppendCicada(std::vector<VertexPositionColor>& vertices,
+                          const CicadaState& cicada)
+        {
+            const Vector3 forward = Vector3::Normalize(Vector3(
+                cicada.forwardX, cicada.forwardY, cicada.forwardZ));
+            const Vector3 dorsal = Vector3::Normalize(Vector3(
+                cicada.normalX, cicada.normalY, cicada.normalZ));
+            const Vector3 right = Vector3::Normalize(Vector3::Cross(dorsal, forward));
+            const float unit = .026f * cicada.scale;
+            const std::array<Color, 3> bodies = {{Color(102, 88, 45), Color(69, 88, 48),
+                                                  Color(91, 69, 46)}};
+            const Color body = bodies[cicada.colorVariant % bodies.size()];
+            const Color flank = Color::Lerp(body, Color(22, 20, 15), .45f);
+            const Color wing = Color::Lerp(body, Color(133, 143, 94), .42f);
+            const Color vein = Color::Lerp(body, Color(27, 31, 20), .61f);
+            const Color legColor = Color::Lerp(body, Color(164, 142, 77), .20f);
+            const Color eye(54, 35, 24), glint(221, 194, 128);
+            const Vector3 centre(cicada.x, cicada.y, cicada.z);
+            const Vector3 thorax = centre + dorsal * (.34f * unit);
+            AppendAntBody(vertices, thorax, right, dorsal, forward,
+                .59f * unit, .45f * unit, .50f * unit,
+                Color::Lerp(body, Color(155, 132, 64), .14f), flank);
+            const Vector3 head = thorax + forward * (.63f * unit);
+            constexpr std::array<float, 4> HeadStations = {{-.30f, -.10f, .18f, .34f}};
+            constexpr std::array<float, 4> HeadWidths = {{.37f, .50f, .48f, .27f}};
+            constexpr std::array<float, 4> HeadHeights = {{.23f, .32f, .30f, .16f}};
+            AppendGeckoLoft(vertices, head, right, dorsal, forward, HeadStations,
+                            HeadWidths, HeadHeights, unit, body, flank, flank);
+            const std::array<float, 3> abdomenOffsets = {{-.48f, -.89f, -1.23f}};
+            const std::array<float, 3> abdomenWidths = {{.46f, .40f, .29f}};
+            for (std::size_t segment = 0; segment < abdomenOffsets.size(); ++segment) {
+                const Vector3 abdomen = thorax + forward * (abdomenOffsets[segment] * unit);
+                AppendAntBody(vertices, abdomen, right, dorsal, forward,
+                    abdomenWidths[segment] * unit,
+                    (.31f - .045f * static_cast<float>(segment)) * unit,
+                    .34f * unit,
+                    segment % 2U == 0U ? body : Color::Lerp(body, flank, .18f), flank);
+            }
+
+            for (const float side : {-1.0f, 1.0f}) {
+                const float beat = cicada.behavior == CicadaBehavior::Flight
+                    ? std::sin(cicada.wingPhase) * .35f : .08f;
+                const Vector3 root = thorax + right * (side * .28f * unit)
+                    + dorsal * (.31f * unit) - forward * (.04f * unit);
+                const Vector3 leading = root + right * (side * .48f * unit)
+                    - forward * (.18f * unit) + dorsal * (beat * unit);
+                const Vector3 tip = root + right * (side * .82f * unit)
+                    - forward * (1.48f * unit) + dorsal * (beat * .72f * unit);
+                const Vector3 trailing = root + right * (side * .18f * unit)
+                    - forward * (1.32f * unit) + dorsal * (.05f * unit);
+                AddDoubleSidedTriangle(vertices, root, leading, tip, wing);
+                AddDoubleSidedTriangle(vertices, root, tip, trailing,
+                                       Color::Lerp(wing, body, .18f));
+                AppendGeckoSegment(vertices, root, tip, .025f * unit, vein);
+                AppendGeckoSegment(vertices, leading, trailing, .018f * unit, vein);
+                AppendGeckoSegment(vertices,
+                    root + (leading - root) * .62f,
+                    root + (tip - root) * .76f, .014f * unit, vein);
+
+                const Vector3 eyeCentre = head + forward * (.12f * unit)
+                    + right * (side * .43f * unit) + dorsal * (.15f * unit);
+                AppendGeckoDiamond(vertices, eyeCentre, right, dorsal, forward,
+                    .095f * unit, .11f * unit, .085f * unit, eye, eye);
+                AddDoubleSidedTriangle(vertices,
+                    eyeCentre + dorsal * (.115f * unit),
+                    eyeCentre + forward * (.055f * unit),
+                    eyeCentre + right * (side * .045f * unit), glint);
+
+                for (int legIndex = 0; legIndex < 3; ++legIndex) {
+                    const float along = (.42f - .43f * static_cast<float>(legIndex)) * unit;
+                    const Vector3 hip = thorax + forward * along
+                        + right * (side * .34f * unit);
+                    const Vector3 knee = centre + forward * (along - .12f * unit)
+                        + right * (side * (.83f + .08f * legIndex) * unit)
+                        + dorsal * (.04f * unit);
+                    const Vector3 foot = centre + forward
+                        * ((.54f - .58f * static_cast<float>(legIndex)) * unit)
+                        + right * (side * (1.02f + .10f * legIndex) * unit)
+                        - dorsal * (.02f * unit);
+                    AppendGeckoSegment(vertices, hip, knee, .075f * unit, legColor);
+                    AppendGeckoSegment(vertices, knee, foot, .052f * unit, legColor);
+                }
+            }
+        }
+
         void AppendRodentEar(std::vector<VertexPositionColor>& vertices,
                              const Vector3& centre, const Vector3& horizontal,
                              const Vector3& vertical, const float radius,
@@ -1069,6 +1161,8 @@ namespace island
         std::cout << FlyAnatomyDiagnostic << '\n';
         std::cout << AntDiagnostic << '\n';
         std::cout << AntAnatomyDiagnostic << '\n';
+        std::cout << CicadaDiagnostic << '\n';
+        std::cout << CicadaAnatomyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyHabitatDiagnostic);
@@ -1083,6 +1177,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(FlyAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(AntDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(AntAnatomyDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(CicadaDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(CicadaAnatomyDiagnostic);
     }
 
     ButterflyRenderer::~ButterflyRenderer() = default;
@@ -1097,7 +1193,8 @@ namespace island
                                   const std::span<const FrogState> frogs,
                                   const std::span<const RodentState> rodents,
                                   const std::span<const FlyState> flies,
-                                  const std::span<const AntState> ants)
+                                  const std::span<const AntState> ants,
+                                  const std::span<const CicadaState> cicadas)
     {
         stagingVertices_.clear();
         visibleButterflyCount_ = 0;
@@ -1111,6 +1208,7 @@ namespace island
         visibleRatCount_ = 0;
         visibleFlyCount_ = 0;
         visibleAntCount_ = 0;
+        visibleCicadaCount_ = 0;
         drawCallCount_ = 0;
         const BoundingFrustum frustum(view * projection);
         for (std::size_t index = 0; index < flowerPatches.size(); ++index) {
@@ -1183,6 +1281,13 @@ namespace island
                 ||!frustum.Intersects(BoundingSphere(centre,.045f)))continue;
             AppendAnt(stagingVertices_,ant);
             ++visibleAntCount_;
+        }
+        for (const CicadaState& cicada : cicadas) {
+            const Vector3 centre(cicada.x, cicada.y, cicada.z);
+            if (Vector3::DistanceSquared(centre, cameraPosition) > 26.0f * 26.0f
+                || !frustum.Intersects(BoundingSphere(centre, .12f))) continue;
+            AppendCicada(stagingVertices_, cicada);
+            ++visibleCicadaCount_;
         }
         for (const ButterflyState& butterfly : butterflies) {
             const Vector3 centre(butterfly.x, butterfly.y, butterfly.z);

@@ -10,6 +10,7 @@
 #include "IslandSimulator/GoatHerd.hpp"
 #include "IslandSimulator/SnakePopulation.hpp"
 #include "IslandSimulator/FrogPopulation.hpp"
+#include "IslandSimulator/CicadaColony.hpp"
 
 namespace island
 {
@@ -267,7 +268,8 @@ namespace island
         Snake,
         Bear,
         Goat,
-        Frog
+        Frog,
+        Cicada
     };
 
     /** @brief Nearest currently eligible world-space source for one wildlife species. */
@@ -304,6 +306,34 @@ namespace island
     private:
         [[nodiscard]] float NextUnit() noexcept;
         std::uint32_t randomState_ = 0xf206ca11U;
+        float cooldown_ = 0.0f;
+        std::size_t nextAnimal_ = 0U;
+    };
+
+    /** @brief Original pulsed daytime cicada buzz, not a recorded sample. */
+    [[nodiscard]] AmbientLoop GenerateCicadaCall(std::uint8_t variant);
+
+    struct CicadaCallRequest
+    {
+        bool trigger = false;
+        std::uint8_t variant = 0U;
+        std::size_t animalIndex = 0U;
+        float volume = 0.0f;
+        float pitch = 0.0f;
+        WildlifeAudioSource source;
+    };
+
+    /** @brief Sparse trunk-local cicada calls sharing the existing transient source. */
+    class CicadaCallScheduler final
+    {
+    public:
+        void Reset() noexcept;
+        [[nodiscard]] CicadaCallRequest Update(float deltaSeconds, float listenerX,
+            float listenerY, float listenerZ, std::span<const CicadaState> cicadas,
+            bool playbackSlotAvailable) noexcept;
+    private:
+        [[nodiscard]] float NextUnit() noexcept;
+        std::uint32_t randomState_ = 0xc1cada17U;
         float cooldown_ = 0.0f;
         std::size_t nextAnimal_ = 0U;
     };

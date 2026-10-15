@@ -17,6 +17,7 @@ namespace island
     {
         constexpr int AmbientSampleRate = 22050;
         constexpr int AmbientLoopSeconds = 10;
+        constexpr float TwoPi = 2.0f * std::numbers::pi_v<float>;
         constexpr std::size_t AmbientFrameCount = static_cast<std::size_t>(
             AmbientSampleRate * AmbientLoopSeconds);
 
@@ -670,6 +671,35 @@ namespace island
         samples.front() = 0.0f;
         samples.back() = 0.0f;
         return Quantize(samples, 0.58f);
+    }
+
+    AmbientLoop GenerateCicadaCall(const std::uint8_t variant)
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(
+            AmbientSampleRate * 7 / 5);
+        const std::vector<float> texture = CircularSmooth(Noise(
+            0xc1cada17U ^ static_cast<std::uint32_t>(variant) * 0x9e3779b9U,
+            frameCount), 2U);
+        std::vector<float> samples(frameCount, 0.0f);
+        const float carrier = variant % 2U == 0U ? 2870.0f : 3310.0f;
+        const float pulseRate = variant % 2U == 0U ? 18.5f : 22.0f;
+        for (std::size_t index = 0; index < frameCount; ++index) {
+            const float seconds = static_cast<float>(index)
+                / static_cast<float>(AmbientSampleRate);
+            const float unit = static_cast<float>(index)
+                / static_cast<float>(frameCount - 1U);
+            const float edge = std::min(1.0f, std::min(unit, 1.0f - unit) * 14.0f);
+            const float pulse = .48f + .52f * std::max(0.0f, std::sin(
+                TwoPi * pulseRate * seconds + .35f * std::sin(TwoPi * 2.1f * seconds)));
+            const float phase = TwoPi * carrier * seconds
+                + .22f * std::sin(TwoPi * 31.0f * seconds);
+            samples[index] = edge * pulse * (.64f * std::sin(phase)
+                + .22f * std::sin(phase * 1.987f)
+                + .09f * texture[index]);
+        }
+        samples.front() = 0.0f;
+        samples.back() = 0.0f;
+        return Quantize(samples, 0.52f);
     }
 
     AmbientLoop GenerateMonkeyCall()
@@ -1495,6 +1525,63 @@ namespace island
         request.source = {true, frog.x, frog.y + 0.05f, frog.z};
         nextAnimal_ = (bestIndex + 1U) % frogs.size();
         cooldown_ = 7.0f + NextUnit() * 8.0f;
+        return request;
+    }
+
+    void CicadaCallScheduler::Reset() noexcept
+    {
+        randomState_ = 0xc1cada17U;
+        cooldown_ = 1.0f + NextUnit() * 1.5f;
+        nextAnimal_ = 0U;
+    }
+
+    float CicadaCallScheduler::NextUnit() noexcept
+    {
+        randomState_ ^= randomState_ << 13U;
+        randomState_ ^= randomState_ >> 17U;
+        randomState_ ^= randomState_ << 5U;
+        return static_cast<float>(randomState_ & 0x00ffffffU)
+            / static_cast<float>(0x01000000U);
+    }
+
+    CicadaCallRequest CicadaCallScheduler::Update(
+        const float deltaSeconds, const float listenerX, const float listenerY,
+        const float listenerZ, const std::span<const CicadaState> cicadas,
+        const bool playbackSlotAvailable) noexcept
+    {
+        cooldown_ -= SafeDeltaSeconds(deltaSeconds);
+        if (cooldown_ > 0.0f || !playbackSlotAvailable || cicadas.empty()
+            || !std::isfinite(listenerX) || !std::isfinite(listenerY)
+            || !std::isfinite(listenerZ)) return {};
+
+        float bestDistance = std::numeric_limits<float>::infinity();
+        std::size_t bestIndex = cicadas.size();
+        for (std::size_t step = 0; step < cicadas.size(); ++step) {
+            const std::size_t index = (nextAnimal_ + step) % cicadas.size();
+            const CicadaState& cicada = cicadas[index];
+            if (cicada.simulationTier == WildlifeSimulationTier::Dormant
+                || cicada.behavior != CicadaBehavior::Call) continue;
+            const float distance = std::hypot(std::hypot(cicada.x - listenerX,
+                cicada.z - listenerZ), cicada.y - listenerY);
+            if (std::isfinite(distance) && distance < bestDistance && distance <= 48.0f) {
+                bestDistance = distance;
+                bestIndex = index;
+            }
+        }
+        if (bestIndex == cicadas.size()) {
+            cooldown_ = .45f + NextUnit() * .65f;
+            return {};
+        }
+        const CicadaState& cicada = cicadas[bestIndex];
+        CicadaCallRequest request;
+        request.trigger = true;
+        request.variant = static_cast<std::uint8_t>(NextUnit() >= .5f);
+        request.animalIndex = bestIndex;
+        request.volume = std::clamp(.26f * (1.0f - bestDistance / 52.0f), .02f, .24f);
+        request.pitch = -.05f + NextUnit() * .11f;
+        request.source = {true, cicada.x, cicada.y, cicada.z};
+        nextAnimal_ = (bestIndex + 1U) % cicadas.size();
+        cooldown_ = 5.0f + NextUnit() * 6.0f;
         return request;
     }
 

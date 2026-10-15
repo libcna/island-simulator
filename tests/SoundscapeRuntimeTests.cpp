@@ -166,6 +166,40 @@ void ExerciseFrogVoice() {
         sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},{},nullptr,0.0f,frogs);
     Check(sound.PlayedFrogCallCount()==audible,"Out-of-range frog created actual playback");
 }
+void ExerciseCicadaVoice() {
+    using namespace island;
+    Soundscape sound;
+    std::array<CicadaState,1> cicadas{};
+    cicadas[0].x=0.0f;cicadas[0].y=2.1f;cicadas[0].z=0.0f;
+    cicadas[0].behavior=CicadaBehavior::Call;
+    cicadas[0].simulationTier=WildlifeSimulationTier::Full;
+    SoundscapeListenerState listener;listener.x=2.0f;listener.y=1.72f;listener.z=0.0f;
+    Check(sound.Start(80,false,0,0,0,.5f,listener.x,listener.z),
+        "Cicada dummy audio startup failed: "+sound.Error());
+    bool active=false;
+    for(int tick=0;tick<900;++tick) {
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,
+            {},{},{},{},{},nullptr,0.0f,{},cicadas);
+        active|=sound.IsWildlifeCallActive();
+        Check(sound.IsAvailable()&&sound.Error().empty(),"Cicada call disabled the soundscape");
+        Check(sound.DebugState().playingSourceCount>=4&&sound.DebugState().playingSourceCount<=6,
+            "Cicada call exceeded the shared six-source budget");
+    }
+    Check(active&&sound.PlayedCicadaCallCount()>0,
+        "Nearby calling cicada never entered actual playback");
+    const int audible=sound.PlayedCicadaCallCount();sound.SetMuted(true);
+    for(int tick=0;tick<180;++tick)
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,
+            {},{},{},{},{},nullptr,0.0f,{},cicadas);
+    Check(sound.PlayedCicadaCallCount()==audible&&!sound.IsWildlifeCallActive(),
+        "Muted cicada voice retained or created transient playback");
+    sound.SetMuted(false);listener.x=100.0f;
+    for(int tick=0;tick<900;++tick)
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,
+            {},{},{},{},{},nullptr,0.0f,{},cicadas);
+    Check(sound.PlayedCicadaCallCount()==audible,
+        "Out-of-range cicada created actual playback");
+}
 void ExerciseShipwreckCreak() {
     using namespace island;
     Soundscape sound;
@@ -216,6 +250,7 @@ int main(int argc, char** argv) {
         ExerciseBearVoice();
         ExerciseGoatVoice();
         ExerciseFrogVoice();
+        ExerciseCicadaVoice();
         ExerciseShipwreckCreak();
         std::cout << "Soundscape stream startup/entry/swim/mute runtime regression passed\n";
         return 0;
