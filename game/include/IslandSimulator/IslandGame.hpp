@@ -48,6 +48,7 @@
 #include "IslandSimulator/FlySwarms.hpp"
 #include "IslandSimulator/AntTrails.hpp"
 #include "IslandSimulator/CicadaColony.hpp"
+#include "IslandSimulator/BeetlePopulation.hpp"
 #include "IslandSimulator/HermitCrabGroup.hpp"
 #include "IslandSimulator/CoconutCrabGroup.hpp"
 #include "IslandSimulator/FishRenderer.hpp"
@@ -206,6 +207,7 @@ namespace island
         FlyDetail,
         AntDetail,
         CicadaDetail,
+        BeetleDetail,
         SeaTurtleDetail,
         BenchmarkTraversal
     };
@@ -341,6 +343,7 @@ namespace island
         JungleLayout jungleLayout_;
         AntTrails antTrails_;
         CicadaColony cicadaColony_;
+        BeetlePopulation beetlePopulation_;
         FruitBatColony fruitBatColony_;
         std::vector<SpiderWebSite> spiderWebSites_;
         // CPU fields shared by grass placement and the uploaded light/cover texture.

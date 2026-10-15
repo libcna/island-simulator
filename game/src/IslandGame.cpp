@@ -156,6 +156,7 @@ namespace island
             case FixedViewpoint::FlyDetail: return "flies";
             case FixedViewpoint::AntDetail: return "ants";
             case FixedViewpoint::CicadaDetail: return "cicadas";
+            case FixedViewpoint::BeetleDetail: return "beetles";
             case FixedViewpoint::SeaTurtleDetail: return "turtles";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
             case FixedViewpoint::None: return "interactive";
@@ -206,6 +207,7 @@ namespace island
           jungleLayout_(terrain_),
           antTrails_(terrain_,jungleLayout_),
           cicadaColony_(jungleLayout_),
+          beetlePopulation_(terrain_),
           fruitBatColony_(terrain_, jungleLayout_.Canopy()),
           spiderWebSites_(SpiderWebLayout::Propose(jungleLayout_,RenderedTerrainSurface(terrain_))),
           canopyLightField_(terrain_, MakeCanopyOccluders(
@@ -1561,6 +1563,18 @@ namespace island
             yaw_ = std::atan2(direction.X, direction.Z);
             pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
             std::cout << "island-simulator: cicada QA camera frames one trunk-resting animal broadside\n";
+        } else if (viewpoint_ == FixedViewpoint::BeetleDetail) {
+            const BeetleState& beetle = beetlePopulation_.Beetles()[2U];
+            const Vector3 forward(std::cos(beetle.headingRadians), 0.0f,
+                                  std::sin(beetle.headingRadians));
+            const Vector3 side(-forward.Z, 0.0f, forward.X);
+            cameraPosition_ = Vector3(beetle.x, beetle.y + .095f, beetle.z)
+                + forward * .31f + side * .25f;
+            const Vector3 direction = Vector3(beetle.x, beetle.y + .070f, beetle.z)
+                - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+            std::cout << "island-simulator: beetle QA camera frames one foraging animal in inland leaf litter\n";
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferMultiSamplingProperty(qualityProfile_.preferredBackBufferSamples > 0);
@@ -1920,6 +1934,8 @@ namespace island
                   << " agents in three soil trails and one real broadleaf-trunk trail\n"
                   << "island-simulator: cicadas " << CicadaColony::Count
                   << " agents resting, calling, and making short flights from real broadleaf trunks\n"
+                  << "island-simulator: beetles " << BeetlePopulation::Count
+                  << " agents resting, foraging, and hiding in three inland leaf-litter colonies\n"
                   << "island-simulator: beach crabs " << crabColony_.Crabs().size()
                   << " agents in deterministic sand-and-debris-constrained colonies\n"
                   << "island-simulator: hermit crabs " << hermitCrabGroup_.Crabs().size()
@@ -2045,6 +2061,10 @@ namespace island
         cicadaPopulationDiagnostic << "island-simulator: cicadas " << CicadaColony::Count
             << " agents resting, calling, and making short flights from real broadleaf trunks";
         MirrorRuntimeDiagnosticToPlatformLog(cicadaPopulationDiagnostic.str());
+        std::ostringstream beetlePopulationDiagnostic;
+        beetlePopulationDiagnostic << "island-simulator: beetles " << BeetlePopulation::Count
+            << " agents resting, foraging, and hiding in three inland leaf-litter colonies";
+        MirrorRuntimeDiagnosticToPlatformLog(beetlePopulationDiagnostic.str());
         std::ostringstream crabPopulationDiagnostic;
         crabPopulationDiagnostic << "island-simulator: beach crabs "
                                  << crabColony_.Crabs().size()
@@ -2305,6 +2325,13 @@ namespace island
         }
         cicadaColony_.Update(viewpoint_ == FixedViewpoint::CicadaDetail ? 0.0f : deltaSeconds,
                              cicadaObserver.X, cicadaObserver.Y, cicadaObserver.Z);
+        Vector3 beetleObserver = cameraPosition_;
+        if (viewpoint_ == FixedViewpoint::BeetleDetail) {
+            const auto& beetle = beetlePopulation_.Beetles()[2U];
+            beetleObserver = Vector3(beetle.x, beetle.y + 14.0f, beetle.z);
+        }
+        beetlePopulation_.Update(viewpoint_ == FixedViewpoint::BeetleDetail ? 0.0f : deltaSeconds,
+                                 beetleObserver.X, beetleObserver.Y, beetleObserver.Z);
         const CrabState previousCrabSubject = crabColony_.Crabs()[crabViewSubject_];
         Vector3 crabObserver=cameraPosition_;
         if(viewpoint_==FixedViewpoint::CrabDetail) {
@@ -3181,6 +3208,7 @@ namespace island
                 ||viewpoint_==FixedViewpoint::MouseDetail||viewpoint_==FixedViewpoint::RatDetail
                 ||viewpoint_==FixedViewpoint::FlyDetail||viewpoint_==FixedViewpoint::AntDetail
                 ||viewpoint_==FixedViewpoint::CicadaDetail
+                ||viewpoint_==FixedViewpoint::BeetleDetail
                 ||UsesSpiderViewpoint())
                 ?0.50f:std::numbers::pi_v<float> / 3.0f,
             aspect, 0.08f, 1200.0f);
@@ -3715,7 +3743,8 @@ namespace island
                                      geckoPopulation_.Geckos(), skinkPopulation_.Skinks(),
                                      dragonflySwarm_.Dragonflies(), frogPopulation_.Frogs(),
                                      rodentPopulation_.Rodents(), flySwarms_.Flies(),
-                                     antTrails_.Ants(), cicadaColony_.Cicadas());
+                                     antTrails_.Ants(), cicadaColony_.Cicadas(),
+                                     beetlePopulation_.Beetles());
         }
 
         {
@@ -4301,6 +4330,9 @@ namespace island
                       << " visible in shared draw; cicadas "
                       << butterflyRenderer_->VisibleCicadaCount() << '/'
                       << CicadaColony::Count
+                      << " visible in shared draw; beetles "
+                      << butterflyRenderer_->VisibleBeetleCount() << '/'
+                      << BeetlePopulation::Count
                       << " visible in shared draw; crabs "
                       << crabRenderer_->VisibleCrabCount() << '/'
                       << crabColony_.Crabs().size() << " visible (near "
@@ -4497,6 +4529,14 @@ namespace island
             std::ostringstream report;
             report << "island-simulator: cicada render proof: cicadas "
                 << butterflyRenderer_->VisibleCicadaCount() << '/' << CicadaColony::Count
+                << " visible in shared draw";
+            std::cout << report.str() << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(report.str());
+        }
+        if (viewpoint_ == FixedViewpoint::BeetleDetail && drawnFrames_ == 1U) {
+            std::ostringstream report;
+            report << "island-simulator: beetle render proof: beetles "
+                << butterflyRenderer_->VisibleBeetleCount() << '/' << BeetlePopulation::Count
                 << " visible in shared draw";
             std::cout << report.str() << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(report.str());

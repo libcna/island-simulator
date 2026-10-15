@@ -66,9 +66,6 @@ The unchecked-marker count below is not the current backlog: this long ledger de
 historical incident next steps, rejected visual iterations and superseded acceptance notes. The
 remaining material work is:
 
-- finish the requested fauna list with bounded, habitat-appropriate implementations (notably
-  beetles remain the lower-value explicit entry and should follow
-  visual/ecological fit rather than raw species count);
 - continue whole-island visual critique, especially jungle-floor/canopy repetition, continuous
   camera LOD transitions and moving-edge aliasing;
 - complete three recorded whole-island passes for traversal/scale, materials/lighting and
@@ -80,6 +77,33 @@ spiders, boar/goat/snake sound, flight/diving controls, stream/wetland/mangroves
 the latest animal repairs already exist and are not reopened merely because an older section still
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
+
+## Latest ecosystem implementation — leaf-litter beetles
+
+Macro-ecosystem item 17 is now functionally complete with fifteen deterministic tropical ground
+beetles in three inland leaf-litter colonies. They alternate resting and bounded foraging, fade into
+cover when the player approaches, later emerge, remain grounded on the authoritative terrain frame
+and use full/reduced/dormant distance tiers. The close portable form has paired domed six-station
+elytra, a centre seam, separate pronotum and head, eyes, paired two-section antennae and six
+articulated legs. Four restrained jewel/brown palettes provide readable tropical variation. The
+geometry appends to the existing small-fauna buffer and one shared draw; there is no new renderer,
+texture, GPU buffer, material switch, audio source or draw call.
+
+The deterministic three-minute CPU test covers exact colony/count, terrain contact, bounded homes,
+repeatability, rest/forage/hide behavior, visibility response, invalid input and all distance tiers.
+Two earlier native camera/form iterations were rejected for rock-like elytra, long thin legs and an
+overly uniform top-down composition. The inspected accepted native capture is
+`build-consumer/software-captures/20261015T111916.737720Z-beetles` (169 colour bins, 24.48
+luminance deviation and 151.13 spatial contrast). Chrome 155/SwiftShader evidence
+`build/browser-software/20261015T112152.398929Z-chrome-beetles` passes 60 finite positive
+intervals, GL0, live context, two captured frames and clean kernel monitoring. Native release plus
+the active non-display range pass 71/71 tests and command-line validation passes separately. The
+current Web package is 11,530,476 bytes of Wasm, 2,230,701 bytes of data and 280,771 bytes of
+JavaScript. ARM64 assemble/lint passes with the two-worker wrapper and no emulator/KVM; the
+24,527,523-byte APK has SHA-256
+`e36638a22d44b849015d57e5e73f7cbfc900c4d95faffd5aaa0a3ddc19dbcf02` and packages a
+19,484,952-byte `libmain.so`. The animal is intentionally a bounded low-poly close detail; physical
+Android appearance and ordinary-player discovery remain final integration checks.
 
 ## Latest ecosystem implementation — trunk cicadas
 
@@ -109,7 +133,7 @@ and 281,161 bytes of JavaScript. ARM64 `assembleDebug` and `lintDebug` pass with
 wrapper and without emulator/KVM; the APK is 24,506,323 bytes with SHA-256
 `f4f08230d715d87dfd943c1070a7764c904956a2c03440bb8e3bd55e6bdeed09` and contains a
 19,463,752-byte `libmain.so`. Physical-device appearance and ordinary-player discovery remain
-final integration checks. Beetles remain the last explicit small-fauna candidate.
+final integration checks.
 
 ## Latest ecosystem implementation — ground and trunk ant trails
 
@@ -4300,13 +4324,13 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
 - [x] 16. Underwater environment for swimming: seagrass patches, simple coral heads, stones, sand
   ripples, shells, small fish, suspended particles, subtle caustics, blue-green depth extinction.
   Completed by the spatial habitat work plus the 2026-10-15 shallow-scene audit recorded above.
-- [~] 17. Small fauna with simple behaviour (for example a gecko that sits, flees, disappears):
+- [x] 17. Small fauna with simple behaviour (for example a gecko that sits, flees, disappears):
   eight grounded rest/flee/hide geckos, eight bask/forage/flee skinks, nine moist-habitat
   hover/patrol/dart dragonflies, ten moist-bank rest/hop/retreat frogs, ten sheltered-beach hermit
   crabs, six palm-zone coconut crabs, twelve field mice, eight rats and four six-agent fly swarms
-  plus four sixteen-worker soil/trunk ant trails and twelve trunk-rest/call/flight cicadas are
-  complete in existing shared batches, with native, WebGL and ARM64 qualification described above
-  and in `docs/small-fauna.md`. Beetles remain the explicit candidate.
+  plus four sixteen-worker soil/trunk ant trails, twelve trunk-rest/call/flight cicadas and fifteen
+  leaf-litter rest/forage/hide beetles are complete in existing shared batches, with native, WebGL
+  and ARM64 qualification described above and in `docs/small-fauna.md`.
 - [x] 18. Tie wildlife to places: crabs on specific beach sections with burrows, butterflies at
   specific flowers, coastal/jungle/seabirds in their zones, reef fish at coral patches and small
   schools over sand, turtles over seagrass. The shared habitat completion and evidence are recorded

@@ -1,10 +1,37 @@
 # Small fauna
 
-Ten bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, eight
+Eleven bounded stages complete macro-ecosystem item 17 with eight deterministic inland geckos, eight
 open-ground skinks, nine stream/wetland dragonflies, ten stream/wetland frogs, ten beach hermit
 crabs, six coconut crabs, twelve field mice, eight rats, twenty-four flies in four swarms and
-sixty-four ants in four trails, plus twelve trunk-hosted cicadas.
-This is not completion of every optional small-fauna candidate: beetles remain.
+sixty-four ants in four trails, twelve trunk-hosted cicadas and fifteen leaf-litter beetles.
+
+## Beetles
+
+Fifteen harmless tropical ground beetles occupy three deterministic inland leaf-litter colonies at
+the two clearing edges and one organic forest-floor patch. They rest, forage within 3.0--3.5 m
+homes and hide in litter when a player comes within 1.5 m, then emerge after a bounded delay. Every
+position resamples authoritative terrain height and normal. Full simulation ends at 22 m, reduced
+simulation at 48 m and the common activation policy sleeps more distant agents.
+
+The QA-readable close form uses separate paired domed six-station elytra with a dark centre seam,
+a fitted pronotum and head, lateral eyes, paired two-section antennae and six articulated legs.
+Four jewel-green, copper, blue and bronze palettes keep the species readable in deep ground shade.
+This deliberately remains bounded low-poly fauna rather than a photoreal hero model. Geometry
+appends to the existing small-fauna dynamic buffer and draw, adding no renderer, texture, material
+switch, GPU buffer, audio source or draw call.
+
+The deterministic CPU test runs three simulated minutes and covers exact count/colonies, grounded
+terrain contact, bounded homes, repeatability, rest/forage/hide states, player-triggered visibility,
+invalid input and all simulation tiers. The first two native iterations were rejected for angular
+rock-like elytra, long thin legs and a flat top-down composition. Accepted inspected native evidence
+is `build-consumer/software-captures/20261015T111916.737720Z-beetles`: 169 colour bins, 24.48
+luminance deviation and 151.13 spatial contrast. Chrome/SwiftShader evidence is
+`build/browser-software/20261015T112152.398929Z-chrome-beetles`: 60 finite positive intervals,
+GL0, live context, two captured frames and no new kernel GPU fault. Native release plus the active
+non-display range pass 71/71 tests. ARM64 assemble/lint passes without emulator/KVM; the
+24,527,523-byte APK has SHA-256
+`e36638a22d44b849015d57e5e73f7cbfc900c4d95faffd5aaa0a3ddc19dbcf02` and packages a
+19,484,952-byte `libmain.so`. Physical-device appearance remains final acceptance work.
 
 ## Cicadas
 

@@ -18,7 +18,7 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "birds", "bats", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "deer", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "skinks", "dragonflies", "frogs", "rodents", "flies", "ants", "cicadas", "crocodiles", "fish", "stingrays", "octopuses", "shark", "dolphins", "bear", "resident")
+SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "birds", "bats", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "deer", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "skinks", "dragonflies", "frogs", "rodents", "flies", "ants", "cicadas", "beetles", "crocodiles", "fish", "stingrays", "octopuses", "shark", "dolphins", "bear", "resident")
 
 
 def validate_shipwreck_report(report):
@@ -627,6 +627,29 @@ def validate_cicada_report(report):
     return frames
 
 
+def validate_beetle_report(report):
+    views=report.get("views",[])
+    if report.get("passed") is not True or len(views)!=1 or views[0].get("mode")!="beetles":
+        raise RuntimeError("beetle report lacks one successful focused view")
+    view=views[0];result=view.get("result",{});log=result.get("output","")
+    frames=(view.get("screenshot"),view.get("afterSimulationScreenshot"))
+    intervals=view.get("intervals",[])
+    if (view.get("passed") is not True or view.get("glError")!=0
+        or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+        or "SwiftShader" not in view.get("renderer","") or len(intervals)!=60
+        or not all(isinstance(value,(int,float)) and not isinstance(value,bool)
+                   and math.isfinite(value) and value>0 for value in intervals)
+        or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
+        or len(set(frames))!=2
+        or "fifteen tropical ground beetles rest, forage, and hide in three inland leaf-litter colonies" not in log
+        or "close beetles use domed paired elytra, a centre seam, pronotum, head, antennae, eyes, and six articulated legs" not in log
+        or "beetle QA camera frames one foraging animal in inland leaf litter" not in log
+        or not re.search(r"beetles [1-9][0-9]*/15 visible in shared draw",log)
+        or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):
+        raise RuntimeError("beetle view lacks current habitat, anatomy or clean graphics state")
+    return frames
+
+
 def validate_hermit_crab_report(report):
     views=report.get("views",[])
     if report.get("passed") is not True or len(views)!=1 or views[0].get("mode")!="hermit-crabs":
@@ -1087,6 +1110,13 @@ def main(argv=None):
                 if not all(path.is_file() for path in paths):
                     raise RuntimeError("cicada image file missing")
                 metadata["cicada_frames"]=[artifact_identity(path) for path in paths]
+            if args.scope == "beetles":
+                beetle_report=json.loads((evidence / "island-browser-beetles.json").read_text())
+                frames=validate_beetle_report(beetle_report)
+                paths=[evidence / frame for frame in frames]
+                if not all(path.is_file() for path in paths):
+                    raise RuntimeError("beetle image file missing")
+                metadata["beetle_frames"]=[artifact_identity(path) for path in paths]
             if args.scope == "hermit-crabs":
                 hermit_report=json.loads((evidence / "island-browser-hermit-crabs.json").read_text())
                 frames=validate_hermit_crab_report(hermit_report)

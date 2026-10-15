@@ -547,7 +547,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "deer", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "geckos", "skinks", "dragonflies", "frogs", "mice", "rats", "flies", "ants", "cicadas", "hermit-crabs", "coconut-crabs", "canopy", "monkey-tree", "monkey-climb", "ground-doves"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "deer", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "geckos", "skinks", "dragonflies", "frogs", "mice", "rats", "flies", "ants", "cicadas", "beetles", "hermit-crabs", "coconut-crabs", "canopy", "monkey-tree", "monkey-climb", "ground-doves"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -1092,6 +1092,15 @@ def main():
                         raise RuntimeError(f"cicada integration diagnostic missing: {marker}")
                 if not re.search(r"cicadas [1-9][0-9]*/12 visible in shared draw", diagnostics):
                     raise RuntimeError("cicada capture did not submit a close-range trunk animal")
+            if args.viewpoint == "beetles":
+                for marker in (
+                    "fifteen tropical ground beetles rest, forage, and hide in three inland leaf-litter colonies",
+                    "close beetles use domed paired elytra, a centre seam, pronotum, head, antennae, eyes, and six articulated legs",
+                    "beetle QA camera frames one foraging animal in inland leaf litter"):
+                    if marker not in diagnostics:
+                        raise RuntimeError(f"beetle integration diagnostic missing: {marker}")
+                if not re.search(r"beetles [1-9][0-9]*/15 visible in shared draw", diagnostics):
+                    raise RuntimeError("beetle capture did not submit a close-range litter animal")
             if args.viewpoint == "hermit-crabs":
                 if "ten sheltered-beach hermit crabs pause, forage, and retreat in the shared crab batch" not in diagnostics:
                     raise RuntimeError("current hermit-crab renderer is missing; check for a stale executable")
