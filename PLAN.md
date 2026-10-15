@@ -67,8 +67,7 @@ historical incident next steps, rejected visual iterations and superseded accept
 remaining material work is:
 
 - finish the requested fauna list with bounded, habitat-appropriate implementations (notably
-  parrot-specific calls and ground-dove behaviour; frog calls
-  and the smaller insects/rodents/deer are lower-value explicit entries and should follow
+  frog calls; the smaller insects/rodents/deer are lower-value explicit entries and should follow
   visual/ecological fit rather than raw species count);
 - continue whole-island visual critique, especially jungle-floor/canopy repetition, continuous
   camera LOD transitions and moving-edge aliasing;
@@ -126,18 +125,22 @@ The existing eight-agent canopy route family now contains four deterministic par
 tropical fruit doves instead of generic colour variants. Parrots have two tropical palettes, a
 larger head, deep hooked beak and long narrow tail; fruit doves have two restrained green/pink or
 green/blue palettes, a compact head, fine beak and shorter rounded tail. Both retain the existing
-bounded flight, banking, gliding, canopy perching, activation tiers, 24-bird total, dynamic buffer
-and single draw. The bird QA view now freezes a flying parrot rather than placing the camera inside
-the seeded canopy perch. Generic bird calls remain shared; species-specific parrot calls and a
-true ground-dove walking state remain open, so both original species items stay partial.
+bounded flight, banking, gliding, activation tiers, 24-bird total, dynamic buffer and single draw.
+Nearby parrots now select two original lower, rough procedural squawk phrases from the pooled
+positional wildlife voice. Fruit doves alternate canopy perches with bounded approach,
+planted-foot walking/foraging in dry interior habitat and departure. One fruit dove begins in the
+open east clearing so the behavior reads immediately; only two birds may remain outside free flight
+at once. Dedicated flying-parrot and ground-dove QA views freeze the selected subject without
+affecting ordinary interactive animation.
 
-Exact-final native evidence is `build-consumer/software-captures/20261015T052957.655925Z-birds`
-(366 colour bins, 37.93 luminance deviation, 230.52 spatial contrast; inspected).
-Chrome/SwiftShader evidence `build/browser-software/20261015T054015.321390Z-chrome-birds` passes
-the new focused birds scope with 60 finite positive intervals, GL0, live context and clean kernel
-monitoring; the matching image was inspected. ARM64 assemble/lint passes without emulator/KVM
-(24,196,227-byte APK, SHA-256
-`abec02b0a7961528218681b2c7a0378ad69be5f432ca01da578b2093eb47bf21`, 19,153,656-byte stripped
+Final ground-dove native evidence is
+`build-consumer/software-captures/20261015T074238.202267Z-ground-doves` (188 colour bins, 31.83
+luminance deviation, 156.87 spatial contrast; inspected). Chrome/SwiftShader evidence
+`build/browser-software/20261015T074421.451978Z-chrome-birds` passes both flying-parrot and
+ground-dove views with 60 finite positive intervals apiece, GL0, live contexts and clean kernel
+monitoring; both matching images were inspected. ARM64 assemble/lint passes without emulator/KVM
+(24,373,091-byte APK, SHA-256
+`e2008520ac5441e323cd5aed01b5d36fbe770da4212c6e8d8a8b99590571ab6d`, 19,330,520-byte stripped
 `libmain.so`). Details and remaining limits are in `docs/tropical-birds.md`.
 
 ## Latest ecosystem implementation — stream-bank frogs
@@ -3600,12 +3603,14 @@ progress or require player interaction; dangerous species keep their distance li
   plant-attached webs. Full requirements/evidence in docs/spiders.md.
   Inclusive native build/full48CPU PASS97.63s, spider test1.58s. No renderer or
   portable build/runtime qualification and no live population/world-report change.
-- [~] Parrots (flocks, perching in canopy, calls). Four deterministic canopy agents now use two
+- [x] Parrots (flocks, perching in canopy, calls). Four deterministic canopy agents now use two
   tropical palettes, hooked beaks and long narrow tails while retaining the existing flight and
-  branch-perching state machine. They still share generic bird calls; species-specific calls remain.
-- [~] Pigeons/doves (tropical fruit doves and ground doves). Four deterministic canopy agents now
-  use two fruit-dove palettes, compact heads, fine beaks and shorter tails. A separate ground-dove
-  walking/foraging state is not yet implemented.
+  branch-perching state machine. The nearest parrot selects one of two original synthesized rough
+  squawk phrases through the existing pooled positional wildlife voice.
+- [x] Pigeons/doves (tropical fruit doves and ground doves). Four deterministic agents use two
+  fruit-dove palettes, compact heads, fine beaks and shorter tails. They alternate canopy perches
+  with bounded dry-ground approach, walking/foraging and departure states; feet follow authoritative
+  terrain and one starts in the east clearing for immediate ecological readability.
 - [~] Crocodiles (saltwater crocodile in a suitable estuary/shore area, basking, keeps away).
   Three deterministic non-hostile animals now occupy the stream/mangrove estuary and cycle
   between bask, crawl and swim states; a player inside 14m makes them retreat toward shallow

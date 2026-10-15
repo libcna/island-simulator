@@ -162,6 +162,7 @@ namespace island
         ReefHabitatDetail,
         FallenFrondDetail,
         BirdDetail,
+        GroundDoveDetail,
         FruitBatDetail,
         FruitBatRoostDetail,
         FishDetail,

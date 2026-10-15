@@ -1,6 +1,7 @@
 #include "IslandSimulator/BirdFlock.hpp"
 
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/VegetationLayout.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -191,7 +192,39 @@ namespace island
             states_[agentIndex] = bird.state;
         };
         seedPerchedBird(0U, BirdPerchKind::Wreck);
-        seedPerchedBird(10U, BirdPerchKind::Branch);
+        Agent& dove = agents_[14U];
+        bool seededGroundDove = false;
+        for (std::size_t attempt = 0; attempt < 18U && !seededGroundDove; ++attempt) {
+            const float phase = static_cast<float>(attempt) * GoldenAngle;
+            const float radius = 2.5f + static_cast<float>(attempt % 5U) * 2.2f;
+            const float x = VegetationLayout::EastClearing.x + std::cos(phase) * radius;
+            const float z = VegetationLayout::EastClearing.z + std::sin(phase) * radius;
+            const TerrainSample sample = terrain_.Sample(x, z);
+            if (sample.IsSubmerged() || sample.height <= 0.8f
+                || sample.signedShoreDistance <= 22.0f
+                || sample.slopeRadians >= 0.24f) {
+                continue;
+            }
+            dove.groundTargetX = x;
+            dove.groundTargetZ = z;
+            dove.state.x = x;
+            dove.state.z = z;
+            dove.state.y = sample.height + dove.state.scale * 0.20f;
+            dove.state.headingRadians = WrapAngle(phase + 1.2f);
+            dove.state.speed = 0.38f;
+            dove.state.wingPose = 0.0f;
+            dove.state.bankRadians = 0.0f;
+            dove.state.glideAmount = 0.0f;
+            dove.state.perchAmount = 1.0f;
+            dove.state.behavior = BirdBehavior::GroundForage;
+            dove.behaviorSeconds = 0.0f;
+            dove.perchCycle = 1U;
+            states_[14U] = dove.state;
+            seededGroundDove = true;
+        }
+        if (!seededGroundDove) {
+            throw std::runtime_error("Unable to seed the deterministic ground-dove habitat");
+        }
     }
 
     void BirdFlock::BuildRouteRegions() noexcept
@@ -276,6 +309,9 @@ namespace island
             case BirdBehavior::Approach: ++approachingCount_; break;
             case BirdBehavior::Perched: ++perchedCount_; break;
             case BirdBehavior::Depart: ++departingCount_; break;
+            case BirdBehavior::GroundApproach: ++approachingCount_; break;
+            case BirdBehavior::GroundForage: ++perchedCount_; break;
+            case BirdBehavior::GroundDepart: ++departingCount_; break;
             }
             states_[index] = agent.state;
         }
@@ -310,6 +346,38 @@ namespace island
         if (agent.state.behavior == BirdBehavior::Fly && perchEligible
             && allowNewPerch && !perchSites_.empty()
             && elapsedSeconds_ >= agent.nextPerchSeconds) {
+            if (agent.state.species == BirdSpecies::FruitDove
+                && agent.perchCycle % 2U == 0U) {
+                for (std::size_t attempt = 0; attempt < 18U; ++attempt) {
+                    const float side = attempt % 2U == 0U ? -1.0f : 1.0f;
+                    const float offset = attempt == 0U ? 0.0f
+                        : side * static_cast<float>((attempt + 1U) / 2U) * 0.12f;
+                    const float phase = std::fmod(
+                        std::atan2(agent.state.z, agent.state.x) + offset + TwoPi, TwoPi);
+                    const float radius = std::clamp(
+                        std::hypot(agent.state.x, agent.state.z) - 12.0f
+                            + std::fmod(static_cast<float>(agent.index * 7U
+                                + agent.perchCycle * 5U + attempt * 3U), 18.0f),
+                        52.0f, 155.0f);
+                    const float candidateX = std::cos(phase) * radius;
+                    const float candidateZ = std::sin(phase) * radius;
+                    const TerrainSample sample = terrain_.Sample(candidateX, candidateZ);
+                    if (!sample.IsSubmerged() && sample.height > 0.8f
+                        && sample.signedShoreDistance > 22.0f
+                        && sample.slopeRadians < 0.30f) {
+                        agent.groundTargetX = candidateX;
+                        agent.groundTargetZ = candidateZ;
+                        agent.state.behavior = BirdBehavior::GroundApproach;
+                        agent.behaviorSeconds = 0.0f;
+                        ++agent.perchCycle;
+                        break;
+                    }
+                }
+                if (agent.state.behavior == BirdBehavior::GroundApproach) {
+                    UpdateGroundDove(agent, deltaSeconds);
+                    return;
+                }
+            }
             float nearestDistanceSquared = std::numeric_limits<float>::max();
             std::size_t nearest = 0U;
             bool found = false;
@@ -339,6 +407,12 @@ namespace island
             }
         }
         if (agent.state.behavior != BirdBehavior::Fly) {
+            if (agent.state.behavior == BirdBehavior::GroundApproach
+                || agent.state.behavior == BirdBehavior::GroundForage
+                || agent.state.behavior == BirdBehavior::GroundDepart) {
+                UpdateGroundDove(agent, deltaSeconds);
+                return;
+            }
             UpdatePerching(agent, deltaSeconds);
             return;
         }
@@ -524,6 +598,118 @@ namespace island
                 static_cast<float>(agent.index) * 7.0f
                     + static_cast<float>(agent.perchCycle) * 11.0f,
                 52.0f);
+        }
+    }
+
+    void BirdFlock::UpdateGroundDove(Agent& agent, const float deltaSeconds) noexcept
+    {
+        agent.behaviorSeconds += deltaSeconds;
+        const float bodyClearance = agent.state.scale * 0.20f;
+        if (agent.state.behavior == BirdBehavior::GroundApproach) {
+            const float dx = agent.groundTargetX - agent.state.x;
+            const float dz = agent.groundTargetZ - agent.state.z;
+            const float distance = std::hypot(dx, dz);
+            const float desiredHeading = distance > 0.0001f
+                ? std::atan2(dz, dx) : agent.state.headingRadians;
+            const float headingError = WrapAngle(desiredHeading - agent.state.headingRadians);
+            agent.state.headingRadians = LerpAngle(
+                agent.state.headingRadians, desiredHeading, deltaSeconds * 1.35f);
+            agent.state.bankRadians += std::clamp(
+                headingError * 0.28f - agent.state.bankRadians,
+                -deltaSeconds * 0.8f, deltaSeconds * 0.8f);
+            agent.state.bankRadians = std::clamp(
+                agent.state.bankRadians, -0.34f, 0.34f);
+            const float step = std::min(distance, 6.2f * deltaSeconds);
+            if (distance > 0.0001f) {
+                agent.state.x += dx / distance * step;
+                agent.state.z += dz / distance * step;
+            }
+            const float ground = terrain_.Height(agent.state.x, agent.state.z);
+            const float approachLift = std::clamp(distance * 0.09f, 0.0f, 3.6f);
+            const float targetY = ground + bodyClearance + approachLift;
+            agent.state.y += std::clamp(targetY - agent.state.y,
+                -deltaSeconds * 4.6f, deltaSeconds * 4.6f);
+            agent.state.y = std::max(agent.state.y, ground + bodyClearance);
+            agent.state.speed = 6.2f;
+            agent.flapPhase = std::fmod(agent.flapPhase + agent.flapSpeed * deltaSeconds, TwoPi);
+            agent.state.wingPose = std::sin(agent.flapPhase) * 0.68f;
+            agent.state.glideAmount = 0.0f;
+            agent.state.perchAmount = std::clamp(1.0f - distance / 5.0f, 0.0f, 1.0f);
+            if (distance < 0.18f && std::abs(agent.state.y - targetY) < 0.2f) {
+                agent.state.x = agent.groundTargetX;
+                agent.state.z = agent.groundTargetZ;
+                agent.state.y = terrain_.Height(agent.state.x, agent.state.z) + bodyClearance;
+                agent.state.behavior = BirdBehavior::GroundForage;
+                agent.behaviorSeconds = 0.0f;
+                agent.state.bankRadians = 0.0f;
+                agent.state.perchAmount = 1.0f;
+                agent.state.wingPose = 0.0f;
+            }
+            return;
+        }
+
+        if (agent.state.behavior == BirdBehavior::GroundForage) {
+            const float turn = std::sin(elapsedSeconds_ * 0.73f
+                + static_cast<float>(agent.index) * 0.91f) * 0.42f;
+            agent.state.headingRadians = WrapAngle(
+                agent.state.headingRadians + turn * deltaSeconds);
+            const float speed = 0.34f + 0.12f * std::sin(
+                elapsedSeconds_ * 1.31f + static_cast<float>(agent.index));
+            const float candidateX = agent.state.x
+                + std::cos(agent.state.headingRadians) * speed * deltaSeconds;
+            const float candidateZ = agent.state.z
+                + std::sin(agent.state.headingRadians) * speed * deltaSeconds;
+            const TerrainSample candidate = terrain_.Sample(candidateX, candidateZ);
+            const float targetDistance = std::hypot(
+                candidateX - agent.groundTargetX, candidateZ - agent.groundTargetZ);
+            if (!candidate.IsSubmerged() && candidate.slopeRadians < 0.48f
+                && targetDistance < 2.4f) {
+                agent.state.x = candidateX;
+                agent.state.z = candidateZ;
+            } else {
+                agent.state.headingRadians = std::atan2(
+                    agent.groundTargetZ - agent.state.z,
+                    agent.groundTargetX - agent.state.x);
+            }
+            agent.state.y = terrain_.Height(agent.state.x, agent.state.z) + bodyClearance;
+            agent.state.speed = std::max(0.0f, speed);
+            agent.state.bankRadians = 0.0f;
+            agent.state.glideAmount = 0.0f;
+            agent.state.perchAmount = 1.0f;
+            agent.state.wingPose = 0.025f * std::sin(
+                elapsedSeconds_ * 2.1f + static_cast<float>(agent.index));
+            const float duration = 10.0f + std::fmod(
+                static_cast<float>(agent.index) * 1.9f
+                    + static_cast<float>(agent.perchCycle) * 1.4f, 7.0f);
+            if (agent.behaviorSeconds >= duration) {
+                agent.state.behavior = BirdBehavior::GroundDepart;
+                agent.behaviorSeconds = 0.0f;
+            }
+            return;
+        }
+
+        agent.state.speed = 7.2f;
+        agent.state.x += std::cos(agent.state.headingRadians)
+            * agent.state.speed * deltaSeconds;
+        agent.state.z += std::sin(agent.state.headingRadians)
+            * agent.state.speed * deltaSeconds;
+        const float ground = terrain_.Height(agent.state.x, agent.state.z);
+        agent.state.y = std::max(agent.state.y + deltaSeconds * 2.9f,
+            ground + bodyClearance);
+        agent.flapPhase = std::fmod(agent.flapPhase + agent.flapSpeed * deltaSeconds, TwoPi);
+        agent.state.wingPose = std::sin(agent.flapPhase) * 0.82f;
+        agent.state.bankRadians *= std::max(0.0f, 1.0f - deltaSeconds * 2.0f);
+        agent.state.glideAmount = 0.0f;
+        agent.state.perchAmount = std::max(0.0f, 1.0f - agent.behaviorSeconds / 1.0f);
+        if (agent.behaviorSeconds >= 3.2f) {
+            agent.state.behavior = BirdBehavior::Fly;
+            agent.state.perchAmount = 0.0f;
+            agent.state.y = std::max(agent.state.y,
+                terrain_.Height(agent.state.x, agent.state.z)
+                    + agent.route.minimumClearance);
+            agent.nextPerchSeconds = elapsedSeconds_ + 54.0f + std::fmod(
+                static_cast<float>(agent.index) * 5.0f
+                    + static_cast<float>(agent.perchCycle) * 9.0f, 43.0f);
         }
     }
 

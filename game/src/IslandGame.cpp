@@ -118,6 +118,7 @@ namespace island
             case FixedViewpoint::ReefHabitatDetail: return "reef-habitat";
             case FixedViewpoint::FallenFrondDetail: return "fronds";
             case FixedViewpoint::BirdDetail: return "birds";
+            case FixedViewpoint::GroundDoveDetail: return "ground-doves";
             case FixedViewpoint::FruitBatDetail: return "bats";
             case FixedViewpoint::FruitBatRoostDetail: return "bat-roost";
             case FixedViewpoint::FishDetail: return "fish";
@@ -1000,6 +1001,20 @@ namespace island
                 - cameraPosition_;
             yaw_ = std::atan2(toBird.X, toBird.Z);
             pitch_ = std::atan2(toBird.Y, std::hypot(toBird.X, toBird.Z));
+            std::cout << "island-simulator: bird QA camera frames one flying hooked-beak parrot\n";
+        } else if (viewpoint_ == FixedViewpoint::GroundDoveDetail
+                   && birdFlock_.Birds().size() > 14U) {
+            const BirdState& dove = birdFlock_.Birds()[14U];
+            const Vector3 radial = Vector3::Normalize(Vector3(dove.x, 0.0f, dove.z));
+            const Vector3 tangent(-radial.Z, 0.0f, radial.X);
+            cameraPosition_ = Vector3(dove.x, dove.y, dove.z)
+                - radial * 1.55f + tangent * 0.62f + Vector3::Up * 0.45f;
+            const Vector3 toDove = Vector3(dove.x, dove.y + dove.scale * .06f, dove.z)
+                - cameraPosition_;
+            yaw_ = std::atan2(toDove.X, toDove.Z);
+            pitch_ = std::atan2(toDove.Y, std::hypot(toDove.X, toDove.Z));
+            std::cout << "island-simulator: ground-dove QA camera frames one walking "
+                         "fruit dove on dry interior terrain\n";
         } else if (viewpoint_ == FixedViewpoint::FruitBatDetail
                    && !fruitBatColony_.Bats().empty()) {
             const FruitBatState& bat = fruitBatColony_.Bats().front();
@@ -1803,6 +1818,7 @@ namespace island
                   << " real branch, rock, and wreck perches with approach and departure\n"
                   << "island-simulator: bird flight uses slow radial drift, banking, and "
                      "intermittent glide\n"
+                  << "island-simulator: four fruit doves alternate canopy perches with bounded dry-ground walking and foraging\n"
                   << "island-simulator: fruit bats " << fruitBatColony_.Bats().size()
                   << " agents use six inland canopy roosts with four hanging and two bounded daytime flights\n"
                   << "island-simulator: clearing butterflies "
@@ -2103,7 +2119,9 @@ namespace island
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         }
-        birdFlock_.Update(viewpoint_ == FixedViewpoint::BirdDetail ? 0.0f : deltaSeconds,
+        birdFlock_.Update((viewpoint_ == FixedViewpoint::BirdDetail
+                              || viewpoint_ == FixedViewpoint::GroundDoveDetail)
+                                 ? 0.0f : deltaSeconds,
                           cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         fruitBatColony_.Update((viewpoint_ == FixedViewpoint::FruitBatDetail
                                    || viewpoint_ == FixedViewpoint::FruitBatRoostDetail)

@@ -547,7 +547,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "geckos", "skinks", "dragonflies", "frogs", "hermit-crabs", "coconut-crabs", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "geckos", "skinks", "dragonflies", "frogs", "hermit-crabs", "coconut-crabs", "canopy", "monkey-tree", "monkey-climb", "ground-doves"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -998,6 +998,15 @@ def main():
                     raise RuntimeError("crab capture did not submit a near detailed colony")
             if args.viewpoint == "birds" and "near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes" not in diagnostics:
                 raise RuntimeError("current near-bird anatomy is missing; check for a stale executable")
+            if args.viewpoint == "ground-doves":
+                for marker in (
+                    "four fruit doves alternate canopy perches with bounded dry-ground walking and foraging",
+                    "ground-dove QA camera frames one walking fruit dove on dry interior terrain",
+                    "near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes"):
+                    if marker not in diagnostics:
+                        raise RuntimeError(f"ground-dove integration diagnostic missing: {marker}")
+                if not re.search(r"birds [1-9][0-9]*/24 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):
+                    raise RuntimeError("ground-dove capture did not submit a near bird")
             if args.viewpoint in ("bats", "bat-roost"):
                 for marker in (
                     "fruit bats use furred bodies, pointed ears, muzzles, eyes, fingered membranes, and hanging claws in one draw",

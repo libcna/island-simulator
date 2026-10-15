@@ -1079,10 +1079,14 @@ int main()
         island::GenerateSoilFootstepAlternate();
     const island::AmbientLoop birdCall = island::GenerateBirdCall();
     const island::AmbientLoop birdCallAlternate = island::GenerateBirdCallAlternate();
+    const island::AmbientLoop parrotCall = island::GenerateParrotCall();
+    const island::AmbientLoop parrotCallAlternate = island::GenerateParrotCallAlternate();
     const island::AmbientLoop monkeyCall = island::GenerateMonkeyCall();
     const island::AmbientLoop monkeyCallAlternate = island::GenerateMonkeyCallAlternate();
     const island::AmbientLoop repeatedBirdCall = island::GenerateBirdCall();
     const island::AmbientLoop repeatedBirdCallAlternate = island::GenerateBirdCallAlternate();
+    const island::AmbientLoop repeatedParrotCall = island::GenerateParrotCall();
+    const island::AmbientLoop repeatedParrotCallAlternate = island::GenerateParrotCallAlternate();
     const island::AmbientLoop repeatedMonkeyCall = island::GenerateMonkeyCall();
     const island::AmbientLoop repeatedMonkeyCallAlternate = island::GenerateMonkeyCallAlternate();
     Check(surfLoop.sampleRate == 22050 && breezeLoop.sampleRate == 22050,
@@ -1135,6 +1139,10 @@ int main()
               && birdCallAlternate.sampleRate == 22050
               && birdCallAlternate.samples.size() == 29767U,
           "both bird phrases have their intended short portable formats");
+    Check(parrotCall.sampleRate == 22050 && parrotCall.samples.size() == 31972U
+              && parrotCallAlternate.sampleRate == 22050
+              && parrotCallAlternate.samples.size() == 35280U,
+          "both parrot squawks have their intended short portable formats");
     Check(monkeyCall.sampleRate == 22050 && monkeyCall.samples.size() == 39690U
               && monkeyCallAlternate.sampleRate == 22050
               && monkeyCallAlternate.samples.size() == 46305U,
@@ -1159,10 +1167,14 @@ int main()
               && sandFootstep.samples != soilFootstep.samples,
           "footstep variants and terrain surfaces contain distinct source PCM");
     Check(birdCall.samples != birdCallAlternate.samples
+              && parrotCall.samples != parrotCallAlternate.samples
+              && parrotCall.samples != birdCall.samples
               && monkeyCall.samples != monkeyCallAlternate.samples,
           "wildlife variants contain genuinely different source PCM");
     Check(birdCall.samples == repeatedBirdCall.samples
               && birdCallAlternate.samples == repeatedBirdCallAlternate.samples
+              && parrotCall.samples == repeatedParrotCall.samples
+              && parrotCallAlternate.samples == repeatedParrotCallAlternate.samples
               && monkeyCall.samples == repeatedMonkeyCall.samples
               && monkeyCallAlternate.samples == repeatedMonkeyCallAlternate.samples,
           "all procedural wildlife phrases regenerate deterministically");
@@ -2636,6 +2648,9 @@ int main()
     bool observedPerchedBird = false;
     bool observedBirdDeparture = false;
     bool observedFoldedPerchWings = false;
+    bool observedGroundDoveApproach = false;
+    bool observedGroundDoveForage = false;
+    bool observedGroundDoveDeparture = false;
     constexpr int birdSimulationFrames = 36000;
     for (int frame = 0; frame < birdSimulationFrames; ++frame) {
         birds.Update(1.0f / 30.0f, 0.0f, 15.0f, 0.0f);
@@ -2667,6 +2682,14 @@ int main()
             if (bird.behavior == island::BirdBehavior::Fly) {
                 Check(bird.y >= terrain.Height(bird.x, bird.z) + 14.8f,
                       "free bird flight maintains its minimum terrain clearance");
+            } else if (bird.behavior == island::BirdBehavior::GroundApproach
+                       || bird.behavior == island::BirdBehavior::GroundForage
+                       || bird.behavior == island::BirdBehavior::GroundDepart) {
+                Check(bird.species == island::BirdSpecies::FruitDove,
+                      "only fruit doves enter the dedicated ground-foraging states");
+                Check(bird.y >= terrain.Height(bird.x, bird.z)
+                          + bird.scale * 0.195f,
+                      "ground dove keeps its feet on or above authoritative terrain");
             } else {
                 Check(bird.y >= terrain.Height(bird.x, bird.z) + 0.34f,
                       "landing bird remains clear of terrain");
@@ -2686,6 +2709,14 @@ int main()
                     || (bird.perchAmount > 0.999f && std::abs(bird.wingPose) < 0.04f);
             } else if (bird.behavior == island::BirdBehavior::Depart) {
                 observedBirdDeparture = true;
+            } else if (bird.behavior == island::BirdBehavior::GroundApproach) {
+                observedGroundDoveApproach = true;
+            } else if (bird.behavior == island::BirdBehavior::GroundForage) {
+                observedGroundDoveForage = true;
+                Check(bird.perchAmount > 0.999f && std::abs(bird.wingPose) < 0.03f,
+                      "foraging ground dove walks with folded wings");
+            } else if (bird.behavior == island::BirdBehavior::GroundDepart) {
+                observedGroundDoveDeparture = true;
             }
             observedWingUp = observedWingUp || bird.wingPose > 0.55f;
             observedWingDown = observedWingDown || bird.wingPose < -0.55f;
@@ -2707,6 +2738,9 @@ int main()
     Check(observedBirdApproach && observedPerchedBird && observedBirdDeparture
               && observedFoldedPerchWings,
           "bird simulation completes approach, contacted perch and departure states");
+    Check(observedGroundDoveApproach && observedGroundDoveForage
+              && observedGroundDoveDeparture,
+          "fruit doves complete approach, ground forage and departure states");
     Check(birds.FullSimulationCount() + birds.ReducedSimulationCount()
               + birds.DormantSimulationCount() == static_cast<int>(island::BirdFlock::BirdCount),
           "bird simulation tiers account for the complete flock");

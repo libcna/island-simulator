@@ -26,7 +26,10 @@ namespace island
         Fly,
         Approach,
         Perched,
-        Depart
+        Depart,
+        GroundApproach,
+        GroundForage,
+        GroundDepart
     };
 
     enum class BirdSpecies : std::uint8_t
@@ -141,6 +144,8 @@ namespace island
             float behaviorSeconds = 0.0f;
             float nextPerchSeconds = 0.0f;
             std::uint32_t perchCycle = 0U;
+            float groundTargetX = 0.0f;
+            float groundTargetZ = 0.0f;
             std::size_t index = 0U;
         };
 
@@ -149,6 +154,7 @@ namespace island
         void UpdateAgent(Agent& agent, float deltaSeconds, bool allowNewPerch) noexcept;
         void UpdateFlight(Agent& agent, float deltaSeconds) noexcept;
         void UpdatePerching(Agent& agent, float deltaSeconds) noexcept;
+        void UpdateGroundDove(Agent& agent, float deltaSeconds) noexcept;
 
         const IslandTerrain& terrain_;
         std::vector<Agent> agents_;

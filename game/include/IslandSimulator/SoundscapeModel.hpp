@@ -94,6 +94,12 @@ namespace island
     /** @brief Generates a second bird phrase with different rhythm and pitch movement. */
     [[nodiscard]] AmbientLoop GenerateBirdCallAlternate();
 
+    /** @brief Generates a lower, rough paired squawk for nearby canopy parrots. */
+    [[nodiscard]] AmbientLoop GenerateParrotCall();
+
+    /** @brief Generates an alternate three-part parrot contact phrase. */
+    [[nodiscard]] AmbientLoop GenerateParrotCallAlternate();
+
     /** @brief Generates one restrained monkey contact call for the interior jungle. */
     [[nodiscard]] AmbientLoop GenerateMonkeyCall();
 
@@ -269,6 +275,7 @@ namespace island
         float x = 0.0f;
         float y = 0.0f;
         float z = 0.0f;
+        std::uint8_t kind = 0U;
     };
 
     enum class BoarCallKind : std::uint8_t { None, Breath, Snuffle, Grunt };

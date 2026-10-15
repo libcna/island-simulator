@@ -107,6 +107,7 @@
       ["distant", ["--viewpoint", "distant", "--debug-overlay"]],
       ["fronds", ["--viewpoint", "fronds", "--debug-overlay"]],
       ["birds", ["--viewpoint", "birds", "--debug-overlay"]],
+      ["ground-doves", ["--viewpoint", "ground-doves", "--debug-overlay"]],
       ["bats", ["--viewpoint", "bats", "--debug-overlay"]],
       ["bat-roost", ["--viewpoint", "bat-roost", "--debug-overlay"]],
       ["fish", ["--viewpoint", "fish", "--debug-overlay"]],

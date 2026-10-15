@@ -202,6 +202,9 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> birdCallEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>
             birdCallAlternateEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> parrotCallEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>
+            parrotCallAlternateEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> monkeyCallEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>
             monkeyCallAlternateEffect_;

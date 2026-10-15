@@ -621,6 +621,36 @@ namespace island
         return Quantize(samples, 0.66f);
     }
 
+    AmbientLoop GenerateParrotCall()
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(
+            AmbientSampleRate * 29 / 20);
+        std::vector<float> samples(frameCount, 0.0f);
+        AddBirdChirp(samples, 0.07f, 0.24f, 1780.0f, 1120.0f, 0.72f, 31.0f);
+        AddBirdChirp(samples, 0.075f, 0.24f, 890.0f, 560.0f, 0.31f, 23.0f);
+        AddBirdChirp(samples, 0.43f, 0.31f, 1360.0f, 2050.0f, 0.66f, 27.0f);
+        AddBirdChirp(samples, 0.435f, 0.31f, 680.0f, 1025.0f, 0.28f, 19.0f);
+        AddBirdChirp(samples, 0.91f, 0.18f, 1910.0f, 1480.0f, 0.54f, 34.0f);
+        samples.front() = 0.0f;
+        samples.back() = 0.0f;
+        return Quantize(samples, 0.62f);
+    }
+
+    AmbientLoop GenerateParrotCallAlternate()
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(
+            AmbientSampleRate * 8 / 5);
+        std::vector<float> samples(frameCount, 0.0f);
+        AddBirdChirp(samples, 0.06f, 0.16f, 1210.0f, 1870.0f, 0.64f, 29.0f);
+        AddBirdChirp(samples, 0.31f, 0.19f, 1840.0f, 1060.0f, 0.70f, 33.0f);
+        AddBirdChirp(samples, 0.315f, 0.19f, 920.0f, 530.0f, 0.26f, 21.0f);
+        AddBirdChirp(samples, 0.66f, 0.17f, 1460.0f, 2190.0f, 0.58f, 25.0f);
+        AddBirdChirp(samples, 1.01f, 0.27f, 2010.0f, 1260.0f, 0.65f, 30.0f);
+        samples.front() = 0.0f;
+        samples.back() = 0.0f;
+        return Quantize(samples, 0.60f);
+    }
+
     AmbientLoop GenerateMonkeyCall()
     {
         constexpr std::size_t frameCount = static_cast<std::size_t>(

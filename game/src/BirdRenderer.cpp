@@ -241,6 +241,9 @@ namespace island
             AppendNearHead(vertices,centre,right,up,forward,scale,palette,bird.species);
 
             const float perch = std::clamp(bird.perchAmount, 0.0f, 1.0f);
+            const bool groundDove = bird.behavior == BirdBehavior::GroundApproach
+                || bird.behavior == BirdBehavior::GroundForage
+                || bird.behavior == BirdBehavior::GroundDepart;
             const float wingLift = std::lerp(bird.wingPose * 0.38f, -0.025f, perch);
             const float wingSpan = std::lerp(1.04f, 0.21f, perch);
             const float wingRear = std::lerp(-0.06f, -0.29f, perch);
@@ -286,10 +289,16 @@ namespace island
                     const Vector3 leg = LocalPoint(
                         centre, right, up, forward, side * 0.055f, -0.075f, 0.01f, scale);
                     const Vector3 foot = LocalPoint(
-                        centre, right, up, forward, side * 0.055f, -0.12f, 0.01f, scale);
+                        centre, right, up, forward, side * 0.055f,
+                        groundDove ? -0.20f : -0.12f, 0.01f, scale);
                     const Vector3 toe = LocalPoint(
-                        centre, right, up, forward, side * 0.055f, -0.117f, 0.105f, scale);
+                        centre, right, up, forward, side * 0.055f,
+                        groundDove ? -0.197f : -0.117f, 0.105f, scale);
+                    const Vector3 rearToe = LocalPoint(
+                        centre, right, up, forward, side * 0.055f,
+                        groundDove ? -0.197f : -0.117f, -0.06f, scale);
                     AddDoubleSidedTriangle(vertices, leg, foot, toe, palette.tail);
+                    AddDoubleSidedTriangle(vertices, leg, rearToe, foot, palette.tail);
                 }
             }
         }

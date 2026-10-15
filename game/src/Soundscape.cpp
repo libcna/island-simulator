@@ -111,7 +111,8 @@ namespace island
                 const float distanceSquared = dx * dx + dy * dy + dz * dz;
                 if (distanceSquared < nearestDistanceSquared) {
                     nearestDistanceSquared = distanceSquared;
-                    result = {true, bird.x, bird.y, bird.z};
+                    result = {true, bird.x, bird.y, bird.z,
+                        static_cast<std::uint8_t>(bird.species)};
                 }
             }
             return result;
@@ -292,6 +293,12 @@ namespace island
             birdCallAlternateEffect_ = CreateOneShotSoundEffect(GenerateBirdCallAlternate());
             birdCallAlternateEffect_->setNameProperty(
                 "Procedural tropical bird call alternate");
+            parrotCallEffect_ = CreateOneShotSoundEffect(GenerateParrotCall());
+            parrotCallEffect_->setNameProperty("Original procedural parrot squawk");
+            parrotCallAlternateEffect_ = CreateOneShotSoundEffect(
+                GenerateParrotCallAlternate());
+            parrotCallAlternateEffect_->setNameProperty(
+                "Original procedural parrot squawk alternate");
             monkeyCallEffect_ = CreateOneShotSoundEffect(GenerateMonkeyCall());
             monkeyCallEffect_->setNameProperty("Procedural monkey contact call");
             monkeyCallAlternateEffect_ = CreateOneShotSoundEffect(
@@ -393,6 +400,7 @@ namespace island
             std::cout << ShipwreckCreakEnabledDiagnostic << '\n';
             std::cout << "island-simulator: positional bird and monkey calls enabled "
                          "(one pooled wildlife voice)\n";
+            std::cout << "island-simulator: nearby parrots use two original lower rough squawk phrases\n";
             std::cout << "island-simulator: positional boar breath/snuffle/grunt enabled "
                          "(shared wildlife voice, six original clips)\n";
             std::cout << "island-simulator: positional goat bleat/breath/hoof detail enabled "
@@ -439,6 +447,8 @@ namespace island
             for (auto& effect : snakeHissEffects_) effect.reset();
             for(auto& effect:bearEffects_)effect.reset();
             monkeyCallEffect_.reset();
+            parrotCallAlternateEffect_.reset();
+            parrotCallEffect_.reset();
             birdCallAlternateEffect_.reset();
             birdCallEffect_.reset();
             waterMovementEffect_.reset();
@@ -954,8 +964,13 @@ namespace island
 
         SoundEffect* wildlifeEffect = nullptr;
         if (wildlifeCall.type == WildlifeCallType::Bird) {
-            wildlifeEffect = wildlifeCall.variant == 1U
-                ? birdCallAlternateEffect_.get() : birdCallEffect_.get();
+            const bool parrot = wildlifeCall.source.kind
+                == static_cast<std::uint8_t>(BirdSpecies::Parrot);
+            wildlifeEffect = parrot
+                ? (wildlifeCall.variant == 1U
+                    ? parrotCallAlternateEffect_.get() : parrotCallEffect_.get())
+                : (wildlifeCall.variant == 1U
+                    ? birdCallAlternateEffect_.get() : birdCallEffect_.get());
         } else if (wildlifeCall.type == WildlifeCallType::Monkey) {
             wildlifeEffect = wildlifeCall.variant == 1U
                 ? monkeyCallAlternateEffect_.get() : monkeyCallEffect_.get();
@@ -1159,6 +1174,8 @@ namespace island
         for (auto& effect : snakeHissEffects_) effect.reset();
         for(auto& effect:bearEffects_)effect.reset();
         monkeyCallEffect_.reset();
+        parrotCallAlternateEffect_.reset();
+        parrotCallEffect_.reset();
         birdCallAlternateEffect_.reset();
         birdCallEffect_.reset();
         waterMovementEffect_.reset();
