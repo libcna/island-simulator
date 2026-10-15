@@ -39,7 +39,7 @@ namespace island
         constexpr int MaximumDragonflyVertices =
             static_cast<int>(DragonflySwarm::Count) * 720;
         constexpr int MaximumFrogVertices = static_cast<int>(FrogPopulation::Count) * 720;
-        constexpr int MaximumRodentVertices = static_cast<int>(RodentPopulation::Count) * 720;
+        constexpr int MaximumRodentVertices = static_cast<int>(RodentPopulation::Count) * 1400;
         // A close fly uses 348 vertices: 192 body, 24 head, 12 wings,
         // 48 eyes and 72 legs. Keep a small per-agent margin for later detail edits.
         constexpr int MaximumFlyVertices = static_cast<int>(FlySwarms::Count) * 360;
@@ -47,7 +47,7 @@ namespace island
         // A close cicada uses at most 684 vertices including the broad lofted head,
         // segmented abdomen, wing veins and all six two-section legs.
         constexpr int MaximumCicadaVertices = static_cast<int>(CicadaColony::Count) * 720;
-        constexpr int MaximumBeetleVertices = static_cast<int>(BeetlePopulation::Count) * 660;
+        constexpr int MaximumBeetleVertices = static_cast<int>(BeetlePopulation::Count) * 1200;
         constexpr int MaximumVertexCount = static_cast<int>(ButterflyMeadow::ButterflyCount)
             * MaximumVerticesPerButterfly + MaximumFlowerVertices + MaximumGeckoVertices
             + MaximumSkinkVertices
@@ -959,7 +959,9 @@ namespace island
                              const Vector3& vertical, const float radius,
                              const Color& outer, const Color& inner)
         {
-            constexpr int Segments = 10;
+            constexpr int Segments = 12;
+            const Vector3 recessed = centre - Vector3::Normalize(
+                Vector3::Cross(horizontal, vertical)) * (radius * .045f);
             for (int segment = 0; segment < Segments; ++segment) {
                 const float a = 6.28318530718f * static_cast<float>(segment) / Segments;
                 const float b = 6.28318530718f * static_cast<float>(segment + 1) / Segments;
@@ -967,8 +969,40 @@ namespace island
                     + vertical * (std::sin(a) * radius * 1.08f);
                 const Vector3 edgeB = centre + horizontal * (std::cos(b) * radius)
                     + vertical * (std::sin(b) * radius * 1.08f);
-                AddDoubleSidedTriangle(vertices, centre, edgeA, edgeB,
-                    segment % 2 == 0 ? inner : outer);
+                const Vector3 innerA = recessed + horizontal * (std::cos(a) * radius * .67f)
+                    + vertical * (std::sin(a) * radius * .72f);
+                const Vector3 innerB = recessed + horizontal * (std::cos(b) * radius * .67f)
+                    + vertical * (std::sin(b) * radius * .72f);
+                AddDoubleSidedTriangle(vertices, edgeA, edgeB, innerB, outer);
+                AddDoubleSidedTriangle(vertices, edgeA, innerB, innerA, outer);
+                AddDoubleSidedTriangle(vertices, recessed, innerA, innerB, inner);
+            }
+        }
+
+        void AppendRodentSegment(std::vector<VertexPositionColor>& vertices,
+                                 const Vector3& a, const Vector3& b,
+                                 const float radiusA, const float radiusB,
+                                 const Color& color)
+        {
+            constexpr int Sides = 7;
+            const Vector3 axis = Vector3::Normalize(b - a);
+            const Vector3 reference = std::abs(Vector3::Dot(axis, Vector3::Up)) < .88f
+                ? Vector3::Up : Vector3(1.0f, 0.0f, 0.0f);
+            const Vector3 side = Vector3::Normalize(Vector3::Cross(axis, reference));
+            const Vector3 binormal = Vector3::Normalize(Vector3::Cross(side, axis));
+            for (int index = 0; index < Sides; ++index) {
+                const float angleA = 6.28318530718f * static_cast<float>(index) / Sides;
+                const float angleB = 6.28318530718f * static_cast<float>(index + 1) / Sides;
+                const Vector3 radialA = side * std::cos(angleA) + binormal * std::sin(angleA);
+                const Vector3 radialB = side * std::cos(angleB) + binormal * std::sin(angleB);
+                const Vector3 a0 = a + radialA * radiusA;
+                const Vector3 a1 = a + radialB * radiusA;
+                const Vector3 b0 = b + radialA * radiusB;
+                const Vector3 b1 = b + radialB * radiusB;
+                AddTriangle(vertices, a0, b0, b1, color);
+                AddTriangle(vertices, a0, b1, a1, color);
+                AddTriangle(vertices, a, a1, a0, color);
+                AddTriangle(vertices, b, b0, b1, color);
             }
         }
 
@@ -1015,17 +1049,25 @@ namespace island
                             rat ? RatHeadWidths : MouseHeadWidths,
                             rat ? RatHeadHeights : MouseHeadHeights,
                             unit, coat, flank, underside);
+            const Vector3 neck = centre + forward * (.205f * unit)
+                + up * (.018f * unit);
+            AppendRodentSegment(vertices, neck, head - forward * (.055f * unit),
+                                .070f * unit, .064f * unit, flank);
 
             for (const float side : {-1.0f, 1.0f}) {
                 const Vector3 earCentre = head - forward * (.035f * unit)
                     + right * (side * .085f * unit) + up * (.080f * unit);
-                const float earSize = (rat ? .040f : .072f) * unit;
+                const float earSize = (rat ? .034f : .052f) * unit;
                 AppendRodentEar(vertices, earCentre, forward, up, earSize, flank, ear);
                 const Vector3 eyeCentre = head + forward * (.070f * unit)
                     + right * (side * .083f * unit) + up * (.026f * unit);
                 const float eyeSize = (rat ? .016f : .022f) * unit;
-                AppendGeckoDiamond(vertices, eyeCentre, right, up, forward,
-                    eyeSize, eyeSize * 1.09f, eyeSize * .68f, eye, eye);
+                constexpr std::array<float, 4> EyeStations = {{-.55f, -.18f, .30f, .62f}};
+                constexpr std::array<float, 4> EyeWidths = {{.32f, .52f, .46f, .18f}};
+                constexpr std::array<float, 4> EyeHeights = {{.32f, .52f, .46f, .18f}};
+                AppendGeckoLoft(vertices, eyeCentre, forward, up, right * side,
+                    EyeStations, EyeWidths, EyeHeights, eyeSize * 1.32f,
+                    eye, eye, eye);
                 const Vector3 highlight = eyeCentre + right * (side * .016f * unit)
                     + up * (.009f * unit) + forward * (.004f * unit);
                 AddDoubleSidedTriangle(vertices, highlight + up * (.004f * unit),
@@ -1042,8 +1084,11 @@ namespace island
             }
             const Vector3 nose = head + forward * ((rat ? .242f : .202f) * unit)
                 - up * (.006f * unit);
-            AppendGeckoDiamond(vertices, nose, right, up, forward,
-                .019f * unit, .018f * unit, .023f * unit, eye, eye);
+            constexpr std::array<float, 4> NoseStations = {{-.55f, -.18f, .32f, .62f}};
+            constexpr std::array<float, 4> NoseWidths = {{.35f, .58f, .50f, .20f}};
+            constexpr std::array<float, 4> NoseHeights = {{.31f, .50f, .43f, .18f}};
+            AppendGeckoLoft(vertices, nose, right, up, forward,
+                NoseStations, NoseWidths, NoseHeights, .035f * unit, eye, eye, eye);
             const float stride = std::sin(rodent.gaitPhase) * .045f * unit;
             for (int leg = 0; leg < 4; ++leg) {
                 const float side = leg % 2 == 0 ? -1.0f : 1.0f;
@@ -1055,8 +1100,12 @@ namespace island
                     + right * (side * .055f * unit) - up * (.055f * unit);
                 const Vector3 paw = ankle + forward * (.055f * unit - phaseStride * .4f)
                     + right * (side * .025f * unit);
-                AppendGeckoSegment(vertices, hip, ankle, .014f * unit, flank);
-                AppendGeckoSegment(vertices, ankle, paw, .009f * unit, underside);
+                AppendRodentSegment(vertices, hip, ankle, .019f * unit,
+                                    .014f * unit, flank);
+                AppendRodentSegment(vertices, ankle, paw, .014f * unit,
+                                    .010f * unit, underside);
+                AppendAntBody(vertices, paw + forward * (.014f * unit), right, up, forward,
+                    .017f * unit, .009f * unit, .030f * unit, underside, underside);
             }
             // Three gently curved segments keep the tail volumetric enough to avoid a wire.
             Vector3 tailRoot = centre - forward * (.19f * unit) - up * (.015f * unit);
@@ -1070,8 +1119,9 @@ namespace island
                 const Vector3 end = tailRoot - forward * (tailLength * b)
                     + right * (std::sin(b * 2.7f + rodent.gaitPhase * .18f) * .045f * unit)
                     + up * (b * .025f * unit);
-                AppendGeckoSegment(vertices, start, end,
-                    (.012f - .0025f * segment) * unit, tail);
+                AppendRodentSegment(vertices, start, end,
+                    (.013f - .0025f * segment) * unit,
+                    (.011f - .0025f * segment) * unit, tail);
             }
         }
 

@@ -78,6 +78,33 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest visual-audit implementation — rounded rodent faces, ears and limbs
+
+The post-beetle ground-level audit selected mice and rats as the next weakest visible animals. Both
+had pinwheel-like flat ear fans, diamond eyes/nose, flat stick legs and an abrupt body/head join.
+The accepted geometry-only repair replaces each ear with a smaller twelve-segment outer rim and
+uniform recessed inner bowl, replaces eye and nose diamonds with compact multi-ring volumes, bridges
+the chest into the head with a tapered neck, and makes all legs, paws and the three tail sections
+closed tapered volumes. Mice retain proportionally larger ears and a shorter muzzle; rats retain
+smaller ears, a longer narrow muzzle, larger body and longer tail. Behavior, twenty-agent count,
+habitats, palettes, simulation/visibility policy and the single shared draw are unchanged. The
+dynamic-buffer capacity is now measured conservatively for every visible rodent and beetle rather
+than relying on ordinary culling to conceal an undersized theoretical maximum.
+
+The before images `20261015T112559.039187Z-mice` / `20261015T112603.076575Z-rats` were inspected
+and rejected. Accepted inspected native evidence is
+`build-consumer/software-captures/20261015T112747.332768Z-mice` (184 colour bins, 21.91 luminance
+deviation, 107.79 spatial contrast) and
+`build-consumer/software-captures/20261015T112751.367465Z-rats` (66 bins, 25.83 deviation, 82.42
+contrast). Chrome 155/SwiftShader two-view evidence
+`build/browser-software/20261015T112922.278599Z-chrome-rodents` passes 60 finite positive intervals
+per view, GL0, live contexts, distinct captured frames and clean kernel monitoring. Web rebuild and
+Android ARM64 assemble/lint pass without emulator/KVM; the Web package is 11,530,882 bytes of Wasm,
+2,230,701 bytes of data and 280,772 bytes of JavaScript. The APK is 24,531,251 bytes with SHA-256
+`b046291bc9814f05bd19a37bc94231e7b2768b5800ec3a6681c2f1e9e778ce3c` and contains a
+19,488,680-byte `libmain.so`. Fur remains represented by restrained faceted colour rather than a
+new texture or transparency pass.
+
 ## Latest ecosystem implementation — leaf-litter beetles
 
 Macro-ecosystem item 17 is now functionally complete with fifteen deterministic tropical ground

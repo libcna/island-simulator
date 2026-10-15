@@ -132,6 +132,14 @@ longer silhouette. Breathing/sniffing and diagonal stride motion are computed on
 twenty append to the existing butterfly/gecko/skink/dragonfly/frog dynamic buffer and one draw;
 hidden animals append no geometry.
 
+The 2026-10-15 follow-up close audit rejected the flat alternating-colour ear fans, diamond eyes and
+nose, stick legs and abrupt body/head join. Ears now use smaller twelve-segment outer rims around a
+uniform recessed inner bowl. Eyes and nose are compact multi-ring volumes, a tapered neck bridges
+the chest into the head, and legs, paws and all three tail sections use closed tapered geometry.
+Mice retain larger relative ears and the shorter muzzle; rats retain the longer narrow face, larger
+body and tail. The shared dynamic-buffer budget was also raised to its conservative all-visible
+geometry maximum rather than relying on normal culling.
+
 The dedicated CPU test covers exact species counts, deterministic construction and long-running
 simulation, valid dry habitats, home bounds, rest/forage states, player-triggered scurry/hide and
 non-finite input containment. The exact-final native llvmpipe captures are
@@ -148,6 +156,16 @@ monitoring; both initial frames were inspected. The Web package is 11,410,304 by
 pass with two workers and without launching an emulator or touching KVM. The APK is 24,440,739
 bytes with SHA-256 `62f90fc83e90364de79ec507e3a1de6d8d1bc88ae44251f2aeaab2f42daf25be`;
 its stripped `libmain.so` is 19,398,168 bytes. Physical Android appearance remains final-device work.
+
+Accepted follow-up native evidence is
+`build-consumer/software-captures/20261015T112747.332768Z-mice` and
+`build-consumer/software-captures/20261015T112751.367465Z-rats`; both were inspected at original
+resolution. Chrome/SwiftShader two-view evidence
+`build/browser-software/20261015T112922.278599Z-chrome-rodents` passes 60 finite positive intervals
+per view, GL0, live contexts and clean kernel monitoring. ARM64 assemble/lint passes without
+emulator/KVM. The current APK is 24,531,251 bytes with SHA-256
+`b046291bc9814f05bd19a37bc94231e7b2768b5800ec3a6681c2f1e9e778ce3c` and packages a
+19,488,680-byte `libmain.so`.
 
 ## Frogs
 
