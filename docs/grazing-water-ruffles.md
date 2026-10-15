@@ -43,3 +43,25 @@ GL0, live context and clean kernel monitoring. ARM64 assemble/lint passes withou
 the APK is 24,531,603 bytes with SHA-256
 `db44063628cbde50aa068af0735d46e675be2c55f87fc64f80e0897cd9f1df3d` and contains a
 19,489,032-byte `libmain.so`.
+
+## Irregular reef-cell phase pass (2026-10-15)
+
+A fresh water/current/reef matrix showed that the derivative-filtered cells were useful at low
+height but still aligned into a conspicuous diagonal lattice in the oblique reef view. The two
+existing crossing phases now receive opposite bounded offsets from one slow analytic phase. That
+phase is derivative-filtered before use, so its displacement fades instead of aliasing when its
+screen footprint grows. Distance, altitude, depth, Fresnel, wind and the original two cell filter
+weights remain authoritative.
+
+A first candidate also multiplied cell amplitude by a slow envelope. It was rejected after the
+independent water guard exposed a large foreground turquoise patch. The accepted shader removes
+that envelope and changes phase only. It adds no texture/noise sample, varying, mesh, buffer or
+draw; player movement/splash rings remain a separate intentional effect.
+
+Inspected native baseline `20261015T155522.375587Z-reef` and accepted current-binary evidence
+`20261015T163345.960924Z-reef` retain clear seabed/reef habitat and sun glint while reducing the
+uniform row alignment. The accepted 1280x720 reef frame passes with 341 colour bins, 37.93
+luminance deviation and 160.96 spatial contrast. Independent low-water evidence
+`20261015T163528.864128Z-water` passes with 390 bins, 31.60 deviation and 132.52 contrast. Both
+kernel deltas are empty. Native, Web and Android-runtime gates pin the new phase-warp diagnostic;
+this is not a physical-device rendering claim.

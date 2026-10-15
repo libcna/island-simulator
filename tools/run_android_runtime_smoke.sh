@@ -424,6 +424,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: shallow ocean uses filtered crossing ripple cells with restrained sky flecks" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: ocean ripple cells use filtered low-frequency phase warp to avoid a repeated reef lattice" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: ocean shallow attenuation uses interpolated bed depth and contact fade" \
             "$LOG_FILE" \
         && grep -q "island-simulator: distant grazing ocean converges on shared sky haze without a horizon seam" \

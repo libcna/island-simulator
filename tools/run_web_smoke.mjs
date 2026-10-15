@@ -1029,6 +1029,7 @@ try {
             && log.includes("shoreline advancing wash uses footprint-filtered porous foam")
             && log.includes("ocean shared nine-wave spectrum uses filtered short-wave normals")
             && log.includes("shallow ocean uses filtered crossing ripple cells with restrained sky flecks")
+            && log.includes("ocean ripple cells use filtered low-frequency phase warp to avoid a repeated reef lattice")
             && log.includes("ocean shallow attenuation uses interpolated bed depth and contact fade")
             && log.includes("distant grazing ocean converges on shared sky haze without a horizon seam")
             && log.includes("sky horizon locks to shared aerial haze above the below-horizon skirt")

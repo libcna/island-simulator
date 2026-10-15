@@ -131,6 +131,24 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest water visual pass — irregular reef ripple cells
+
+The water/current/reef comparison found ordinary swimming-height water coherent, but the brighter
+closed cells in the oblique reef view aligned into a visibly repeated diagonal lattice. The
+portable ocean fragment path now phase-warps the two existing filtered crossing cells with one
+slow, derivative-filtered analytic field. It changes cell placement and curvature without a
+texture lookup, varying, mesh, buffer or draw. The initial attempt also modulated cell amplitude
+and was rejected because it introduced a broad foreground colour patch; the accepted version uses
+phase displacement only. Existing altitude, distance, Fresnel, depth, wind and footprint filters
+still bound the result, and player movement rings remain independent.
+
+Inspected baseline `20261015T155522.375587Z-reef` and accepted current-binary reef evidence
+`20261015T163345.960924Z-reef` show less uniform alignment while retaining shallow transparency,
+reef habitat and sun glint. The final 1280x720 reef frame passes with 341 colour bins, 37.93
+luminance deviation and 160.96 spatial contrast. Independent swimming-height guard
+`20261015T163528.864128Z-water` passes with 390 colour bins, 31.60 deviation and 132.52 contrast;
+both have empty kernel deltas.
+
 ## Latest terrestrial-fauna visual pass — coconut-crab stance
 
 The coastal-animal audit then selected the coconut crab: its inherited beach-crab proportions left

@@ -66,6 +66,8 @@ namespace island
             "island-simulator: aerial ocean progressively suppresses close ripple cells without changing swimming-height detail";
         constexpr const char* GrazingRuffleDiagnostic =
             "island-simulator: swimming-height ocean reuses filtered ripple cells for restrained grazing reflection ruffles";
+        constexpr const char* RippleIrregularityDiagnostic =
+            "island-simulator: ocean ripple cells use filtered low-frequency phase warp to avoid a repeated reef lattice";
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
@@ -220,8 +222,13 @@ void main()
     // The broad carriers alone can collapse into horizontal screen-space bands from a low
     // swimming viewpoint. Their product forms restrained, closed ripple patches wherever the
     // two directions meet, retaining movement and filter weights without another noise lookup.
-    float rippleCells = sin(phaseA * 1.7 + sin(phaseB) * 0.42)
-        * sin(phaseB * 1.55 - sin(phaseA) * 0.31);
+    float cellWarpPhase = dot(vWorld.xz, vec2(0.143, 0.219)) + uTime * 0.13;
+    float cellWarpWeight = oceanWaveFilter(max(abs(dFdx(cellWarpPhase)),
+                                                abs(dFdy(cellWarpPhase))));
+    float cellWarp = sin(cellWarpPhase
+        + 0.38 * sin(phaseA * 0.42 - phaseB * 0.31)) * cellWarpWeight;
+    float rippleCells = sin(phaseA * 1.7 + sin(phaseB) * 0.42 + cellWarp * 0.62)
+        * sin(phaseB * 1.55 - sin(phaseA) * 0.31 - cellWarp * 0.49);
     float aerialDetailFade = 1.0 - smoothstep(28.0, 85.0,
         abs(uCameraPosition.y - vWorld.y));
     float rippleCellWeight = weightA * weightB * waveDetailFade * aerialDetailFade
@@ -428,6 +435,7 @@ void main()
                       << RippleCellDiagnostic << '\n'
                       << AerialRippleDiagnostic << '\n'
                       << GrazingRuffleDiagnostic << '\n'
+                      << RippleIrregularityDiagnostic << '\n'
                       << "island-simulator: ocean shoreline foam uses broken continuity mask\n";
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: ocean sunward ripple crests reuse analytic slope field");
@@ -442,6 +450,7 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(RippleCellDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(AerialRippleDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(GrazingRuffleDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(RippleIrregularityDiagnostic);
         } else {
             std::cerr << "island-simulator: ocean stock-effect fallback: " << fallbackReason_
                       << '\n';

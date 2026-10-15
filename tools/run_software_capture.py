@@ -1182,6 +1182,8 @@ def main():
                 raise RuntimeError("current ocean spectrum is missing; check for a stale executable")
             if "shallow ocean uses filtered crossing ripple cells with restrained sky flecks" not in diagnostics:
                 raise RuntimeError("current shallow crossing-ripple detail is missing; check for a stale executable")
+            if "ocean ripple cells use filtered low-frequency phase warp to avoid a repeated reef lattice" not in diagnostics:
+                raise RuntimeError("current irregular reef ripple detail is missing; check for a stale executable")
             if "shoreline advancing wash uses footprint-filtered porous foam" not in diagnostics:
                 raise RuntimeError("current shoreline foam is missing; check for a stale executable")
             if "shoreline foam follows bounded east-to-west coastal wind exposure" not in diagnostics:
