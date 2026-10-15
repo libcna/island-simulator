@@ -71,6 +71,28 @@ the kernel delta is empty. The ARM64 debug APK assembles to 24,014,955 bytes wit
 `25ae9ff46e6acafba0079a570f2516a986b45bca51cab1386d5c0227f11e5372`; no emulator or KVM was
 started, so physical GLES runtime evidence is still not claimed.
 
+## Flexible juvenile-form pass (2026-10-15)
+
+A new bush/sapling/snag detail comparison found that juvenile stature and placement were correct,
+but scaling the complete adult form to 0.18--0.31 left a conspicuously straight miniature pole and
+regular vertical crown tiers. The portable instanced vertex shader now recognizes that disjoint
+scale band and applies a deterministic instance-seeded post-root sweep. A second perpendicular,
+height-continuous component gives successive trunk and crown heights unequal lateral offsets.
+Because every wood and leaf vertex at a given height follows the same field, the tree remains
+connected; the first 2.8 local metres remain on the qualified collision/root axis.
+
+The response is zero before the ordinary 0.78 minimum adult scale, so mature trees, emergents,
+mangroves and monkey climbing geometry are unchanged. No vertex, mesh, instance attribute, buffer
+or draw is added. Juvenile culling bounds include a conservative 0.75-local-metre horizontal margin
+covering the maximum deformation.
+
+Inspected baseline `20261015T164408.451014Z-sapling` and accepted current-binary llvmpipe/pixman
+evidence `20261015T170854.285692Z-sapling` retain the same first 3.749 m tree and surrounding stand,
+while removing exact vertical tier alignment. The final 1280x720 frame passes with 236 colour bins,
+46.36 luminance deviation, 225.31 spatial contrast and an empty kernel delta. Native, focused Web
+and Android-runtime gates pin the new juvenile-form diagnostic; physical-device rendering remains
+unqualified.
+
 The renewed 2026-10-15 soil-contact audit is evidenced by exact-final native capture
 `build-consumer/software-captures/20261015T050551.611871Z-snags` (199 colour bins, 42.06 luminance
 deviation, 189.17 spatial contrast) and Chrome/SwiftShader capture

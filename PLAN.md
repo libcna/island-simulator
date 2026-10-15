@@ -131,6 +131,24 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest vegetation visual pass — flexible juvenile canopy form
+
+The bush/sapling/standing-snag detail matrix selected saplings as the weakest middle-storey form.
+Their correct 3--6 m stature still exposed the full adult mesh as a straight miniature pole with
+regularly stacked crown tiers. The shared portable jungle vertex path now detects only the
+0.18--0.31 juvenile scale band and adds a deterministic, instance-seeded sweep above the unchanged
+2.8-local-metre root section. A second continuous perpendicular curve offsets successive crown
+heights unequally, retaining one connected trunk/branch/leaf form instead of moving detached crown
+objects. Mature trees, emergents and mangroves are outside the scale response.
+
+No vertex, instance attribute, mesh, buffer or draw was added. Juvenile instance culling bounds gain
+only a conservative 0.75-local-metre horizontal margin for the maximum authored deformation;
+population, placement, collision roots, monkey trees, wind, LOD and lighting are unchanged.
+Inspected baseline `20261015T164408.451014Z-sapling` and accepted current-binary evidence
+`20261015T170854.285692Z-sapling` retain the 3.749 m first juvenile while replacing exact vertical
+tier alignment with a restrained flexible silhouette. The final 1280x720 frame passes with 236
+colour bins, 46.36 luminance deviation, 225.31 spatial contrast and an empty kernel delta.
+
 ## Latest water visual pass — irregular reef ripple cells
 
 The water/current/reef comparison found ordinary swimming-height water coherent, but the brighter

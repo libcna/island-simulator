@@ -1140,6 +1140,11 @@ def main():
                     raise RuntimeError("coconut-crab capture did not submit a terrestrial animal")
             if args.viewpoint == "bush" and "bush QA target variant 0 at player-eye detail distance" not in diagnostics:
                 raise RuntimeError("bush camera did not select the intended shrub")
+            if args.viewpoint == "sapling":
+                if "sapling QA target variant=" not in diagnostics:
+                    raise RuntimeError("sapling camera did not select a juvenile canopy tree")
+                if "saplings use a flexible post-root sweep and unequal lateral crown tiers within expanded bounds" not in diagnostics:
+                    raise RuntimeError("current juvenile canopy form is missing; check for a stale executable")
             if args.viewpoint == "ground-broadleaf" and "ground-broadleaf QA target variant 1 at player-eye detail distance" not in diagnostics:
                 raise RuntimeError("ground broadleaf camera did not select the intended plant species")
             if "grass mesh vertices/triangles near=862/640 middle=60/40 far=42/28" not in diagnostics:

@@ -359,6 +359,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: eight structural crown forms share eight LOD lobe anchors and supported trunk bends" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: saplings use a flexible post-root sweep and unequal lateral crown tiers within expanded bounds" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: jungle per-instance foliage tint reuses existing transforms" \
             "$LOG_FILE" \
         && grep -q "island-simulator: jungle near canopy uses irregular layered lower-crown edges" \

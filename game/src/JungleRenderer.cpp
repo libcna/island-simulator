@@ -150,6 +150,22 @@ out vec4 vLeaf;
 void main()
 {
     vec3 local = aPosition;
+    mat4 instanceTransform = mat4(aInstance0, aInstance1, aInstance2, aInstance3);
+    float instanceScale = length(aInstance1.xyz);
+    float tintSeed = fract(abs(aInstance0.x * 1.37 + aInstance0.z * 2.17
+        + aInstance2.x * 3.11 + aInstance2.z * 4.03));
+    // The juvenile channel uses the adult mesh at 0.18--0.31 scale. Give only those
+    // instances a continuous post-root sweep and unequal tier offsets so they read as
+    // flexible young growth rather than perfectly straight miniature adults.
+    float juvenile = 1.0 - smoothstep(0.34, 0.52, instanceScale);
+    float juvenileHeight = smoothstep(2.8, 17.0, local.y);
+    float juvenilePhase = tintSeed * 6.28318530718;
+    vec2 juvenileDirection = vec2(cos(juvenilePhase), sin(juvenilePhase));
+    vec2 tierDirection = vec2(-juvenileDirection.y, juvenileDirection.x);
+    local.xz += juvenile * juvenileDirection
+        * (0.24 * juvenileHeight + 0.46 * juvenileHeight * juvenileHeight);
+    local.xz += juvenile * tierDirection * 0.42 * juvenileHeight
+        * sin(local.y * 0.43 + juvenilePhase * 1.63);
     float phase = aWindData.y * 6.28318530718;
     float broad = sin(uTime * 0.61 + phase + local.y * 0.075);
     float detail = sin(uTime * 1.07 + phase * 1.41 + local.x * 0.18 - local.z * 0.21);
@@ -158,7 +174,6 @@ void main()
     local.z += sway * jungleWindZ;
     local.y -= abs(sway) * jungleWindLowering * aWindData.x;
 
-    mat4 instanceTransform = mat4(aInstance0, aInstance1, aInstance2, aInstance3);
     vec4 world = instanceTransform * vec4(local, 1.0);
     float groundHeight = aInstance3.y;
     if (aLeaf.w > 1.5) {
@@ -170,8 +185,6 @@ void main()
     // Scale and yaw already vary deterministically per placement. Recombine their transform
     // coefficients into a stable tint seed so neighbouring copies do not share one flat green,
     // while near/far LODs retain exactly the same instance identity.
-    float tintSeed = fract(abs(aInstance0.x * 1.37 + aInstance0.z * 2.17
-        + aInstance2.x * 3.11 + aInstance2.z * 4.03));
     float signedTint = tintSeed - 0.5;
     float foliageMask = smoothstep(0.035, 0.12, aColor.g - aColor.r);
     vec3 foliageTint = vec3(1.0 + signedTint * 0.10,
@@ -1701,6 +1714,10 @@ void main()
             + juvenilePosition;
         std::cout << juvenileDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(juvenileDiagnostic);
+        constexpr std::string_view juvenileFormDiagnostic =
+            "island-simulator: saplings use a flexible post-root sweep and unequal lateral crown tiers within expanded bounds";
+        std::cout << juvenileFormDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(juvenileFormDiagnostic);
         constexpr std::string_view mangroveBarkDiagnostic =
             "island-simulator: mangrove salt-worn bark uses a pale warm palette above shared damp-base moss";
         std::cout << mangroveBarkDiagnostic << '\n';
@@ -1982,8 +1999,10 @@ void main()
             const float nearLodDistance = CanopyNearLodDistance(tree.yawRadians);
             const auto& nearMesh = canopyNearMeshes_[tree.variant];
             const auto& farMesh = canopyFarMeshes_[tree.variant];
+            const float juvenileMorphMargin=tree.scale<.35f?.75f:0.0f;
             const auto bounds = CanopyInstanceBounds(
-                std::max(nearMesh.horizontalRadius, farMesh.horizontalRadius),
+                std::max(nearMesh.horizontalRadius, farMesh.horizontalRadius)
+                    +juvenileMorphMargin,
                 std::min(nearMesh.minimumY, farMesh.minimumY),
                 std::max(nearMesh.maximumY, farMesh.maximumY),
                 Vector3(tree.x, tree.y, tree.z), tree.scale);
