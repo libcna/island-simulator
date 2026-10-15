@@ -250,7 +250,7 @@ def validate_game_logs(directory, lifecycle, viewpoint=None):
             raise RuntimeError("application did not confirm the bear fur texture")
         if viewpoint == "turtles" and "near turtles use a twenty-by-sixteen carapace surface, eighteen-sided seven-ring heads, and irregular mottled shell and skin tones" not in log:
             raise RuntimeError("application did not confirm the current sea-turtle surface")
-        if viewpoint == "crocodiles" and "near crocodiles use raised eyes, nostrils, separate jaws, teeth, dorsal osteoderms, and wet mottled facet shading" not in log:
+        if viewpoint == "crocodiles" and "near crocodiles use raised eyes, nostrils, separate jaws, teeth, dorsal osteoderms, and wet mottled facet shading, with multi-section rounded snouts and lateral eyes" not in log:
             raise RuntimeError("application did not confirm the current crocodile surface")
         if viewpoint == "crocodiles" and not re.search(r"crocodiles [1-3]/3 visible \(near [1-3], far [0-3]\), 1 draw", log):
             raise RuntimeError("application did not confirm a visible single-batch crocodile")

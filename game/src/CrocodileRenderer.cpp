@@ -34,13 +34,15 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 86.0f;
-        constexpr int MaximumVerticesPerCrocodile = 5200;
+        // Rounded multi-station jaws stay close to the former detailed budget but
+        // need a small deterministic allowance beyond the old wedge-based 5,200.
+        constexpr int MaximumVerticesPerCrocodile = 5600;
         constexpr int MaximumVertexCount = static_cast<int>(CrocodileGroup::CrocodileCount)
             * MaximumVerticesPerCrocodile;
         constexpr std::string_view FormDiagnostic =
             "island-simulator: crocodiles use long low armored bodies, broad skulls, muscular tails, and planted splayed limbs";
         constexpr std::string_view DetailDiagnostic =
-            "island-simulator: near crocodiles use raised eyes, nostrils, separate jaws, teeth, dorsal osteoderms, and wet mottled facet shading";
+            "island-simulator: near crocodiles use raised eyes, nostrils, separate jaws, teeth, dorsal osteoderms, and wet mottled facet shading, with multi-section rounded snouts and lateral eyes";
 
         struct Palette
         {
@@ -100,32 +102,6 @@ namespace island
         {
             AddTriangle(vertices, a, b, c, color, true);
             AddTriangle(vertices, c, b, a, color, true);
-        }
-
-        void AppendWedge(std::vector<VertexPositionColor>& vertices,
-                         const Vector3& centre,const Axes& axes,const float scale,
-                         const float rearZ,const float frontZ,
-                         const float rearHalfWidth,const float frontHalfWidth,
-                         const float bottomY,const float rearTopY,const float frontTopY,
-                         const Color& top,const Color& side,const Color& bottom)
-        {
-            const auto p=[&](const float x,const float y,const float z) {
-                return Local(centre,axes,x,y,z,scale);
-            };
-            const Vector3 rlb=p(-rearHalfWidth,bottomY,rearZ);
-            const Vector3 rrb=p(rearHalfWidth,bottomY,rearZ);
-            const Vector3 rlt=p(-rearHalfWidth,rearTopY,rearZ);
-            const Vector3 rrt=p(rearHalfWidth,rearTopY,rearZ);
-            const Vector3 flb=p(-frontHalfWidth,bottomY,frontZ);
-            const Vector3 frb=p(frontHalfWidth,bottomY,frontZ);
-            const Vector3 flt=p(-frontHalfWidth,frontTopY,frontZ);
-            const Vector3 frt=p(frontHalfWidth,frontTopY,frontZ);
-            AddQuad(vertices,rlt,flt,frt,rrt,top);
-            AddQuad(vertices,rlb,rlt,flt,flb,side);
-            AddQuad(vertices,frb,frt,rrt,rrb,side);
-            AddQuad(vertices,flb,flt,frt,frb,side);
-            AddQuad(vertices,rrb,rrt,rlt,rlb,side);
-            AddQuad(vertices,rlb,flb,frb,rrb,bottom);
         }
 
         void AppendEllipsoid(std::vector<VertexPositionColor>& vertices,
@@ -233,15 +209,36 @@ namespace island
             const Vector3 skull=Local(centre,axes,0,.39f,1.25f,scale);
             AppendEllipsoid(vertices,skull,axes,scale,.58f,.29f,.70f,
                             palette.back,palette.jaw,5,14);
-            AppendWedge(vertices,centre,axes,scale,1.35f,2.45f,.50f,.37f,
-                        .22f,.56f,.45f,palette.back,palette.side,palette.jaw);
-            AppendEllipsoid(vertices,Local(centre,axes,0,.335f,2.42f,scale),axes,scale,
-                            .37f,.16f,.18f,palette.side,palette.jaw,4,12);
+            // Four shallow elliptical stations replace the old rectangular upper
+            // wedge. They keep the broad saltwater-crocodile proportions while
+            // rounding the cheek-to-muzzle transition and tapering the nasal tip.
+            constexpr std::array<float,4> upperZ{{1.30f,1.68f,2.08f,2.45f}};
+            constexpr std::array<float,4> upperY{{.40f,.405f,.39f,.365f}};
+            constexpr std::array<float,4> upperWidth{{.51f,.49f,.43f,.35f}};
+            constexpr std::array<float,4> upperHeight{{.20f,.18f,.15f,.115f}};
+            for(std::size_t section=0;section+1<upperZ.size();++section) {
+                AppendTailSegment(vertices,
+                    Local(centre,axes,0,upperY[section],upperZ[section],scale),
+                    Local(centre,axes,0,upperY[section+1],upperZ[section+1],scale),axes,
+                    upperWidth[section]*scale,upperHeight[section]*scale,
+                    upperWidth[section+1]*scale,upperHeight[section+1]*scale,palette.side);
+            }
+            AppendEllipsoid(vertices,Local(centre,axes,0,.36f,2.43f,scale),axes,scale,
+                            .355f,.12f,.17f,palette.side,palette.jaw,4,12);
             const float gape=crocodile.jawOpen;
             const Axes jawAxes{axes.right,axes.up,axes.forward};
             const Vector3 lowerJawCentre=centre-axes.up*(gape*.18f*scale);
-            AppendWedge(vertices,lowerJawCentre,jawAxes,scale,1.20f,2.43f,.48f,.36f,
-                        .13f,.27f,.26f,palette.jaw,palette.jaw,palette.belly);
+            constexpr std::array<float,4> jawZ{{1.20f,1.62f,2.06f,2.43f}};
+            constexpr std::array<float,4> jawY{{.205f,.205f,.195f,.185f}};
+            constexpr std::array<float,4> jawWidth{{.48f,.46f,.41f,.345f}};
+            constexpr std::array<float,4> jawHeight{{.105f,.10f,.087f,.072f}};
+            for(std::size_t section=0;section+1<jawZ.size();++section) {
+                AppendTailSegment(vertices,
+                    Local(lowerJawCentre,jawAxes,0,jawY[section],jawZ[section],scale),
+                    Local(lowerJawCentre,jawAxes,0,jawY[section+1],jawZ[section+1],scale),
+                    jawAxes,jawWidth[section]*scale,jawHeight[section]*scale,
+                    jawWidth[section+1]*scale,jawHeight[section+1]*scale,palette.jaw);
+            }
             if(gape>.012f) {
                 const auto mouthPoint=[&](const float x,const float z) {
                     return Local(centre,axes,x,.295f-gape*.04f,z,scale);
@@ -268,14 +265,17 @@ namespace island
                     AddDoubleTriangle(vertices,root-axes.forward*.035f*scale,
                                       root+axes.forward*.035f*scale,tip,palette.tooth);
                 }
-                const Vector3 eye=Local(centre,axes,side*.38f,.66f,1.22f,scale);
-                AppendEllipsoid(vertices,eye,axes,scale,.082f,.074f,.092f,
+                const Vector3 eye=Local(centre,axes,side*.40f,.615f,1.24f,scale);
+                AppendEllipsoid(vertices,eye,axes,scale,.10f,.058f,.12f,
                                 palette.scute,palette.side,3,8);
-                const Vector3 iris=eye+axes.forward*.082f*scale+axes.up*.010f*scale;
-                AppendEllipsoid(vertices,iris,axes,scale,.038f,.036f,.018f,
+                // Crocodile pupils face laterally, not forward along the snout.
+                // Embedding the thin axis into the socket also removes the old
+                // stalk-eyed toy silhouette in broadside views.
+                const Vector3 iris=eye+axes.right*(side*.092f*scale)+axes.up*.006f*scale;
+                AppendEllipsoid(vertices,iris,axes,scale,.018f,.036f,.038f,
                                 palette.eye,palette.eye,3,8);
-                const Vector3 pupil=iris+axes.forward*.017f*scale;
-                AppendEllipsoid(vertices,pupil,axes,scale,.012f,.027f,.009f,
+                const Vector3 pupil=iris+axes.right*(side*.017f*scale);
+                AppendEllipsoid(vertices,pupil,axes,scale,.009f,.027f,.012f,
                                 palette.pupil,palette.pupil,2,7);
                 const Vector3 nostril=Local(centre,axes,side*.21f,.505f,2.32f,scale);
                 AppendEllipsoid(vertices,nostril,axes,scale,.040f,.018f,.028f,

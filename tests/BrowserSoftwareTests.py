@@ -474,7 +474,8 @@ class BrowserSoftwareTests(unittest.TestCase):
         silhouette = ("crocodiles use long low armored bodies, broad skulls, muscular tails, "
                       "and planted splayed limbs")
         surface = ("near crocodiles use raised eyes, nostrils, separate jaws, teeth, dorsal "
-                   "osteoderms, and wet mottled facet shading")
+                   "osteoderms, and wet mottled facet shading, with multi-section rounded snouts "
+                   "and lateral eyes")
         camera = "crocodile QA camera frames an estuary animal broadside"
         def report():
             return {"passed": True, "views": [{"mode": "crocodiles", "passed": True,

@@ -150,6 +150,26 @@ same-camera baseline `20261015T174806.814354Z-litter` and accepted current-binar
 showing five narrower dry leaves. The final 1280x720 frame passes with 196 colour bins, 17.95
 luminance deviation, 43.95 spatial contrast and an empty kernel delta.
 
+## Latest animal visual pass — rounded crocodile jaws and lateral eyes
+
+The current twelve-family animal matrix selected the crocodile's head as the weakest explicit-goal
+anatomy. Although its torso, tail, scutes and newly attached limb roots were readable, the upper and
+lower jaws were still two long rectangular wedges and the forward-facing spherical eyes produced a
+toy-like silhouette. Both wedges are replaced by four-station shallow elliptical lofts which retain
+the broad saltwater-crocodile skull, narrow separately toward the nasal tip and continue to expose
+the mouth, teeth and independent gape. Lower, wider sockets now embed thin irises and pupils on the
+lateral faces rather than pointing them along the snout.
+
+Population remains three, near/far distance, habitat, motion and one-draw batching are unchanged.
+The richer head exceeded the former 5,200-vertex per-animal safety boundary during the first real
+capture; the renderer stopped through its own checked exception before submission. Capacity is now
+5,600 per animal, adding 1,200 shared dynamic-buffer slots across the full population. The repeated
+capture completes without overflow. `IslandCrocodileGroupTests` and `IslandCoreTests` pass.
+Inspected prior evidence `20261015T143659.327901Z-crocodiles` and accepted current broadside
+`20261015T183247.193116Z-crocodiles` show a rounded cheek-to-snout taper, separate slim jaw and
+embedded side eye. The final 1280x720 frame passes with 313 colour bins, 39.27 luminance deviation,
+154.05 spatial contrast and an empty kernel delta.
+
 ## Latest vegetation-composition pass — connected broadleaf crown mass
 
 The overview/jungle/litter audit accepted the forest-floor material and open goat/bear hill, but
