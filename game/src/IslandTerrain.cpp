@@ -148,6 +148,38 @@ namespace island
 
         const float beachWidth = IslandEnvironmentField::BeachWidth(std::atan2(z, x));
         const float beach = std::min(inland / beachWidth, 1.0f) * 1.71f;
+        const float coastAngle = std::atan2(z, x);
+        const auto coastalField = IslandEnvironmentField::SampleCoast(x, z, inland);
+
+        // Authoritative sub-metre coastal relief. The broad envelopes remain resolvable by the
+        // four-metre terrain grid, while periodic angular variation prevents a concentric berm.
+        // Fade from zero at the waterline so the exact shoreline and swimming transition stay put.
+        const float shoreFade = SmoothStep(inland / 1.4f);
+        const float sandReliefMask = shoreFade * coastalField.beachSuitability
+            * (1.0f - coastalField.rockiness);
+        const float directionalPatch = std::clamp(0.55f
+            + 0.24f * std::sin(coastAngle * 9.0f + 0.8f)
+            + 0.21f * std::sin(coastAngle * 17.0f - 1.1f), 0.0f, 1.0f);
+        const float bermCentre = std::clamp(beachWidth * 0.30f, 4.8f, 8.5f);
+        const float bermAcross = (inland - bermCentre) / 3.4f;
+        const float berm = std::exp(-0.5f * bermAcross * bermAcross)
+            * (0.18f + 0.20f * directionalPatch);
+        const float duneCentre = std::clamp(beachWidth * 0.67f, 11.0f, 23.0f);
+        const float duneAcross = (inland - duneCentre) / 5.2f;
+        const float dunePatch = std::clamp(0.58f
+            + 0.26f * std::sin(coastAngle * 13.0f + 2.0f)
+            + 0.16f * FractalNoise(x * 0.018f + 4.1f, z * 0.018f - 2.7f, 0xd06eU),
+            0.12f, 1.0f);
+        const float dune = std::exp(-0.5f * duneAcross * duneAcross)
+            * (0.34f + 0.52f * dunePatch);
+        const float washAngular = 1.0f - std::abs(std::sin(
+            coastAngle * 14.0f + 0.42f * std::sin(coastAngle * 5.0f)));
+        const float washChannel = SmoothStep((washAngular - 0.78f) / 0.18f)
+            * SmoothStep((inland - 1.2f) / 2.0f)
+            * (1.0f - SmoothStep((inland - 10.0f) / 5.0f));
+        const float sandMicroRelief = sandReliefMask
+            * (berm + dune - washChannel * (0.12f + 0.10f * directionalPatch));
+
         const float interiorBlend = SmoothStep((inland - beachWidth * (11.0f / 18.0f)) / 75.0f);
         // Two offset, tilted ridges give the island an asymmetric skyline and a saddle.
         // Their broad shoulders leave room for a walkable route between the summits.
@@ -178,7 +210,13 @@ namespace island
         const float headland = IslandEnvironmentField::CoastalRockPotential(std::atan2(z, x));
         const float coastalRelief = 7.5f * headland * SmoothStep((inland - 2.0f) / 10.0f)
             * (1.0f - SmoothStep((inland - 32.0f) / 38.0f));
-        const float landHeight=beach + coastalRelief
+        const float firstRockStep = SmoothStep((inland - 5.0f) / 3.5f)
+            * (1.0f - SmoothStep((inland - 12.0f) / 4.0f));
+        const float secondRockStep = SmoothStep((inland - 14.0f) / 4.0f)
+            * (1.0f - SmoothStep((inland - 23.0f) / 5.0f));
+        const float rockSteps = headland * shoreFade
+            * (0.22f * firstRockStep + 0.34f * secondRockStep);
+        const float landHeight=beach + sandMicroRelief + coastalRelief + rockSteps
             + interiorBlend * (foothills + erodedRidges + localRelief);
         return landHeight-TidePoolLayout::Depression(*this,x,z);
     }

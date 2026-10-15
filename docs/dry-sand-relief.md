@@ -58,7 +58,8 @@ contains AppArmor audit messages and an audit-suppression notice. Full Web input
 lifecycle and Firefox were not rerun. This qualifies `9f1ee59`, not the subsequently
 prepared surface-normal fix. Fixed-view sampling does not prove moving-camera aliasing.
 
-Remaining realism work includes geological strata/talus, dune-scale relief, habitat
-fields and more natural close sand debris. The broader environment/geography tasks
+Remaining realism work includes geological strata/talus, habitat fields and more natural close
+sand debris. Authoritative dune-scale relief was added in the later 2026-10-15 coastal
+micro-topography pass. The broader environment/geography tasks
 remain open. The existing soil/wet material normal-length floors also deserve a
 separate review; they were not changed by this pass. Android lifecycle stays degraded.

@@ -60,6 +60,32 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — authoritative coastal micro-topography
+
+The coast audit found that tide-pool basins and close palm root ridges were already physical or
+geometric, but sandy beaches still rose almost linearly and headland shelves were only broad macro
+relief. `IslandTerrain::Height` now supplies the missing bounded layer: an irregular 18--38 cm berm,
+a broad 40--86 cm dune shoulder, shallow periodic wash channels and two 22/34 cm rocky shelf steps.
+All envelopes begin above the exact height-zero shoreline, fit the existing four-metre terrain grid
+and feed rendering, collision, placement and wildlife through the same authoritative query. Existing
+rocky erosion edges, eight-ridge close palm root masses and five physical tide-pool basins complete
+the requested set without another draw, texture or simulation.
+
+Direct CPU checks pin the berm/dune convexity, wash depression, headland step and unchanged swimming
+boundary. Native bay-ground `build-consumer/software-captures/20261014T234233.573462Z-bay-ground`
+and headland `20261014T234001.750337Z-headland` pass and were inspected; details are in
+`docs/coastal-microtopography.md`. The first Chrome terrain run
+`build/browser-software/20261014T234413.293342Z-chrome-terrain` proved overview and bay for 60
+intervals each before the old 300-second supervisor limit expired during bay-ground, with no
+GL/context/kernel fault. The 900-second repeat
+`build/browser-software/20261014T234946.393041Z-chrome-terrain` qualifies overview, bay,
+bay-ground and headland for 60 positive finite intervals each before the supervisor sends signal
+15 during the ordinary beach view; no GL/context/kernel fault occurred. This is targeted coastal
+Web evidence, not a completed seven-view terrain suite. ARM64 assemble/lint passes through the
+two-worker wrapper (24,049,475 bytes, SHA-256
+`6fb75be559f71b898fde0213a4dafd57905e374993a2ad18e6bb3d9357fe9df4`) without emulator/KVM,
+and all 63 enabled non-display tests pass.
+
 ## Latest visual-audit implementation — complete shallow underwater scene
 
 The swimming audit found that spatial reef forms, seagrass substrate, rocks, sand ripples, fish,
@@ -3760,8 +3786,9 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   2026-10-10 (`docs/distant-islets.md`): nearer wooded islet at 575 m, sandbar variant, far
   silhouettes to ~1,000 m, per-islet haze pre-blend and fog end 1,300 m; tested; native
   `distant`/`overview` captures inspected.
-- [ ] 15. Coastal micro-topography of 20-100 cm: beach berm, small dunes, erosion edge, rock steps,
-  wash channels, exposed roots, small tidal pools.
+- [x] 15. Coastal micro-topography of 20-100 cm: beach berm, small dunes, erosion edge, rock steps,
+  wash channels, exposed roots, small tidal pools. The 2026-10-15 authoritative relief pass and
+  retained palm-root/tide-pool geometry are recorded in the latest audit section.
 - [x] 16. Underwater environment for swimming: seagrass patches, simple coral heads, stones, sand
   ripples, shells, small fish, suspended particles, subtle caustics, blue-green depth extinction.
   Completed by the spatial habitat work plus the 2026-10-15 shallow-scene audit recorded above.

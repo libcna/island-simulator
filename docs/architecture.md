@@ -325,6 +325,12 @@ retaining cell-granular culling. Fixed daylight is currently baked into procedur
 palm vertex colours. Terrain, ocean, and sky share one project-owned fixed sun direction so the
 surface lighting, water glint, and visible sun cannot silently diverge.
 
+`IslandTerrain::Height` also owns the coastal micro-topography, rather than displacing only the
+render mesh: sandy suitability gates broad sub-metre berm/dune envelopes and shallow wash cuts,
+while rock potential gates two low headland steps. Every term fades to zero at the exact shoreline.
+Player collision, prop support, terrain normals and rendering therefore agree. Existing palm root
+geometry and five terrain-authored tide-pool depressions complete the close coastal relief layer.
+
 Terrain uses a standard-layout 28-byte upload: float3 position, four opaque RGBA bytes, then
 float3 shore distance/slope/daylight. A three-element CNA declaration uses offsets 0/12/16;
 compile-time layout assertions and a runtime declaration-stride check protect uploads. Compared

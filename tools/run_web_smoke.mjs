@@ -1110,6 +1110,8 @@ try {
       "island-simulator: terrain wet sand uses bounded view-dependent sun sheen")
     && result.output?.includes(
       "island-simulator: terrain 58081 vertices, 115200 triangles in 64 cull cells with shared buffers")
+    && result.output?.includes(
+      "island-simulator: authoritative coast uses sub-metre berms, dunes, wash channels, rock steps, and tide-pool basins")
     && terrainBatchMatch !== null
     && Number(terrainBatchMatch[2]) < Number(terrainBatchMatch[1])
     && result.output?.includes(

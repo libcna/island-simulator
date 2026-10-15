@@ -1621,6 +1621,7 @@ namespace island
                   << " vertices, " << terrainRenderer_->PrimitiveCount() << " triangles in "
                   << terrainRenderer_->TotalCellCount()
                   << " cull cells with shared buffers\n"
+                  << "island-simulator: authoritative coast uses sub-metre berms, dunes, wash channels, rock steps, and tide-pool basins\n"
                   << "island-simulator: collision grid "
                   << worldCollisionGrid_.Obstacles().size() << " static obstacles in "
                   << worldCollisionGrid_.CellCount() << " occupied cells\n"

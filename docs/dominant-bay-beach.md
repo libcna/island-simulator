@@ -62,4 +62,8 @@ images inspected. No new GPU faults; final kernel delta contains Wi-Fi bandwidth
 EXT4 unmount and USB disconnect notices.
 This qualifies the committed beach revision `53a2442`, not subsequent coastal-turf
 source preparation. Full Web input/lifecycle and Firefox were not rerun.
+
+The original no-dunes limitation was superseded on 2026-10-15 by the authoritative bounded berm,
+dune, wash-channel and rocky-step work in `coastal-microtopography.md`; this section otherwise
+remains the historical evidence for the broad bay profile.
 The Android lifecycle issue remains open and the AMD hardware stop latch remains in force.

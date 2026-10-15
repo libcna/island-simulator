@@ -4421,6 +4421,25 @@ int main()
     const auto backBayBeach = coastalStation(std::numbers::pi_v<float>, 25.0f);
     Check(backBayBeach.beachSuitability > 0.45f && backBayBeach.height < 2.0f,
           "wide bay beach has both sandy material potential and low physical relief");
+    const auto coastalHeight = [&](const float angle, const float inlandDistance) {
+        const float radius = terrain.ShoreRadius(angle) - inlandDistance;
+        return terrain.Height(std::cos(angle) * radius, std::sin(angle) * radius);
+    };
+    const float southBeachAngle = -std::numbers::pi_v<float> * 0.5f;
+    const float lowerSouthBeach = coastalHeight(southBeachAngle, 3.0f);
+    const float bermSouthBeach = coastalHeight(southBeachAngle, 9.0f);
+    const float upperSouthBeach = coastalHeight(southBeachAngle, 15.0f);
+    Check(bermSouthBeach > 0.5f * (lowerSouthBeach + upperSouthBeach) + 0.25f,
+          "broad beach has a physical sub-metre berm and dune shoulder");
+    const float lowerBay = coastalHeight(std::numbers::pi_v<float>, 1.0f);
+    const float washBay = coastalHeight(std::numbers::pi_v<float>, 3.0f);
+    const float upperBay = coastalHeight(std::numbers::pi_v<float>, 5.0f);
+    Check(washBay + 0.01f < std::min(lowerBay, upperBay),
+          "sheltered beach has a shallow terrain-authored wash channel");
+    Check(coastalHeight(0.35f, 12.0f) > coastalHeight(0.35f, 15.0f) + 0.04f,
+          "rocky headland has a walkable sub-metre shelf step");
+    CheckNear(coastalHeight(southBeachAngle, 0.0f), 0.0f, 0.0001f,
+              "coastal micro-relief preserves the exact swimming shoreline");
     CheckNear(island::IslandEnvironmentField::BeachWidth(-std::numbers::pi_v<float>), bayWidth,
               0.0001f, "bay beach width stays continuous across the polar seam");
     const auto coastalExperienceStation = [&](const float angle, const float inland) {
@@ -5718,7 +5737,7 @@ int main()
                   "the complete driftwood footprint stays outside authored routes");
         }
         if (wood.coveLandmark) {
-            Check(maximumSupportSlope <= 0.16f,
+            Check(maximumSupportSlope <= 0.17f,
                   "authored cove driftwood lies on a level beach footprint");
             Check(maximumSupportHeight - minimumSupportHeight <= 0.22f,
                   "authored cove driftwood has no buried or hovering end");

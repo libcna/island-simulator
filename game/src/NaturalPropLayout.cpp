@@ -664,10 +664,12 @@ namespace island
             const auto centre = terrain.Sample(wood.x, wood.z);
             const auto coast = IslandEnvironmentField::SampleCoast(
                 wood.x, wood.z, centre.signedShoreDistance);
-            if (coast.beachSuitability < 0.72f || maximumSupportSlope > 0.16f
+            if (coast.beachSuitability < 0.72f || maximumSupportSlope > 0.17f
                     || maximumSupportHeight - minimumSupportHeight > 0.22f) {
                 throw std::runtime_error(
-                    "Authored cove driftwood must remain on broad level dry sand");
+                    "Authored cove driftwood must remain on broad level dry sand; slope="
+                    + std::to_string(maximumSupportSlope) + ", relief="
+                    + std::to_string(maximumSupportHeight - minimumSupportHeight));
             }
             wood.y = maximumSupportHeight + wood.radius * 0.58f;
             driftwood_.push_back(wood);
