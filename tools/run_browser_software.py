@@ -698,6 +698,7 @@ def validate_coconut_crab_report(report):
         or len(set(frames))!=2
         or "six coastal palm-zone coconut crabs rest, forage, and retreat in the shared crab batch" not in log
         or "coconut crabs use broad armored bodies, segmented terrestrial abdomens, robust walking legs, and massive unequal claws" not in log
+        or "coconut crabs use elevated compact bodies, planted high-jointed legs, and arched abdominal plates" not in log
         or "coconut-crab QA camera frames one large terrestrial animal in coastal vegetation" not in log
         or not re.search(r"coconut crabs [1-6]/6 visible in shared draw",log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):

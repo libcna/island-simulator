@@ -848,6 +848,7 @@ try {
               && /hermit crabs [1-9][0-9]*\/10 visible in shared draw/.test(log)))
             && (!focusedCoconutCrabCheck || (log.includes("six coastal palm-zone coconut crabs rest, forage, and retreat in the shared crab batch")
               && log.includes("coconut crabs use broad armored bodies, segmented terrestrial abdomens, robust walking legs, and massive unequal claws")
+              && log.includes("coconut crabs use elevated compact bodies, planted high-jointed legs, and arched abdominal plates")
               && log.includes("coconut-crab QA camera frames one large terrestrial animal in coastal vegetation")
               && /coconut crabs [1-6]\/6 visible in shared draw/.test(log)))
             && (!focusedButterflyCheck || (log.includes("butterflies feed at three visible deterministic nectar-flower patches")

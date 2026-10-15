@@ -391,6 +391,38 @@ class BrowserSoftwareTests(unittest.TestCase):
             invalid = report(); mutate(invalid)
             with self.assertRaises(RuntimeError): gate.validate_octopus_report(invalid)
 
+    def test_coconut_crab_scope_requires_elevated_profile_and_live_context(self):
+        self.assertIn("coconut-crabs", gate.SCOPES)
+        population = ("six coastal palm-zone coconut crabs rest, forage, and retreat in the "
+                      "shared crab batch")
+        anatomy = ("coconut crabs use broad armored bodies, segmented terrestrial abdomens, "
+                   "robust walking legs, and massive unequal claws")
+        profile = ("coconut crabs use elevated compact bodies, planted high-jointed legs, "
+                   "and arched abdominal plates")
+        camera = ("coconut-crab QA camera frames one large terrestrial animal in coastal "
+                  "vegetation")
+        def report():
+            return {"passed": True, "views": [{"mode": "coconut-crabs", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": "coconut-before.png",
+                "afterSimulationScreenshot": "coconut-after.png",
+                "intervals": [16.7] * 60,
+                "result": {"output": population + "\n" + anatomy + "\n" + profile + "\n"
+                    + camera + "\ncoconut crabs 1/6 visible in shared draw"}}]}
+        self.assertEqual(gate.validate_coconut_crab_report(report()),
+                         ("coconut-before.png", "coconut-after.png"))
+        for mutate in (
+            lambda value: value.update(passed=False),
+            lambda value: value["views"][0].update(glError=1282),
+            lambda value: value["views"][0].update(contextLost=True),
+            lambda value: value["views"][0].update(intervals=[16.7] * 59),
+            lambda value: value["views"][0]["result"].update(output=population),
+            lambda value: value["views"][0].update(
+                afterSimulationScreenshot="coconut-before.png"),
+        ):
+            invalid = report(); mutate(invalid)
+            with self.assertRaises(RuntimeError): gate.validate_coconut_crab_report(invalid)
+
     def test_crab_scope_requires_current_anatomy_two_frames_and_live_context(self):
         self.assertIn("crabs", gate.SCOPES)
         self.assertIn('["crabs", ["--viewpoint", "crabs", "--debug-overlay"]]',

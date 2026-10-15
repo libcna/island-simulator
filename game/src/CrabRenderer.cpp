@@ -69,6 +69,8 @@ namespace island
             "island-simulator: six coastal palm-zone coconut crabs rest, forage, and retreat in the shared crab batch";
         constexpr std::string_view CoconutCrabAnatomyDiagnostic =
             "island-simulator: coconut crabs use broad armored bodies, segmented terrestrial abdomens, robust walking legs, and massive unequal claws";
+        constexpr std::string_view CoconutCrabProfileDiagnostic =
+            "island-simulator: coconut crabs use elevated compact bodies, planted high-jointed legs, and arched abdominal plates";
 
         struct CrabPalette
         {
@@ -615,14 +617,26 @@ namespace island
             base.behavior = CrabBehavior::Forage;
             base.simulationTier = crab.simulationTier;
             base.colorVariant = crab.colorVariant;
-            AppendNearCrab(vertices, base);
-
             const Vector3 centre(crab.x, crab.y, crab.z);
             const Vector3 forward(std::cos(crab.headingRadians), 0.0f,
                                   std::sin(crab.headingRadians));
             const Vector3 right(-forward.Z, 0.0f, forward.X);
             const Vector3 up = Vector3::Up;
             const float scale = crab.scale;
+            const std::size_t baseFirst=vertices.size();
+            AppendNearCrab(vertices, base);
+            // Beach crabs are low and broad. Preserve their detailed shared anatomy but
+            // compact only this terrestrial form laterally and lift its positive-height
+            // joints, producing the characteristic high planted coconut-crab stance.
+            for(std::size_t index=baseFirst;index<vertices.size();++index) {
+                const Vector3 delta=vertices[index].Position-centre;
+                const float localRight=Vector3::Dot(delta,right)*.82f;
+                const float localForward=Vector3::Dot(delta,forward)*.95f;
+                const float localUp=Vector3::Dot(delta,up);
+                const float raisedUp=localUp>0.0f?localUp*1.50f:localUp;
+                vertices[index].Position=centre+right*localRight+forward*localForward
+                    +up*raisedUp;
+            }
             const std::array<Color, 4> plates = {{
                 Color(82, 88, 70, 255), Color(105, 82, 66, 255),
                 Color(91, 72, 58, 255), Color(119, 91, 61, 255)}};
@@ -630,14 +644,14 @@ namespace island
             const Color plateShade = Color::Lerp(plate, Color(25, 28, 25, 255), .42f);
             constexpr int Segments = 12;
             constexpr std::array<float, 4> Stations = {{-.20f, -.125f, -.045f, .025f}};
-            constexpr std::array<float, 4> Widths = {{.18f, .28f, .30f, .20f}};
-            constexpr std::array<float, 4> Heights = {{.09f, .14f, .15f, .10f}};
+            constexpr std::array<float, 4> Widths = {{.17f, .25f, .27f, .18f}};
+            constexpr std::array<float, 4> Heights = {{.10f, .16f, .17f, .11f}};
             const auto ringPoint = [&](std::size_t station, int segment) {
                 const float angle = TwoPi * static_cast<float>(segment)
                     / static_cast<float>(Segments);
                 return centre + forward * (Stations[station] * scale)
                     + right * (std::cos(angle) * Widths[station] * scale)
-                    + up * ((.12f + std::sin(angle) * Heights[station]) * scale);
+                    + up * ((.15f + std::sin(angle) * Heights[station]) * scale);
             };
             for (std::size_t station = 0; station + 1U < Stations.size(); ++station) {
                 for (int segment = 0; segment < Segments; ++segment) {
@@ -650,7 +664,7 @@ namespace island
                 }
             }
             const Vector3 rear = centre + forward * (Stations.front() * scale)
-                + up * (.12f * scale);
+                + up * (.15f * scale);
             for (int segment = 0; segment < Segments; ++segment) {
                 const int next = (segment + 1) % Segments;
                 AddTriangle(vertices, rear, ringPoint(0U, next),
@@ -661,10 +675,12 @@ namespace island
             for (int band = 0; band < 4; ++band) {
                 const float z = (-.165f + static_cast<float>(band) * .052f) * scale;
                 const Vector3 a = centre + forward * z - right * (.21f * scale)
-                    + up * (.245f * scale);
+                    + up * (.225f * scale);
                 const Vector3 b = centre + forward * z + right * (.21f * scale)
-                    + up * (.245f * scale);
-                AppendCrossedSegment(vertices, a, b, .009f * scale, plateShade);
+                    + up * (.225f * scale);
+                const Vector3 crown=centre+forward*z+up*(.305f*scale);
+                AppendCrossedSegment(vertices,a,crown,.006f*scale,plateShade);
+                AppendCrossedSegment(vertices,crown,b,.006f*scale,plateShade);
             }
             for (const float side : {-1.0f, 1.0f}) {
                 const Vector3 palm = centre + forward * (.35f * scale)
@@ -773,6 +789,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(CoconutCrabDiagnostic);
         std::cout << CoconutCrabAnatomyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CoconutCrabAnatomyDiagnostic);
+        std::cout << CoconutCrabProfileDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(CoconutCrabProfileDiagnostic);
     }
 
     CrabRenderer::~CrabRenderer() = default;

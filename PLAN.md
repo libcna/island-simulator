@@ -131,6 +131,25 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest terrestrial-fauna visual pass — coconut-crab stance
+
+The coastal-animal audit then selected the coconut crab: its inherited beach-crab proportions left
+the large terrestrial animal broad and nearly flush with the ground, while four straight dorsal
+bars resembled stacked boards. Coconut crabs now non-uniformly compact only their shared base mesh
+laterally and lift positive-height shell, claw and leg joints, leaving feet on their sampled terrain.
+The result is a higher, narrower body with planted angular legs rather than a flat driftwood-like
+silhouette. The rear armour is slightly narrower and deeper, and each transverse abdominal plate
+arches through a raised centre instead of crossing the back as a straight bar.
+
+The existing detailed beach-crab anatomy, massive unequal chelae and single shared crab batch are
+retained; six-agent habitat, rest/forage/retreat motion, grounding and simulation tiers are
+unchanged. The extra arched plate facets stay inside the existing fixed 1,800-vertex-per-animal
+coconut-crab capacity and add no buffer or draw. Inspected baseline
+`20261015T155703.579232Z-coconut-crabs` and accepted current-binary evidence
+`20261015T162015.996548Z-coconut-crabs` show the higher jointed stance and rounded armour. The final
+1280x720 frame passes with 282 colour bins, 44.35 luminance deviation, 216.92 spatial contrast and
+an empty kernel delta.
+
 ## Latest aquatic visual pass — octopus mantle and skin light
 
 After the stingray repair, the same coastal-animal matrix left the octopus as the next weakest

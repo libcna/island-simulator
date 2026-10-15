@@ -353,6 +353,29 @@ Current evidence:
 Two rejected native captures document the correction from a lobster-like long abdomen and weak
 side silhouette to the accepted compact front-facing terrestrial animal.
 
+### Elevated stance pass (2026-10-15)
+
+A renewed stingray/octopus/coconut-crab matrix found that the current close coconut crab still
+projected as a broad object nearly flush with the ground. Its inherited beach-crab carapace and
+leg roots were too low for a large terrestrial species, and the straight transverse abdomen marks
+resembled stacked boards.
+
+The renderer still builds on the qualified detailed beach-crab anatomy, but only the coconut-crab
+vertices are now transformed in the animal's local frame: the body is compacted laterally while
+all positive-height shell, claw and leg joints are lifted. Feet at and below the terrain plane are
+not raised, producing a planted high-jointed stance without changing simulation grounding. The
+rear armour is narrower and deeper, and every transverse plate is split around a raised centre to
+follow the dorsal arch. Existing unequal palms, fingers, eyes, marks and animated leg/claw state
+remain attached.
+
+The small number of extra plate facets remains inside the fixed 1,800-vertex-per-animal coconut
+budget, with the same shared crab buffer and one draw. Population, habitat, controller, culling and
+simulation tiers are unchanged. Inspected baseline `20261015T155703.579232Z-coconut-crabs` and
+accepted current-binary llvmpipe/pixman evidence `20261015T162015.996548Z-coconut-crabs` show the
+higher body and articulated stance. The final 1280x720 frame passes with 282 colour bins, 44.35
+luminance deviation, 216.92 spatial contrast and an empty kernel delta. Native and Web gates now
+pin the elevated-profile diagnostic.
+
 ## Skinks
 
 Eight deterministic diurnal skinks occupy 6.4--7.5 m homes around clearings, a wetland edge and
