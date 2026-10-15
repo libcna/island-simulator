@@ -64,6 +64,7 @@ add_library(island_core STATIC
     game/src/FirstPersonInput.cpp
     game/src/FlightMotion.cpp
     game/src/FishSchools.cpp
+    game/src/FruitBatColony.cpp
     game/src/ForestFloorSampling.cpp
     game/src/ForestFloorPixels.cpp
     game/src/GrassInteractionModel.cpp
@@ -360,6 +361,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_bear_motion_tests)
     island_enable_first_party_sanitizers(island_bear_motion_tests)
     add_test(NAME IslandBearMotionTests COMMAND island_bear_motion_tests)
+    add_executable(island_fruit_bat_tests tests/FruitBatColonyTests.cpp)
+    target_link_libraries(island_fruit_bat_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_fruit_bat_tests)
+    island_enable_first_party_sanitizers(island_fruit_bat_tests)
+    add_test(NAME IslandFruitBatColonyTests COMMAND island_fruit_bat_tests)
     add_executable(island_boar_coat_tests tests/BoarCoatTextureTests.cpp)
     target_link_libraries(island_boar_coat_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_boar_coat_tests)
@@ -606,6 +612,7 @@ if(ISLAND_BUILD_GAME)
         game/src/DistantSceneryRenderer.cpp
         game/src/DolphinRenderer.cpp
         game/src/FishRenderer.cpp
+        game/src/FruitBatRenderer.cpp
         game/src/ForestFloorMaterial.cpp
         game/src/OpaqueImageLoader.cpp
         game/src/LeafSurfaceMaterial.cpp

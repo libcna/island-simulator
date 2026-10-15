@@ -9,6 +9,7 @@
 #include "IslandSimulator/SkinkPopulation.hpp"
 #include "IslandSimulator/DragonflySwarm.hpp"
 #include "IslandSimulator/FrogPopulation.hpp"
+#include "IslandSimulator/FruitBatColony.hpp"
 #include "IslandSimulator/HermitCrabGroup.hpp"
 #include "IslandSimulator/CoconutCrabGroup.hpp"
 #include "IslandSimulator/CrabColony.hpp"
@@ -135,6 +136,7 @@ namespace
         island::MonkeyTroop monkeys{terrain};
         island::VegetationLayout palms{terrain};
         island::JungleLayout jungle{terrain};
+        island::FruitBatColony fruitBats{terrain,jungle.Canopy()};
         std::vector<island::SpiderWebSite> spiderWebs{
             island::SpiderWebLayout::Propose(jungle,caveOriginal)};
         const island::CanopyLightField canopyLight{terrain, island::MakeCanopyOccluders(jungle.Canopy())};
@@ -392,6 +394,22 @@ namespace
             hash.AddFloat(bird.scale);
             hash.AddEnum(bird.family);
             hash.AddByte(bird.colorVariant);
+        }
+
+        hash.AddSize(world.fruitBats.Bats().size());
+        for (std::size_t index = 0; index < world.fruitBats.Bats().size(); ++index) {
+            const auto& bat = world.fruitBats.Bats()[index];
+            const auto& roost = world.fruitBats.Roosts()[index];
+            HashPosition(hash, bat.x, bat.y, bat.z);
+            hash.AddFloat(bat.headingRadians);
+            hash.AddFloat(bat.speed);
+            hash.AddFloat(bat.wingPose);
+            hash.AddFloat(bat.hangAmount);
+            hash.AddFloat(bat.scale);
+            hash.AddEnum(bat.behavior);
+            hash.AddByte(bat.colorVariant);
+            HashPosition(hash, roost.x, roost.y, roost.z);
+            hash.AddFloat(roost.headingRadians);
         }
 
         hash.AddSize(world.butterflies.Butterflies().size());
@@ -727,6 +745,8 @@ namespace
             && world.collisionGrid.Obstacles().size() == world.worldObstacles.size()
             && world.wildlifeCollisionGrid.Obstacles().size() == world.worldObstacles.size()+1U
             && world.birds.Birds().size() == island::BirdFlock::BirdCount
+            && world.fruitBats.Bats().size() == island::FruitBatColony::Count
+            && world.fruitBats.Roosts().size() == island::FruitBatColony::Count
             && world.butterflies.Butterflies().size()
                 == island::ButterflyMeadow::ButterflyCount
             && world.butterflies.Homes().size()
@@ -1383,6 +1403,7 @@ namespace
                << "  },\n"
                << "  \"wildlife\": {\n"
                << "    \"birds\": " << world.birds.Birds().size() << ",\n"
+               << "    \"fruitBats\": " << world.fruitBats.Bats().size() << ",\n"
                << "    \"butterflies\": "
                << world.butterflies.Butterflies().size() << ",\n"
                << "    \"butterflyFlowerPatches\": "

@@ -69,6 +69,8 @@ namespace
         case FixedViewpoint::ReefHabitatDetail: return "reef-habitat";
         case FixedViewpoint::FallenFrondDetail: return "fronds";
         case FixedViewpoint::BirdDetail: return "birds";
+        case FixedViewpoint::FruitBatDetail: return "bats";
+        case FixedViewpoint::FruitBatRoostDetail: return "bat-roost";
         case FixedViewpoint::FishDetail: return "fish";
         case FixedViewpoint::SharkDetail: return "shark";
         case FixedViewpoint::DolphinDetail: return "dolphins";
@@ -158,7 +160,7 @@ int main(const int argc, char* argv[])
             if (++index >= argc) {
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, snags, sapling, "
                              "east, headland, tide-pools, turtle-nest, cave, cave-inside, bunker, bunker-corridor, bunker-computers, bunker-reactor, bunker-service, bunker-end, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, wetland, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, fallen-palm, broken-palm, water, "
-                             "wet-sand, current, distant, props, driftwood, reef, reef-habitat, fronds, birds, fish, "
+                             "wet-sand, current, distant, props, driftwood, reef, reef-habitat, fronds, birds, bats, bat-roost, fish, "
                              "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, helicopter, helicopter-inside, crabs, hermit-crabs, coconut-crabs, crocodiles, boars, goats, spiders, spiders-bright, spider-web, snakes, snake-head, butterflies, geckos, skinks, dragonflies, frogs, turtles, or traversal\n";
                 return 2;
             }
@@ -261,6 +263,10 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::FallenFrondDetail;
             } else if (name == "birds") {
                 viewpoint = island::FixedViewpoint::BirdDetail;
+            } else if (name == "bats") {
+                viewpoint = island::FixedViewpoint::FruitBatDetail;
+            } else if (name == "bat-roost") {
+                viewpoint = island::FixedViewpoint::FruitBatRoostDetail;
             } else if (name == "fish") {
                 viewpoint = island::FixedViewpoint::FishDetail;
             } else if (name == "shark") {

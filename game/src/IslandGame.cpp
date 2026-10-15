@@ -118,6 +118,8 @@ namespace island
             case FixedViewpoint::ReefHabitatDetail: return "reef-habitat";
             case FixedViewpoint::FallenFrondDetail: return "fronds";
             case FixedViewpoint::BirdDetail: return "birds";
+            case FixedViewpoint::FruitBatDetail: return "bats";
+            case FixedViewpoint::FruitBatRoostDetail: return "bat-roost";
             case FixedViewpoint::FishDetail: return "fish";
             case FixedViewpoint::SharkDetail: return "shark";
             case FixedViewpoint::DolphinDetail: return "dolphins";
@@ -189,6 +191,7 @@ namespace island
           monkeyTroop_(terrain_),
           vegetationLayout_(terrain_),
           jungleLayout_(terrain_),
+          fruitBatColony_(terrain_, jungleLayout_.Canopy()),
           spiderWebSites_(SpiderWebLayout::Propose(jungleLayout_,RenderedTerrainSurface(terrain_))),
           canopyLightField_(terrain_, MakeCanopyOccluders(
               jungleLayout_.Canopy(), vegetationLayout_.Palms())),
@@ -993,6 +996,31 @@ namespace island
                 - cameraPosition_;
             yaw_ = std::atan2(toBird.X, toBird.Z);
             pitch_ = std::atan2(toBird.Y, std::hypot(toBird.X, toBird.Z));
+        } else if (viewpoint_ == FixedViewpoint::FruitBatDetail
+                   && !fruitBatColony_.Bats().empty()) {
+            const FruitBatState& bat = fruitBatColony_.Bats().front();
+            const Vector3 forward(std::cos(bat.headingRadians), 0.0f,
+                                  std::sin(bat.headingRadians));
+            const Vector3 side(-forward.Z, 0.0f, forward.X);
+            cameraPosition_ = Vector3(bat.x, bat.y, bat.z)
+                + forward * 2.55f + side * 1.75f + Vector3::Up * .36f;
+            const Vector3 toBat = Vector3(bat.x, bat.y, bat.z) - cameraPosition_;
+            yaw_ = std::atan2(toBat.X, toBat.Z);
+            pitch_ = std::atan2(toBat.Y, std::hypot(toBat.X, toBat.Z));
+            std::cout << "island-simulator: fruit-bat QA camera frames one bounded daytime flight\n";
+        } else if (viewpoint_ == FixedViewpoint::FruitBatRoostDetail
+                   && fruitBatColony_.Bats().size() > 2U) {
+            const FruitBatState& bat = fruitBatColony_.Bats()[2U];
+            Vector3 outward(bat.x, 0.0f, bat.z);
+            if (outward.LengthSquared() < .001f) outward = Vector3::Forward;
+            outward.Normalize();
+            const Vector3 side(-outward.Z, 0.0f, outward.X);
+            cameraPosition_ = Vector3(bat.x, bat.y, bat.z)
+                + outward * 1.18f + side * .78f - Vector3::Up * 1.72f;
+            const Vector3 toBat = Vector3(bat.x, bat.y - .04f, bat.z) - cameraPosition_;
+            yaw_ = std::atan2(toBat.X, toBat.Z);
+            pitch_ = std::atan2(toBat.Y, std::hypot(toBat.X, toBat.Z));
+            std::cout << "island-simulator: fruit-bat roost QA camera frames one inverted canopy sleeper\n";
         } else if (viewpoint_ == FixedViewpoint::FishDetail
                    && !fishSchools_.Fish().empty()) {
             const FishState& fish = fishSchools_.Fish().front();
@@ -1591,6 +1619,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(structureShadowDiagnostic);
         birdRenderer_ = std::make_unique<BirdRenderer>(
             device, 690.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        fruitBatRenderer_ = std::make_unique<FruitBatRenderer>(
+            device, 300.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         butterflyRenderer_ = std::make_unique<ButterflyRenderer>(
             device, 72.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         crabRenderer_ = std::make_unique<CrabRenderer>(
@@ -1749,6 +1779,8 @@ namespace island
                   << " real branch, rock, and wreck perches with approach and departure\n"
                   << "island-simulator: bird flight uses slow radial drift, banking, and "
                      "intermittent glide\n"
+                  << "island-simulator: fruit bats " << fruitBatColony_.Bats().size()
+                  << " agents use six inland canopy roosts with four hanging and two bounded daytime flights\n"
                   << "island-simulator: clearing butterflies "
                   << butterflyMeadow_.Butterflies().size()
                   << " agents in deterministic low-altitude habitats\n"
@@ -2040,6 +2072,10 @@ namespace island
         }
         birdFlock_.Update(viewpoint_ == FixedViewpoint::BirdDetail ? 0.0f : deltaSeconds,
                           cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        fruitBatColony_.Update((viewpoint_ == FixedViewpoint::FruitBatDetail
+                                   || viewpoint_ == FixedViewpoint::FruitBatRoostDetail)
+                                  ? 0.0f : deltaSeconds,
+                               cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         butterflyMeadow_.Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,
             cameraPosition_.Z);
         const GeckoState previousGeckoSubject=geckoPopulation_.Geckos()[2U];
@@ -2969,7 +3005,8 @@ namespace island
             + helicopterRenderer_->DrawCallCount()
             + distantSceneryRenderer_->DrawCallCount()
             + contactShadowRenderer_->DrawCallCount()
-            + birdRenderer_->DrawCallCount() + butterflyRenderer_->DrawCallCount()
+            + birdRenderer_->DrawCallCount() + fruitBatRenderer_->DrawCallCount()
+            + butterflyRenderer_->DrawCallCount()
             + crabRenderer_->DrawCallCount()
             + crocodileRenderer_->DrawCallCount()
             + boarRenderer_->DrawCallCount()
@@ -3495,6 +3532,12 @@ namespace island
         }
 
         {
+            GpuDiagnosticScope gpuPass("fruit-bats");
+            fruitBatRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                    fruitBatColony_.Bats());
+        }
+
+        {
             GpuDiagnosticScope gpuPass("fish");
             fishRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                 fishSchools_.Fish(), timeSeconds);
@@ -3985,7 +4028,12 @@ namespace island
                       << birdFlock_.Birds().size() << " visible (near "
                       << birdRenderer_->VisibleNearBirdCount() << ", far "
                       << birdRenderer_->VisibleFarBirdCount() << "), "
-                      << birdRenderer_->DrawCallCount() << " draw; butterflies "
+                      << birdRenderer_->DrawCallCount() << " draw; fruit bats "
+                      << fruitBatRenderer_->VisibleCount() << '/'
+                      << fruitBatColony_.Bats().size() << " visible (near "
+                      << fruitBatRenderer_->NearCount() << ", far "
+                      << fruitBatRenderer_->FarCount() << "), "
+                      << fruitBatRenderer_->DrawCallCount() << " draw; butterflies "
                       << butterflyRenderer_->VisibleButterflyCount() << '/'
                       << butterflyMeadow_.Butterflies().size() << " visible (near "
                       << butterflyRenderer_->VisibleNearButterflyCount() << ", far "

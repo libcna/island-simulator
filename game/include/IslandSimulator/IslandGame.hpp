@@ -46,6 +46,8 @@
 #include "IslandSimulator/CoconutCrabGroup.hpp"
 #include "IslandSimulator/FishRenderer.hpp"
 #include "IslandSimulator/FishSchools.hpp"
+#include "IslandSimulator/FruitBatColony.hpp"
+#include "IslandSimulator/FruitBatRenderer.hpp"
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
 #include "IslandSimulator/GrassInteractionModel.hpp"
 #include "IslandSimulator/ControlTransitionDiagnostic.hpp"
@@ -156,6 +158,8 @@ namespace island
         ReefHabitatDetail,
         FallenFrondDetail,
         BirdDetail,
+        FruitBatDetail,
+        FruitBatRoostDetail,
         FishDetail,
         SharkDetail,
         DolphinDetail,
@@ -311,6 +315,7 @@ namespace island
         MonkeyTroop monkeyTroop_;
         VegetationLayout vegetationLayout_;
         JungleLayout jungleLayout_;
+        FruitBatColony fruitBatColony_;
         std::vector<SpiderWebSite> spiderWebSites_;
         // CPU fields shared by grass placement and the uploaded light/cover texture.
         CanopyLightField canopyLightField_;
@@ -354,6 +359,7 @@ namespace island
         std::unique_ptr<CanopyLighting> canopyLighting_;
         std::unique_ptr<RenderedTerrainHeightMap> terrainHeightMap_;
         std::unique_ptr<BirdRenderer> birdRenderer_;
+        std::unique_ptr<FruitBatRenderer> fruitBatRenderer_;
         std::unique_ptr<ButterflyRenderer> butterflyRenderer_;
         std::unique_ptr<ContactShadowRenderer> contactShadowRenderer_;
         std::unique_ptr<CrabRenderer> crabRenderer_;

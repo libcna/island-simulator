@@ -981,6 +981,19 @@ def main():
                     raise RuntimeError("crab capture did not submit a near detailed colony")
             if args.viewpoint == "birds" and "near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes" not in diagnostics:
                 raise RuntimeError("current near-bird anatomy is missing; check for a stale executable")
+            if args.viewpoint in ("bats", "bat-roost"):
+                for marker in (
+                    "fruit bats use furred bodies, pointed ears, muzzles, eyes, fingered membranes, and hanging claws in one draw",
+                    "fruit bats 6 agents use six inland canopy roosts with four hanging and two bounded daytime flights"):
+                    if marker not in diagnostics:
+                        raise RuntimeError(f"fruit-bat integration diagnostic missing: {marker}")
+                camera_marker = ("fruit-bat QA camera frames one bounded daytime flight"
+                    if args.viewpoint == "bats" else
+                    "fruit-bat roost QA camera frames one inverted canopy sleeper")
+                if camera_marker not in diagnostics:
+                    raise RuntimeError("fruit-bat QA composition is missing")
+                if not re.search(r"fruit bats [1-6]/6 visible \(near [1-6], far [0-6]\), 1 draw", diagnostics):
+                    raise RuntimeError("fruit-bat capture did not submit a near detailed animal")
             if args.viewpoint == "butterflies" and "near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins" not in diagnostics:
                 raise RuntimeError("current near-butterfly anatomy is missing; check for a stale executable")
             if args.viewpoint == "geckos":

@@ -67,7 +67,7 @@ historical incident next steps, rejected visual iterations and superseded accept
 remaining material work is:
 
 - finish the requested fauna list with bounded, habitat-appropriate implementations (notably
-  parrot-specific calls and ground-dove behaviour, fruit bats, stingrays and octopuses; frog calls
+  parrot-specific calls and ground-dove behaviour, stingrays and octopuses; frog calls
   and the smaller insects/rodents/deer are lower-value explicit entries and should follow
   visual/ecological fit rather than raw species count);
 - continue whole-island visual critique, especially jungle-floor/canopy repetition, continuous
@@ -3620,7 +3620,14 @@ progress or require player interaction; dangerous species keep their distance li
 - [~] Frogs (near damp ground/water, calls). Ten deterministic moist-bank agents already rest,
   hop and retreat in bounded stream/wetland homes with one shared render batch; a distinct local
   frog-call voice remains open. See `docs/small-fauna.md`.
-- [ ] Bats (fruit bats roosting/flying; the fixed daytime limits active flight)
+- [x] Bats (fruit bats roosting/flying; fixed daytime activity limits). Six deterministic fruit bats
+  use six real mature inland-canopy roosts: four remain hanging during the permanent sunny day and
+  exactly two fly bounded crown-centred orbits. A separate one-draw renderer provides fur-coloured
+  faceted bodies, muzzles, pointed ears, eyes, hanging claws and articulated fingered wing
+  membranes, with reduced distant silhouettes and full/reduced/dormant simulation tiers. Focused
+  native and Chrome/SwiftShader views cover both flight and inverted roosting; native tests,
+  Web packaging and command-line validation pass. ARM64 package verification and physical-device
+  appearance are tracked by the current implementation note rather than inferred here.
 - [ ] Mice
 - [ ] Rats
 - [ ] Deer
