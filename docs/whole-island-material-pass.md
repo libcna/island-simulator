@@ -46,3 +46,23 @@ SHA-256 `b703cbe1c67692e7a3d84e7d2fd29402009ba367f9114e691789bf6497dd7f92` and c
 This completes the material/lighting/composition member of the three required recorded passes.
 The separate wildlife/sound/motion pass, long subjective listening, moving-edge review and
 physical-device qualification remain open.
+
+## Aerial material-classification follow-up — 2026-10-15
+
+A later overview retained the intentional open goat/bear slopes and the qualified eight-metre
+mid-scale field, but selected the darkest humus/moss and ridge-outcrop islands as too strong at
+whole-island distance. Removing the field was rejected because it would restore large featureless
+green/brown areas. The accepted shader instead multiplies only those three classification blend
+strengths by a common distance response: exactly one through 165 m, then progressively reduced to
+the bounded aerial value by 315 m. The underlying warm substrate, fixed-sun slope light and patch
+shapes remain visible. Near walking material is mathematically unchanged.
+
+No new noise evaluation, texture access, varying, uniform, vertex, index, buffer or draw is added.
+`IslandTerrainMaterialTests` and `IslandCoreTests` pass. Baseline
+`20261015T185036.113477Z-overview` and accepted current-binary
+`20261015T190245.454996Z-overview` were inspected side by side; the accepted 1280x720 frame retains
+the ridge relief and open habitat while reducing the camouflage-like replacement contrast. It
+passes with 358 colour bins, 38.13 luminance deviation, 206.11 spatial contrast and an empty kernel
+delta. Close guard `20261015T190410.829356Z-jungle` retains the established 275 bins, 46.22
+deviation and 213.02 contrast with an empty kernel delta. Refreshed Web and physical-Android
+appearance remain part of consolidated qualification.

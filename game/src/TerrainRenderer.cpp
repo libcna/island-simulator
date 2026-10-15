@@ -78,6 +78,8 @@ namespace island
             "island-simulator: terrain substrate persists at distance with footprint-filtered noise";
         constexpr std::string_view AerialGroundScaleDiagnostic =
             "island-simulator: inland terrain retains an eight-metre footprint-filtered material scale in aerial views";
+        constexpr std::string_view AerialMaterialContrastDiagnostic =
+            "island-simulator: aerial humus, moss, and ridge-outcrop classifications retain substrate while softening long-range patch contrast";
         constexpr std::string_view SlopeLightDiagnostic =
             "island-simulator: terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices";
         constexpr std::string_view StreamBankDiagnostic =
@@ -509,8 +511,14 @@ void main()
         * forestFloorMask;
     float coolMoss = (1.0 - smoothstep(-0.245, -0.075, forestMaterialField))
         * forestFloorMask;
-    color = mix(color, vec3(0.205, 0.151, 0.091) * vGroundLight, leafHumus * 0.54);
-    color = mix(color, vec3(0.185, 0.265, 0.115) * vGroundLight, coolMoss * 0.64);
+    // Preserve the qualified mid-scale field from aerial views, but reduce only its
+    // darkest classification amplitude after individual patches become landscape
+    // masses. The underlying brown forest substrate never fades back to legacy green.
+    float aerialPatchStrength=mix(1.0,0.56,smoothstep(165.0,315.0,distanceToCamera));
+    color = mix(color, vec3(0.205, 0.151, 0.091) * vGroundLight,
+                leafHumus * 0.54 * aerialPatchStrength);
+    color = mix(color, vec3(0.185, 0.265, 0.115) * vGroundLight,
+                coolMoss * 0.64 * aerialPatchStrength);
 
     // Preserve broad authored material/lighting cues; the litter source supplies close detail.
     // Fade before the hashed lattice itself becomes subpixel. Its mip chain filters texels,
@@ -741,7 +749,9 @@ void main()
         * (0.72 + smoothstep(0.24, 0.62, slopeRadians) * 0.28);
     litRidgeRock += vec3(0.038, 0.054, 0.058) * coastalCliff
         * (0.62 + ridgeSkyFill * 0.38);
-    color = mix(color, litRidgeRock, rockCoverage * 0.98);
+    float aerialOutcropStrength=mix(0.98,0.52,
+        smoothstep(165.0,315.0,distanceToCamera));
+    color = mix(color, litRidgeRock, rockCoverage * aerialOutcropStrength);
 
     // One shared environment field darkens the carved drainage and its irregular damp banks.
     // Existing broad/medium fields break the straight surveyed valley without moving water
@@ -995,6 +1005,8 @@ void main()
                     MirrorRuntimeDiagnosticToPlatformLog(SubstrateDistanceDiagnostic);
                     std::cout << AerialGroundScaleDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(AerialGroundScaleDiagnostic);
+                    std::cout << AerialMaterialContrastDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(AerialMaterialContrastDiagnostic);
                     std::cout << SlopeLightDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(SlopeLightDiagnostic);
                     std::cout << StreamBankDiagnostic << '\n';

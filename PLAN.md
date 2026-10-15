@@ -188,6 +188,25 @@ spots lying on the coat instead of protruding. The final 1280x720 frame passes w
 33.63 luminance deviation, 135.46 spatial contrast and an empty kernel delta. Native, Chrome and
 Web-smoke gates now require the complete new anatomy diagnostic.
 
+## Latest terrain-composition pass — softened aerial material classifications
+
+The new whole-island overview retained the authored open goat/bear ridges but selected their
+large dark material islands as the weakest landscape-scale cue. The qualified eight-metre field
+was still useful; removing it would return broad featureless hills. Instead, only the strength of
+its humus, moss and inland ridge-outcrop classifications now decreases progressively from 165 to
+315 m camera distance. Their shapes and the warm forest substrate remain present, while the
+darkest aerial replacements blend more of the underlying slope-lit soil. Close walking views use
+an exact factor of one.
+
+No height, collision, shader input, noise evaluation, texture, mesh, buffer or draw was added.
+`IslandTerrainMaterialTests` and `IslandCoreTests` pass. Inspected baseline
+`20261015T185036.113477Z-overview` and accepted current-binary evidence
+`20261015T190245.454996Z-overview` retain open habitat and readable outcrops with less camouflage-
+like long-range contrast. The final 1280x720 frame passes with 358 colour bins, 38.13 luminance
+deviation, 206.11 spatial contrast and an empty kernel delta. Independent close-jungle guard
+`20261015T190410.829356Z-jungle` retains the established 275 bins, 46.22 deviation and 213.02
+contrast with an empty kernel delta.
+
 ## Latest vegetation-composition pass — connected broadleaf crown mass
 
 The overview/jungle/litter audit accepted the forest-floor material and open goat/bear hill, but
