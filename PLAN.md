@@ -60,6 +60,29 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — cliff-foot talus completes readable geology
+
+The renewed geology audit found that the eastern headland already had a real approximately 7.5 m
+rise, a short steep face and face-projected mineral bedding/joints from earlier passes. The missing
+part of macro-geography item 19 was large fallen material below the cliff. Six solid authored
+blocks now form two uneven, partly overlapping talus groups 1.45--2.70 m inland. They reuse the
+existing four detailed near/far rock forms, weathered portable material, cells, LOD, contact-shadow
+and collision paths; no mesh, texture, shader or draw is added. The first evenly spaced row was
+rejected after native inspection and is retained only as rejected evidence.
+
+The accepted native headland
+`build-consumer/software-captures/20261015T001032.141208Z-headland` passes and was inspected.
+Chrome/SwiftShader `build/browser-software/20261015T001249.174981Z-chrome-cliffs` passes east and
+headland for 60 finite positive intervals each, GL0, live contexts and no new kernel GPU fault;
+both images were inspected. World-report fingerprint `fc91ff87bc4dd741` records 209 rocks including
+six talus blocks and 14 offshore outcrops. ARM64 assemble/lint passes through the two-worker wrapper
+(24,051,347 bytes, SHA-256
+`6e99224ff26fd2007d122b003dcac14b23646fc9bcd60819d33e3729a0af615c`) without emulator/KVM.
+Focused core/world/terrain tests pass. The 63-case parallel regression passes 62 cases; only the
+unrelated interruption-timing case in `IslandGpuQualificationSupervisorTests` returns its generic
+code under load, then passes alone in 2.80 seconds. This is recorded as a reproduced timing flake,
+not hidden as a clean single-run 63/63 result.
+
 ## Latest visual-audit implementation — authoritative coastal micro-topography
 
 The coast audit found that tide-pool basins and close palm root ridges were already physical or
@@ -3798,8 +3821,9 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
 - [ ] 18. Tie wildlife to places: crabs on specific beach sections with burrows, butterflies at
   specific flowers, coastal/jungle/seabirds in their zones, reef fish at coral patches and small
   schools over sand, turtles over seagrass.
-- [ ] 19. Rock as geology, not only boulders: a rocky headland, a short 4-8 m cliff, exposed
-  bedrock on a slope, large blocks below the cliff.
+- [x] 19. Rock as geology, not only boulders: a rocky headland, a short 4-8 m cliff, exposed
+  bedrock on a slope, large blocks below the cliff. Existing face-projected bedrock plus the
+  2026-10-15 two-group talus pass are recorded in `docs/geology.md`.
 - [ ] 20. One small wet biome without a permanent river: a damp depression or seasonal pool with
   very dark soil, dense ferns, different sounds and insects, shadier vegetation.
 - Not now (per the analysis and product rules): another renderer, weather simulation,

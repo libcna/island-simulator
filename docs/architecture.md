@@ -965,9 +965,10 @@ near-crown geometry. Their fixed jungle frames were inspected, but those observa
 and the new leaf material. Current leaf-material qualification is tracked separately in PLAN.md;
 moving LOD/wind behaviour and physical-mobile cost remain open.
 
-Natural props add 157 irregular rocks across beach/interior bands, 14 larger emergent outcrops on
-the 1.8--9.4 m offshore shelf, 13 mossy fallen logs in the low-slope interior, 31 small
-sun-bleached driftwood pieces, 63 fallen palm fronds around suitable groves, and 265
+Natural props currently add 195 irregular land rocks across beach/interior bands (including six
+large solid blocks in two authored cliff-foot talus groups), 14 larger emergent outcrops on the
+1.8--9.4 m offshore shelf, 12 mossy fallen logs in the low-slope interior, 34 small
+sun-bleached driftwood pieces, 35 fallen palm fronds around suitable groves, and 233
 shell/pebble/dry-wrack clusters in the dry beach belt. Four rock, three log, three driftwood,
 three frond, and four beach-detail variants use cell culling, variant batching, and a portable
 static GLSL 330 / GLSL ES 300 shader; the larger classes retain independent near/far meshes while

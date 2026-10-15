@@ -1329,6 +1329,9 @@ void main()
         const int clearingLogCount = static_cast<int>(std::count_if(
             layout.FallenLogs().begin(), layout.FallenLogs().end(),
             [](const FallenLogPlacement& log) { return log.clearingLandmark; }));
+        const int cliffTalusCount = static_cast<int>(std::count_if(
+            layout.Rocks().begin(), layout.Rocks().end(),
+            [](const RockPlacement& rock) { return rock.cliffTalus; }));
         const int coveDriftwoodCount = static_cast<int>(std::count_if(
             layout.Driftwood().begin(), layout.Driftwood().end(),
             [](const DriftwoodPlacement& wood) { return wood.coveLandmark; }));
@@ -1343,6 +1346,8 @@ void main()
                   << " rocks and " << clearingLogCount
                   << (clearingLogCount == 1 ? " fallen log" : " fallen logs")
                   << ", shared authored placement\n";
+        std::cout << "island-simulator: eastern cliff talus " << cliffTalusCount
+                  << " large solid blocks in the existing rock batch\n";
         std::cout << "island-simulator: cove landmark " << coveDriftwoodCount
                   << " driftwood pieces, shared authored shoreline profile\n";
         std::cout << "island-simulator: stream-bank fallen logs "

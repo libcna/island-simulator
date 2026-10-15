@@ -289,7 +289,9 @@ namespace
             hash.AddByte(rock.solid ? 1U : 0U);
             hash.AddByte(rock.offshore ? 1U : 0U);
             hash.AddByte(rock.clearingLandmark ? 1U : 0U);
+            hash.AddByte(rock.tidePoolLandmark ? 1U : 0U);
             hash.AddByte(rock.streamBankLandmark ? 1U : 0U);
+            hash.AddByte(rock.cliffTalus ? 1U : 0U);
         }
 
         hash.AddSize(world.props.FallenLogs().size());
@@ -938,6 +940,15 @@ namespace
         return count;
     }
 
+    [[nodiscard]] std::size_t CountCliffTalus(const WorldSnapshot& world) noexcept
+    {
+        std::size_t count = 0U;
+        for (const island::RockPlacement& rock : world.props.Rocks()) {
+            if (rock.cliffTalus) ++count;
+        }
+        return count;
+    }
+
     [[nodiscard]] std::string FingerprintString(const std::uint64_t fingerprint)
     {
         std::ostringstream output;
@@ -1094,6 +1105,7 @@ namespace
                << "    \"forestFloorCompanions\": " << world.jungle.ForestGroundPlantCount() << ",\n"
                << "    \"rocks\": " << world.props.Rocks().size() << ",\n"
                << "    \"offshoreRocks\": " << CountOffshoreRocks(world) << ",\n"
+               << "    \"cliffTalusBlocks\": " << CountCliffTalus(world) << ",\n"
                << "    \"streamBankRocks\": " << world.props.StreamBankRockCount() << ",\n"
                << "    \"fallenLogs\": " << world.props.FallenLogs().size() << ",\n"
                << "    \"streamBankLogs\": " << world.props.StreamBankLogCount() << ",\n"

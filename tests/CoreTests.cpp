@@ -5485,6 +5485,7 @@ int main()
     std::size_t rockyShoreRockCount = 0U;
     std::size_t tidePoolRockCount = 0U;
     std::size_t streamBankRockCount = 0U;
+    std::size_t cliffTalusRockCount = 0U;
     for (std::size_t index = 0; index < props.Rocks().size(); ++index) {
         const island::RockPlacement& rock = props.Rocks()[index];
         const island::RockPlacement& repeated = repeatedProps.Rocks()[index];
@@ -5496,7 +5497,8 @@ int main()
                   && rock.solid == repeated.solid && rock.offshore == repeated.offshore
                   && rock.clearingLandmark == repeated.clearingLandmark
                   && rock.tidePoolLandmark == repeated.tidePoolLandmark
-                  && rock.streamBankLandmark == repeated.streamBankLandmark,
+                  && rock.streamBankLandmark == repeated.streamBankLandmark
+                  && rock.cliffTalus == repeated.cliffTalus,
               "rock placement is bitwise deterministic for one seed");
         if (rock.offshore) {
             ++reefRockCount;
@@ -5530,6 +5532,12 @@ int main()
             } else if (rock.clearingLandmark) {
                 Check(sample.signedShoreDistance >= 30.0f,
                       "authored clearing rocks remain on deep interior ground");
+            } else if (rock.cliffTalus) {
+                ++cliffTalusRockCount;
+                Check(rock.solid && sample.coastalRockiness > .90f
+                          && sample.signedShoreDistance >= 1.4f
+                          && sample.signedShoreDistance <= 2.8f,
+                      "authored talus blocks remain solid at the foot of the rocky headland");
             } else {
                 Check(sample.signedShoreDistance >= 1.5f
                           && sample.signedShoreDistance <= 202.0f,
@@ -5562,10 +5570,17 @@ int main()
                     ++rockyShoreRockCount;
                 }
             }
-            Check(rock.scaleX > 0.35f && rock.scaleX < 2.30f
-                      && rock.scaleY > 0.24f && rock.scaleY < 1.70f
-                      && rock.scaleZ > 0.35f && rock.scaleZ < 2.35f,
-                  "land-rock axis scales remain inside conservative visual bounds");
+            if (rock.cliffTalus) {
+                Check(rock.scaleX >= 1.5f && rock.scaleX <= 3.4f
+                          && rock.scaleY >= 1.1f && rock.scaleY <= 2.3f
+                          && rock.scaleZ >= 1.8f && rock.scaleZ <= 3.0f,
+                      "cliff talus retains varied large-block proportions");
+            } else {
+                Check(rock.scaleX > 0.35f && rock.scaleX < 2.30f
+                          && rock.scaleY > 0.24f && rock.scaleY < 1.70f
+                          && rock.scaleZ > 0.35f && rock.scaleZ < 2.35f,
+                      "land-rock axis scales remain inside conservative visual bounds");
+            }
         }
         Check(rock.variant < island::NaturalPropLayout::RockVariantCount,
               "rock variant index remains in range");
@@ -5584,6 +5599,9 @@ int main()
     Check(streamBankRockCount==props.StreamBankRockCount()&&streamBankRockCount>=10U
             &&streamBankRockCount<=island::NaturalPropLayout::StreamBankRockCandidateCount,
         "stream retains a bounded deterministic non-solid bank-stone composition");
+    Check(cliffTalusRockCount
+              == static_cast<std::size_t>(island::NaturalPropLayout::AuthoredCliffTalusCount),
+          "the eastern cliff retains its complete authored talus group");
     std::size_t clearingLandmarkLogCount = 0U;
     std::size_t wetBankLogCount = 0U;
     bool eastClearingLogObserved = false;

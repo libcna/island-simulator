@@ -27,6 +27,7 @@ namespace island
         bool clearingLandmark = false;
         bool tidePoolLandmark = false;
         bool streamBankLandmark = false;
+        bool cliffTalus = false;
     };
 
     // Wood placement uses a local-X heading (cos, sin), unlike a model's Y-axis rotation.
@@ -114,6 +115,7 @@ namespace island
         static constexpr int ReefHabitatSiteCount = 640;
         static constexpr int AuthoredClearingRockCount = 5;
         static constexpr int StreamBankRockCandidateCount = 18;
+        static constexpr int AuthoredCliffTalusCount = 6;
         static constexpr int AuthoredClearingLogCount = 2;
         static constexpr int StreamBankLogCandidateCount = 8;
         static constexpr int AuthoredCoveDriftwoodCount = 3;

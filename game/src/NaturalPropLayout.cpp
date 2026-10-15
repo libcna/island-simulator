@@ -163,6 +163,50 @@ namespace island
             }
         }
 
+        // Six substantial blocks collect at the low foot of the windward eastern cliff. They
+        // reuse the existing near/far rock meshes and material, but their authored scale and
+        // tight high-rockiness band make the face read as eroded geology rather than isolated
+        // decorative boulders.
+        struct CliffTalusDefinition
+        {
+            float angleOffset;
+            float inland;
+            float yaw;
+            float scaleX;
+            float scaleY;
+            float scaleZ;
+            std::uint8_t variant;
+        };
+        constexpr float CliffAngle = .35f;
+        constexpr std::array cliffTalus{
+            CliffTalusDefinition{-.080f,2.55f,.25f,3.35f,2.15f,2.50f,2U},
+            CliffTalusDefinition{-.066f,1.45f,1.05f,1.55f,1.15f,1.85f,0U},
+            CliffTalusDefinition{-.047f,2.10f,2.18f,2.45f,1.70f,3.00f,3U},
+            CliffTalusDefinition{ .030f,2.70f,.62f,3.25f,2.30f,2.15f,1U},
+            CliffTalusDefinition{ .043f,1.50f,1.72f,1.75f,1.20f,2.40f,2U},
+            CliffTalusDefinition{ .067f,2.20f,2.72f,2.55f,1.60f,1.90f,0U},
+        };
+        static_assert(cliffTalus.size()==AuthoredCliffTalusCount);
+        for (const auto& authored : cliffTalus) {
+            const float angle=CliffAngle+authored.angleOffset;
+            const float radius=terrain.ShoreRadius(angle)-authored.inland;
+            RockPlacement rock;
+            rock.x=std::cos(angle)*radius;
+            rock.z=std::sin(angle)*radius;
+            const auto support=terrain.Sample(rock.x,rock.z);
+            rock.y=support.height-.09f*authored.scaleY;
+            rock.yawRadians=authored.yaw;
+            rock.scaleX=authored.scaleX;
+            rock.scaleY=authored.scaleY;
+            rock.scaleZ=authored.scaleZ;
+            rock.variant=authored.variant;
+            rock.solid=true;
+            rock.cliffTalus=true;
+            rocks_.push_back(rock);
+            obstacles_.push_back(CircularObstacle{
+                rock.x,rock.z,.63f*std::max(rock.scaleX,rock.scaleZ)});
+        }
+
         // Two low non-solid stones frame each pool without adding collision or a draw path.
         for (std::size_t poolIndex=0;poolIndex<TidePoolLayout::Definitions.size();++poolIndex) {
             const auto [poolX,poolZ]=TidePoolLayout::Centre(terrain,poolIndex);
