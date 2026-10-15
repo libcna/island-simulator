@@ -1,9 +1,38 @@
 # Small fauna
 
-Eight bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, eight
+Nine bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, eight
 open-ground skinks, nine stream/wetland dragonflies, ten stream/wetland frogs, ten beach hermit
-crabs, six coconut crabs, twelve field mice, eight rats and twenty-four flies in four swarms.
+crabs, six coconut crabs, twelve field mice, eight rats, twenty-four flies in four swarms and
+sixty-four ants in four trails.
 This is not completion of every optional small-fauna candidate: cicadas and beetles remain.
+
+## Ants
+
+Four deterministic close-range trails each contain sixteen harmless workers. Three run across
+qualified inland soil at the primary footpath, west-clearing edge and seasonal wetland. The fourth
+uses a real non-mangrove `JungleLayout` broadleaf selected near the east clearing: its radius and
+vertical span follow the actual canopy variant and instance scale, so the workers sit on the
+rendered trunk rather than an unrelated cylinder. Full simulation ends at 16 m, reduced simulation
+at 34 m, and the common wildlife activation policy sleeps more distant agents.
+
+Workers travel in both directions, briefly pause and return carrying visible leaf fragments. Their
+pose supplies a normalized surface normal and travel tangent in three dimensions. Ground routes
+resample terrain height and normal; the trunk route climbs while slowly wrapping around the bark.
+The roughly 3 cm QA-readable close form uses closed eight-sided head, thorax and abdomen volumes,
+six articulated two-section legs and two antennae. It appends to the existing small-fauna dynamic
+buffer and draw. There is no new renderer, texture, material switch, GPU buffer or draw call.
+
+The dedicated deterministic CPU test runs three simulated minutes and covers the exact 4x16
+layout, finite normalized frames, terrain contact, actual trunk ascent, walking/carrying/paused
+states and full/reduced/dormant tiers. The inspected final native llvmpipe capture is
+`build-consumer/software-captures/20261015T102927.642859Z-ants`: 195 colour bins, 30.93 luminance
+deviation and 96.34 spatial contrast. Chrome/SwiftShader evidence is
+`build/browser-software/20261015T103518.572889Z-chrome-ants`: 60 finite positive intervals, GL0,
+a live context, two distinct frames and no new kernel GPU fault. ARM64 assemble/lint passes with
+the two-worker wrapper and without launching an emulator or touching KVM. The APK is 24,473,043
+bytes with SHA-256 `618d1eb6a9bcd706c87790c897a1685e547f15363f8813742d8f295989680005`;
+its packaged `libmain.so` is 19,430,472 bytes. Physical-device appearance remains final acceptance
+work.
 
 ## Flies
 

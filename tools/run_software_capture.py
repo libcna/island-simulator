@@ -547,7 +547,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "deer", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "geckos", "skinks", "dragonflies", "frogs", "mice", "rats", "flies", "hermit-crabs", "coconut-crabs", "canopy", "monkey-tree", "monkey-climb", "ground-doves"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "deer", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "geckos", "skinks", "dragonflies", "frogs", "mice", "rats", "flies", "ants", "hermit-crabs", "coconut-crabs", "canopy", "monkey-tree", "monkey-climb", "ground-doves"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -1074,6 +1074,15 @@ def main():
                         raise RuntimeError(f"fly integration diagnostic missing: {marker}")
                 if not re.search(r"flies [1-9][0-9]*/24 visible in shared draw", diagnostics):
                     raise RuntimeError("fly capture did not submit a close-range swarm")
+            if args.viewpoint == "ants":
+                for marker in (
+                    "four close-range ant trails use sixty-four soil and trunk-climbing agents in the shared small-fauna batch",
+                    "close ants use three-part bodies, six articulated legs, paired antennae, and visible carried leaf fragments",
+                    "ant QA camera frames a visible worker on one inland soil trail"):
+                    if marker not in diagnostics:
+                        raise RuntimeError(f"ant integration diagnostic missing: {marker}")
+                if not re.search(r"ants [1-9][0-9]*/64 visible in shared draw", diagnostics):
+                    raise RuntimeError("ant capture did not submit a close-range trail")
             if args.viewpoint == "hermit-crabs":
                 if "ten sheltered-beach hermit crabs pause, forage, and retreat in the shared crab batch" not in diagnostics:
                     raise RuntimeError("current hermit-crab renderer is missing; check for a stale executable")

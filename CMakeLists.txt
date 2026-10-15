@@ -36,6 +36,7 @@ island_verify_dependencies()
 add_library(island_core STATIC
     game/src/AquaticLightingModel.cpp
     game/src/AudioAnalysis.cpp
+    game/src/AntTrails.cpp
     game/src/BenchmarkTraversalRoute.cpp
     game/src/BearMotion.cpp
     game/src/BirdFlock.cpp
@@ -341,6 +342,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_fly_swarms_tests)
     island_enable_first_party_sanitizers(island_fly_swarms_tests)
     add_test(NAME IslandFlySwarmsTests COMMAND island_fly_swarms_tests)
+    add_executable(island_ant_trails_tests tests/AntTrailsTests.cpp)
+    target_link_libraries(island_ant_trails_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_ant_trails_tests)
+    island_enable_first_party_sanitizers(island_ant_trails_tests)
+    add_test(NAME IslandAntTrailsTests COMMAND island_ant_trails_tests)
     add_executable(island_goat_mesh_tests tests/GoatMeshTests.cpp)
     target_link_libraries(island_goat_mesh_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_goat_mesh_tests)

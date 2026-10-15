@@ -154,6 +154,7 @@ namespace island
             case FixedViewpoint::MouseDetail: return "mice";
             case FixedViewpoint::RatDetail: return "rats";
             case FixedViewpoint::FlyDetail: return "flies";
+            case FixedViewpoint::AntDetail: return "ants";
             case FixedViewpoint::SeaTurtleDetail: return "turtles";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
             case FixedViewpoint::None: return "interactive";
@@ -202,6 +203,7 @@ namespace island
           monkeyTroop_(terrain_),
           vegetationLayout_(terrain_),
           jungleLayout_(terrain_),
+          antTrails_(terrain_,jungleLayout_),
           fruitBatColony_(terrain_, jungleLayout_.Canopy()),
           spiderWebSites_(SpiderWebLayout::Propose(jungleLayout_,RenderedTerrainSurface(terrain_))),
           canopyLightField_(terrain_, MakeCanopyOccluders(
@@ -1535,6 +1537,16 @@ namespace island
             yaw_ = std::atan2(direction.X, direction.Z);
             pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
             std::cout << "island-simulator: fly QA camera frames one close insect within its inland swarm\n";
+        } else if(viewpoint_==FixedViewpoint::AntDetail) {
+            const AntState& ant=antTrails_.Ants()[5U];
+            const Vector3 forward(ant.forwardX,ant.forwardY,ant.forwardZ);
+            const Vector3 up(ant.normalX,ant.normalY,ant.normalZ);
+            const Vector3 side=Vector3::Normalize(Vector3::Cross(up,forward));
+            cameraPosition_=Vector3(ant.x,ant.y,ant.z)+up*.08f+side*.32f-forward*.07f;
+            const Vector3 direction=Vector3(ant.x,ant.y,ant.z)+up*.030f-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+            std::cout<<"island-simulator: ant QA camera frames a visible worker on one inland soil trail\n";
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferMultiSamplingProperty(qualityProfile_.preferredBackBufferSamples > 0);
@@ -1890,6 +1902,8 @@ namespace island
                   << " forage, scurry, and hide in bounded inland edge habitats\n"
                   << "island-simulator: flies " << FlySwarms::Count
                   << " agents in four close-range inland organic-ground swarms\n"
+                  << "island-simulator: ants " << AntTrails::Count
+                  << " agents in three soil trails and one real broadleaf-trunk trail\n"
                   << "island-simulator: beach crabs " << crabColony_.Crabs().size()
                   << " agents in deterministic sand-and-debris-constrained colonies\n"
                   << "island-simulator: hermit crabs " << hermitCrabGroup_.Crabs().size()
@@ -2007,6 +2021,10 @@ namespace island
         flyPopulationDiagnostic << "island-simulator: flies " << FlySwarms::Count
             << " agents in four close-range inland organic-ground swarms";
         MirrorRuntimeDiagnosticToPlatformLog(flyPopulationDiagnostic.str());
+        std::ostringstream antPopulationDiagnostic;
+        antPopulationDiagnostic << "island-simulator: ants " << AntTrails::Count
+            << " agents in three soil trails and one real broadleaf-trunk trail";
+        MirrorRuntimeDiagnosticToPlatformLog(antPopulationDiagnostic.str());
         std::ostringstream crabPopulationDiagnostic;
         crabPopulationDiagnostic << "island-simulator: beach crabs "
                                  << crabColony_.Crabs().size()
@@ -2253,6 +2271,13 @@ namespace island
         }
         flySwarms_.Update(viewpoint_ == FixedViewpoint::FlyDetail ? 0.0f : deltaSeconds,
                           flyObserver.X, flyObserver.Y, flyObserver.Z);
+        Vector3 antObserver=cameraPosition_;
+        if(viewpoint_==FixedViewpoint::AntDetail) {
+            const auto& ant=antTrails_.Ants()[5U];
+            antObserver=Vector3(ant.x,ant.y+10.0f,ant.z);
+        }
+        antTrails_.Update(viewpoint_==FixedViewpoint::AntDetail?0.0f:deltaSeconds,
+                          antObserver.X,antObserver.Y,antObserver.Z);
         const CrabState previousCrabSubject = crabColony_.Crabs()[crabViewSubject_];
         Vector3 crabObserver=cameraPosition_;
         if(viewpoint_==FixedViewpoint::CrabDetail) {
@@ -3125,7 +3150,7 @@ namespace island
                 ||viewpoint_==FixedViewpoint::DeerDetail
                 ||viewpoint_==FixedViewpoint::ResidentDetail||viewpoint_==FixedViewpoint::BearDetail
                 ||viewpoint_==FixedViewpoint::MouseDetail||viewpoint_==FixedViewpoint::RatDetail
-                ||viewpoint_==FixedViewpoint::FlyDetail
+                ||viewpoint_==FixedViewpoint::FlyDetail||viewpoint_==FixedViewpoint::AntDetail
                 ||UsesSpiderViewpoint())
                 ?0.50f:std::numbers::pi_v<float> / 3.0f,
             aspect, 0.08f, 1200.0f);
@@ -3659,7 +3684,8 @@ namespace island
                                      butterflyMeadow_.FlowerPatches(),
                                      geckoPopulation_.Geckos(), skinkPopulation_.Skinks(),
                                      dragonflySwarm_.Dragonflies(), frogPopulation_.Frogs(),
-                                     rodentPopulation_.Rodents(), flySwarms_.Flies());
+                                     rodentPopulation_.Rodents(), flySwarms_.Flies(),
+                                     antTrails_.Ants());
         }
 
         {
@@ -4239,6 +4265,9 @@ namespace island
                       << " visible in shared draw; flies "
                       << butterflyRenderer_->VisibleFlyCount() << '/'
                       << FlySwarms::Count
+                      << " visible in shared draw; ants "
+                      << butterflyRenderer_->VisibleAntCount() << '/'
+                      << AntTrails::Count
                       << " visible in shared draw; crabs "
                       << crabRenderer_->VisibleCrabCount() << '/'
                       << crabColony_.Crabs().size() << " visible (near "
@@ -4421,6 +4450,14 @@ namespace island
                 << butterflyRenderer_->VisibleFlyCount() << '/' << FlySwarms::Count
                 << " visible in shared draw";
             std::cout << report.str() << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(report.str());
+        }
+        if(viewpoint_==FixedViewpoint::AntDetail&&drawnFrames_==1U) {
+            std::ostringstream report;
+            report<<"island-simulator: ant render proof: ants "
+                <<butterflyRenderer_->VisibleAntCount()<<'/'<<AntTrails::Count
+                <<" visible in shared draw";
+            std::cout<<report.str()<<'\n';
             MirrorRuntimeDiagnosticToPlatformLog(report.str());
         }
         const bool snakeCapture = UsesSnakeCaptureClock();

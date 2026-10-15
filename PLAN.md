@@ -67,7 +67,7 @@ historical incident next steps, rejected visual iterations and superseded accept
 remaining material work is:
 
 - finish the requested fauna list with bounded, habitat-appropriate implementations (notably
-  the remaining smaller insects are lower-value explicit entries and should follow
+  cicadas and beetles remain lower-value explicit entries and should follow
   visual/ecological fit rather than raw species count);
 - continue whole-island visual critique, especially jungle-floor/canopy repetition, continuous
   camera LOD transitions and moving-edge aliasing;
@@ -80,6 +80,35 @@ spiders, boar/goat/snake sound, flight/diving controls, stream/wetland/mangroves
 the latest animal repairs already exist and are not reopened merely because an older section still
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
+
+## Latest ecosystem implementation — ground and trunk ant trails
+
+Macro-ecosystem item 17 now also contains 64 deterministic ants in four close-range trails. Three
+trails cross qualified inland soil, including the authored footpath, clearing edge and seasonal
+wetland; the fourth wraps upward around a real current broadleaf trunk selected from `JungleLayout`.
+Workers walk in both directions, pause, and return carrying visible leaf fragments. Ground workers
+resample the terrain frame while trunk workers use the scaled rendered trunk radius and a vertical
+tangent. All agents use the shared full/reduced/dormant policy.
+
+The close portable form has separate head, thorax and abdomen volumes, six two-section legs and
+paired antennae. Carrying workers add a small green leaf fragment. Geometry appends to the existing
+small-fauna dynamic buffer and single draw, so this stage adds no renderer, GPU buffer, texture,
+material switch or draw call. The deterministic three-minute CPU test covers exact counts and
+homes, finite normalized frames, soil contact, trunk ascent, all three behaviours and all distance
+tiers. The complete native non-display range passes 69/69 tests.
+
+The inspected final native capture is
+`build-consumer/software-captures/20261015T102927.642859Z-ants` (195 colour bins, 30.93 luminance
+deviation and 96.34 spatial contrast). Chrome 155/SwiftShader evidence
+`build/browser-software/20261015T103518.572889Z-chrome-ants` passes 60 finite positive intervals,
+GL0, a live context, two distinct frames and clean kernel monitoring. The current Web package is
+11,458,974 bytes of Wasm, 2,230,701 bytes of data and 280,814 bytes of JavaScript. ARM64
+`assembleDebug` and `lintDebug` pass with the two-worker wrapper and without emulator/KVM; the APK
+is 24,473,043 bytes with SHA-256
+`618d1eb6a9bcd706c87790c897a1685e547f15363f8813742d8f295989680005` and contains a
+19,430,472-byte `libmain.so`. Physical-device appearance and ordinary-player discovery remain final
+integration checks; the close model intentionally stays a bounded low-poly detail rather than a
+new hero asset.
 
 ## Latest visual-audit implementation — asymmetric canopy fill
 
@@ -3841,7 +3870,10 @@ progress or require player interaction; dangerous species keep their distance li
   island-goat-anchors-x86_64.apk SHA6b3f1133... archived, defaultARM64 restored/lint9s.
   Current anchors/anatomy appear; sparse Web samples/single Android view are NOT
   continuous gait, mobile performance, lifecycle or AMD qualification. docs/goats.md.
-- [ ] Ants (trails on ground and trunks, close-range detail only)
+- [x] Ants (trails on ground and trunks, close-range detail only). Sixty-four deterministic
+  workers occupy three inland soil trails and one scaled real broadleaf-trunk route. They walk,
+  pause and return carrying leaf fragments; three-part bodies, articulated legs and antennae append
+  to the existing small-fauna batch/draw. See `docs/small-fauna.md`.
 - [x] Flies (small insect swarms, close-range detail only). Four deterministic inland swarms of
   six hover, orbit and dart agents sleep beyond close range and share the existing small-fauna
   buffer/draw. Near insects have a compact segmented silhouette, paired beating wings, eyes and
@@ -4242,8 +4274,9 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   eight grounded rest/flee/hide geckos, eight bask/forage/flee skinks, nine moist-habitat
   hover/patrol/dart dragonflies, ten moist-bank rest/hop/retreat frogs, ten sheltered-beach hermit
   crabs, six palm-zone coconut crabs, twelve field mice, eight rats and four six-agent fly swarms
-  are complete in existing shared batches, with native, WebGL and ARM64 qualification described
-  above and in `docs/small-fauna.md`. Cicadas and beetles remain explicit candidates.
+  plus four sixteen-worker soil/trunk ant trails are complete in existing shared batches, with
+  native, WebGL and ARM64 qualification described above and in `docs/small-fauna.md`. Cicadas and
+  beetles remain explicit candidates.
 - [x] 18. Tie wildlife to places: crabs on specific beach sections with burrows, butterflies at
   specific flowers, coastal/jungle/seabirds in their zones, reef fish at coral patches and small
   schools over sand, turtles over seagrass. The shared habitat completion and evidence are recorded

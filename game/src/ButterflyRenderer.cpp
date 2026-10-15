@@ -43,11 +43,12 @@ namespace island
         // A close fly uses 348 vertices: 192 body, 24 head, 12 wings,
         // 48 eyes and 72 legs. Keep a small per-agent margin for later detail edits.
         constexpr int MaximumFlyVertices = static_cast<int>(FlySwarms::Count) * 360;
+        constexpr int MaximumAntVertices = static_cast<int>(AntTrails::Count) * 360;
         constexpr int MaximumVertexCount = static_cast<int>(ButterflyMeadow::ButterflyCount)
             * MaximumVerticesPerButterfly + MaximumFlowerVertices + MaximumGeckoVertices
             + MaximumSkinkVertices
             +MaximumDragonflyVertices + MaximumFrogVertices + MaximumRodentVertices
-            + MaximumFlyVertices;
+            + MaximumFlyVertices + MaximumAntVertices;
         constexpr std::string_view ButterflyDiagnostic =
             "island-simulator: clearing butterflies use hinged patterned wings in one culled batch";
         constexpr std::string_view ButterflyAnatomyDiagnostic =
@@ -72,6 +73,10 @@ namespace island
             "island-simulator: four close-range fly swarms use twenty-four hover, orbit, and dart agents in the shared small-fauna batch";
         constexpr std::string_view FlyAnatomyDiagnostic =
             "island-simulator: near flies use compact dark thoraxes, tapered abdomens, highlighted eyes, six legs, and two beating pale wings";
+        constexpr std::string_view AntDiagnostic =
+            "island-simulator: four close-range ant trails use sixty-four soil and trunk-climbing agents in the shared small-fauna batch";
+        constexpr std::string_view AntAnatomyDiagnostic =
+            "island-simulator: close ants use three-part bodies, six articulated legs, paired antennae, and visible carried leaf fragments";
 
         struct ButterflyPalette
         {
@@ -692,6 +697,82 @@ namespace island
             }
         }
 
+        void AppendAntBody(std::vector<VertexPositionColor>& vertices,const Vector3& centre,
+                           const Vector3& right,const Vector3& up,const Vector3& forward,
+                           const float halfWidth,const float halfHeight,const float halfLength,
+                           const Color& dorsal,const Color& flank)
+        {
+            constexpr int Sides=8;
+            const Vector3 front=centre+forward*halfLength,rear=centre-forward*halfLength;
+            std::array<Vector3,Sides> ring{};
+            for(int side=0;side<Sides;++side) {
+                const float angle=6.28318530718f*static_cast<float>(side)/Sides;
+                ring[side]=centre+right*(std::cos(angle)*halfWidth)
+                    +up*(std::sin(angle)*halfHeight);
+            }
+            for(int side=0;side<Sides;++side) {
+                const int next=(side+1)%Sides;
+                const Color color=side>=1&&side<=3?dorsal:flank;
+                AddTriangle(vertices,front,ring[side],ring[next],color);
+                AddTriangle(vertices,rear,ring[next],ring[side],color);
+            }
+        }
+
+        void AppendAnt(std::vector<VertexPositionColor>& vertices, const AntState& ant)
+        {
+            const Vector3 forward = Vector3::Normalize(Vector3(
+                ant.forwardX,ant.forwardY,ant.forwardZ));
+            const Vector3 up = Vector3::Normalize(Vector3(
+                ant.normalX,ant.normalY,ant.normalZ));
+            const Vector3 right = Vector3::Normalize(Vector3::Cross(up,forward));
+            const float unit=.0115f*ant.scale;
+            const std::array<Color,3> bodies{{Color(43,25,18),Color(59,31,20),Color(30,25,21)}};
+            const Color body=bodies[ant.colorVariant%bodies.size()];
+            const Color flank=Color::Lerp(body,Color(9,7,6),.32f);
+            const Color leg=Color::Lerp(body,Color(12,10,8),.50f);
+            const Vector3 centre(ant.x,ant.y,ant.z);
+            AppendAntBody(vertices,centre,right,up,forward,
+                .34f*unit,.30f*unit,.40f*unit,body,flank);
+            const Vector3 head=centre+forward*(.70f*unit)+up*(.02f*unit);
+            AppendAntBody(vertices,head,right,up,forward,
+                .31f*unit,.29f*unit,.34f*unit,body,flank);
+            const Vector3 abdomen=centre-forward*(.82f*unit)+up*(.04f*unit);
+            AppendAntBody(vertices,abdomen,right,up,forward,
+                .48f*unit,.40f*unit,.58f*unit,body,flank);
+            const float step=std::sin(ant.gaitPhase);
+            for(const float side:{-1.0f,1.0f}) for(int legIndex=0;legIndex<3;++legIndex) {
+                const float along=(.36f-static_cast<float>(legIndex)*.38f)*unit;
+                const float swing=step*side*(legIndex%2==0?1.0f:-1.0f)*.18f*unit;
+                const Vector3 hip=centre+forward*along+right*(side*.25f*unit);
+                const Vector3 knee=hip+right*(side*.64f*unit)
+                    +forward*((.18f-static_cast<float>(legIndex)*.18f)*unit+swing)
+                    +up*(.10f*unit);
+                const Vector3 foot=knee+right*(side*.54f*unit)
+                    +forward*((.28f-static_cast<float>(legIndex)*.28f)*unit+swing)
+                    -up*(.18f*unit);
+                AppendGeckoSegment(vertices,hip,knee,.055f*unit,leg);
+                AppendGeckoSegment(vertices,knee,foot,.040f*unit,leg);
+            }
+            for(const float side:{-1.0f,1.0f}) {
+                const Vector3 root=head+forward*(.27f*unit)+right*(side*.16f*unit);
+                const Vector3 elbow=root+forward*(.43f*unit)+right*(side*.24f*unit)
+                    +up*(.12f*unit);
+                const Vector3 tip=elbow+forward*(.34f*unit)+right*(side*.25f*unit)
+                    -up*(.08f*unit);
+                AppendGeckoSegment(vertices,root,elbow,.032f*unit,leg);
+                AppendGeckoSegment(vertices,elbow,tip,.024f*unit,leg);
+            }
+            if(ant.behavior==AntBehavior::Carry) {
+                const Color leaf(76,112,42);
+                const Vector3 leafCentre=centre+up*(.92f*unit)-forward*(.10f*unit);
+                AddDoubleSidedTriangle(vertices,leafCentre-forward*(1.18f*unit),
+                    leafCentre+right*(.62f*unit),leafCentre+forward*(1.28f*unit),leaf);
+                AddDoubleSidedTriangle(vertices,leafCentre-forward*(1.18f*unit),
+                    leafCentre+forward*(1.28f*unit),leafCentre-right*(.62f*unit),
+                    Color(58,91,34));
+            }
+        }
+
         void AppendRodentEar(std::vector<VertexPositionColor>& vertices,
                              const Vector3& centre, const Vector3& horizontal,
                              const Vector3& vertical, const float radius,
@@ -986,6 +1067,8 @@ namespace island
         std::cout << RodentAnatomyDiagnostic << '\n';
         std::cout << FlyDiagnostic << '\n';
         std::cout << FlyAnatomyDiagnostic << '\n';
+        std::cout << AntDiagnostic << '\n';
+        std::cout << AntAnatomyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyHabitatDiagnostic);
@@ -998,6 +1081,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(RodentAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(FlyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(FlyAnatomyDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(AntDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(AntAnatomyDiagnostic);
     }
 
     ButterflyRenderer::~ButterflyRenderer() = default;
@@ -1011,7 +1096,8 @@ namespace island
                                   const std::span<const DragonflyState> dragonflies,
                                   const std::span<const FrogState> frogs,
                                   const std::span<const RodentState> rodents,
-                                  const std::span<const FlyState> flies)
+                                  const std::span<const FlyState> flies,
+                                  const std::span<const AntState> ants)
     {
         stagingVertices_.clear();
         visibleButterflyCount_ = 0;
@@ -1024,6 +1110,7 @@ namespace island
         visibleMouseCount_ = 0;
         visibleRatCount_ = 0;
         visibleFlyCount_ = 0;
+        visibleAntCount_ = 0;
         drawCallCount_ = 0;
         const BoundingFrustum frustum(view * projection);
         for (std::size_t index = 0; index < flowerPatches.size(); ++index) {
@@ -1089,6 +1176,13 @@ namespace island
                 || !frustum.Intersects(BoundingSphere(centre, .08f))) continue;
             AppendFly(stagingVertices_, fly);
             ++visibleFlyCount_;
+        }
+        for(const AntState& ant:ants) {
+            const Vector3 centre(ant.x,ant.y,ant.z);
+            if(Vector3::DistanceSquared(centre,cameraPosition)>12.0f*12.0f
+                ||!frustum.Intersects(BoundingSphere(centre,.045f)))continue;
+            AppendAnt(stagingVertices_,ant);
+            ++visibleAntCount_;
         }
         for (const ButterflyState& butterfly : butterflies) {
             const Vector3 centre(butterfly.x, butterfly.y, butterfly.z);

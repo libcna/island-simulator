@@ -105,6 +105,7 @@ namespace
         case FixedViewpoint::MouseDetail: return "mice";
         case FixedViewpoint::RatDetail: return "rats";
         case FixedViewpoint::FlyDetail: return "flies";
+        case FixedViewpoint::AntDetail: return "ants";
         case FixedViewpoint::SeaTurtleDetail: return "turtles";
         case FixedViewpoint::BenchmarkTraversal: return "traversal";
         }
@@ -168,7 +169,7 @@ int main(const int argc, char* argv[])
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, snags, sapling, "
                              "east, headland, tide-pools, turtle-nest, cave, cave-inside, bunker, bunker-corridor, bunker-computers, bunker-reactor, bunker-service, bunker-end, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, wetland, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, fallen-palm, broken-palm, water, "
                              "wet-sand, current, distant, props, driftwood, reef, reef-habitat, fronds, birds, bats, bat-roost, fish, "
-                             "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, helicopter, helicopter-inside, crabs, hermit-crabs, coconut-crabs, crocodiles, boars, goats, spiders, spiders-bright, spider-web, snakes, snake-head, butterflies, geckos, skinks, dragonflies, frogs, turtles, or traversal\n";
+                             "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, helicopter, helicopter-inside, crabs, hermit-crabs, coconut-crabs, crocodiles, boars, goats, spiders, spiders-bright, spider-web, snakes, snake-head, butterflies, geckos, skinks, dragonflies, frogs, mice, rats, flies, ants, turtles, or traversal\n";
                 return 2;
             }
             const std::string_view name(argv[index]);
@@ -342,6 +343,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::RatDetail;
             } else if (name == "flies") {
                 viewpoint = island::FixedViewpoint::FlyDetail;
+            } else if(name=="ants") {
+                viewpoint=island::FixedViewpoint::AntDetail;
             } else if (name == "turtles") {
                 viewpoint = island::FixedViewpoint::SeaTurtleDetail;
             } else if (name == "traversal") {
