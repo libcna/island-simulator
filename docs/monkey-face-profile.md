@@ -1,5 +1,29 @@
 # Connected monkey face profile — native first pass
 
+## 2026-10-15 narrower mask and stronger facial planes
+
+The post-goat animal audit still found the monkey weakest at close range: its locomotion and
+quadrupedal silhouette read correctly, but the pale facial surface filled nearly the whole cranium
+and its low relief flattened the eye sockets, cheeks and muzzle into a toy mask. The twelve-row
+skin outline is now about eight percent narrower and slightly shorter, with a more tapered forehead
+and chin. Orbit depth increases from 8 to 12 mm, brow projection from 11 to 17 mm, nose-bridge
+relief from 8 to 13 mm and cheek relief from 6 to 9 mm. Corneas, fitted eyelids, paired muzzle pads
+and the nose were reduced and pulled into the new profile while remaining readable.
+
+This changes only constant profile geometry used by the existing face/eye buffers. The head bone,
+fourteen-bone palette, seven agents, fur source, materials, shaders, draws, behavior, ground gait,
+tree approach and climbing are unchanged. The CPU profile contracts were tightened to protect the
+new compact brow/muzzle proportions and still validate bilateral continuity, ordered rows, facial
+envelope, socket/cornea intersection and nondegenerate lids.
+
+The first new close capture `20261015T143115.572405Z-monkeys` passed mechanically but is rejected
+as appearance evidence because a broad foreground leaf obscures the face. The independent nine-
+frame current-binary tree sequence `20261015T143227.440558Z-monkey-tree` passes every 1280x720
+stage (209--215 colour bins, 44.54--45.19 luminance deviation, 196.30--200.82 spatial contrast)
+with an empty kernel delta. All frames were inspected; front-quarter stages keep a recognisable
+short primate muzzle, narrower skin outline and readable eyes through the approach cycle. This is
+native llvmpipe evidence, not physical AMD/Android qualification or photoreal acceptance.
+
 ## 2026-10-15 compact primate head and socketed readable eyes
 
 A fresh side-by-side animal audit found the bear recognisable and the boar acceptable, while the

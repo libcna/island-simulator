@@ -98,7 +98,7 @@ try {
                     "socket ambient retention must be bilateral");
         }
     }
-    Require(face::Rows[4].halfWidth>=.120f&&face::Rows[8].halfWidth>=.090f
+    Require(face::Rows[4].halfWidth>=.110f&&face::Rows[8].halfWidth>=.082f
             &&face::Rows[8].halfWidth<face::Rows[4].halfWidth,
         "short monkey face lost its compact heart-shaped brow and tapered muzzle");
     Require(face::CraniumRadii.x>=.17f&&face::CraniumRadii.y>=.18f
@@ -118,12 +118,12 @@ try {
         &&face::EyeCentreZ+face::EyeRadiusZ>orbitalSurface,
         "eye cornea must straddle the recessed orbital surface, not float outside");
     Require(face::Rows[7].front > face::Rows[4].front, "muzzle projects beyond orbital plane");
-    Require(face::EyeCentreZ>.640f&&face::EyeRadiusX>=.021f,
+    Require(face::EyeCentreZ>.640f&&face::EyeRadiusX>=.019f,
         "close monkey corneas remain readable above the face surface");
-    Require(face::NoseRadii.x>=.026f&&face::NoseRadii.y>=.014f
+    Require(face::NoseRadii.x>=.023f&&face::NoseRadii.y>=.012f
             &&face::NoseCentre.z+face::NoseRadii.z>.680f,
         "fitted low-profile nose pad remains visible on the short muzzle");
-    Require(face::MuzzlePadRadii.x>=.042f&&face::MuzzlePadRadii.y>=.033f
+    Require(face::MuzzlePadRadii.x>=.038f&&face::MuzzlePadRadii.y>=.029f
             &&face::MuzzlePadCentre.z+face::MuzzlePadRadii.z>.682f,
         "paired compact muzzle pads still project beyond the facial skin");
     for(float side:{-1.0f,1.0f}) for(bool upper:{false,true}) for(int i=0;i<=10;++i) {

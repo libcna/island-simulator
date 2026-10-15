@@ -131,6 +131,22 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest visual-audit implementation — compact monkey facial planes
+
+The next close-animal cycle selected the monkey after the goat correction. Its current body,
+quadrupedal gait and tree interaction read as a primate, but a broad low-relief skin surface still
+made the head look like a flat toy mask. The existing twelve-row face is now roughly eight percent
+narrower and slightly shorter, with deeper orbits and stronger brow, nose-bridge and cheek relief.
+Eyes, eyelids, muzzle pads and nose were reduced and refitted to that surface. Seven agents, the
+fourteen-bone rig, fur, materials, shader, draws, behavior and climbing are unchanged.
+
+The focused CPU geometry contract passes. Close run `20261015T143115.572405Z-monkeys` is retained
+but explicitly rejected as visual evidence because a foreground leaf hides the face. The inspected
+nine-frame `20261015T143227.440558Z-monkey-tree` sequence instead passes every 1280x720 stage with
+209--215 colour bins, 44.54--45.19 luminance deviation, 196.30--200.82 spatial contrast and an
+empty kernel delta. It covers multiple front-quarter approach poses; current Web/Android images
+predate this small profile pass and physical-device appearance remains open.
+
 ## Latest visual-audit implementation — goat anatomy and coat direction
 
 The next animal audit selected the goats as the weakest close silhouette after the deer pass.
