@@ -105,16 +105,24 @@ vec3 cumulusMass(vec3 color, vec4 cloud, float seed, float azimuth, float skyEle
     vec2 noiseCoordinate = local * vec2(3.8, 2.9) + vec2(seed * 7.3, seed * 3.1);
     float detail = skyNoise(noiseCoordinate) * 0.62 + skyNoise(noiseCoordinate * 2.3 + 11.0) * 0.38;
     float topErosion = (detail - 0.5) * (0.9 + 0.8 * max(local.y, 0.0));
-    // Three overlapping upper lobes prevent the very wide distant masses from reading as
-    // straight white bars. Their bottom halves merge into the original broad base, retaining
-    // the calm tropical horizon and the deliberately flat fair-weather underside.
-    vec2 leftLobe = (local - vec2(-0.48, 0.13)) / vec2(0.52, 0.71);
-    vec2 crownLobe = (local - vec2(-0.05, 0.34)) / vec2(0.43, 0.84);
-    vec2 rightLobe = (local - vec2(0.43, 0.17)) / vec2(0.55, 0.65);
-    float billows = max(1.0 - dot(leftLobe, leftLobe),
-        max(1.0 - dot(crownLobe, crownLobe), 1.0 - dot(rightLobe, rightLobe)));
-    float broadBase = 0.60 - dot(local * vec2(1.08, 1.24), local * vec2(1.08, 1.24));
-    float shape = max(broadBase, billows) + topErosion * 0.78
+    // Five overlapping upper volumes give each distant mass a stepped cauliflower crown.
+    // The smaller shoulders matter most on wide clouds, where the previous three ellipses
+    // still merged into one smooth capsule at overview distance. Their lower halves join a
+    // compressed broad base, retaining the characteristic calm, nearly flat underside.
+    vec2 farLeft = (local - vec2(-0.73, 0.02)) / vec2(0.34, 0.42);
+    vec2 leftLobe = (local - vec2(-0.43, 0.17)) / vec2(0.43, 0.62);
+    vec2 crownLobe = (local - vec2(-0.06, 0.38)) / vec2(0.38, 0.78);
+    vec2 rightLobe = (local - vec2(0.35, 0.23)) / vec2(0.42, 0.66);
+    vec2 farRight = (local - vec2(0.72, 0.04)) / vec2(0.36, 0.44);
+    float billows = max(max(1.0 - dot(farLeft, farLeft), 1.0 - dot(leftLobe, leftLobe)),
+        max(1.0 - dot(crownLobe, crownLobe),
+            max(1.0 - dot(rightLobe, rightLobe), 1.0 - dot(farRight, farRight))));
+    vec2 baseCoordinate = vec2(local.x * 1.03, (local.y + 0.12) * 1.62);
+    float broadBase = 0.54 - dot(baseCoordinate, baseCoordinate);
+    float scallop = sin(local.x * 14.0 + seed * 2.7) * 0.035
+        + sin(local.x * 23.0 - seed * 1.9) * 0.018;
+    float shape = max(broadBase, billows + scallop * smoothstep(-0.05, 0.58, local.y))
+        + topErosion * 0.92
         - max(-local.y - 0.48, 0.0) * 4.2;
     float coverage = smoothstep(0.0, 0.32, shape);
     if (coverage <= 0.0) return color;

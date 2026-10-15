@@ -67,3 +67,21 @@ is created. Chrome/SwiftShader `build/browser-software/20261014T230820.465736Z-c
 was inspected. ARM64 assemble/lint passes without emulator/KVM (24,046,019-byte APK, SHA-256
 `e4a1b9fd72750a48d9a29945ccab20b80bb1989f32f2025fd471f20feff5d2c2`), as do all 63 enabled
 non-display tests.
+
+## Five-volume cumulus silhouette pass — 2026-10-15
+
+A renewed overview/jungle/water audit found that the widest clouds still read as smooth horizontal
+capsules. Each existing mass now combines five unequal upper volumes rather than three, including
+two small shoulders, a compressed flat-bottomed base and a restrained two-frequency scallop on the
+upper contour. Normalized noise erosion, the existing sunlit crown/cool underside, slow prevailing-
+wind drift and all eleven authored positions remain unchanged. This is still one shader, one draw,
+and no texture, weather state or cloud shadow.
+
+Accepted native overview evidence is
+`build-consumer/software-captures/20261015T033136.694907Z-overview` (363 colour bins, 38.03
+luminance deviation, 206.52 spatial contrast; inspected). Chrome/SwiftShader
+`build/browser-software/20261015T033310.809835Z-chrome-sky` passes 60 finite positive intervals,
+GL0, a live context and clean kernel monitoring; its overview was inspected. ARM64 assemble/lint
+passes without emulator/KVM (24,167,227-byte APK, SHA-256
+`44a861178140fa7a2bc77915e192cc2b854bb5288f18cb9e5f7f8413690742f9`, 19,124,656-byte stripped
+`libmain.so`). Physical Android appearance and cloud influence on world lighting remain open.

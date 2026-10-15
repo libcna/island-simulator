@@ -60,7 +60,25 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
-## Latest visual-audit implementation — bounded large-object sun shadows
+## Latest visual-audit implementation — five-volume cumulus silhouettes
+
+The renewed overview/jungle/water audit selected smooth capsule-like wide clouds as the weakest
+large-scale atmospheric shape. Every existing fair-weather mass now combines five unequal upper
+volumes, including two small shoulders, with a compressed calm base and restrained upper-contour
+scalloping. The eleven positions, normalized erosion, sunlit crowns, cool undersides, prevailing-
+wind drift, one sky shader and one draw remain unchanged; no texture, weather system or cloud
+shadow was added.
+
+Accepted native overview evidence is
+`build-consumer/software-captures/20261015T033136.694907Z-overview` (363 colour bins, 38.03
+luminance deviation, 206.52 spatial contrast; inspected). Chrome/SwiftShader evidence
+`build/browser-software/20261015T033310.809835Z-chrome-sky` passes 60 finite positive intervals,
+GL0, a live context and clean kernel monitoring; the overview was inspected. ARM64 assemble/lint
+passes without emulator/KVM (24,167,227-byte APK, SHA-256
+`44a861178140fa7a2bc77915e192cc2b854bb5288f18cb9e5f7f8413690742f9`, 19,124,656-byte stripped
+`libmain.so`). Details and the physical-device limitation are in `docs/sky-atmosphere.md`.
+
+## Previous visual-audit implementation — bounded large-object sun shadows
 
 Lighting item 11 is complete with a portable fixed-day alternative to a general shadow-map pass.
 The existing one-draw terrain-conforming contact batch now adds one low-alpha projected-mass
@@ -8736,9 +8754,10 @@ improves the requested experience rather than adding quests, combat, survival, o
   reflection, and exposure. Evaluate a baked/static sun-occlusion or tightly bounded portable
   shadow solution; accept it only if it improves first-person depth on WebGL 2 and GLES 3 within
   measured budgets.
-- [ ] Improve sky colour gradient, sun/halo, cloud scale, horizon haze, distant-islet integration,
+- [~] Improve sky colour gradient, sun/halo, cloud scale, horizon haze, distant-islet integration,
   and aerial perspective while retaining permanent pleasant sunny weather and no time-of-day
-  system.
+  system. Shared haze, compact sunlit/cool cumulus, slow drift and the five-volume silhouette pass
+  above are complete; physical-device review and cloud/world-light integration remain.
 - [ ] Reduce visible aliasing, overbright edges, flat silhouettes, abrupt LOD changes, vegetation
   pop, depth-order artefacts, and colour discontinuities in motion, not only in fixed screenshots.
 
