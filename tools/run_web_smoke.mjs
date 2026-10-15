@@ -776,7 +776,8 @@ try {
           const log = state.result?.output ?? "";
           const passed = /SwiftShader/i.test(state.renderer) && !state.contextLost
             && log.includes("island-simulator: edge antialiasing requested 4x renderer-applied 4x")
-            && (!focusedGrassMotionCheck || motionReview?.passed)
+            && (!focusedGrassMotionCheck || (motionReview?.passed
+              && log.includes("close grass uses broadened planted bases and lower-blade curvature")))
             && (!focusedFlightCheck || flightReview?.passed)
             && (!focusedSpiderCheck || (mode === "spiders" ? (spiderMotionFrames.length === 4
               && /spider render proof: spiders (?:[1-9]|[1-9][0-9]|1[0-9]{2}|200)\/200 visible, 2 draw; contact-shadows=(?:[1-9]|[1-9][0-9]|1[0-9]{2}|200)(?:\s|$)/.test(log)
@@ -1733,6 +1734,8 @@ try {
       "island-simulator: selected near grass blades use a geometric V-fold ridge")
     && grassResult.output?.includes(
       "island-simulator: grass near blades use asymmetric edges and occasional bent tips")
+    && grassResult.output?.includes(
+      "island-simulator: close grass uses broadened planted bases and lower-blade curvature")
     && grassResult.output?.includes(
       "island-simulator: grass instances use area-preserving asymmetric tuft footprints")
     && grassResult.output?.includes(

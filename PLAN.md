@@ -6694,8 +6694,12 @@ campaign remains incomplete.
   emulator qualification. Only the old reproducible debug APK was replaced. Syntax/whitespace
   checks pass. Disk has 364 GiB free, native comparison captures 175 MiB; incident stop-latch hash
   is unchanged. No dependency source edits, hardware rendering or incident-evidence removal.
-- [ ] Follow-up: account for wind/player deflection in normals and address overly broad/angular
-  silhouettes and smooth substrate. Rest-shape normals alone do not finish grass realism.
+- [~] Follow-up: account for wind/player deflection in normals and address overly broad/angular
+  silhouettes and smooth substrate. A 2026-10-15 close-silhouette pass broadens the planted lower
+  blade, starts curvature earlier, strengthens occasional tip bend and raises root light without
+  changing geometry/instance/draw budgets. Native A/B and a 91-sample, seven-stage, 84-frame
+  Chrome/SwiftShader traversal were inspected and pass; ARM64 assemble/lint also pass. Smooth
+  substrate and deformed normals remain open. See `docs/grass-surface-material.md`.
 - [x] Newly confirmed game-side geometry issue: seed stems used `(baseX,height,baseZ)+direction*lean`
   instead of the final curved blade centre. Five of six seeded blades have 4--16 mm lateral
   anchor mismatch before instance scaling (indices 2,7,19,24,36; index 41 matches). Fix anchoring
@@ -9179,8 +9183,9 @@ Immediate user-directed expansion:
 1. Execute the extended visual-realism campaign above in evidence-driven passes: materials and
    lighting first, then vegetation/grass geometry and composition, then atmosphere/motion polish.
    Preserve current performance evidence and complete matched renderer reviews after each pass.
-   The first ranked terrain pass is complete on all three renderers; continue with close grass and
-   vegetation silhouette/composition improvements before adding more material cost.
+   The first ranked terrain pass and first close-grass planted-silhouette pass are complete on the
+   available software renderers; continue with repeated vegetation crown/understory composition
+   and exposed substrate before adding more material cost.
 2. Continue the large 20 m sailing-ship wreck realism pass with beach-clutter composition and
    subjective collision feel without reducing it to a boat, changing its established scale, or
    turning it into an objective. Its aged-wood breakup, waterline material, curved lower hull,

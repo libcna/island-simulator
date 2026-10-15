@@ -29,12 +29,12 @@ namespace island
             const float tipDirection = (blade & 1) == 0 ? -1.0f : 1.0f;
             return {
                 (0.40f + 0.045f * static_cast<float>(blade % 6)) * individual * juvenileHeight,
-                (0.018f + 0.0035f * static_cast<float>(blade % 5)) * (juvenile ? 0.74f : 1.0f),
+                (0.020f + 0.0038f * static_cast<float>(blade % 5)) * (juvenile ? 0.76f : 1.0f),
                 (0.07f + 0.018f * static_cast<float>(blade % 6)) * (juvenile ? 0.62f : 1.0f),
                 static_cast<float>((blade * 11 + 3) % 9 - 4) / 4.0f,
                 static_cast<float>((blade * 13 + 5) % 11 - 5) / 5.0f,
-                blade % 3 == 0 ? -1.0f : 1.0f, bentTip ? tipDirection * 0.030f : 0.0f,
-                bentTip ? 0.018f : 0.0f, true, blade % 3 == 0};
+                blade % 3 == 0 ? -1.0f : 1.0f, bentTip ? tipDirection * 0.040f : 0.0f,
+                bentTip ? 0.022f : 0.0f, true, blade % 3 == 0};
         }
     }
 
@@ -156,16 +156,19 @@ namespace island
         const float arch = (t == 0 || t == 1) ? 0.0f : std::sin(t * std::numbers::pi_v<float>);
         // Refined profiles narrow continuously through the upper half. LOD representatives
         // reuse the same profile; the legacy option remains available for explicit callers.
-        const float taper = shape.refined ? 0.018f + (1.0f-t) * (0.68f + 0.72f*arch)
+        // A broader planted foot and lower shoulder keep close grass from reading as a row of
+        // vertical needles. The tip remains submillimetre-thin and all LOD proxies sample this
+        // same curve, so the change does not introduce a tier-specific silhouette.
+        const float taper = shape.refined ? 0.018f + (1.0f-t) * (0.78f + 0.64f*arch)
                                          : (t == 1 ? 0.018f : 0.58f + 0.42f*arch);
         const float tipWeight = std::clamp((t-0.52f)/0.48f,0.0f,1.0f);
         const float tipCurve = tipWeight*tipWeight;
         const float asymmetry = shape.refined ? shape.edgeAsymmetry*0.14f*arch : 0.0f;
-        const float centreAcross = 0.012f*arch*shape.sideSign
-            + (shape.refined ? shape.lateralBow*0.016f*t*t : 0.0f)
+        const float centreAcross = (shape.refined ? 0.014f : 0.012f)*arch*shape.sideSign
+            + (shape.refined ? shape.lateralBow*0.020f*t*t : 0.0f)
             + shape.tipDeflection*tipCurve;
-        const float centreAlong = shape.lean*t*t
-            + (shape.refined ? std::abs(shape.lateralBow)*0.010f*arch : 0.0f);
+        const float centreAlong = shape.lean*(shape.refined ? t*(0.30f+0.70f*t) : t*t)
+            + (shape.refined ? std::abs(shape.lateralBow)*0.014f*arch : 0.0f);
         const GrassBladePoint point{
             centreAcross + side*shape.halfWidth*taper*(1.0f-side*asymmetry),
             shape.height*t - shape.tipDrop*tipCurve,

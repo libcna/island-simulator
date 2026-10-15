@@ -12,7 +12,7 @@ vertices now retain pigment, stable individual variation and the existing cured
 tips, but omit this baked light. Short turf also omits its baked height light.
 The unlit BasicEffect fallback retains exactly its previous colour calculation.
 
-Custom shading uses a separate smooth root occlusion from 0.62 to 1 over the
+Custom shading uses a separate smooth root occlusion from 0.70 to 1 over the
 normalized geometric height. Both tall grass and short turf use their own full
 height, independently of wind amplitude. This is an artistic ambient-occlusion
 approximation, not physically simulated light transport. Directional diffuse,
@@ -97,3 +97,35 @@ structure, approximate wind-deformed normals, stylized tree trunks and overall
 lighting. This pass does not by itself make the island realistic. The sampled
 moving-view review does not prove improved high-frame-rate temporal quality;
 physical-device performance is still unqualified.
+
+## 2026-10-15 close-silhouette follow-up
+
+A fresh jungle, clearing-edge and close-grass audit found that the tall near blades still read as
+dark upright needles. The refined profile now widens the planted foot and lower shoulder, begins
+the longitudinal lean in the lower third, slightly strengthens lateral bow, and gives the existing
+occasional bent tips a clearer deflection and drop. Base light rises from 0.62 to 0.70. The legacy
+profile and submillimetre terminal edge remain exact; near, middle and far proxies still derive
+from the same source identities. Vertex/index counts, patch population, buffers, textures,
+instances, draws, shaders and world placement are unchanged.
+
+The rejected first implementation changed the legacy centreline and widened the short-turf tip;
+the profile suite detected both regressions. The corrected `IslandGrassBladeTests` and complete
+`IslandCoreTests` pass. Exact-final native llvmpipe evidence is
+`build-consumer/software-captures/20261015T093802.407944Z-grass`: 202 colour bins, 21.32
+luminance deviation and 61.08 spatial contrast. The 1280x720 image and an A/B against the
+pre-change capture were inspected. A separate clearing-edge image confirmed that the wider bases
+do not form an opaque middle-distance mat.
+
+Chrome/SwiftShader evidence is
+`build/browser-software/20261015T093240.369409Z-chrome-grass-motion`: a real 18 m outward/return
+route with 91 telemetry samples, seven stationary stages, 84 distinct recorded frames, GL0, a
+live context and clean kernel supervision. Start, farthest and return images were inspected.
+This bounded software route found no whole-patch discontinuity; it is not physical-GPU or
+island-wide temporal qualification. The Web package is 11,431,685 bytes of Wasm, 2,230,701 bytes
+of data and 280,439 bytes of JavaScript.
+
+ARM64 `assembleDebug` and `lintDebug` pass in four seconds through the two-worker wrapper without
+an emulator or KVM. The APK is 24,455,259 bytes with SHA-256
+`e483422ba6f40390b8ca0b801b3b34716aca7ec4edf8bfd81fb25b8944498b79`; stripped `libmain.so`
+is 19,412,688 bytes. Repeated canopy silhouettes, broad exposed substrate, approximate
+wind-deformed normals and physical-device appearance remain open.

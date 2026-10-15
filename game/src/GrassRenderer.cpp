@@ -70,6 +70,8 @@ namespace island
         constexpr int FarBladeLevels = 3;
         constexpr const char* NaturalBladeDiagnostic =
             "island-simulator: grass near blades use asymmetric edges and occasional bent tips";
+        constexpr const char* PlantedBladeDiagnostic =
+            "island-simulator: close grass uses broadened planted bases and lower-blade curvature";
         constexpr const char* MaterialContinuityDiagnostic =
             "island-simulator: grass retains foliage colour at distance with normalized-height basal tint";
         constexpr const char* SurfaceMaterialDiagnostic =
@@ -688,6 +690,7 @@ void main()
                       << "island-simulator: selected near grass blades use a geometric V-fold "
                          "ridge\n"
                       << NaturalBladeDiagnostic << '\n'
+                      << PlantedBladeDiagnostic << '\n'
                       << MaterialContinuityDiagnostic << '\n'
                       << SurfaceMaterialDiagnostic << '\n'
                       << SharedLodDiagnostic << '\n'
@@ -718,6 +721,7 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: selected near grass blades use a geometric V-fold ridge");
             MirrorRuntimeDiagnosticToPlatformLog(NaturalBladeDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(PlantedBladeDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(MaterialContinuityDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(SurfaceMaterialDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(SharedLodDiagnostic);

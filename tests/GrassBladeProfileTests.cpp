@@ -145,13 +145,13 @@ int main()
             const bool bent = ((blade * 5 + 1) % 13) < 3;
             const island::GrassBladeShape legacy{
                 (0.40f + 0.045f * float(blade % 6)) * individual * juvenileHeight,
-                (0.018f + 0.0035f * float(blade % 5)) * (juvenile ? 0.74f : 1.0f),
+                (0.020f + 0.0038f * float(blade % 5)) * (juvenile ? 0.76f : 1.0f),
                 (0.07f + 0.018f * float(blade % 6)) * (juvenile ? 0.62f : 1.0f),
                 float((blade * 11 + 3) % 9 - 4) / 4.0f,
                 float((blade * 13 + 5) % 11 - 5) / 5.0f,
                 blade % 3 == 0 ? -1.0f : 1.0f,
-                bent ? ((blade & 1) == 0 ? -1.0f : 1.0f) * 0.030f : 0.0f,
-                bent ? 0.018f : 0.0f, true, blade % 3 == 0};
+                bent ? ((blade & 1) == 0 ? -1.0f : 1.0f) * 0.040f : 0.0f,
+                bent ? 0.022f : 0.0f, true, blade % 3 == 0};
             Check(profile.sourceBlade == blade && profile.shape.folded == legacy.folded,
                   "near source identity and folded topology remain unchanged");
             for (int level = 0; level < 5; ++level) {
@@ -395,10 +395,10 @@ int main()
     for (int blade=0; blade<42; ++blade) {
         for (bool refined : {false,true}) {
             const bool bent=refined && ((blade*5+1)%13)<3;
-            const island::GrassBladeShape shape{0.40f+0.045f*(blade%6),0.018f+0.0035f*(blade%5),
+            const island::GrassBladeShape shape{0.40f+0.045f*(blade%6),0.020f+0.0038f*(blade%5),
                 0.07f+0.018f*(blade%6), static_cast<float>((blade*11+3)%9-4)/4,
                 static_cast<float>((blade*13+5)%11-5)/5,blade%3==0?-1.0f:1.0f,
-                bent?((blade&1)?0.030f:-0.030f):0.0f,bent?0.018f:0.0f,refined,refined && blade%3==0};
+                bent?((blade&1)?0.040f:-0.040f):0.0f,bent?0.022f:0.0f,refined,refined && blade%3==0};
             float previousWidth=1;
             for (int step=0; step<=100; ++step) {
                 const float t=static_cast<float>(step)/100;
@@ -428,7 +428,7 @@ int main()
             }
             const auto tip=island::SampleGrassBlade(shape,1,0);
             Check(Near(tip.height,shape.height-shape.tipDrop),"seed anchor includes terminal drop");
-            Check(Near(tip.across,(refined?shape.lateralBow*0.016f:0)+shape.tipDeflection),
+            Check(Near(tip.across,(refined?shape.lateralBow*0.020f:0)+shape.tipDeflection),
                   "seed anchor includes terminal bow and bend");
             Check(Near(tip.along,shape.lean+(shape.folded?shape.halfWidth*0.018f*0.48f:0)),
                   "seed anchor lies on terminal fold ridge");

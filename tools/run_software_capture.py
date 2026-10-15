@@ -862,6 +862,8 @@ def main():
                 raise RuntimeError("current grass tuft layout is missing; check for a stale executable")
             if "grass progressive near taper and seed roots share the sampled blade profile" not in diagnostics:
                 raise RuntimeError("current grass blade profile is missing; check for a stale executable")
+            if "close grass uses broadened planted bases and lower-blade curvature" not in diagnostics:
+                raise RuntimeError("current close grass silhouette is missing; check for a stale executable")
             if "grass shared rest-shape normals follow curvature and instance scale" not in diagnostics:
                 raise RuntimeError("current grass surface normals are missing; check for a stale executable")
             if "grass retains foliage colour at distance with normalized-height basal tint" not in diagnostics:

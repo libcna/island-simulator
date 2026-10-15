@@ -16,7 +16,7 @@ namespace island
 {
     inline constexpr float GrassBasalEnd = 0.24f;
     inline constexpr std::array<float, 3> GrassBasalShift{0.22f, -0.13f, -0.21f};
-    inline constexpr float GrassRootOcclusion = 0.62f;
+    inline constexpr float GrassRootOcclusion = 0.70f;
     inline constexpr float GrassGrainCycles = 4.5f; // Nine veins across a complete blade.
     inline constexpr float GrassGrainStrength = 0.045f;
     inline constexpr float GrassMidribStrength = 0.06f;
