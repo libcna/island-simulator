@@ -78,14 +78,14 @@ bool ResidentMotion::FitPose(float x,float z,float heading,float speed,ResidentP
         // Keep the anatomical shoulder joint just inside the cloth shoulder line so
         // the animated upper arm blends into the torso instead of hanging from its rim.
         pose.shoulders[leg]=Add(ResidentPoint{x,pose.pelvisY+.43f,z},Mul(right,sign*.205f));
-        const float swing=std::sin(state_.phase+(leg==0?std::numbers::pi_v<float>:0))*.24f
+        const float swing=std::sin(state_.phase+(leg==0?std::numbers::pi_v<float>:0))*.52f
             *std::min(1.0f,speed/WalkingSpeed);
         const auto upper=Unit(Add(Mul(right,sign*.018f),Add(ResidentPoint{0,-std::cos(swing),0},Mul(forward,std::sin(swing)))));
         pose.elbows[leg]=Add(pose.shoulders[leg],Mul(upper,.29f));
         // Keep a relaxed visible elbow bend through idle and walking instead of
         // aligning the upper and lower arm into one mannequin-straight rod.
-        pose.wrists[leg]=Add(pose.elbows[leg],Add(ResidentPoint{0,-std::cos(swing+.32f)*.26f,0},
-            Mul(forward,std::sin(swing+.32f)*.26f)));
+        pose.wrists[leg]=Add(pose.elbows[leg],Add(ResidentPoint{0,-std::cos(swing+.42f)*.26f,0},
+            Mul(forward,std::sin(swing+.42f)*.26f)));
     }
     return true;
 }

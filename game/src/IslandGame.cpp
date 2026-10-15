@@ -363,7 +363,7 @@ namespace island
             const auto& subject=resident_->State();
             const Vector3 forward(std::sin(subject.heading),0,std::cos(subject.heading));
             const Vector3 right(std::cos(subject.heading),0,-std::sin(subject.heading));
-            cameraPosition_=Vector3(subject.x,subject.y+1.58f,subject.z)+forward*3.15f+right*1.05f;
+            cameraPosition_=Vector3(subject.x,subject.y+1.58f,subject.z)+forward*2.65f+right*2.00f;
             const Vector3 target(subject.x,subject.y+1.02f,subject.z);
             const auto direction=target-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
@@ -4665,6 +4665,11 @@ namespace island
             GpuDiagnosticScope gpuPass("capture-readback");
             CaptureFrame(capturePath_+".resident-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");
             const auto& subject=resident_->State();
+            const float forwardX=std::sin(subject.heading),forwardZ=std::cos(subject.heading);
+            const auto armSwing=[&](const std::size_t side) {
+                return (subject.pose.wrists[side].x-subject.pose.shoulders[side].x)*forwardX
+                    +(subject.pose.wrists[side].z-subject.pose.shoulders[side].z)*forwardZ;
+            };
             std::cout<<"island-simulator: resident motion stage="<<drawnFrames_/8U-1U
                 <<" updates="<<residentCaptureUpdates_<<" visible="<<residentRenderer_->VisibleCount()
                 <<" position="<<subject.x<<','<<subject.y<<','<<subject.z
@@ -4673,6 +4678,10 @@ namespace island
                 <<','<<subject.pose.legs[0].foot.centre.z<<','<<(subject.pose.legs[0].stance?1:0)<<';'
                 <<subject.pose.legs[1].foot.centre.x<<','<<subject.pose.legs[1].foot.centre.y
                 <<','<<subject.pose.legs[1].foot.centre.z<<','<<(subject.pose.legs[1].stance?1:0)
+                <<" wrists="<<subject.pose.wrists[0].x<<','<<subject.pose.wrists[0].y<<','
+                <<subject.pose.wrists[0].z<<';'<<subject.pose.wrists[1].x<<','
+                <<subject.pose.wrists[1].y<<','<<subject.pose.wrists[1].z
+                <<" arm-swing="<<armSwing(0)<<','<<armSwing(1)
                 <<" triangles="<<residentRenderer_->TriangleCount()<<'/'
                 <<residentRenderer_->ShadowTriangleCount()<<'\n';
         }

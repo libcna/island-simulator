@@ -87,6 +87,8 @@ int main() {
     Check(std::equal(route.Points().begin(),route.Points().end(),repeated.Route().Points().begin()),"resident tour is not deterministic");
     std::size_t locked=0;
     std::array<std::size_t,2> swings{};
+    std::array<float,2> minimumArmForward{INFINITY,INFINITY};
+    std::array<float,2> maximumArmForward{-INFINITY,-INFINITY};
     for(int tick=0;tick<12000;++tick) {
         const auto previous=actor.State();
         actor.Update(.1f,{NAN,NAN,NAN});repeated.Update(.1f,{NAN,NAN,NAN});
@@ -112,12 +114,24 @@ int main() {
                     "resident planted foot slides in world space");++locked;
             }
             if(!current.pose.legs[side].stance)++swings[side];
+            if(current.mode==ResidentMode::Walking&&current.speed>.5f) {
+                const ResidentPoint local{current.pose.wrists[side].x-current.pose.shoulders[side].x,
+                    current.pose.wrists[side].y-current.pose.shoulders[side].y,
+                    current.pose.wrists[side].z-current.pose.shoulders[side].z};
+                const ResidentPoint forward{std::sin(current.heading),0,std::cos(current.heading)};
+                const float reach=Dot(local,forward);
+                minimumArmForward[side]=std::min(minimumArmForward[side],reach);
+                maximumArmForward[side]=std::max(maximumArmForward[side],reach);
+            }
         }
         if(tick%2000==1999)std::cout<<"resident simulation seconds "<<(tick+1)*.1f<<" travel "<<current.distanceTravelled
             <<" next "<<current.nextPoint<<" rejected "<<current.rejectedMoves<<" pauses "<<current.pauseCount<<'\n'<<std::flush;
     }
     Check(actor.State().completedLaps>=1&&actor.State().pauseCount>=5&&locked>500&&swings[0]>500&&swings[1]>500,
         "resident cannot complete a tour with pauses and grounded alternating steps");
+    Check(maximumArmForward[0]-minimumArmForward[0]>.35f
+        &&maximumArmForward[1]-minimumArmForward[1]>.35f,
+        "resident walking arms no longer counter-swing through a visible sagittal arc");
     const auto beforeStall=actor.State();actor.Update(100,{NAN,NAN,NAN});
     Check(Distance({beforeStall.x,beforeStall.y,beforeStall.z},{actor.State().x,actor.State().y,actor.State().z})<.14f,
         "a render stall causes unbounded resident catch-up motion");

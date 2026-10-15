@@ -51,28 +51,38 @@ def validate_stream_stages(log):
 
 def validate_resident_stages(text):
     rows=re.findall(r"resident motion stage=(\d+) updates=(\d+) visible=(\d+) position=(\S+) "
-                    r"speed=(\S+) mode=(\d+) feet=(\S+) triangles=(\d+)/(\d+)",text)
+                    r"speed=(\S+) mode=(\d+) feet=(\S+) wrists=(\S+) arm-swing=(\S+) "
+                    r"triangles=(\d+)/(\d+)",text)
     if len(rows)!=8 or [int(row[0]) for row in rows]!=list(range(8)):
         raise RuntimeError("resident requires eight ordered gait stages")
-    positions=[];feet=[]
-    for stage,updates,visible,position,speed,mode,encoded_feet,body_triangles,shadow_triangles in rows:
+    positions=[];feet=[];wrists=[];arm_swings=[]
+    for stage,updates,visible,position,speed,mode,encoded_feet,encoded_wrists,encoded_swing,body_triangles,shadow_triangles in rows:
         try:
             p=tuple(map(float,position.split(',')))
             pair=[tuple(map(float,foot.split(',')[:3])) for foot in encoded_feet.split(';')]
+            arm_pair=[tuple(map(float,wrist.split(','))) for wrist in encoded_wrists.split(';')]
+            swing_pair=tuple(map(float,encoded_swing.split(',')))
             valid=(int(updates)==(int(stage)+1)*8 and int(visible)==1 and len(p)==3
                    and all(map(math.isfinite,p)) and math.isfinite(float(speed))
                    and 0<=float(speed)<=1.01 and 0<=int(mode)<=3 and len(pair)==2
                    and all(len(foot)==3 and all(map(math.isfinite,foot)) for foot in pair)
+                   and len(arm_pair)==2
+                   and all(len(wrist)==3 and all(map(math.isfinite,wrist)) for wrist in arm_pair)
+                   and len(swing_pair)==2 and all(map(math.isfinite,swing_pair))
+                   and all(abs(value)<.56 for value in swing_pair)
                    and int(body_triangles)>=1000 and int(shadow_triangles)==24)
         except ValueError:
             valid=False
         if not valid:raise RuntimeError("invalid resident pose or bounded render budget")
-        positions.append(p);feet.append(pair)
+        positions.append(p);feet.append(pair);wrists.append(arm_pair);arm_swings.append(swing_pair)
     displacement=max(math.dist(positions[0],p) for p in positions[1:])
     foot_motion=max(math.dist(feet[0][leg],pair[leg]) for pair in feet[1:] for leg in range(2))
-    if displacement<1.0 or foot_motion<0.15:
-        raise RuntimeError("resident did not complete visible body and planted-foot motion")
-    return {"positions":positions,"displacement":displacement,"foot_motion":foot_motion}
+    arm_swing_ranges=[max(pair[arm] for pair in arm_swings)-min(pair[arm] for pair in arm_swings)
+                      for arm in range(2)]
+    if displacement<1.0 or foot_motion<0.15 or min(arm_swing_ranges)<0.15:
+        raise RuntimeError("resident did not complete visible body, foot, and arm motion")
+    return {"positions":positions,"displacement":displacement,"foot_motion":foot_motion,
+            "arm_swing_ranges":arm_swing_ranges}
 
 
 def validate_bear_stages(text):
@@ -716,6 +726,7 @@ def main():
                                "resident uses buried deltoid shoulders, split hands, and layered facial anatomy",
                                "resident anatomy uses a tapered trapezius neck, rounded sleeve-deltoid transitions, shaped forearms, cheeks, jaw, eyelids, and nostril wings",
                                "resident woven clothing adds a bound V neckline and split thigh-following wrap",
+                               "resident gait uses foot-synchronised thirty-degree arm counter-swing with relaxed elbows",
                                "resident QA camera frames and follows one peaceful adult",
                                "resident capture visible 1; draws 2"):
                     if marker not in diagnostics:

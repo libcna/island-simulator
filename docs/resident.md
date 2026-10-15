@@ -1,5 +1,31 @@
 # Island resident — native and Web visual pass in progress
 
+## Foot-synchronised arm swing and honest quarter-view audit — 2026-10-16
+
+The renewed nine-frame native audit showed that the existing ten-ring torso, trapezius neck,
+layered face and shaped limbs were already materially better than the old mannequin, but the arms
+remained nearly vertical while the feet stepped. The authoritative motion controller now increases
+the foot-synchronised sagittal counter-swing from 0.24 to 0.52 radians and keeps a relaxed 0.42-radian
+elbow offset. Bone lengths, shoulder roots, planted-foot IK, route, yielding and the single peaceful
+actor are unchanged. The fixed QA camera moves from an almost frontal 18-degree offset to a
+distance-matched 37-degree quarter view so arm depth, torso shape and facial profile can actually be
+inspected rather than hidden by projection.
+
+The eight-stage capture log now records both world-space wrists and each wrist's local forward
+reach relative to its shoulder and current heading. Validation requires both arms to span at least
+150mm; this cannot be satisfied merely by translating the actor. Final current-binary llvmpipe
+`20261015T215422.757419Z-resident` passes at 1280x720 with 291 colour bins, 42.54 luminance
+deviation, 158.58 spatial contrast and an empty kernel delta. It records 2.671m actor displacement,
+2.804m foot motion, and independent local arm-swing ranges of 0.494m and 0.497m. All nine images
+were inspected as a montage.
+
+Focused Chrome/SwiftShader `20261015T220238.956562Z-chrome-resident` passes 60 finite positive
+intervals, `glError=0`, a live context and an empty kernel delta. Its two distinct inspected images
+show the counter-swing and quarter-view silhouette. The long deterministic resident test enforces
+more than 350mm of local forward range for both arms while preserving exact upper/lower arm lengths
+and elbow bend; 96 focused Python gates pass. Android runtime and continuous subjective traversal
+remain open.
+
 The operator requested exactly one dark-skinned adult fictional resident with believable
 human proportions, textured skin/hair and practical woven-cloth/plant-fibre tropical
 clothing. Natural walking/turning, pauses, terrain-aware foot placement and obstacle/player

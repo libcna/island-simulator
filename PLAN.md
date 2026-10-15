@@ -4787,7 +4787,16 @@ Human character backlog requested by the operator:
   32-point/901.845m safe tour without changing the gait controller.
   Current-source Debug focused tests, the complete deterministic core test,112 portable gate tests,
   and Android ARM64 assemble/lint all pass; no emulator/KVM was touched.
-  Skin response, sidestepping, continuous gait, Android runtime and representative performance remain.
+  A renewed nine-frame audit then found that the detailed body still moved with nearly vertical
+  arms. Foot-synchronised sagittal counter-swing grows from.24 to.52 radians with a relaxed.42-radian
+  elbow offset, and the fixed QA camera moves from an18-degree near-front view to a distance-matched
+  37-degree quarter view. The stage log now proves local wrist reach relative to each shoulder and
+  heading rather than counting actor translation. Final native215422.757419Z-resident PASS at
+  291bins/std42.54/spatial158.58/kernel[], with2.671m actor/2.804m foot movement and independent
+  .494/.497m arm ranges; all nine images inspected. Chrome/SwiftShader220238.956562Z PASS two
+  distinct inspected frames/60intervals/GL0/live context/kernel[]. Long motion regression requires
+  >.35m range per arm;96 focused Python gates pass. Skin response, sidestepping, continuous gait,
+  Android runtime and representative performance remain.
 
 Landmark backlog requested by the operator:
 

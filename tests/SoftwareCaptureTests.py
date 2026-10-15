@@ -85,17 +85,24 @@ class SoftwareCaptureTests(unittest.TestCase):
         for stage in range(8):
             distance=max(0,stage-2)*.35
             speed=0 if stage<3 or stage==7 else .78
+            swing=-.24 if stage%2==0 else .24
             rows.append(f"resident motion stage={stage} updates={(stage+1)*8} visible=1 "
                         f"position={42-distance},23.8,{-12+distance} speed={speed} mode={1 if stage<3 else 0} "
                         f"feet={41.9-distance},23.8,{-12+distance},1;{42.1-distance},23.8,{-11.9+distance},0 "
+                        f"wrists={41.8-distance+.12*(-1)**stage},24.3,{-12+distance};"
+                        f"{42.2-distance-.12*(-1)**stage},24.3,{-12+distance} "
+                        f"arm-swing={swing},{-swing} "
                         "triangles=3638/24")
         good="\n".join(rows)
         result=validate_resident_stages(good)
         self.assertGreater(result["displacement"],1)
+        self.assertGreater(min(result["arm_swing_ranges"]),.15)
         for bad in ("",good+"\n"+good,good.replace("stage=1","stage=0"),
                     good.replace("updates=8 ","updates=9 "),good.replace("visible=1","visible=0"),
                     good.replace("triangles=3638/24","triangles=10/24"),
                     good.replace("triangles=3638/24","triangles=3638/0"),
+                    good.replace("wrists=", "wrists=nan,", 1),
+                    good.replace("arm-swing=-0.24,0.24", "arm-swing=nan,0.24", 1),
                     good.replace("position=42.0,23.8,-12.0","position=nan,23.8,-12.0")):
             with self.assertRaises(RuntimeError):validate_resident_stages(bad)
     def test_cave_traversal_and_corruptions(self):

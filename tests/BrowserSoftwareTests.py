@@ -736,6 +736,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                "resident uses buried deltoid shoulders, split hands, and layered facial anatomy\n"
                "resident anatomy uses a tapered trapezius neck, rounded sleeve-deltoid transitions, shaped forearms, cheeks, jaw, eyelids, and nostril wings\n"
                "resident woven clothing adds a bound V neckline and split thigh-following wrap\n"
+               "resident gait uses foot-synchronised thirty-degree arm counter-swing with relaxed elbows\n"
                "resident 1/1 visible, 2 draws, 5154 body triangles")
         report = {"passed":True,"views":[{"mode":"resident","passed":True,"glError":0,
             "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,

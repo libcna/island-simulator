@@ -396,6 +396,8 @@ ResidentRenderer::ResidentRenderer(GraphicsDevice& device,const CanopyLightField
     std::cout<<refinedAnatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(refinedAnatomy);
     const char* garment="island-simulator: resident woven clothing adds a bound V neckline and split thigh-following wrap";
     std::cout<<garment<<'\n';MirrorRuntimeDiagnosticToPlatformLog(garment);
+    const char* gait="island-simulator: resident gait uses foot-synchronised thirty-degree arm counter-swing with relaxed elbows";
+    std::cout<<gait<<'\n';MirrorRuntimeDiagnosticToPlatformLog(gait);
 }
 ResidentRenderer::~ResidentRenderer()=default;
 
