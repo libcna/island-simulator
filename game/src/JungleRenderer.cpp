@@ -1596,7 +1596,7 @@ void main()
         std::cout << bushDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(bushDiagnostic);
         constexpr const char* bushFormDiagnostic =
-            "island-simulator: shrubs use early radial spread, crooked shoots, cupped leaf pitch, and wider pigment variation";
+            "island-simulator: shrubs use early radial spread, crooked shoots, independently rolled cupped leaves, and wider pigment variation";
         std::cout << bushFormDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(bushFormDiagnostic);
         constexpr const char* materialDiagnostic =

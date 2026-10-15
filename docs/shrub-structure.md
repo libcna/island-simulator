@@ -112,11 +112,38 @@ and the hardware stop latch is unchanged. All builds reused existing trees, the
 shared ccache and two workers. No CNA/Sharp Runtime source or incident evidence
 was changed by this geometry pass.
 
+## 2026-10-15 independent leaf-roll follow-up
+
+A new eye-height audit found that the oval outlines and crooked supporting shoots were readable,
+but every leaf's transverse axis still used the world-horizontal frame. Overlapping pairs therefore
+formed flat shelves. Each existing leaf now has a deterministic bounded roll around its own
+longitudinal direction. Paired leaves tilt in opposite directions with smaller shoot-specific
+variation; terminal leaves use a restrained independent roll. The existing cupping then follows
+that rolled frame. Near and far tiers call the same profile, so positions, normals, wind attachment,
+source identity and outline still match exactly. Counts, buffers, instances, culling, textures and
+draws do not change.
+
+The profile test now requires meaningful positive and negative roll, projects actual triangles
+onto the rolled leaf plane, verifies nondegenerate equal-coverage LODs and rejects invalid roll.
+`IslandLeafBladeTests` and `IslandCoreTests` pass. Exact-final native llvmpipe evidence is
+`build-consumer/software-captures/20261015T094530.825739Z-bush`: 252 colour bins, 42.88
+luminance deviation and 188.09 spatial contrast. The full image and a target crop were inspected
+against `20261015T094013.615051Z-bush`; the crown has clearer volume without a larger footprint.
+
+Chrome/SwiftShader evidence is
+`build/browser-software/20261015T094944.252248Z-chrome-bushes`: 60 finite positive intervals,
+GL0, live context, exact current diagnostic and clean kernel supervision. Its full-resolution image
+was inspected. The Web package is 11,431,979 bytes of Wasm, 2,230,701 bytes of data and 280,439
+bytes of JavaScript. ARM64 `assembleDebug` and `lintDebug` pass in four seconds with two workers
+and no emulator/KVM. The APK is 24,456,059 bytes with SHA-256
+`74ac87fcb53b03303134fe0f8ef74e4cd53bd881f942b5eb8beb3f2765454a9c`; stripped `libmain.so`
+is 19,413,488 bytes. Wind-deformed normals, repeated canopy crowns and physical-device appearance
+remain open.
+
 ## Remaining visual work
 
-Far diamond-shaped leaves lose the near oval's coverage even though source identity
-is exact. No invisible LOD transition is claimed. Shoot/leaf arrangements remain
-procedural and visibly patterned; more layering may be needed without blocking
-paths. Rest-shape normals do not follow full wind deformation. Physical GPU cost,
-sustained phone performance and the unresolved AMDGPU failure remain separate
-qualification requirements.
+The later outline-continuity pass gives far leaves the complete near outline and equal projected
+coverage, but no invisible moving LOD transition is claimed. Shoot/leaf arrangements remain
+procedural and visibly patterned; more layering may be needed without blocking paths. Rest-shape
+normals do not follow full wind deformation. Physical GPU cost, sustained phone performance and
+the unresolved AMDGPU failure remain separate qualification requirements.

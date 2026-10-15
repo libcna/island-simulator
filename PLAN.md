@@ -1396,6 +1396,11 @@ uses more varied pitch, cupping and pigment. The wood/foliage palette was also l
 branch hierarchy and overlapping leaf planes to remain legible in shade. The deterministic 581
 placements, leaf count, renderer batching, LOD identity and draw budget are unchanged.
 
+A 2026-10-15 follow-up removes the remaining horizontal-shelf look: every existing leaf now has
+bounded deterministic roll around its own longitudinal axis and carries its cup/normal in that
+frame. Native A/B, Chrome/SwiftShader and ARM64 build/lint pass without count, buffer, texture or
+draw changes. See `docs/shrub-structure.md`.
+
 Baseline/final native close evidence is
 `build-consumer/software-captures/20261014T040512.273894Z-bush` and
 `20261014T051902.262185Z-bush`. The accepted result has a broader lower silhouette, visible crooked
@@ -9184,8 +9189,10 @@ Immediate user-directed expansion:
    lighting first, then vegetation/grass geometry and composition, then atmosphere/motion polish.
    Preserve current performance evidence and complete matched renderer reviews after each pass.
    The first ranked terrain pass and first close-grass planted-silhouette pass are complete on the
-   available software renderers; continue with repeated vegetation crown/understory composition
-   and exposed substrate before adding more material cost.
+   available software renderers; an independent shrub-leaf roll pass is also complete. Continue
+   with repeated canopy crown/understory composition and exposed substrate before adding more
+   material cost. The old documented single-tree canopy inspection coordinate no longer matches
+   exactly one current tree and must be refreshed before the next matched near/far canopy audit.
 2. Continue the large 20 m sailing-ship wreck realism pass with beach-clutter composition and
    subjective collision feel without reducing it to a boat, changing its established scale, or
    turning it into an objective. Its aged-wood breakup, waterline material, curved lower hull,

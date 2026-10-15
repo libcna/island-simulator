@@ -17,7 +17,7 @@ namespace island
     {
         int source;
         BushPoint root;
-        float angle, pitch, length, width, phase, pigment, rootWind;
+        float angle, pitch, roll, length, width, phase, pigment, rootWind;
         bool operator==(const BushLeaf&) const = default;
     };
 

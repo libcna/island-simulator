@@ -966,7 +966,7 @@ try {
             && (!focusedCanopyLightCheck || (log.includes("canopy shade adds bounded world-anchored low-frequency sun patches")
               && log.includes("canopy trunks use root flare, rounded buttress ridges and grey-brown bark with shade-facing moss, lichen, contact occlusion and canopy shade")
               && /canopy age structure includes [1-9][0-9]? deterministic 2-5m saplings beside established stands; first=-?[0-9]+:-?[0-9]+/.test(log)))
-            && (!focusedBushCheck || (log.includes("shrubs use early radial spread, crooked shoots, cupped leaf pitch, and wider pigment variation")
+            && (!focusedBushCheck || (log.includes("shrubs use early radial spread, crooked shoots, independently rolled cupped leaves, and wider pigment variation")
               && log.includes("bush QA target variant 0 at player-eye detail distance")))
             && (!focusedGroundBroadleafCheck || (log.includes("juvenile ground broadleaf uses layered arching laminae, readable midribs, and retained near/far leaf identities")
               && log.includes("ground-broadleaf QA target variant 1 at player-eye detail distance")))

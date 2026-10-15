@@ -293,7 +293,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: sky cumulus use compact normalized breakup instead of horizon-spanning ribbons" \
             "$LOG_FILE" \
-        && grep -q "island-simulator: shrubs use early radial spread, crooked shoots, cupped leaf pitch, and wider pigment variation" \
+        && grep -q "island-simulator: shrubs use early radial spread, crooked shoots, independently rolled cupped leaves, and wider pigment variation" \
             "$LOG_FILE" \
         && grep -q "forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows" \
             "$LOG_FILE" \

@@ -14,12 +14,15 @@ void TestBushProfile()
         if (!condition) throw std::runtime_error(message);
     };
     int samples=0;
+    float minimumRoll=1,maximumRoll=-1;
     for (int variant=0;variant<3;++variant) for (int shoot=0;shoot<BushShootCount(variant);++shoot) {
         const auto stem=MakeBushShoot(variant,shoot);
         require(SampleBushShoot(stem,0)==BushPoint{0,0,0} && BushShootWind(0)==0,
             "Shrub shoot root is not grounded and anchored");
         for (int leafIndex=0;leafIndex<BushLeavesPerShoot;++leafIndex) {
             const auto leaf=MakeBushLeaf(variant,shoot,leafIndex);
+            minimumRoll=std::min(minimumRoll,leaf.roll);
+            maximumRoll=std::max(maximumRoll,leaf.roll);
             const float attachment=leafIndex==8 ? 1.0f : BushShootKnots[1+leafIndex/2];
             require(leaf.root==SampleBushShoot(stem,attachment) && leaf.phase==stem.phase
                 && BushLeafWind(leaf,0)==BushShootWind(attachment),
@@ -62,8 +65,11 @@ void TestBushProfile()
                     const BushPoint u{b[0]-a[0],b[1]-a[1],b[2]-a[2]},v{c[0]-a[0],c[1]-a[1],c[2]-a[2]};
                     const float area=std::hypot(u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]);
                     require(std::isfinite(area) && area>0.000001f,"Shrub mesh contains a degenerate triangle");
-                    const BushPoint normal{-std::cos(leaf.angle)*std::sin(leaf.pitch),
-                        std::cos(leaf.pitch),-std::sin(leaf.angle)*std::sin(leaf.pitch)};
+                    const float cosYaw=std::cos(leaf.angle),sinYaw=std::sin(leaf.angle);
+                    const float cp=std::cos(leaf.pitch),sp=std::sin(leaf.pitch);
+                    const float cr=std::cos(leaf.roll),sr=std::sin(leaf.roll);
+                    const BushPoint normal{sinYaw*sr-cosYaw*sp*cr,cp*cr,
+                        -cosYaw*sr-sinYaw*sp*cr};
                     projectedArea[far ? 1 : 0]+=0.5f*std::abs(
                         normal[0]*(u[1]*v[2]-u[2]*v[1])+normal[1]*(u[2]*v[0]-u[0]*v[2])
                         +normal[2]*(u[0]*v[1]-u[1]*v[0]));
@@ -83,7 +89,9 @@ void TestBushProfile()
             }
         }
     }
-    for (int field=0;field<10;++field) {
+    require(minimumRoll<-0.18f && maximumRoll>0.18f,
+        "Shrub leaves do not break the horizontal shelf silhouette in both directions");
+    for (int field=0;field<11;++field) {
         auto leaf=MakeBushLeaf(0,0,0);
         bool rejected=false;
         try {
@@ -97,7 +105,8 @@ void TestBushProfile()
             case 6: (void)BushLeafNormal(leaf,0.5f,2); break;
             case 7: leaf.phase=2; (void)BushLeafNormal(leaf,0.5f,0); break;
             case 8: leaf.rootWind=2; (void)BushLeafWind(leaf,0); break;
-            case 9: (void)BushLeafNormal(leaf,std::numeric_limits<float>::infinity(),0); break;
+            case 9: leaf.roll=1; (void)SampleBushLeaf(leaf,0.5f,0); break;
+            case 10: (void)BushLeafNormal(leaf,std::numeric_limits<float>::infinity(),0); break;
             }
         } catch (const std::invalid_argument&) { rejected=true; }
         require(rejected,"Invalid shrub geometry accepted");

@@ -61,12 +61,16 @@ namespace island
         const float t=terminal ? 1.0f : BushShootKnots[1+leaf/2];
         const float length=(0.39f+0.04f*((leaf*3+shoot+variant)%5))*(terminal ? 0.92f : 1.0f);
         const float widthRatio=variant==0 ? 0.36f : (variant==1 ? 0.42f : 0.28f);
+        const float sideSign=leaf%2==0 ? -1.0f : 1.0f;
+        const float roll=terminal ? 0.12f*std::sin(shoot*1.37f+variant)
+            : sideSign*(0.20f+0.045f*(leaf/2))
+                +0.075f*std::sin(shoot*1.31f+leaf*0.87f+variant*0.61f);
         return {leaf,SampleBushShoot(stem,t),
-            stem.angle+(terminal ? 0.0f : (leaf%2==0 ? -1.12f : 1.12f))
+            stem.angle+(terminal ? 0.0f : sideSign*1.12f)
                 +0.12f*std::sin(shoot*1.7f+leaf*2.3f),
             terminal ? 0.50f : -0.08f+0.11f*(leaf/2)
                 +(leaf%2==0 ? -0.045f : 0.045f)+0.08f*std::sin(shoot*2.2f+leaf),
-            length,length*widthRatio,stem.phase,
+            roll,length,length*widthRatio,stem.phase,
             0.84f+0.075f*((leaf+shoot*2+variant)%4),BushShootWind(t)};
     }
 
@@ -74,10 +78,12 @@ namespace island
     {
         CheckCoordinate(t);
         if (!std::isfinite(side) || std::abs(side)>1 || !std::isfinite(leaf.angle)
-            || !std::isfinite(leaf.pitch) || !std::isfinite(leaf.length)
+            || !std::isfinite(leaf.pitch) || !std::isfinite(leaf.roll)
+            || !std::isfinite(leaf.length)
             || !std::isfinite(leaf.width) || !std::isfinite(leaf.phase)
             || leaf.length<=0 || leaf.length>0.7f || leaf.width<=0 || leaf.width>0.3f
-            || std::abs(leaf.pitch)>1 || leaf.phase<0 || leaf.phase>1
+            || std::abs(leaf.pitch)>1 || std::abs(leaf.roll)>0.6f
+            || leaf.phase<0 || leaf.phase>1
             || !std::all_of(leaf.root.begin(),leaf.root.end(),[](float value) { return std::isfinite(value); }))
             throw std::invalid_argument("Invalid shrub leaf profile");
         const float arch=t==0 || t==1 ? 0 : std::sin(t*std::numbers::pi_v<float>);
@@ -88,9 +94,13 @@ namespace island
         const float along=leaf.length*t;
         const float c=std::cos(leaf.angle),s=std::sin(leaf.angle);
         const float cp=std::cos(leaf.pitch),sp=std::sin(leaf.pitch);
-        return {leaf.root[0]+c*cp*along-s*across-c*sp*lift,
-            leaf.root[1]+sp*along+cp*lift,
-            leaf.root[2]+s*cp*along+c*across-s*sp*lift};
+        const float cr=std::cos(leaf.roll),sr=std::sin(leaf.roll);
+        const BushPoint direction{c*cp,sp,s*cp};
+        const BushPoint lateral{-s*cr-c*sp*sr,cp*sr,c*cr-s*sp*sr};
+        const BushPoint normal{s*sr-c*sp*cr,cp*cr,-c*sr-s*sp*cr};
+        return {leaf.root[0]+direction[0]*along+lateral[0]*across+normal[0]*lift,
+            leaf.root[1]+direction[1]*along+lateral[1]*across+normal[1]*lift,
+            leaf.root[2]+direction[2]*along+lateral[2]*across+normal[2]*lift};
     }
 
     BushPoint BushLeafNormal(const BushLeaf& leaf, float t, float side)
