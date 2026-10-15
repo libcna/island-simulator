@@ -62,6 +62,8 @@ namespace island
             "island-simulator: distant grazing ocean converges on shared sky haze without a horizon seam";
         constexpr const char* RippleCellDiagnostic =
             "island-simulator: shallow ocean uses filtered crossing ripple cells with restrained sky flecks";
+        constexpr const char* AerialRippleDiagnostic =
+            "island-simulator: aerial ocean progressively suppresses close ripple cells without changing swimming-height detail";
         constexpr const char* GrazingRuffleDiagnostic =
             "island-simulator: swimming-height ocean reuses filtered ripple cells for restrained grazing reflection ruffles";
         constexpr const char* VertexBody = R"(
@@ -220,7 +222,9 @@ void main()
     // two directions meet, retaining movement and filter weights without another noise lookup.
     float rippleCells = sin(phaseA * 1.7 + sin(phaseB) * 0.42)
         * sin(phaseB * 1.55 - sin(phaseA) * 0.31);
-    float rippleCellWeight = weightA * weightB * waveDetailFade
+    float aerialDetailFade = 1.0 - smoothstep(28.0, 85.0,
+        abs(uCameraPosition.y - vWorld.y));
+    float rippleCellWeight = weightA * weightB * waveDetailFade * aerialDetailFade
         * subsurfaceVisibility * mix(0.70, 1.0, windExposure);
     water += vec3(0.040, 0.094, 0.082) * rippleCells * rippleCellWeight;
     // At a swimming-height grazing angle Fresnel correctly suppresses the subsurface term,
@@ -228,7 +232,7 @@ void main()
     // same derivative-filtered closed cells for a restrained reflection ruffle that grows only
     // as the view becomes grazing. This is not a new carrier and therefore cannot introduce a
     // second temporal frequency or unfiltered distant shimmer.
-    float reflectionRuffleWeight = weightA * weightB * waveDetailFade
+    float reflectionRuffleWeight = weightA * weightB * waveDetailFade * aerialDetailFade
         * mix(0.24, 0.84, smoothstep(0.18, 0.82, 1.0 - viewFacing))
         * mix(0.74, 1.0, windExposure);
     water += vec3(0.046, 0.098, 0.108) * rippleCells * reflectionRuffleWeight;
@@ -422,6 +426,7 @@ void main()
                       << ReefBreakerDiagnostic << '\n'
                       << HorizonHazeDiagnostic << '\n'
                       << RippleCellDiagnostic << '\n'
+                      << AerialRippleDiagnostic << '\n'
                       << GrazingRuffleDiagnostic << '\n'
                       << "island-simulator: ocean shoreline foam uses broken continuity mask\n";
             MirrorRuntimeDiagnosticToPlatformLog(
@@ -435,6 +440,7 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(ReefBreakerDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(HorizonHazeDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(RippleCellDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(AerialRippleDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(GrazingRuffleDiagnostic);
         } else {
             std::cerr << "island-simulator: ocean stock-effect fallback: " << fallbackReason_

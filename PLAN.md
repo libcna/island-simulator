@@ -78,6 +78,29 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest visual-audit implementation — altitude-filtered ocean detail
+
+The renewed whole-island overview selected the foreground ocean as the weakest large-scale
+surface: close ripple-cell products remained fully visible from the high overview camera and made
+the shallows look like a regular turquoise checker texture. The shader now progressively
+suppresses only those derivative-filtered close cells between 28 and 85 m of camera altitude.
+Broad wave displacement, analytic slopes, depth colour, reef/shore foam, Fresnel, wind exposure
+and substrate remain unchanged. At swimming height the factor is exactly one, so the existing
+grazing reflection ruffles and local surface detail are retained. This adds one scalar shader
+factor and no noise lookup, texture, varying, vertex, buffer, draw or CPU simulation.
+
+The rejected overview baseline is `20261015T113456.468508Z-overview`. Accepted inspected native
+evidence is `build-consumer/software-captures/20261015T113638.810594Z-overview` (359 colour bins,
+38.14 luminance deviation, 206.46 spatial contrast); the large checker is absent. Independent
+swimming-height evidence `build-consumer/software-captures/20261015T113718.051147Z-water` passes
+with 378 bins, 31.68 deviation and 131.51 contrast and retains calm local ruffles. Chrome
+155/SwiftShader overview evidence `build/browser-software/20261015T113837.885553Z-chrome-sky`
+passes 60 finite positive intervals, GL0, live context and clean kernel monitoring. Web rebuild and
+Android ARM64 assemble/lint pass without emulator/KVM. The Web package is 11,531,374 bytes of Wasm,
+2,230,701 bytes of data and 280,772 bytes of JavaScript. The 24,531,603-byte APK has SHA-256
+`db44063628cbde50aa068af0735d46e675be2c55f87fc64f80e0897cd9f1df3d` and packages a
+19,489,032-byte `libmain.so`.
+
 ## Latest visual-audit implementation — rounded rodent faces, ears and limbs
 
 The post-beetle ground-level audit selected mice and rats as the next weakest visible animals. Both
