@@ -131,6 +131,25 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest forest-floor visual pass — pointed folded litter clusters
+
+The overview/jungle/litter review retained the exposed-soil material but selected the close dry
+leaf cluster as the weakest forest-floor silhouette. Its three old five-point leaves appeared as
+small square cards beneath an otherwise natural rosette. The same near-only plant variant now
+carries five seven-point leaves. Each has two tapered side stations, a pointed tip and a raised
+off-centre fold ridge; the two added placements remain inside the established 0.74 m terrain-height
+footprint instead of extending the old arithmetic radius progression.
+
+The shared terrain-draping path, material tag, near-LOD range, plant population, instance stream,
+buffer and draw count are unchanged. The affected leaf cluster grows from 12 to 30 triangles per
+variant-zero plant. Across the authored world this adds 270 near triangles to clearing-edge plants
+and 5,940 to forest-floor plants; the far tier is unchanged. `IslandRenderedTerrainSurfaceTests`
+and `IslandCoreTests` pass, including the corrected seven-vertex contact-audit boundary. Inspected
+same-camera baseline `20261015T174806.814354Z-litter` and accepted current-binary evidence
+`20261015T181610.307246Z-litter` retain the planted rosette and exact uneven-ground contact while
+showing five narrower dry leaves. The final 1280x720 frame passes with 196 colour bins, 17.95
+luminance deviation, 43.95 spatial contrast and an empty kernel delta.
+
 ## Latest vegetation-composition pass — connected broadleaf crown mass
 
 The overview/jungle/litter audit accepted the forest-floor material and open goat/bear hill, but

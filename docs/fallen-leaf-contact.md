@@ -4,17 +4,39 @@ Date: 2026-10-09. This is game-side scene correctness, not an AMDGPU incident fi
 
 ## Evidence and scope
 
-Three folded dry leaves accompany each near-detail ground rosette. Previously
-they shared the parent's horizontal root plane, even after that origin had been
+Five folded dry leaves accompany each near-detail ground rosette after the 2026-10-15 visual
+follow-up described below. At the original contact-correction milestone, three leaves shared the
+parent's horizontal root plane, even after that origin had been
 correctly grounded. Across three world seeds, 607,320 vertex/interior samples
 range from **-0.186663 to +0.229299 m** above the actual terrain; 126,987 samples
 are below ground. These are sampled triangle points, not unique plants or pixels.
 
-`GroundLitter.hpp` now contains the original five-vertex/four-triangle leaf profiles,
+`GroundLitter.hpp` contains the shared leaf profiles,
 shading weights and indices for both rendering and the independent contact audit.
-Species count, placement, silhouettes, colours, folds and stillness are retained.
 The close native comparison restores a previously buried leaf behind the rosette;
 this is a local contact improvement, not a completed natural forest-floor appearance.
+
+## 2026-10-15 pointed-leaf visual follow-up
+
+A new same-camera forest-floor audit found that the three five-point/four-triangle
+profiles still read as small square cards. The near-only cluster now uses five
+seven-point/six-triangle profiles. Two tapered stations lead to a pointed tip on
+each side, and a raised off-centre centre vertex forms the fold ridge. The first
+three origins and all contact rules are retained. Two additional deterministic
+angles/radii stay inside the existing 0.74 m footprint rather than extending the
+old radius sequence beyond its qualified height bounds.
+
+This raises one affected plant from 12 to 30 litter triangles. The authored world
+adds 270 clearing-edge and 5,940 forest-floor near triangles, with no change to the
+far tier, population, instances, vertex format, buffer count, texture use or draw
+count. `GroundLitterVertexCount` is now the single shared compile-time boundary for
+generation and the independent contact audit; the first implementation exposed and
+then fixed the audit's stale hard-coded five-element array before acceptance.
+
+Native baseline `20261015T174806.814354Z-litter` and current-binary evidence
+`20261015T181610.307246Z-litter` were inspected side by side. The accepted frame
+passes at 196 colour bins, 17.95 luminance deviation, 43.95 spatial contrast and an
+empty kernel delta. `IslandRenderedTerrainSurfaceTests` and `IslandCoreTests` pass.
 
 ## Implementation and resource lifetime
 
@@ -89,7 +111,7 @@ incident evidence remains preserved.
 ## Remaining work
 
 The stock-effect fallback is not terrain-draped. Litter still disappears with the
-rosette's near LOD at 30 m and repeats three simple folded shapes. This is not a
+rosette's near LOD at 30 m and repeats five simple folded shapes. This is not a
 complete forest litter system or slope correction for broad tree/shrub roots.
 The original 2.1 cm local base clearance is retained, rather than claiming every
 edge touches the ground; reducing it needs a finer surface-intersection audit.

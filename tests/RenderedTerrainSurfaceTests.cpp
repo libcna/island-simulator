@@ -198,7 +198,7 @@ int main()
             const float c=std::cos(plant.yawRadians),s=std::sin(plant.yawRadians);
             for (int leaf=0;leaf<island::GroundLitterCount;++leaf) {
                 const auto local=island::MakeGroundLitterLeaf(leaf);
-                std::array<island::LitterPoint,5> old{},conformed{};
+                std::array<island::LitterPoint,island::GroundLitterVertexCount> old{},conformed{};
                 const float radius=island::GroundLitterRadius*plant.scale;
                 const auto heightBounds=surface.HeightRange(plant.x-radius,plant.z-radius,
                                                              plant.x+radius,plant.z+radius);
