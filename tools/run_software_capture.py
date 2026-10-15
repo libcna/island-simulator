@@ -957,6 +957,8 @@ def main():
             if args.viewpoint == "octopuses":
                 for marker in (
                     "octopuses use pulsing mantles, expressive eyes, eight independently curled arms, and pale sucker rows in one draw",
+                    "near octopuses use a rear-swept mantle, smooth analytic skin light, and thicker tapered arms",
+                    "octopus near/far geometry 2892/24 vertices in one bounded batch",
                     "octopuses 4 agents den, crawl, forage, and swim in reef and rocky shallows",
                     "octopus QA camera frames one exposed reef forager and all eight arms"):
                     if marker not in diagnostics: raise RuntimeError(f"octopus integration diagnostic missing: {marker}")

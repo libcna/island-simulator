@@ -361,6 +361,36 @@ class BrowserSoftwareTests(unittest.TestCase):
             invalid=report();mutate(invalid)
             with self.assertRaises(RuntimeError):gate.validate_stingray_report(invalid)
 
+    def test_octopus_scope_requires_current_profile_and_live_context(self):
+        self.assertIn("octopuses", gate.SCOPES)
+        marker = ("octopuses use pulsing mantles, expressive eyes, eight independently "
+                  "curled arms, and pale sucker rows in one draw")
+        profile = ("near octopuses use a rear-swept mantle, smooth analytic skin light, "
+                   "and thicker tapered arms")
+        geometry = "octopus near/far geometry 2892/24 vertices in one bounded batch"
+        population = "octopuses 4 agents den, crawl, forage, and swim in reef and rocky shallows"
+        camera = "octopus QA camera frames one exposed reef forager and all eight arms"
+        def report():
+            return {"passed": True, "views": [{"mode": "octopuses", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": "octopuses.png", "intervals": [16.7] * 60,
+                "result": {"output": marker + "\n" + profile + "\n" + geometry + "\n"
+                    + population + "\n" + camera
+                    + "\noctopuses 1/4 visible (near 1, far 0), 1 draw"}}]}
+        self.assertEqual(gate.validate_octopus_report(report()), "octopuses.png")
+        for mutate in (
+            lambda value: value.update(passed=False),
+            lambda value: value["views"][0].update(glError=1282),
+            lambda value: value["views"][0].update(contextLost=True),
+            lambda value: value["views"][0].update(intervals=[16.7] * 59),
+            lambda value: value["views"][0]["result"].update(output=population),
+            lambda value: value["views"][0]["result"].update(output=marker + "\n" + profile
+                + "\n" + geometry + "\n" + population + "\n" + camera
+                + "\noctopuses 0/4 visible (near 0, far 0), 0 draw"),
+        ):
+            invalid = report(); mutate(invalid)
+            with self.assertRaises(RuntimeError): gate.validate_octopus_report(invalid)
+
     def test_crab_scope_requires_current_anatomy_two_frames_and_live_context(self):
         self.assertIn("crabs", gate.SCOPES)
         self.assertIn('["crabs", ["--viewpoint", "crabs", "--debug-overlay"]]',

@@ -131,6 +131,24 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest aquatic visual pass — octopus mantle and skin light
+
+After the stingray repair, the same coastal-animal matrix left the octopus as the next weakest
+close subject. Its tall, uniformly coloured mantle read as an orange balloon and the long arms
+collapsed into very thin ribbons. The mantle now sits lower and extends rearward behind a broader,
+flatter head. Both rounded volumes use analytic per-vertex ellipsoid light, continuous upper/side
+pigment blending and restrained low-frequency skin variation instead of whole-ring colour bands.
+All eight existing diamond-section arms start wider, retain more vertical thickness and taper over
+a slightly broader spread while keeping their independent curl and pale sucker marks.
+
+This is a coordinate/material revision with the exact 2,892/24 near/far vertex inventory, fixed
+3,100-vertex capacity, four animals and one shared draw. Dens, habitat, den/crawl/forage/swim
+controller, hiding, mantle pulse, arm motion, culling and LOD are unchanged. Inspected baseline
+`20261015T155650.913276Z-octopuses` and accepted current-binary evidence
+`20261015T161248.570827Z-octopuses` show a lower organic mantle, smoother light and more substantial
+arms. The final 1280x720 frame passes with 119 colour bins, 33.22 luminance deviation, 187.73
+spatial contrast and an empty kernel delta.
+
 ## Latest aquatic visual pass — stingray volume and silhouette
 
 The coastal-animal audit compared stingrays, octopuses and coconut crabs and selected the stingray
