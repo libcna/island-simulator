@@ -74,6 +74,8 @@ namespace island
             "island-simulator: reef substrate separates pale lagoon, shared habitat patches, crest, sand channels, and deep drop-off";
         constexpr std::string_view SubstrateDistanceDiagnostic =
             "island-simulator: terrain substrate persists at distance with footprint-filtered noise";
+        constexpr std::string_view AerialGroundScaleDiagnostic =
+            "island-simulator: inland terrain retains an eight-metre footprint-filtered material scale in aerial views";
         constexpr std::string_view SlopeLightDiagnostic =
             "island-simulator: terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices";
         constexpr std::string_view StreamBankDiagnostic =
@@ -270,6 +272,8 @@ void main()
     // frequencies fade. Footprint is in metres/pixel, frequency in cells/metre.
     float broad = valueNoise(p * 0.060)
         * (1.0 - smoothstep(0.18, 0.50, groundPixelWidth * 0.060));
+    float landMiddle = valueNoise(p * 0.115 + vec2(-31.7, 22.4))
+        * (1.0 - smoothstep(0.18, 0.50, groundPixelWidth * 0.115));
     float medium = 0.0;
     float fine = 0.0;
     float mediumVisibility = 1.0 - smoothstep(0.18, 0.50, groundPixelWidth * 0.31);
@@ -471,12 +475,14 @@ void main()
         }
     }
 
-    float groundVariation = (broad * 0.185 + medium * 0.120 + fine * 0.024)
+    float groundVariation = (broad * 0.160 + landMiddle * 0.075
+        + medium * 0.105 + fine * 0.024)
         * interior;
     color *= vec3(1.0 + groundVariation * 0.55,
                   1.0 + groundVariation,
                   1.0 + groundVariation * 0.48);
-    float exposedSoil = smoothstep(0.16, 0.40, broad * 0.62 + medium * 0.38)
+    float exposedSoil = smoothstep(0.16, 0.40,
+        broad * 0.52 + landMiddle * 0.18 + medium * 0.30)
         * interior;
     color = mix(color, color * vec3(0.82, 0.76, 0.61), exposedSoil * 0.18);
     color = mix(color, color * vec3(0.82, 0.78, 0.68), steep * 0.24);
@@ -542,7 +548,7 @@ void main()
 
     // Living turf undercoat: olive inland, warmer and drier toward the coast and in the
     // sun-dried east clearing, cooler in the leaf-rich west clearing. It persists at distance.
-    float turfDryness = clamp(0.30 + broad * 0.85 + medium * 0.35
+    float turfDryness = clamp(0.30 + broad * 0.68 + landMiddle * 0.24 + medium * 0.31
         + (1.0 - smoothstep(26.0, 80.0, signedShoreDistance)) * 0.30
         + eastClearingMask * 0.40 - westClearingMask * 0.25, 0.0, 1.0);
     vec3 turf = mix(vec3(0.160, 0.235, 0.070), vec3(0.315, 0.300, 0.135), turfDryness)
@@ -649,7 +655,8 @@ void main()
 
     // Thin soil on steep ridge faces exposes weathered rock instead of the old
     // featureless green vertex palette. Existing filtered fields break the edge.
-    float ridgeRock = smoothstep(0.27, 0.54, slopeRadians + broad * 0.055 + medium * 0.035)
+    float ridgeRock = smoothstep(0.27, 0.54,
+        slopeRadians + broad * 0.045 + landMiddle * 0.022 + medium * 0.030)
         * interior * smoothstep(4.0, 10.0, vWorld.y);
     float coastalCliff = coastField.x * smoothstep(0.26, 0.58, slopeRadians)
         * smoothstep(-0.25, 0.35, vWorld.y)
@@ -963,6 +970,8 @@ void main()
                     MirrorRuntimeDiagnosticToPlatformLog(ReefMacroDiagnostic);
                     std::cout << SubstrateDistanceDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(SubstrateDistanceDiagnostic);
+                    std::cout << AerialGroundScaleDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(AerialGroundScaleDiagnostic);
                     std::cout << SlopeLightDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(SlopeLightDiagnostic);
                     std::cout << StreamBankDiagnostic << '\n';

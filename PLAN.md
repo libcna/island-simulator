@@ -78,6 +78,30 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest visual-audit implementation — mid-scale aerial terrain material
+
+After the ocean correction, the same whole-island view selected the inland hills: close material
+frequencies correctly filtered away, but the remaining sixteen-metre broad field left large smooth
+green/brown regions. Terrain now evaluates one additional derivative-filtered material field at an
+approximately eight-metre scale. The shared value subtly influences inland chroma/luminance,
+turf dryness, exposed-soil grouping and ridge-rock edge breakup, so those cues remain correlated
+instead of becoming four unrelated noise overlays. It fades before its footprint becomes
+undersampled and changes no terrain height, collision, route, vegetation placement, texture,
+varying, mesh, buffer or draw.
+
+The accepted inspected native overview is
+`build-consumer/software-captures/20261015T114359.515158Z-overview` (363 colour bins, 38.16
+luminance deviation, 206.23 spatial contrast). The independent headland composition
+`build-consumer/software-captures/20261015T114452.820037Z-headland` passes with 392 bins, 44.23
+deviation and 232.80 contrast and shows no new bands or hard material borders. Chrome
+155/SwiftShader overview evidence `build/browser-software/20261015T114632.228673Z-chrome-sky`
+passes 60 finite positive intervals, GL0, live context and clean kernel monitoring. Web rebuild and
+Android ARM64 assemble/lint pass without emulator/KVM. The Web package is 11,531,958 bytes of Wasm,
+2,230,701 bytes of data and 280,772 bytes of JavaScript. The 24,532,083-byte APK has SHA-256
+`ca45a625db23690728b523ec85e240974d7c374c466a341cef8003b82c38e78e` and packages a
+19,489,512-byte `libmain.so`. The hills intentionally retain open goat/bear habitat; this pass does
+not disguise them with distant fake trees.
+
 ## Latest visual-audit implementation — altitude-filtered ocean detail
 
 The renewed whole-island overview selected the foreground ocean as the weakest large-scale
