@@ -812,6 +812,8 @@ def main():
                 raise RuntimeError("current terrain distance policy is missing; check for a stale executable")
             if "wet sand uses a broader tide-darkened band with cool grazing sky sheen" not in diagnostics:
                 raise RuntimeError("current wet-sand tide band is missing; check for a stale executable")
+            if "wet sand adds filtered shore-normal drainage threads and a warm shallow-film response" not in diagnostics:
+                raise RuntimeError("current wet-sand drainage material is missing; check for a stale executable")
             if "terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices" not in diagnostics:
                 raise RuntimeError("current terrain slope lighting is missing; check for a stale executable")
             if "terrain steep faces use dominant-axis rock projection with broken bedding and joints" not in diagnostics:

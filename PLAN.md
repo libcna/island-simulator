@@ -85,6 +85,14 @@ capture, the Chrome 155/SwiftShader WebGL 2 canopy-light gate, and Android ARM64
 The generated Web/APK identities are recorded with the evidence document; no emulator/KVM or
 host graphics configuration was changed.
 
+The material/lighting/composition member is also complete. A linked bay, clearing, wet-shore,
+reef, distant and jungle-contact matrix selected the flat olive wet-sand band as the highest-impact
+defect. The portable terrain shader now retains warm saturated minerals and adds footprint-filtered
+shore-normal drainage threads coupled to its bounded shallow-film reflection, without a texture,
+varying, mesh or draw increase. Native before/after and independent beach/bay-ground frames plus a
+complete Chrome WebGL 2 four-material matrix and Android ARM64 assemble/lint are recorded in
+`docs/whole-island-material-pass.md`. The wildlife/sound/motion pass remains open.
+
 Helicopter, bunker, hut relocation, cave, campfire, resident, bear, crocodiles, 50 snakes, 200
 spiders, boar/goat/snake sound, flight/diving controls, stream/wetland/mangroves/reef, shipwreck and
 the latest animal repairs already exist and are not reopened merely because an older section still
