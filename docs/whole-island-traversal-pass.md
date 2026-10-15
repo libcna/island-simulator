@@ -45,3 +45,23 @@ without emulator/KVM. The 24,532,323-byte APK has SHA-256
 
 This closes the recorded traversal/scale pass, not the separate material/lighting/composition or
 wildlife/sound/motion passes. Moving-edge aliasing and physical-device review also remain open.
+
+## Broadleaf stand coverage follow-up — 2026-10-15
+
+A later overview, jungle and litter comparison retained the deliberately open goat/bear hill but
+found that the neighbouring forest stands still read as scattered poles at island scale. The
+authored 10.5 m tree spacing was already intended to produce touching crowns; adding instances
+would have increased the exact workload that this audit is meant to preserve. Instead, the shared
+`CanopyCrownProfile` expands lobe width by a 1.42 lateral factor while leaving lobe centres,
+vertical volume, trunk and branch contacts, paths and the open habitat untouched.
+
+Both generated LOD tiers and `MakeCanopyOccluders` consume the same profiles, so geometry, shade
+and mesh-derived culling bounds remain aligned. No vertex, index, instance, texture, buffer or draw
+is added. `IslandLeafBladeTests`, `IslandCanopyLightFieldTests`,
+`IslandCanopyVisibilityTests` and `IslandCoreTests` pass. The inspected baseline overview is
+`20261015T174725.135507Z-overview`; accepted current-binary evidence is
+`20261015T180321.153352Z-overview` (356 bins, luminance deviation 38.36, spatial contrast 206.76)
+and `20261015T180357.490721Z-jungle` (275 bins, 46.22, 213.02). Both have empty kernel deltas. The
+central stand reads as a connected tropical mass while the close frame retains separate layered
+leaves, supported branches and walking clearance. Moving-edge and physical-device review remain
+open.

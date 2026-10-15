@@ -131,6 +131,25 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest vegetation-composition pass — connected broadleaf crown mass
+
+The overview/jungle/litter audit accepted the forest-floor material and open goat/bear hill, but
+selected the broadleaf stand silhouette as the weakest remaining scale cue: individual distant
+crown lobes contracted into isolated small tufts even though the authored 10.5 m spacing was meant
+to create touching forest masses. Every shared crown profile now carries a 1.42 lateral-width
+factor. Lobe centres, height, trunk/branch anchors and the intentionally open habitat stay fixed;
+only horizontal leaf volume grows. Near and far meshes plus the fixed-sun canopy occluders all
+consume that same profile, avoiding a tier mismatch or detached shadow.
+
+No tree, vertex, index, buffer, texture, instance or draw was added. Mesh-derived culling bounds
+expand automatically to the new exact maximum. `IslandLeafBladeTests`,
+`IslandCanopyLightFieldTests`, `IslandCanopyVisibilityTests` and `IslandCoreTests` pass. Inspected
+same-camera baseline `20261015T174725.135507Z-overview` and accepted current-binary overview
+`20261015T180321.153352Z-overview` show a more connected central stand while retaining the open
+hill. The matching close jungle `20261015T180357.490721Z-jungle` retains layered leaves and clear
+walking space. Both 1280x720 frames pass at 356/275 colour bins, 38.36/46.22 luminance deviation,
+206.76/213.02 spatial contrast and empty kernel deltas.
+
 ## Latest landmark-composition pass — settled split shipwreck debris
 
 The current beach-wide wreck audit accepted the twenty-metre hull, damage, rigging and material,

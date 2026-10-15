@@ -16,6 +16,7 @@ namespace island
         // already-qualified linear trunk.
         constexpr std::array<float, CanopyFormCount> CanopyTrunkTaperExponents{
             1.00f, 1.25f, 1.48f, 1.72f, 1.12f, 1.90f, 1.38f, 1.61f, 1.18f};
+        constexpr float CanopyCrownLateralFill = 1.42f;
     }
 
     CanopyTrunkProfile MakeCanopyTrunkProfile(const int variant)
@@ -203,7 +204,12 @@ namespace island
         return {tip[0]+group.x+std::cos(splitAngle)*group.width*0.33f*sign,
             trunk.height+group.y+group.height*0.22f*sign,
             tip[2]+group.z+std::sin(splitAngle)*group.width*0.33f*sign,
-            group.width*(cluster%2 ? 0.96f : 1.04f),group.height*(cluster%2 ? 0.91f : 0.96f),
+            // A bounded shared lateral gain keeps distant crowns from collapsing into
+            // isolated poles across the island overview. Both mesh tiers and the
+            // fixed-sun occluder consume this same profile, so there is no LOD shape
+            // mismatch, new geometry or disconnected shadow envelope.
+            group.width*CanopyCrownLateralFill*(cluster%2 ? 0.96f : 1.04f),
+            group.height*(cluster%2 ? 0.91f : 0.96f),
             angle,std::fmod(cluster*0.139f+variant*0.23f,1.0f)};
     }
 

@@ -1734,6 +1734,10 @@ void main()
             "island-simulator: canopy lobes use bounded asymmetric cores and skirts across both LOD tiers";
         std::cout << crownFillDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(crownFillDiagnostic);
+        constexpr const char* crownCoverageDiagnostic =
+            "island-simulator: canopy crown profiles use 42-percent lateral fill across both LOD tiers and fixed-sun occluders";
+        std::cout << crownCoverageDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(crownCoverageDiagnostic);
         if (customShaderReady_) {
             std::cout << "island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD\n";
             constexpr const char* leafMaterialDiagnostic =
