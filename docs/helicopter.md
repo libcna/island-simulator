@@ -201,3 +201,25 @@ Native Release evidence `20261014T174852.988461Z-helicopter` and
 `20261014T174906.588260Z-helicopter-inside` passed and was inspected; the four-door controller
 test also passes. WebGL and Android compile/runtime qualification for this latest anatomy pass
 remain to be run with the broader bunker integration.
+
+## Continuous curved-surface lighting — 2026-10-15
+
+A renewed same-camera exterior/interior audit found that geometry density was no longer the main
+cause of the angular cabin. Lighting was still constant across each generated triangle, so the
+thirty-two-sided canopy, tapered cowling, twelve-sided tail boom and rounded fairings exposed broad
+polygon bands despite having sufficient silhouette resolution.
+
+The fuselage, nose closure, engine cowling and tail boom now derive analytic normals from the local
+loft slope and elliptical cross-section. Ellipsoidal chin and tail-root fairings, seat cushions,
+headrests and intake lips use their corresponding analytic surface normals. Texture coordinates
+retain face-local projection so this shading change does not stretch the generated worn-paint,
+metal, upholstery or rubber atlas. It adds no geometry, texture, shader, collision or draw cost:
+the helicopter remains 2,780 triangles in two draws with all four entry corridors and the grounded
+non-flying state unchanged.
+
+Inspected native evidence `20261015T150827.344868Z-helicopter` passes at 1280x720 with 318 colour
+bins, 55.41 luminance deviation, 235.01 spatial contrast and an empty kernel delta. The matching
+accessible cockpit evidence `20261015T150858.183359Z-helicopter-inside` passes with 182 bins,
+22.87 deviation, 96.99 contrast and an empty kernel delta. The exterior shows a continuous rounded
+nose, roof fairing and tail-root transition rather than alternating planar bands; the interior
+retains readable instruments, cyclics, collectives, pedals, seats and open exit sightlines.

@@ -164,9 +164,43 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         auto& target=pigment.getAProperty()<255?glassMesh:mesh;
         target.emplace_back(a,color,uvA);target.emplace_back(b,color,uvB);target.emplace_back(d,color,uvD);
     };
+    const auto smoothTriangle=[&](Vector3 a,Vector3 b,Vector3 d,
+                                  Vector3 normalA,Vector3 normalB,Vector3 normalD,
+                                  const Color& pigment,
+                                  const Surface surface=Surface::Paint) {
+        Vector3 localFaceNormal=Vector3::Cross(b-a,d-a);
+        if(localFaceNormal.LengthSquared()<1e-10f)
+            throw std::runtime_error("Degenerate smooth helicopter triangle");
+        localFaceNormal.Normalize();
+        const Vector2 uvA=MaterialUv(a,localFaceNormal,surface);
+        const Vector2 uvB=MaterialUv(b,localFaceNormal,surface);
+        const Vector2 uvD=MaterialUv(d,localFaceNormal,surface);
+        a=world(a);b=world(b);d=world(d);
+        const auto worldNormal=[&](Vector3 normal) {
+            normal=Vector3(c*normal.X+s*normal.Z,normal.Y,-s*normal.X+c*normal.Z);
+            normal.Normalize();
+            return normal;
+        };
+        const auto litColor=[&](const Vector3& normal) {
+            const float light=.48f+.52f*std::max(0.0f,Vector3::Dot(worldNormal(normal),sun));
+            return ScaleColor(pigment,light);
+        };
+        auto& target=pigment.getAProperty()<255?glassMesh:mesh;
+        target.emplace_back(a,litColor(normalA),uvA);
+        target.emplace_back(b,litColor(normalB),uvB);
+        target.emplace_back(d,litColor(normalD),uvD);
+    };
     const auto quad=[&](const Vector3& a,const Vector3& b,const Vector3& d,const Vector3& e,
                         const Color& color,const Surface surface=Surface::Paint) {
         triangle(a,b,d,color,surface);triangle(a,d,e,color,surface);
+    };
+    const auto smoothQuad=[&](const Vector3& a,const Vector3& b,
+                              const Vector3& d,const Vector3& e,
+                              const Vector3& normalA,const Vector3& normalB,
+                              const Vector3& normalD,const Vector3& normalE,
+                              const Color& color,const Surface surface=Surface::Paint) {
+        smoothTriangle(a,b,d,normalA,normalB,normalD,color,surface);
+        smoothTriangle(a,d,e,normalA,normalD,normalE,color,surface);
     };
     const auto box=[&](const Vector3& low,const Vector3& high,const Color& color,
                        const Surface surface=Surface::Paint) {
@@ -238,17 +272,46 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
                         std::sin(latitude)*radius.Y,
                         std::cos(latitude)*std::sin(longitude)*radius.Z);
                 };
+                const auto normal=[&](const float latitude,const float longitude) {
+                    Vector3 result(std::cos(latitude)*std::cos(longitude)/radius.X,
+                        std::sin(latitude)/radius.Y,
+                        std::cos(latitude)*std::sin(longitude)/radius.Z);
+                    result.Normalize();
+                    return result;
+                };
                 const Vector3 a=point(latitude0,longitude0),b=point(latitude1,longitude0),
                               d=point(latitude1,longitude1),e=point(latitude0,longitude1);
-                if(ring==0)triangle(a,b,d,color,surface);
-                else if(ring==rings-1)triangle(a,b,e,color,surface);
-                else quad(a,b,d,e,color,surface);
+                const Vector3 normalA=normal(latitude0,longitude0);
+                const Vector3 normalB=normal(latitude1,longitude0);
+                const Vector3 normalD=normal(latitude1,longitude1);
+                const Vector3 normalE=normal(latitude0,longitude1);
+                if(ring==0)
+                    smoothTriangle(a,b,d,normalA,normalB,normalD,color,surface);
+                else if(ring==rings-1)
+                    smoothTriangle(a,b,e,normalA,normalB,normalE,color,surface);
+                else smoothQuad(a,b,d,e,normalA,normalB,normalD,normalE,color,surface);
             }
         }
     };
     const Color olive(108,121,82),oliveLight(149,155,105),oliveDark(56,67,49);
     const Color glass(60,105,120,148),metal(91,96,92);
     const Color interior(58,64,57),seat(57,61,52),rubber(30,32,30);
+    const auto loftNormal=[](const auto& stations,const std::size_t index,
+                             const float angle) {
+        const std::size_t previous=index==0?0:index-1;
+        const std::size_t next=std::min(index+1,stations.size()-1);
+        const float deltaZ=stations[next].z-stations[previous].z;
+        const float radiusXSlope=(stations[next].radiusX-stations[previous].radiusX)/deltaZ;
+        const float radiusYSlope=(stations[next].radiusY-stations[previous].radiusY)/deltaZ;
+        const float centreYSlope=(stations[next].centreY-stations[previous].centreY)/deltaZ;
+        const float cosine=std::cos(angle),sine=std::sin(angle);
+        Vector3 normal(cosine*stations[index].radiusY,
+                       sine*stations[index].radiusX,
+                       -sine*stations[index].radiusX*(centreYSlope+sine*radiusYSlope)
+                           -cosine*cosine*stations[index].radiusY*radiusXSlope);
+        normal.Normalize();
+        return normal;
+    };
 
     // Multi-ring fuselage with actual side openings for separate cockpit and rear doors.
     for(std::size_t band=0;band+1<Fuselage.size();++band) {
@@ -271,8 +334,11 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
                 color=glass;surface=Surface::Glass;
             }
             if(std::sin(mid)<-.72f)color=oliveDark;
-            quad(point(Fuselage[band],a),point(Fuselage[band+1],a),
-                 point(Fuselage[band+1],b),point(Fuselage[band],b),color,surface);
+            smoothQuad(point(Fuselage[band],a),point(Fuselage[band+1],a),
+                       point(Fuselage[band+1],b),point(Fuselage[band],b),
+                       loftNormal(Fuselage,band,a),loftNormal(Fuselage,band+1,a),
+                       loftNormal(Fuselage,band+1,b),loftNormal(Fuselage,band,b),
+                       color,surface);
         }
     }
     // Seal the pointed nose. Without this small fan the rear-cabin sightline could
@@ -287,9 +353,11 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         const float b=tau*((slice+1)%FuselageSides)/FuselageSides;
         const float mid=(a+b)*.5f;
         const Color color=std::sin(mid)>-.08f?glass:oliveDark;
-        triangle(fuselagePoint(Fuselage.back(),a),noseTip,
-                 fuselagePoint(Fuselage.back(),b),color,
-                 std::sin(mid)>-.08f?Surface::Glass:Surface::Paint);
+        smoothTriangle(fuselagePoint(Fuselage.back(),a),noseTip,
+                       fuselagePoint(Fuselage.back(),b),
+                       loftNormal(Fuselage,Fuselage.size()-1,a),Vector3(0,0,1),
+                       loftNormal(Fuselage,Fuselage.size()-1,b),color,
+                       std::sin(mid)>-.08f?Surface::Glass:Surface::Paint);
     }
     // A narrow centre mullion makes the faceted windshield read as glazing rather
     // than an open hole when the player stands in the rear cabin.
@@ -412,9 +480,15 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         for(int slice=0;slice<cowlingSides;++slice) {
             const int next=(slice+1)%cowlingSides;
             const float a=tau*slice/cowlingSides,b=tau*next/cowlingSides;
-            quad(cowlingPoint(engineCowling[band],a),cowlingPoint(engineCowling[band+1],a),
-                 cowlingPoint(engineCowling[band+1],b),cowlingPoint(engineCowling[band],b),
-                 slice%3==0?oliveLight:olive);
+            smoothQuad(cowlingPoint(engineCowling[band],a),
+                       cowlingPoint(engineCowling[band+1],a),
+                       cowlingPoint(engineCowling[band+1],b),
+                       cowlingPoint(engineCowling[band],b),
+                       loftNormal(engineCowling,band,a),
+                       loftNormal(engineCowling,band+1,a),
+                       loftNormal(engineCowling,band+1,b),
+                       loftNormal(engineCowling,band,b),
+                       slice%3==0?oliveLight:olive);
         }
 
     // Tail boom, empennage and clearly horizontal tail-rotor disc.
@@ -428,8 +502,10 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         const auto point=[](const FuselageStation& station,const float angle){return Vector3(
             std::cos(angle)*station.radiusX,station.centreY+std::sin(angle)*station.radiusY,
             station.z);};
-        quad(point(tail[band],a),point(tail[band+1],a),point(tail[band+1],b),
-             point(tail[band],b),(slice%3==0)?oliveLight:olive);
+        smoothQuad(point(tail[band],a),point(tail[band+1],a),point(tail[band+1],b),
+                   point(tail[band],b),loftNormal(tail,band,a),
+                   loftNormal(tail,band+1,a),loftNormal(tail,band+1,b),
+                   loftNormal(tail,band,b),(slice%3==0)?oliveLight:olive);
     }
     // Raised dorsal and ventral seams make the boom a manufactured tapered shell,
     // while a buried fairing blends it into the cabin instead of meeting it as a bar.
@@ -605,6 +681,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<cockpit<<'\n';MirrorRuntimeDiagnosticToPlatformLog(cockpit);
     const std::string anatomy="island-simulator: helicopter realism pass adds a rounded chin and tail-root fairing, twelve-sided six-station tail boom, maintenance seams, engine intakes, shaped cushions, harnesses, centre pedestal, and overhead console";
     std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
+    const std::string smoothSurfaces="island-simulator: helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry";
+    std::cout<<smoothSurfaces<<'\n';MirrorRuntimeDiagnosticToPlatformLog(smoothSurfaces);
 }
 
 HelicopterRenderer::~HelicopterRenderer()=default;

@@ -131,6 +131,24 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest helicopter visual pass — continuous curved-surface lighting
+
+The renewed exterior/interior audit confirmed that the helicopter already has the required
+proportions, accessible cockpit and rear cabin, glazing, open doors, stationary rotors, skids,
+panel detail, generated material atlas and flight controls. Its weakest visible cue was instead
+the face-constant lighting: even the thirty-two-sided canopy, tapered cowling and twelve-sided
+tail boom read as bands of flat polygons.
+
+The canopy/fuselage loft, nose closure, cowling, tail boom, chin and root fairings, cushions,
+headrests and intake lips now use analytic per-vertex normals while retaining stable face-local
+material projection. Position geometry, collision, all four entry corridors, atlas, two draws and
+the 2,780-triangle budget are unchanged. Inspected current native evidence
+`20261015T150827.344868Z-helicopter` and
+`20261015T150858.183359Z-helicopter-inside` passes at 1280x720 with 318/182 colour bins,
+55.41/22.87 luminance deviation, 235.01/96.99 spatial contrast and empty kernel deltas. The
+exterior now has continuous light over the nose, roof fairing and tail-root transition; the
+cockpit retains readable gauges, controls, seats and open traversal sightlines.
+
 ## Latest visual-audit implementation — live beach-crab spacing
 
 The aquatic matrix exposed a real crab regression: the debris-linked homes began separated, but

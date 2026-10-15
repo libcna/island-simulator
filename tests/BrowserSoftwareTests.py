@@ -59,6 +59,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             "helicopter carries four outward-open framed door panels with glazing and handles",
             "helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals",
             "helicopter realism pass adds a rounded chin and tail-root fairing, twelve-sided six-station tail boom, maintenance seams, engine intakes, shaped cushions, harnesses, centre pedestal, and overhead console",
+            "helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry",
             "helicopter 2 draw",
         ))
         def view(mode):
