@@ -116,3 +116,23 @@ stop latch is unchanged. Existing build trees were reused, never rebuilt without
 
 More comprehensive walking-camera review, far-LOD transitions, leaf-scale/composition and bush silhouettes remain
 open. Do not infer a completed jungle or safe hardware driver from these software stills.
+
+## Bounded understory age pigment — 2026-10-15
+
+The renewed overview/jungle/clearing-edge audit found that the broadleaf geometry remained
+coherent, but clusters still collapsed into repeated green fans. It also exposed a material bug:
+the normalized per-leaf pigment phase was passed directly to the colour multiplier, so valid phase
+values near zero produced almost black healthy leaves rather than restrained botanical variation.
+
+Both fern and broadleaf forms now remap that phase to a bounded 0.82–1.04 mature-foliage range.
+For paddle and lance plants, short emerging source leaves receive a pale yellow-green blend while a
+small deterministic mature subset shifts gently toward olive. Far leaves retain the exact source
+identity, so their age cue no longer changes arbitrarily at the existing LOD boundary. Profiles,
+geometry, buffers, textures, shaders, instance transforms, population and draw count are unchanged.
+
+Inspected native evidence `20261015T154323.130077Z-clearing-edge` passes at 1280x720 with 271
+colour bins, 49.41 luminance deviation, 223.75 spatial contrast and an empty kernel delta. The
+matching denser view `20261015T154401.577603Z-jungle` passes with 277 bins, 46.46 deviation,
+213.01 contrast and an empty kernel delta. The change is intentionally restrained: it separates
+young and mature laminae and removes implausibly black phase samples; it does not claim a new plant
+species, denser vegetation, or completed moving-camera botanical review.

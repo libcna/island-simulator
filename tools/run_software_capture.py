@@ -833,6 +833,8 @@ def main():
                 raise RuntimeError("current clearing-edge composition is missing; check for a stale executable")
             if "understory leaf identities share asymmetric posture and curled profiles across LOD" not in diagnostics:
                 raise RuntimeError("current understory leaf profiles are missing; check for a stale executable")
+            if "understory pigment stays in a mature-leaf range with pale emerging blades and restrained olive older foliage" not in diagnostics:
+                raise RuntimeError("current understory age pigment is missing; check for a stale executable")
             if "pinnate understory shares rachis attachment knots and retained leaflet wind across LOD" not in diagnostics:
                 raise RuntimeError("current connected fern geometry is missing; check for a stale executable")
             if "broadleaf paddle and lance laminae share cupped profiles and asymmetric margins across LOD" not in diagnostics:

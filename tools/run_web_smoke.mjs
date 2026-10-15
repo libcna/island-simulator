@@ -1052,6 +1052,7 @@ try {
             && log.includes("canopy per-tree frustum boxes contain both LODs and wind")
             && log.includes("clearing-edge colonies respect full route footprints; bushes=")
             && log.includes("understory leaf identities share asymmetric posture and curled profiles across LOD")
+            && log.includes("understory pigment stays in a mature-leaf range with pale emerging blades and restrained olive older foliage")
             && log.includes("pinnate understory shares rachis attachment knots and retained leaflet wind across LOD")
             && log.includes("broadleaf paddle and lance laminae share cupped profiles and asymmetric margins across LOD")
             && log.includes("leaf daylight contrast and stable tip pigment; footprint-filtered leaf and bark detail")

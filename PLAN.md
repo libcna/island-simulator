@@ -131,6 +131,21 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest vegetation visual pass — bounded understory age pigment
+
+The overview, jungle and clearing-edge audit found the terrain and crown structure coherent, but
+medium broadleaf clusters still collapsed into repeated, nearly uniform green fans. The leaf
+profile's normalized pigment phase had also been used directly as a brightness multiplier, allowing
+otherwise healthy foliage to approach black.
+
+All fern and broadleaf understory now maps that phase into a bounded 0.82–1.04 mature-leaf range.
+Broad species additionally separate short emerging blades with a pale yellow-green cue and give a
+small deterministic subset restrained olive mature tissue. Existing per-leaf posture, paddle/lance
+shape, near/far source identity, population, placement, buffers, shaders and draw count are
+unchanged. Inspected current native evidence `20261015T154323.130077Z-clearing-edge` and
+`20261015T154401.577603Z-jungle` passes at 1280x720 with 271/277 colour bins, 49.41/46.46
+luminance deviation, 223.75/213.01 spatial contrast and empty kernel deltas.
+
 ## Latest aquatic visual pass — fish eyes and fin profile
 
 The next current aquatic audit found the 48-agent fish schools readable as a whole, but their

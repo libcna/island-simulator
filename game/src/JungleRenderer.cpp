@@ -1227,11 +1227,19 @@ void main()
                 : Color(35, 111 + variant * 5, 49 + variant * 2, 255);
             for (int leaf = 0; leaf < leafCount; ++leaf) {
                 const auto profile = UnderstoryLeaf(variant, leaf, farMesh);
+                Color leafColor = ShadeColor(color, .82f + .22f * profile.pigment);
+                if (broadLeaf && profile.source % 4 == 1) {
+                    // Short emerging blades should read as young tissue, not merely a
+                    // smaller copy of the mature dark-green lamina.
+                    leafColor = Color::Lerp(leafColor, Color(142, 176, 78, 255), .45f);
+                } else if (broadLeaf && profile.source % 3 == 0) {
+                    leafColor = Color::Lerp(leafColor, Color(92, 111, 53, 255), .22f);
+                }
                 if (broadLeaf) {
                     AppendFrond(geometry, profile.angle, profile.length, profile.width, profile.lift,
-                        ShadeColor(color, profile.pigment), profile.phase, segments, &profile);
+                        leafColor, profile.phase, segments, &profile);
                 } else {
-                    AppendFernFrond(geometry,profile,ShadeColor(color,profile.pigment),farMesh);
+                    AppendFernFrond(geometry,profile,leafColor,farMesh);
                 }
             }
             return geometry;
@@ -1575,6 +1583,10 @@ void main()
             "island-simulator: understory leaf identities share asymmetric posture and curled profiles across LOD";
         std::cout << understoryProfileDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(understoryProfileDiagnostic);
+        constexpr const char* understoryPigmentDiagnostic =
+            "island-simulator: understory pigment stays in a mature-leaf range with pale emerging blades and restrained olive older foliage";
+        std::cout << understoryPigmentDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(understoryPigmentDiagnostic);
         constexpr const char* fernDiagnostic =
             "island-simulator: pinnate understory shares rachis attachment knots and retained leaflet wind across LOD";
         std::cout << fernDiagnostic << '\n';
