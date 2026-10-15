@@ -30,7 +30,7 @@ namespace island
 {
     namespace
     {
-        constexpr int MaximumVerticesPerDeer = 3300;
+        constexpr int MaximumVerticesPerDeer = 5800;
         constexpr int Capacity = static_cast<int>(DeerHerd::Count) * MaximumVerticesPerDeer;
 
         void Triangle(std::vector<VertexPositionColor>& out, const Vector3& a,
@@ -70,10 +70,24 @@ namespace island
                 const int next = (side + 1) % sides;
                 const Vector3 a = point(ring, side), b = point(ring + 1, side);
                 const Vector3 c = point(ring + 1, next), d = point(ring, next);
-                Vector3 normal = Vector3::Cross(b - a, c - a);
-                if (normal.LengthSquared() > 1e-8f) normal.Normalize(); else normal = up;
-                const Color shaded = Lit(color, normal, transmission);
-                Triangle(out, a, b, c, shaded);Triangle(out, a, c, d, shaded);
+                const auto normal = [&](const int latitudeRing, const int longitudeSide) {
+                    const float latitude = -1.57079632679f
+                        + 3.14159265359f * static_cast<float>(latitudeRing)
+                            / static_cast<float>(rings);
+                    const float longitude = 6.28318530718f
+                        * static_cast<float>(longitudeSide) / static_cast<float>(sides);
+                    Vector3 result = right * (std::cos(latitude) * std::cos(longitude) / rx)
+                        + up * (std::sin(latitude) / ry)
+                        + forward * (std::cos(latitude) * std::sin(longitude) / rz);
+                    if (result.LengthSquared() > 1e-8f) result.Normalize(); else result = up;
+                    return result;
+                };
+                const Color ca=Lit(color,normal(ring,side),transmission);
+                const Color cb=Lit(color,normal(ring+1,side),transmission);
+                const Color cc=Lit(color,normal(ring+1,next),transmission);
+                const Color cd=Lit(color,normal(ring,next),transmission);
+                out.emplace_back(a,ca);out.emplace_back(b,cb);out.emplace_back(c,cc);
+                out.emplace_back(a,ca);out.emplace_back(c,cc);out.emplace_back(d,cd);
             }
         }
 
@@ -94,10 +108,12 @@ namespace island
                 const float second = 6.28318530718f * static_cast<float>(index + 1) / sides;
                 const Vector3 radialA = side * std::cos(first) + other * std::sin(first);
                 const Vector3 radialB = side * std::cos(second) + other * std::sin(second);
-                const Color shaded = Lit(color, (radialA + radialB) * .5f, transmission);
+                const Color shadeA = Lit(color, radialA, transmission);
+                const Color shadeB = Lit(color, radialB, transmission);
                 const Vector3 p0 = a + radialA * radiusA, p1 = b + radialA * radiusB;
                 const Vector3 p2 = b + radialB * radiusB, p3 = a + radialB * radiusA;
-                Triangle(out, p0, p1, p2, shaded);Triangle(out, p0, p2, p3, shaded);
+                out.emplace_back(p0,shadeA);out.emplace_back(p1,shadeA);out.emplace_back(p2,shadeB);
+                out.emplace_back(p0,shadeA);out.emplace_back(p2,shadeB);out.emplace_back(p3,shadeB);
             }
         }
 
@@ -116,29 +132,33 @@ namespace island
             const Vector3 right(-forward.Z, 0.0f, forward.X), up = Vector3::Up;
             const Vector3 body(deer.x, deer.y + 1.03f * scale, deer.z);
             Ellipsoid(out, body, right, up, forward, .33f * scale, .37f * scale,
-                      .76f * scale, coat, transmission, near ? 8 : 4, near ? 16 : 8);
+                      .76f * scale, coat, transmission, near ? 10 : 4, near ? 20 : 8);
             // A higher shoulder and slightly rounder rump avoid the single barrel primitive
             // while keeping the complete silhouette inexpensive and contiguous.
             Ellipsoid(out, body + forward * (.43f * scale) + up * (.08f * scale),
                       right, up, forward, .34f * scale, .39f * scale, .37f * scale,
-                      Color::Lerp(coat, dark, .06f), transmission, near ? 6 : 3,
-                      near ? 12 : 7);
+                      Color::Lerp(coat, dark, .06f), transmission, near ? 8 : 3,
+                      near ? 16 : 7);
             Ellipsoid(out, body - forward * (.43f * scale) + up * (.015f * scale),
                       right, up, forward, .35f * scale, .39f * scale, .40f * scale,
-                      coat, transmission, near ? 6 : 3, near ? 12 : 7);
+                      coat, transmission, near ? 8 : 3, near ? 16 : 7);
             const float graze = deer.grazeAmount;
             const Vector3 neckBase = body + forward * (.62f * scale) + up * (.20f * scale);
             const Vector3 neckTop = neckBase + forward * (.30f * scale)
                 + up * ((.57f - .68f * graze) * scale);
-            Tube(out, neckBase, neckTop, .25f * scale, .19f * scale, coat, transmission,
+            const Vector3 neckMid = neckBase + forward * (.10f * scale)
+                + up * ((.31f - .34f * graze) * scale);
+            Tube(out, neckBase, neckMid, .25f * scale, .22f * scale, coat, transmission,
+                 near ? 9 : 6);
+            Tube(out, neckMid, neckTop, .22f * scale, .19f * scale, coat, transmission,
                  near ? 9 : 6);
             const Vector3 head = neckTop + forward * (.25f * scale)
                 + up * ((.06f - .12f * graze) * scale);
             Ellipsoid(out, head, right, up, forward, .18f * scale, .22f * scale,
-                      .34f * scale, coat, transmission, near ? 5 : 3, near ? 10 : 7);
+                      .34f * scale, coat, transmission, near ? 7 : 3, near ? 16 : 7);
             const Vector3 muzzle = head + forward * (.29f * scale) - up * (.055f * scale);
             Ellipsoid(out, muzzle, right, up, forward, .13f * scale, .12f * scale,
-                      .19f * scale, dark, transmission, near ? 4 : 2, near ? 9 : 6);
+                      .19f * scale, dark, transmission, near ? 6 : 2, near ? 12 : 6);
             // Long pointed ears establish a deer rather than goat silhouette.
             for (const float sideSign : {-1.0f, 1.0f}) {
                 const Vector3 earRoot = head - forward * (.06f * scale)
@@ -153,7 +173,7 @@ namespace island
                     const Vector3 eyeCentre = head + forward * (.14f * scale)
                         + right * (sideSign * .17f * scale) + up * (.035f * scale);
                     Ellipsoid(out, eyeCentre, right, up, forward, .025f * scale,
-                              .030f * scale, .018f * scale, eye, transmission, 3, 7);
+                              .030f * scale, .018f * scale, eye, transmission, 4, 10);
                 }
             }
             // Four articulated legs; diagonal phase offsets make walk and retreat readable.
@@ -172,18 +192,21 @@ namespace island
                     - swing * .15f) * scale) - up * (.34f * scale);
                 const Vector3 hoofPoint = hock + forward * (((hind ? .18f : .04f)
                     - swing * .08f) * scale);
-                Tube(out, hip, knee, .082f * scale, .057f * scale, coat, transmission);
-                Tube(out, knee, hock, .054f * scale, .038f * scale, dark, transmission);
+                Tube(out, hip, knee, .082f * scale, .057f * scale, coat, transmission,
+                     near ? 9 : 7);
+                Tube(out, knee, hock, .054f * scale, .038f * scale, dark, transmission,
+                     near ? 9 : 7);
                 Tube(out, hock, Vector3(hoofPoint.X, deer.y + .060f * scale, hoofPoint.Z),
-                     .037f * scale, .028f * scale, dark, transmission);
+                     .037f * scale, .028f * scale, dark, transmission, near ? 9 : 7);
                 const Vector3 groundedHoof(hoofPoint.X, deer.y + .060f * scale, hoofPoint.Z);
                 Tube(out, groundedHoof - forward * (.045f * scale),
                      groundedHoof + forward * (.075f * scale), .038f * scale,
-                     .028f * scale, hoof, transmission, 6);
+                     .028f * scale, hoof, transmission, near ? 8 : 6);
             }
             const Vector3 tailRoot = body - forward * (.77f * scale) + up * (.17f * scale);
             const Vector3 tailTip = tailRoot - forward * (.31f * scale) + up * (.08f * scale);
-            Tube(out, tailRoot, tailTip, .105f * scale, .025f * scale, pale, transmission, 8);
+            Tube(out, tailRoot, tailTip, .105f * scale, .025f * scale, pale, transmission,
+                 near ? 10 : 8);
             if (near) {
                 // A restrained row of flank spots breaks the flat coat without a texture draw.
                 for (int spot = 0; spot < 5; ++spot) for (const float sideSign : {-1.0f, 1.0f}) {
@@ -203,14 +226,14 @@ namespace island
                     const Vector3 beam = base - forward * (.07f * scale)
                         + right * (sideSign * .07f * scale) + up * (.39f * scale);
                     const Vector3 crown = beam + forward * (.22f * scale) + up * (.19f * scale);
-                    Tube(out, base, beam, .026f * scale, .018f * scale, antler, transmission, 6);
-                    Tube(out, beam, crown, .019f * scale, .010f * scale, antler, transmission, 6);
+                    Tube(out, base, beam, .026f * scale, .018f * scale, antler, transmission, 8);
+                    Tube(out, beam, crown, .019f * scale, .010f * scale, antler, transmission, 8);
                     Tube(out, beam + forward * (.05f * scale),
                          beam + forward * (.18f * scale) + up * (.10f * scale),
-                         .015f * scale, .008f * scale, antler, transmission, 6);
+                         .015f * scale, .008f * scale, antler, transmission, 8);
                     Tube(out, crown - forward * (.06f * scale),
                          crown - forward * (.02f * scale) + up * (.16f * scale),
-                         .012f * scale, .006f * scale, antler, transmission, 6);
+                         .012f * scale, .006f * scale, antler, transmission, 8);
                 }
             }
         }
@@ -233,6 +256,9 @@ namespace island
         constexpr auto diagnostic =
             "island-simulator: four inland deer use long legs, pointed ears, spotted coats and one antlered silhouette";
         std::cout << diagnostic << '\n';MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+        constexpr auto anatomyDiagnostic =
+            "island-simulator: near deer use vertex-blended ellipsoid light, curved tapered necks, articulated hocks, fitted muzzles, and smooth antler beams";
+        std::cout << anatomyDiagnostic << '\n';MirrorRuntimeDiagnosticToPlatformLog(anatomyDiagnostic);
     }
 
     DeerRenderer::~DeerRenderer() = default;

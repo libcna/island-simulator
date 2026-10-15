@@ -93,6 +93,15 @@ varying, mesh or draw increase. Native before/after and independent beach/bay-gr
 complete Chrome WebGL 2 four-material matrix and Android ARM64 assemble/lint are recorded in
 `docs/whole-island-material-pass.md`. The wildlife/sound/motion pass remains open.
 
+The wildlife visual/motion and automated-sound member is now recorded as well. A deer/bear/boar/
+goat/crocodile/fish matrix selected the old deer renderer as the weakest family. Near deer now use
+analytic per-vertex ellipsoid light, interpolated tube light, a two-stage tapered neck and finer
+near-only anatomy while preserving four agents in one draw and the old far tier. Native and
+inspected Chrome WebGL frames plus Android ARM64 assemble/lint are recorded in
+`docs/whole-island-wildlife-pass.md`. The deterministic twenty-minute sound route and runtime
+mute/transition/source gate pass, but subjective headphone/speaker listening and real audio-focus
+lifecycle remain explicitly open.
+
 Helicopter, bunker, hut relocation, cave, campfire, resident, bear, crocodiles, 50 snakes, 200
 spiders, boar/goat/snake sound, flight/diving controls, stream/wetland/mangroves/reef, shipwreck and
 the latest animal repairs already exist and are not reopened merely because an older section still
