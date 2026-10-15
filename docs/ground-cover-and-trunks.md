@@ -37,7 +37,8 @@ here is hardware qualification.
 
 ## Trunks
 
-- `CanopyTrunkRadius` (core, tested): shared smooth radius with a root flare of +34% decaying
+- `CanopyTrunkRadius` (core, tested): nine deterministic natural/mangrove taper families between the
+  shared conservative root and crown envelopes, each with a smooth root flare of +34% decaying
   over 0.42 m. Tests prove a monotone taper and that the flare plus 9.9% near-mesh irregularity
   stays inside the player-blocked footprint (`0.43 * scale + 0.34 m` capsule) at both authored
   scale limits.

@@ -368,6 +368,8 @@ try
         Invalid([&] { (void)SampleCanopyTrunk(0, invalid); });
     }
     std::array<float,CanopyFormCount> crownSpans{}, crownHeights{}, crownOffsets{};
+    float minimumMidTrunk=std::numeric_limits<float>::max();
+    float maximumMidTrunk=0.0f;
     for(int variant=0;variant<CanopyFormCount;++variant) {
         const auto trunk=MakeCanopyTrunkProfile(variant);
         Require(SampleCanopyTrunk(variant,0)==std::array<float,3>{0,0,0},
@@ -400,6 +402,9 @@ try
         }
         Require(CanopyTrunkRadius(variant,0)>1.3f*CanopyTrunkRadius(variant,1.5f),
                 "Trunk base must visibly flare above its root plane");
+        const float midRadius=CanopyTrunkRadius(variant,trunk.height*.5f);
+        minimumMidTrunk=std::min(minimumMidTrunk,midRadius);
+        maximumMidTrunk=std::max(maximumMidTrunk,midRadius);
         Invalid([&] { (void)CanopyTrunkRadius(variant,-0.01f); });
         Invalid([&] { (void)CanopyTrunkRadius(variant,trunk.height+0.01f); });
         float minX=100,maxX=-100,minY=100,maxY=-100,offset=0;
@@ -424,6 +429,8 @@ try
         }
         crownSpans[variant]=maxX-minX; crownHeights[variant]=maxY-minY; crownOffsets[variant]=offset/8;
     }
+    Require(maximumMidTrunk-minimumMidTrunk>0.04f,
+            "Natural canopy forms must not all retain an identical pole-like trunk taper");
     Require(crownSpans[0]>crownSpans[1]*1.3f && crownHeights[1]>crownHeights[0]*1.3f
         && crownOffsets[2]>1.0f && crownOffsets[0]<0.5f && crownHeights[3]>crownHeights[0]*1.2f,
         "Crown forms must differ structurally, not only by a uniform height/scale change");

@@ -7,6 +7,17 @@
 
 namespace island
 {
+    namespace
+    {
+        // The old linear taper made all eight otherwise different crown forms read as copies
+        // planted on identical poles. Every family retains the same conservative root and crown
+        // radii used by collision and monkey attachment, while its mid-shaft mass develops at a
+        // distinct rate. Exponents stay at or above one, so no form is harder to reach than the
+        // already-qualified linear trunk.
+        constexpr std::array<float, CanopyFormCount> CanopyTrunkTaperExponents{
+            1.00f, 1.25f, 1.48f, 1.72f, 1.12f, 1.90f, 1.38f, 1.61f, 1.18f};
+    }
+
     CanopyTrunkProfile MakeCanopyTrunkProfile(const int variant)
     {
         if (variant < 0 || variant >= CanopyFormCount) throw std::invalid_argument("Invalid canopy variant");
@@ -23,7 +34,10 @@ namespace island
         if(!std::isfinite(localHeight) || localHeight<0 || localHeight>trunk.height)
             throw std::invalid_argument("Invalid canopy trunk radius height");
         const float t=localHeight/trunk.height;
-        const float taper=CanopyTrunkBaseRadius+(CanopyTrunkTipRadius-CanopyTrunkBaseRadius)*t;
+        const float taperPhase = std::pow(
+            t, CanopyTrunkTaperExponents[static_cast<std::size_t>(variant)]);
+        const float taper=CanopyTrunkBaseRadius
+            +(CanopyTrunkTipRadius-CanopyTrunkBaseRadius)*taperPhase;
         return taper*(1.0f+CanopyRootFlare*std::exp(-localHeight/CanopyRootFlareHeight));
     }
 

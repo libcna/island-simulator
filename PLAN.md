@@ -72,6 +72,19 @@ remaining material work is:
   animation/sound, including long-session silence and control/lifecycle checks;
 - qualify final release behavior on actual AMD hardware, Firefox and a physical Android device.
 
+The traversal/scale member of the three required recorded whole-island passes is now complete.
+Six linked overview-to-water native views selected the formerly identical canopy trunk taper as
+the most visible walking-scale repetition. Nine tree forms now retain common qualified root/crown
+contacts but use different monotone mid-shaft taper families, with no population, buffer or draw
+increase. The accepted before/after evidence and exact remaining pass boundary are recorded in
+`docs/whole-island-traversal-pass.md`. Material/lighting/composition and wildlife/sound/motion
+remain open.
+
+Current-pin verification passes 72/72 active native tests, an inspected current-binary jungle
+capture, the Chrome 155/SwiftShader WebGL 2 canopy-light gate, and Android ARM64 assemble/lint.
+The generated Web/APK identities are recorded with the evidence document; no emulator/KVM or
+host graphics configuration was changed.
+
 Helicopter, bunker, hut relocation, cave, campfire, resident, bear, crocodiles, 50 snakes, 200
 spiders, boar/goat/snake sound, flight/diving controls, stream/wetland/mangroves/reef, shipwreck and
 the latest animal repairs already exist and are not reopened merely because an older section still

@@ -1697,6 +1697,10 @@ void main()
             "island-simulator: eight structural crown forms share eight LOD lobe anchors and supported trunk bends";
         std::cout << crownStructureDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(crownStructureDiagnostic);
+        constexpr const char* trunkTaperDiagnostic =
+            "island-simulator: natural canopy forms use nine collision-safe trunk taper families with shared root and crown contacts";
+        std::cout << trunkTaperDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(trunkTaperDiagnostic);
         constexpr const char* crownFillDiagnostic =
             "island-simulator: canopy lobes use bounded asymmetric cores and skirts across both LOD tiers";
         std::cout << crownFillDiagnostic << '\n';
