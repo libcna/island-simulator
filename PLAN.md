@@ -210,6 +210,28 @@ remains readable against the dark wet understory. The accepted 1280x720 frame pa
 bins, 32.55 luminance deviation, 139.14 spatial contrast and an empty kernel delta. Native, Chrome
 and Web-smoke gates now require the new anatomy diagnostic.
 
+## Latest aquatic visual pass — slimmer dolphin and falcate dorsal
+
+The renewed animal matrix selected the dolphin ahead of the current monkey and shark. Its
+nineteen-station shell was smooth and complete, but the long broad midbody still read as a small
+whale, the bottlenose rostrum ended as a blunt rectangle, and the low dorsal plus uniformly thin
+control surfaces looked like flat cards. Midbody cross-sections are now 5--8 percent slimmer while
+the fitted melon volume remains intact. The rostrum narrows and lengthens through the existing
+twelve-sided closed loft. Countershading reaches farther onto the lower flank, giving the grey form
+a readable pale underside in shallow-water haze.
+
+The dorsal outline is now a taller swept falcate profile. Dorsal, pectoral and fluke polygons keep
+their exact triangle counts but use per-vertex thickness: substantial buried roots taper into thin
+outer edges and tips rather than carrying one paper-like thickness throughout. The four-agent pod,
+animated vertical tail-stock stroke, LOD, 3,168/15 near/far vertex budgets and one shared draw are
+unchanged. `IslandDolphinPodTests` and `IslandCoreTests` pass.
+
+Inspected baseline `20261015T193337.232080Z-dolphins` and accepted current-binary evidence
+`20261015T195011.255544Z-dolphins` show a slimmer bottlenose silhouette, a clearly readable dorsal
+and stronger body/underside separation. The accepted 1280x720 frame passes with 144 colour bins,
+45.17 luminance deviation, 213.05 spatial contrast and an empty kernel delta. Native, Chrome and
+Web-smoke gates now require the complete new proportion diagnostic.
+
 ## Latest terrain-composition pass — softened aerial material classifications
 
 The new whole-island overview retained the authored open goat/bear ridges but selected their

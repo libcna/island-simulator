@@ -939,6 +939,7 @@ try {
               && log.includes("near dolphins use an extended fitted rostrum, lower swept fins, and readable grey countershading")
               && log.includes("dolphin facial pass uses a stout tapered rostrum and small six-facet oval eyes instead of flat diamond marks")
               && log.includes("dolphin skin pass uses continuous axial pigment, a pale swept lower flank, restrained tonal variation, a longer rounded rostrum, and softer swept fins")
+              && log.includes("near dolphins use a slimmer fusiform midbody, narrower bottlenose rostrum, stronger countershading, a taller falcate dorsal, and root-thickened tapered fins and flukes")
               && log.includes("dolphin near/far geometry 3168/15 vertices, closed fins and CPU faceted daylight")
               && /dolphins [1-4]\/4 visible \(near [1-4], far [0-4]\), 1 draw/.test(log)))
             && (!focusedShipwreckCheck || (log.includes("shipwreck wood loaded Content/structures/shipwreck-weathered-wood.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored interior atlas")

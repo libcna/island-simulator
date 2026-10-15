@@ -163,3 +163,25 @@ bins, 45.15 luminance deviation, 209.70 spatial contrast and an empty kernel del
 failed tuning evidence `20261015T151345.591315Z-dolphins` documents the rejected banded result;
 the current frame restores a continuous body surface while retaining the more readable pale flank,
 longer rostrum and softer fin profile.
+
+## Slimmer bottlenose proportions and rooted fins — 2026-10-15
+
+The current cross-animal audit selected the dolphin because its closed nineteen-station body still
+read as a broad grey whale and its low dorsal and uniformly thin control surfaces collapsed toward
+cards. The accepted pass reduces the widest midbody sections by roughly 5--8 percent without
+changing axial stations or the fitted melon. Its closed twelve-sided rostrum is narrower and
+slightly longer. The pale ventral palette now reaches farther onto the lower flank, preserving
+countershading through the shallow-water tint.
+
+The dorsal becomes a taller swept falcate outline. Dorsal, paired pectorals and paired flukes retain
+their existing closed polygon topology and exact triangle count, but their two faces now use
+per-vertex thickness: broad buried roots taper toward thin tips and outer edges. The four-agent pod,
+cruise/surface/dive simulation, bank/pitch, vertical tail-stock bend, horizontal flukes, LOD,
+3,168/15 near/far vertices and one draw are unchanged.
+
+`IslandDolphinPodTests` and `IslandCoreTests` pass. Baseline
+`20261015T193337.232080Z-dolphins` and accepted current-binary
+`20261015T195011.255544Z-dolphins` were inspected side by side. The accepted 1280x720 frame passes
+with 144 colour bins, 45.17 luminance deviation, 213.05 spatial contrast and an empty kernel delta.
+Portable gates require the new proportion diagnostic; consolidated Web/Android qualification
+remains separate from this native visual pass.
