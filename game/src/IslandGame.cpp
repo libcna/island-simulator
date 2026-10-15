@@ -1260,34 +1260,31 @@ namespace island
         } else if (viewpoint_ == FixedViewpoint::CrabDetail
                    && crabColony_.Crabs().size() > 2U) {
             const auto crabs=crabColony_.Crabs();
-            float bestNearest=-1.0f;
-            for(std::size_t candidate=0;candidate<crabs.size();++candidate) {
-                float nearest=std::numeric_limits<float>::infinity();
-                for(std::size_t other=0;other<crabs.size();++other) if(other!=candidate)
-                    nearest=std::min(nearest,std::hypot(crabs[candidate].x-crabs[other].x,
-                        crabs[candidate].z-crabs[other].z));
-                if(nearest>bestNearest) {bestNearest=nearest;crabViewSubject_=candidate;}
+            const CrabBurrow& burrow=crabColony_.Burrows().front();
+            float nearestBurrow=std::numeric_limits<float>::infinity();
+            for(std::size_t candidate=0;candidate<5U;++candidate) {
+                const float distance=std::hypot(crabs[candidate].x-burrow.x,
+                    crabs[candidate].z-burrow.z);
+                if(distance<nearestBurrow) {nearestBurrow=distance;crabViewSubject_=candidate;}
             }
-            const CrabState& crab = crabs[crabViewSubject_];
-            const float radius = std::hypot(crab.x, crab.z);
-            const float outwardX = crab.x / radius;
-            const float outwardZ = crab.z / radius;
+            const float radius = std::hypot(burrow.x, burrow.z);
+            const float outwardX = burrow.x / radius;
+            const float outwardZ = burrow.z / radius;
             const float tangentX = -outwardZ;
             const float tangentZ = outwardX;
-            // Stay low and close enough to make the palm-sized anatomy auditable. The
-            // simulation receives a separate distant observer below, so the camera does
-            // not herd all five colony members into one overlapping retreat pile.
-            const float cameraX = crab.x - outwardX * 1.75f + tangentX * 0.38f;
-            const float cameraZ = crab.z - outwardZ * 1.75f + tangentZ * 0.38f;
-            cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ) + 0.62f,
-                                      cameraZ);
-            const Vector3 toCrab = Vector3(crab.x, crab.y + 0.16f, crab.z)
+            // An elevated oblique view keeps the debris cue, burrow mouth and several
+            // palm-sized animals readable without placing the lens inside the driftwood.
+            const float cameraX = burrow.x - outwardX * 2.2f + tangentX * 2.8f;
+            const float cameraZ = burrow.z - outwardZ * 2.2f + tangentZ * 2.8f;
+            cameraPosition_ = Vector3(cameraX,
+                std::max(terrain_.Height(cameraX, cameraZ)+1.45f,burrow.y+2.15f),cameraZ);
+            const Vector3 toCrab = Vector3(burrow.x, burrow.y + 0.08f, burrow.z)
                 - cameraPosition_;
             yaw_ = std::atan2(toCrab.X, toCrab.Z);
             pitch_ = std::atan2(toCrab.Y, std::hypot(toCrab.X, toCrab.Z));
-            std::cout << "island-simulator: crab QA camera frames one foraging subject without camera-triggered colony retreat\n";
-            std::cout << "island-simulator: crab QA isolated subject " << crabViewSubject_
-                      << " nearest-neighbour " << bestNearest << "m\n";
+            std::cout << "island-simulator: crab QA camera frames a debris-linked burrow and its foraging colony\n";
+            std::cout << "island-simulator: crab QA subject " << crabViewSubject_
+                      << " is " << nearestBurrow << "m from the burrow\n";
         } else if (viewpoint_ == FixedViewpoint::CrocodileDetail
                    && !crocodileGroup_.Crocodiles().empty()) {
             const CrocodileState& crocodile=crocodileGroup_.Crocodiles()[2U];
@@ -1312,18 +1309,15 @@ namespace island
             std::cout<<"island-simulator: crocodile QA camera frames an estuary animal broadside\n";
         } else if (viewpoint_ == FixedViewpoint::ButterflyDetail
                    && butterflyMeadow_.Butterflies().size() > 2U) {
-            const ButterflyState& butterfly=butterflyMeadow_.Butterflies()[2U];
-            const Vector3 forward(std::cos(butterfly.headingRadians),0,
-                std::sin(butterfly.headingRadians));
-            const Vector3 side(-forward.Z,0,forward.X);
-            cameraPosition_=Vector3(butterfly.x,butterfly.y,butterfly.z)
-                -forward*.55f+side*.55f+Vector3::Up*.28f;
-            const Vector3 toGroup=Vector3(butterfly.x,butterfly.y,butterfly.z)
-                -cameraPosition_;
+            const ButterflyFlowerPatch& patch=butterflyMeadow_.FlowerPatches().front();
+            cameraPosition_=Vector3(patch.x+4.4f,
+                std::max(terrain_.Height(patch.x+4.4f,patch.z+2.4f)+1.25f,
+                         patch.y+1.55f),patch.z+2.4f);
+            const Vector3 toGroup=Vector3(patch.x,patch.y+.30f,patch.z)-cameraPosition_;
             yaw_ = std::atan2(toGroup.X, toGroup.Z);
             pitch_ = std::atan2(
                 toGroup.Y, std::hypot(toGroup.X, toGroup.Z));
-            std::cout << "island-simulator: butterfly QA camera follows one existing sunny-clearing animal\n";
+            std::cout << "island-simulator: butterfly QA camera frames one concrete nectar patch and its six animals\n";
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferMultiSamplingProperty(qualityProfile_.preferredBackBufferSamples > 0);
@@ -1893,21 +1887,8 @@ namespace island
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         }
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
-        const ButterflyState previousButterfly=butterflyMeadow_.Butterflies()[2U];
-        Vector3 butterflyObserver=cameraPosition_;
-        if(viewpoint_==FixedViewpoint::ButterflyDetail)
-            butterflyObserver=Vector3(previousButterfly.x,previousButterfly.y+3.0f,
-                previousButterfly.z);
-        butterflyMeadow_.Update(deltaSeconds,butterflyObserver.X,butterflyObserver.Y,
-            butterflyObserver.Z);
-        if(viewpoint_==FixedViewpoint::ButterflyDetail) {
-            const ButterflyState& current=butterflyMeadow_.Butterflies()[2U];
-            cameraPosition_+=Vector3(current.x-previousButterfly.x,
-                current.y-previousButterfly.y,current.z-previousButterfly.z);
-            const Vector3 direction=Vector3(current.x,current.y,current.z)-cameraPosition_;
-            yaw_=std::atan2(direction.X,direction.Z);
-            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
-        }
+        butterflyMeadow_.Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,
+            cameraPosition_.Z);
         const CrabState previousCrabSubject = crabColony_.Crabs()[crabViewSubject_];
         Vector3 crabObserver=cameraPosition_;
         if(viewpoint_==FixedViewpoint::CrabDetail) {
@@ -3263,13 +3244,14 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("butterflies");
             butterflyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                     butterflyMeadow_.Butterflies());
+                                     butterflyMeadow_.Butterflies(),
+                                     butterflyMeadow_.FlowerPatches());
         }
 
         {
             GpuDiagnosticScope gpuPass("crabs");
             crabRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                crabColony_.Crabs());
+                                crabColony_.Crabs(), crabColony_.Burrows());
         }
 
         {

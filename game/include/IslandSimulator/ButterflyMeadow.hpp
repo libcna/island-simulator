@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <span>
@@ -42,6 +43,17 @@ namespace island
         float radius = 0.0f;
     };
 
+    /** @brief One persistent cluster of nectar flowers anchoring a butterfly habitat. */
+    struct ButterflyFlowerPatch
+    {
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
+        float radius = 0.0f;
+        float groundSlopeX = 0.0f;
+        float groundSlopeZ = 0.0f;
+    };
+
     /** @brief Deterministic low-altitude butterfly activity around three sunny habitats. */
     class ButterflyMeadow final
     {
@@ -60,6 +72,10 @@ namespace island
 
         [[nodiscard]] std::span<const ButterflyState> Butterflies() const noexcept;
         [[nodiscard]] std::span<const ButterflyHomeRange> Homes() const noexcept;
+        [[nodiscard]] std::span<const ButterflyFlowerPatch> FlowerPatches() const noexcept
+        {
+            return flowerPatches_;
+        }
         [[nodiscard]] int FullSimulationCount() const noexcept { return fullSimulationCount_; }
         [[nodiscard]] int ReducedSimulationCount() const noexcept {
             return reducedSimulationCount_;
@@ -80,6 +96,8 @@ namespace island
             float verticalPhase = 0.0f;
             float wingPhase = 0.0f;
             float accumulatedSeconds = 0.0f;
+            float nectarX = 0.0f;
+            float nectarZ = 0.0f;
             std::uint32_t transitionCount = 0U;
         };
 
@@ -94,6 +112,7 @@ namespace island
         std::vector<Agent> agents_;
         std::vector<ButterflyState> states_;
         std::vector<ButterflyHomeRange> homes_;
+        std::array<ButterflyFlowerPatch, HabitatCount> flowerPatches_{};
         std::uint64_t frameIndex_ = 0U;
         int fullSimulationCount_ = 0;
         int reducedSimulationCount_ = 0;

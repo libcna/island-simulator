@@ -34,7 +34,8 @@ namespace island
         void Draw(const Microsoft::Xna::Framework::Matrix& view,
                   const Microsoft::Xna::Framework::Matrix& projection,
                   const Microsoft::Xna::Framework::Vector3& cameraPosition,
-                  std::span<const CrabState> crabs);
+                  std::span<const CrabState> crabs,
+                  std::span<const CrabBurrow> burrows);
 
         [[nodiscard]] int VisibleCrabCount() const noexcept { return visibleCrabCount_; }
         [[nodiscard]] int VisibleNearCrabCount() const noexcept { return visibleNearCrabCount_; }

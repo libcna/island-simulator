@@ -18,7 +18,7 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "crocodiles", "fish", "shark", "dolphins", "bear", "resident")
+SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "butterflies", "crocodiles", "fish", "shark", "dolphins", "bear", "resident")
 
 
 def validate_shipwreck_report(report):
@@ -364,11 +364,37 @@ def validate_crab_report(report):
         or "near crabs use flattened lateral carapaces, sturdy legs, and enlarged claw palms" not in log
         or "near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs" not in log
         or "near crabs use low broad shells with retained lateral carapace corners" not in log
-        or "crab QA camera frames one foraging subject without camera-triggered colony retreat" not in log
-        or not re.search(r"crab QA isolated subject [0-9]+ nearest-neighbour 1\.[0-9]+m", log)
+        or "six debris-linked crab colonies share visible sand burrows" not in log
+        or "crab QA camera frames a debris-linked burrow and its foraging colony" not in log
+        or not re.search(r"crab QA subject [0-9]+ is [0-9.]+m from the burrow", log)
         or not re.search(r"crabs [1-9][0-9]*/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("crab view lacks current anatomy, frames or clean graphics state")
+    return frames
+
+
+def validate_butterfly_report(report):
+    views = report.get("views", [])
+    if (report.get("passed") is not True or len(views) != 1
+        or views[0].get("mode") != "butterflies"):
+        raise RuntimeError("butterfly report lacks one successful focused view")
+    view = views[0]
+    result = view.get("result", {})
+    log = result.get("output", "")
+    frames = (view.get("screenshot"), view.get("afterSimulationScreenshot"))
+    intervals = view.get("intervals", [])
+    if (view.get("passed") is not True or view.get("glError") != 0
+        or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+        or "SwiftShader" not in view.get("renderer", "") or len(intervals) != 60
+        or not all(isinstance(value, (int, float)) and not isinstance(value, bool)
+                   and math.isfinite(value) and value > 0 for value in intervals)
+        or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
+        or len(set(frames)) != 2
+        or "butterflies feed at three visible deterministic nectar-flower patches" not in log
+        or "butterfly QA camera frames one concrete nectar patch and its six animals" not in log
+        or not re.search(r"butterflies [1-9][0-9]*/18 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", log)
+        or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
+        raise RuntimeError("butterfly view lacks nectar habitat, frames or clean graphics state")
     return frames
 
 
@@ -682,6 +708,16 @@ def main(argv=None):
                 if identities[0]["sha256"] == identities[1]["sha256"]:
                     raise RuntimeError("crab separated-time frames are byte-identical")
                 metadata["crab_frames"]=identities
+            if args.scope == "butterflies":
+                butterfly_report=json.loads((evidence / "island-browser-butterflies.json").read_text())
+                frames=validate_butterfly_report(butterfly_report)
+                paths=[evidence / frame for frame in frames]
+                if not all(path.is_file() for path in paths):
+                    raise RuntimeError("butterfly image file missing")
+                identities=[artifact_identity(path) for path in paths]
+                if identities[0]["sha256"] == identities[1]["sha256"]:
+                    raise RuntimeError("butterfly separated-time frames are byte-identical")
+                metadata["butterfly_frames"]=identities
             if args.scope == "crocodiles":
                 crocodile_report=json.loads((evidence / "island-browser-crocodiles.json").read_text())
                 frames=validate_crocodile_report(crocodile_report)

@@ -44,6 +44,7 @@ namespace island
             states_[index] = agents_[index].state;
             homes_[index] = agents_[index].home;
         }
+        RebuildBurrows();
     }
 
     bool CrabColony::IsNearDebris(const CrabHomeRange& home,
@@ -96,12 +97,32 @@ namespace island
             replacement.states_[index] = replacement.agents_[index].state;
             replacement.homes_[index] = replacement.agents_[index].home;
         }
+        replacement.RebuildBurrows();
         agents_.swap(replacement.agents_);
         states_.swap(replacement.states_);
         homes_.swap(replacement.homes_);
         debrisAnchors_ = replacement.debrisAnchors_;
+        burrows_ = replacement.burrows_;
         debrisAnchored_ = true;
         frameIndex_ = 0;
+    }
+
+    void CrabColony::RebuildBurrows() noexcept
+    {
+        for (std::size_t colony = 0; colony < burrows_.size(); ++colony) {
+            float x = 0.0f;
+            float z = 0.0f;
+            for (std::size_t member = 0; member < 5U; ++member) {
+                const CrabHomeRange& home = homes_[colony * 5U + member];
+                x += home.x;
+                z += home.z;
+            }
+            x /= 5.0f;
+            z /= 5.0f;
+            burrows_[colony] = CrabBurrow{
+                x, terrain_.Height(x, z) + 0.012f, z,
+                0.24f + static_cast<float>(colony % 3U) * 0.035f};
+        }
     }
 
     void CrabColony::InitializeAgent(const std::size_t index)

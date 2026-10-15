@@ -2701,8 +2701,32 @@ int main()
     island::ButterflyMeadow repeatedButterflies(terrain);
     island::ButterflyMeadow invalidInputButterflies(terrain);
     Check(butterflies.Butterflies().size() == island::ButterflyMeadow::ButterflyCount
-              && butterflies.Homes().size() == island::ButterflyMeadow::ButterflyCount,
+              && butterflies.Homes().size() == island::ButterflyMeadow::ButterflyCount
+              && butterflies.FlowerPatches().size()
+                  == island::ButterflyMeadow::HabitatCount,
           "butterfly simulation exposes the intended bounded population and habitats");
+    for (std::size_t patchIndex = 0;
+         patchIndex < butterflies.FlowerPatches().size(); ++patchIndex) {
+        const auto& patch = butterflies.FlowerPatches()[patchIndex];
+        const auto& repeatedPatch = repeatedButterflies.FlowerPatches()[patchIndex];
+        const auto sample = terrain.Sample(patch.x, patch.z);
+        Check(patch.x == repeatedPatch.x && patch.y == repeatedPatch.y
+                  && patch.z == repeatedPatch.z && patch.radius == repeatedPatch.radius
+                  && patch.groundSlopeX == repeatedPatch.groundSlopeX
+                  && patch.groundSlopeZ == repeatedPatch.groundSlopeZ,
+              "butterfly nectar patches derive deterministically");
+        Check(std::isfinite(patch.x) && std::isfinite(patch.y)
+                  && std::isfinite(patch.z) && patch.radius >= 1.8f
+                  && patch.radius <= 2.25f && std::isfinite(patch.groundSlopeX)
+                  && std::isfinite(patch.groundSlopeZ)
+                  && std::fabs(patch.y - sample.height) < 0.001f,
+              "visible nectar flowers are grounded inside each clearing habitat");
+        for (std::size_t member = 0; member < 6U; ++member) {
+            const auto& home = butterflies.Homes()[patchIndex * 6U + member];
+            Check(home.x == patch.x && home.z == patch.z,
+                  "each butterfly home is anchored to its concrete nectar patch");
+        }
+    }
     for (std::size_t index = 0; index < butterflies.Butterflies().size(); ++index) {
         const island::ButterflyState& butterfly = butterflies.Butterflies()[index];
         const island::ButterflyState& repeated = repeatedButterflies.Butterflies()[index];
@@ -3344,6 +3368,27 @@ int main()
     island::CrabColony debrisCrabs(terrain), repeatedDebrisCrabs(terrain);
     debrisCrabs.SetDebrisHabitats(crabDebrisCues);
     repeatedDebrisCrabs.SetDebrisHabitats(crabDebrisCues);
+    Check(debrisCrabs.Burrows().size() == 6U
+              && repeatedDebrisCrabs.Burrows().size() == 6U,
+          "six crab colonies expose one visible shared burrow each");
+    for (std::size_t colony = 0; colony < debrisCrabs.Burrows().size(); ++colony) {
+        const auto& burrow = debrisCrabs.Burrows()[colony];
+        const auto& repeated = repeatedDebrisCrabs.Burrows()[colony];
+        Check(burrow.x == repeated.x && burrow.y == repeated.y
+                  && burrow.z == repeated.z && burrow.radius == repeated.radius,
+              "crab burrows derive deterministically from the debris-linked homes");
+        Check(std::isfinite(burrow.x) && std::isfinite(burrow.y)
+                  && std::isfinite(burrow.z) && burrow.radius >= .24f
+                  && burrow.radius <= .31f
+                  && std::fabs(burrow.y - terrain.Height(burrow.x, burrow.z) - .012f)
+                      < .001f,
+              "crab burrows remain small and grounded on their beach section");
+        for (std::size_t member = 0; member < 5U; ++member) {
+            const auto& home = debrisCrabs.Homes()[colony * 5U + member];
+            Check(std::hypot(home.x - burrow.x, home.z - burrow.z) < 2.5f,
+                  "each crab home remains beside its colony burrow");
+        }
+    }
     for (std::size_t index = 0; index < debrisCrabs.Homes().size(); ++index) {
         const auto home = debrisCrabs.Homes()[index];
         Check(home.x == repeatedDebrisCrabs.Homes()[index].x

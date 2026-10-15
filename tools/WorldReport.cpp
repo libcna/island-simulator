@@ -397,6 +397,13 @@ namespace
             hash.AddFloat(home.z);
             hash.AddFloat(home.radius);
         }
+        hash.AddSize(world.butterflies.FlowerPatches().size());
+        for (const auto& patch : world.butterflies.FlowerPatches()) {
+            HashPosition(hash, patch.x, patch.y, patch.z);
+            hash.AddFloat(patch.radius);
+            hash.AddFloat(patch.groundSlopeX);
+            hash.AddFloat(patch.groundSlopeZ);
+        }
 
         hash.AddSize(world.boars.Boars().size());
         for (const auto& boar : world.boars.Boars()) {
@@ -422,6 +429,11 @@ namespace
             hash.AddFloat(home.x);
             hash.AddFloat(home.z);
             hash.AddFloat(home.radius);
+        }
+        hash.AddSize(world.crabs.Burrows().size());
+        for (const auto& burrow : world.crabs.Burrows()) {
+            HashPosition(hash, burrow.x, burrow.y, burrow.z);
+            hash.AddFloat(burrow.radius);
         }
 
         hash.AddSize(world.fish.Fish().size());
@@ -646,6 +658,8 @@ namespace
                 == island::ButterflyMeadow::ButterflyCount
             && world.butterflies.Homes().size()
                 == island::ButterflyMeadow::ButterflyCount
+            && world.butterflies.FlowerPatches().size()
+                == island::ButterflyMeadow::HabitatCount
             && world.crabs.Crabs().size() == island::CrabColony::CrabCount
             && world.boars.Boars().size() == island::BoarHerd::BoarCount
             && world.snakes->Snakes().size() == island::SnakePopulation::Count
@@ -654,6 +668,7 @@ namespace
             && world.spiders->Homes().size() == island::SpiderHabitat::GroundCount
             && world.spiderWebs.size() == island::SpiderWebLayout::MaximumSites
             && world.crabs.Homes().size() == island::CrabColony::CrabCount
+            && world.crabs.Burrows().size() == 6U
             && world.fish.Fish().size() == island::FishSchools::FishCount
             && world.fish.Schools().size() == island::FishSchools::SchoolCount
             && world.seaTurtles.Turtles().size()
@@ -757,6 +772,13 @@ namespace
                 && sample.signedShoreDistance
                     >= island::ButterflyMeadow::MinimumInlandDistance;
         }
+        for (const auto& patch : world.butterflies.FlowerPatches()) {
+            finiteSpecializedData = finiteSpecializedData
+                && AllFinite(patch.x, patch.y, patch.z, patch.radius,
+                             patch.groundSlopeX, patch.groundSlopeZ)
+                && patch.radius > 0.0f
+                && std::fabs(patch.y - world.terrain.Height(patch.x, patch.z)) < .001f;
+        }
         for (const auto& boar : world.boars.Boars()) {
             finiteSpecializedData = finiteSpecializedData
                 && AllFinite(boar.x, boar.y, boar.z, boar.homeX, boar.homeZ,
@@ -781,6 +803,13 @@ namespace
                 && island::CrabColony::IsNearDebris(home, crabDebrisCues)
                 && sample.signedShoreDistance >= island::CrabColony::MinimumShoreDistance
                 && sample.signedShoreDistance <= island::CrabColony::MaximumShoreDistance;
+        }
+        for (const auto& burrow : world.crabs.Burrows()) {
+            finiteSpecializedData = finiteSpecializedData
+                && AllFinite(burrow.x, burrow.y, burrow.z, burrow.radius)
+                && burrow.radius > 0.0f
+                && std::fabs(burrow.y - world.terrain.Height(burrow.x, burrow.z) - .012f)
+                    < .001f;
         }
         for (const island::FishState& fish : world.fish.Fish()) {
             finiteSpecializedData = finiteSpecializedData
@@ -1178,7 +1207,10 @@ namespace
                << "    \"birds\": " << world.birds.Birds().size() << ",\n"
                << "    \"butterflies\": "
                << world.butterflies.Butterflies().size() << ",\n"
+               << "    \"butterflyFlowerPatches\": "
+               << world.butterflies.FlowerPatches().size() << ",\n"
                << "    \"beachCrabs\": " << world.crabs.Crabs().size() << ",\n"
+               << "    \"crabBurrows\": " << world.crabs.Burrows().size() << ",\n"
                << "    \"wildBoars\": " << world.boars.Boars().size() << ",\n"
                << "    \"groundSnakes\": " << world.snakes->Snakes().size() << ",\n"
                << "    \"goats\": " << world.goats->Goats().size() << ",\n"

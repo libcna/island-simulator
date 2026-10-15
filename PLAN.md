@@ -60,6 +60,34 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest ecosystem implementation — wildlife belongs to concrete places
+
+Macro-ecosystem item 18 is complete. The existing bird flock already separates ten coastal,
+eight canopy and six high/seabird routes and limits perching to suitable branches, rocks and wreck
+beams. Eight fish schools continually select and remain in the shared reef/seagrass field, while
+all five turtle routes use the same bounded shallow habitat. The missing land cues are now explicit:
+six debris-linked five-crab colonies each share one deterministic visible sand burrow, and the
+three sunny butterfly clearings each contain a grounded seven-flower nectar patch. A nectar-hover
+butterfly actively steers to its own assigned blossom rather than merely changing animation state.
+Flowers and burrows join their animal's existing dynamic batch, adding no renderer or draw call.
+
+Native llvmpipe captures
+`build-consumer/software-captures/20261015T005059.201550Z-butterflies` and
+`build-consumer/software-captures/20261015T005104.406312Z-crabs` pass at 1280 by 720 and were
+inspected after replacing the obsolete subject-only QA cameras with habitat-composition views.
+The first captures are retained as rejected visual evidence because flowers or the burrow were
+outside/obscured in their framing. Deterministic core and world-report tests pin all anchors,
+grounding and existing shared aquatic suitability. Chrome/SwiftShader scopes
+`20261015T010147.912276Z-chrome-butterflies` and
+`20261015T010437.480963Z-chrome-crabs` each pass 60 finite positive intervals, GL0, live context,
+separated-time frames and clean kernel monitoring; both images were inspected. World fingerprint
+`ae3382b4e9eca621` reports three flower patches and six burrows. ARM64 assemble/lint passes through
+the two-worker wrapper (24,062,091-byte APK, SHA-256
+`c29f89582f2d1e48586e62c08c43b22d18600851f5fad67dfd669a665516c753`) without emulator/KVM.
+The correctly filtered non-display suite passes 60/60; the startup-report validator is excluded
+with its disabled display-producing parent rather than being run against a nonexistent file.
+Details are in `docs/wildlife-habitats.md`.
+
 ## Latest ecosystem implementation — one small seasonal wetland
 
 Macro-ecosystem item 20 is complete. A naturally low south-valley basin around `(0, -140)`, more
@@ -3840,9 +3868,10 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
 - [ ] 17. Small fauna with simple behaviour (for example a gecko that sits, flees, disappears):
   geckos, skinks, hermit crabs, coconut crabs, more small crabs, shorebirds and seabirds, fruit bats,
   dragonflies, cicadas, beetles, small lizards. Monkeys and boars remain.
-- [ ] 18. Tie wildlife to places: crabs on specific beach sections with burrows, butterflies at
+- [x] 18. Tie wildlife to places: crabs on specific beach sections with burrows, butterflies at
   specific flowers, coastal/jungle/seabirds in their zones, reef fish at coral patches and small
-  schools over sand, turtles over seagrass.
+  schools over sand, turtles over seagrass. The shared habitat completion and evidence are recorded
+  in the latest implementation section and `docs/wildlife-habitats.md`.
 - [x] 19. Rock as geology, not only boulders: a rocky headland, a short 4-8 m cliff, exposed
   bedrock on a slope, large blocks below the cliff. Existing face-projected bedrock plus the
   2026-10-15 two-group talus pass are recorded in `docs/geology.md`.

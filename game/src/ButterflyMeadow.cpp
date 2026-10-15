@@ -51,6 +51,17 @@ namespace island
     ButterflyMeadow::ButterflyMeadow(const IslandTerrain& terrain)
         : terrain_(terrain)
     {
+        for (std::size_t index = 0; index < flowerPatches_.size(); ++index) {
+            const HabitatDefinition& habitat = Habitats[index];
+            constexpr float Probe = 0.5f;
+            flowerPatches_[index] = ButterflyFlowerPatch{
+                habitat.x, terrain_.Height(habitat.x, habitat.z), habitat.z,
+                1.8f + static_cast<float>(index) * 0.22f,
+                (terrain_.Height(habitat.x + Probe, habitat.z)
+                    - terrain_.Height(habitat.x - Probe, habitat.z)) / (2.0f * Probe),
+                (terrain_.Height(habitat.x, habitat.z + Probe)
+                    - terrain_.Height(habitat.x, habitat.z - Probe)) / (2.0f * Probe)};
+        }
         agents_.resize(ButterflyCount);
         states_.resize(ButterflyCount);
         homes_.resize(ButterflyCount);
@@ -68,6 +79,9 @@ namespace island
         agent.home = {habitat.x, habitat.z, habitat.radius};
         const float sequence = static_cast<float>(index);
         const float angle = std::fmod(0.37f + sequence * GoldenAngle, TwoPi);
+        const float nectarRadius = 0.35f + static_cast<float>(index % 6U) * 0.22f;
+        agent.nectarX = habitat.x + std::cos(angle) * nectarRadius;
+        agent.nectarZ = habitat.z + std::sin(angle) * nectarRadius;
         float placementRadius = 1.6f + static_cast<float>(index % 6U) * 0.72f;
         agent.state.x = agent.home.x + std::cos(angle) * placementRadius;
         agent.state.z = agent.home.z + std::sin(angle) * placementRadius;
@@ -227,7 +241,12 @@ namespace island
         if (agent.state.behavior != ButterflyBehavior::Rest) {
             const float homeDistance = std::hypot(
                 agent.state.x - agent.home.x, agent.state.z - agent.home.z);
-            if (homeDistance > agent.home.radius * 0.66f) {
+            if (agent.state.behavior == ButterflyBehavior::NectarHover) {
+                const float nectarHeading = std::atan2(
+                    agent.nectarZ - agent.state.z, agent.nectarX - agent.state.x);
+                agent.state.headingRadians = MoveAngle(
+                    agent.state.headingRadians, nectarHeading, deltaSeconds * 2.8f);
+            } else if (homeDistance > agent.home.radius * 0.66f) {
                 const float homeHeading = std::atan2(
                     agent.home.z - agent.state.z, agent.home.x - agent.state.x);
                 agent.state.headingRadians = MoveAngle(

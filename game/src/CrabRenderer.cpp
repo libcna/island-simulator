@@ -38,8 +38,9 @@ namespace island
         constexpr int NearCrabVertexCount = 1338;
         constexpr int FarCrabVertexCount = 12;
         constexpr int MaximumVerticesPerCrab = NearCrabVertexCount;
+        constexpr int MaximumBurrowVertices = 1024;
         constexpr int MaximumVertexCount = static_cast<int>(CrabColony::CrabCount)
-            * MaximumVerticesPerCrab;
+            * MaximumVerticesPerCrab + MaximumBurrowVertices;
         constexpr std::string_view CrabDiagnostic =
             "island-simulator: beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch";
         constexpr std::string_view CrabDetailDiagnostic =
@@ -50,6 +51,8 @@ namespace island
             "island-simulator: near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs";
         constexpr std::string_view CrabAnatomyDiagnostic =
             "island-simulator: near crabs use low broad shells with retained lateral carapace corners";
+        constexpr std::string_view CrabHabitatDiagnostic =
+            "island-simulator: six debris-linked crab colonies share visible sand burrows";
 
         struct CrabPalette
         {
@@ -468,6 +471,40 @@ namespace island
             AddDoubleSidedTriangle(vertices, front, left, back, palette.shellTop);
             AddDoubleSidedTriangle(vertices, front, back, rightPoint, palette.shellSide);
         }
+
+        void AppendBurrow(std::vector<VertexPositionColor>& vertices,
+                          const CrabBurrow& burrow)
+        {
+            constexpr int Segments = 18;
+            const Vector3 centre(burrow.x, burrow.y + .004f, burrow.z);
+            const Color hole(47, 35, 26, 255);
+            const Color innerSand(112, 83, 55, 255);
+            const Color outerSand(167, 132, 87, 255);
+            for (int segment = 0; segment < Segments; ++segment) {
+                const float a0 = static_cast<float>(segment) * 2.0f
+                    * std::numbers::pi_v<float> / static_cast<float>(Segments);
+                const float a1 = static_cast<float>(segment + 1) * 2.0f
+                    * std::numbers::pi_v<float> / static_cast<float>(Segments);
+                const float irregular0 = 1.0f + .08f * std::sin(a0 * 3.0f + burrow.x);
+                const float irregular1 = 1.0f + .08f * std::sin(a1 * 3.0f + burrow.x);
+                const Vector3 inner0 = centre + Vector3(
+                    std::cos(a0) * burrow.radius * irregular0, 0,
+                    std::sin(a0) * burrow.radius * irregular0);
+                const Vector3 inner1 = centre + Vector3(
+                    std::cos(a1) * burrow.radius * irregular1, 0,
+                    std::sin(a1) * burrow.radius * irregular1);
+                const Vector3 outer0 = centre + Vector3(
+                    std::cos(a0) * burrow.radius * 1.48f * irregular0, .018f,
+                    std::sin(a0) * burrow.radius * 1.48f * irregular0);
+                const Vector3 outer1 = centre + Vector3(
+                    std::cos(a1) * burrow.radius * 1.48f * irregular1, .018f,
+                    std::sin(a1) * burrow.radius * 1.48f * irregular1);
+                AddTriangle(vertices, centre, inner1, inner0, hole);
+                AddTriangle(vertices, inner0, inner1, outer1, innerSand);
+                AddTriangle(vertices, inner0, outer1, outer0,
+                    segment % 3 == 0 ? outerSand : innerSand);
+            }
+        }
     }
 
     CrabRenderer::CrabRenderer(GraphicsDevice& device, const float maximumDistance)
@@ -498,13 +535,16 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(CrabSurfaceDiagnostic);
         std::cout << CrabAnatomyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CrabAnatomyDiagnostic);
+        std::cout << CrabHabitatDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(CrabHabitatDiagnostic);
     }
 
     CrabRenderer::~CrabRenderer() = default;
 
     void CrabRenderer::Draw(const Matrix& view, const Matrix& projection,
                             const Vector3& cameraPosition,
-                            const std::span<const CrabState> crabs)
+                            const std::span<const CrabState> crabs,
+                            const std::span<const CrabBurrow> burrows)
     {
         stagingVertices_.clear();
         visibleCrabCount_ = 0;
@@ -512,6 +552,14 @@ namespace island
         visibleFarCrabCount_ = 0;
         drawCallCount_ = 0;
         const BoundingFrustum frustum(view * projection);
+        for (const CrabBurrow& burrow : burrows) {
+            const Vector3 centre(burrow.x, burrow.y, burrow.z);
+            if (Vector3::DistanceSquared(centre, cameraPosition)
+                    <= maximumDistance_ * maximumDistance_
+                && frustum.Intersects(BoundingSphere(centre, burrow.radius * 1.6f))) {
+                AppendBurrow(stagingVertices_, burrow);
+            }
+        }
         for (const CrabState& crab : crabs) {
             const Vector3 centre(crab.x, crab.y + 0.15f * crab.scale, crab.z);
             const float distanceSquared = Vector3::DistanceSquared(centre, cameraPosition);

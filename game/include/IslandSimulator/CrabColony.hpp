@@ -47,6 +47,15 @@ namespace island
 
     struct CrabHabitatCue { float x = 0.0f, z = 0.0f; };
 
+    /** @brief Visible sandy retreat shared by the five members of one beach colony. */
+    struct CrabBurrow
+    {
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
+        float radius = 0.0f;
+    };
+
     /** @brief Deterministic beach-constrained crab simulation with mild player avoidance. */
     class CrabColony final
     {
@@ -69,6 +78,7 @@ namespace island
 
         [[nodiscard]] std::span<const CrabState> Crabs() const noexcept;
         [[nodiscard]] std::span<const CrabHomeRange> Homes() const noexcept;
+        [[nodiscard]] std::span<const CrabBurrow> Burrows() const noexcept { return burrows_; }
         [[nodiscard]] int FullSimulationCount() const noexcept { return fullSimulationCount_; }
         [[nodiscard]] int ReducedSimulationCount() const noexcept {
             return reducedSimulationCount_;
@@ -91,6 +101,7 @@ namespace island
         };
 
         void InitializeAgent(std::size_t index);
+        void RebuildBurrows() noexcept;
         void UpdateAgent(Agent& agent, float deltaSeconds,
                          float observerX, float observerZ,
                          bool observerValid) noexcept;
@@ -101,6 +112,7 @@ namespace island
         std::vector<Agent> agents_;
         std::vector<CrabState> states_;
         std::vector<CrabHomeRange> homes_;
+        std::array<CrabBurrow, 6> burrows_{};
         std::uint64_t frameIndex_ = 0U;
         int fullSimulationCount_ = 0;
         int reducedSimulationCount_ = 0;
