@@ -23,6 +23,14 @@ texture, material switch or draw call. CPU tests cover deterministic constructio
 grounding, home bounds, invalid input, rest/hop/flee states and player reaction. The world report
 fingerprints all states and homes and validates as `e989290219afffa4`.
 
+Nearby resting or ordinarily hopping frogs also use two deterministic original 1.1-second low
+croak phrases. A sparse scheduler selects a finite non-dormant animal within 42 m, excludes fleeing
+frogs, spatializes the voice at the animal and enforces a 7--15 second local cooldown. It reuses the
+single pooled wildlife transient, so mute state, underwater attenuation and the existing maximum
+of six simultaneously playing sources remain intact. The runtime dummy-audio regression proves
+actual playback, source-budget bounds, mute suppression and distance rejection; core tests prove
+the PCM variants are deterministic, distinct and silent at both endpoints.
+
 Current evidence:
 
 - exact-final native llvmpipe capture
@@ -34,6 +42,11 @@ Current evidence:
 - ARM64 assemble/lint passes without emulator/KVM; the APK is 24,190,467 bytes with SHA-256
   `15d65a61c8d34063fff82ac2efa99eb4ae005ebaf368eee7a6ae29fc40f1459e` and its stripped
   `libmain.so` is 19,147,896 bytes.
+- after adding the frog voice, native Release and WebAssembly builds pass, the runtime dummy-audio
+  test reaches actual frog playback, and ARM64 assemble/lint passes without emulator/KVM. The APK
+  is 24,377,971 bytes with SHA-256
+  `d354d33a0588d047c0c60675029f1b7abb172b89e61b2faea9b89ef81c6bd1b2`; its stripped
+  `libmain.so` is 19,335,400 bytes.
 
 The first rejected native view exposed gold whole-eye volumes and threadlike rear legs. The second
 confirmed the corrected attached eyes and stronger legs but viewed the face from behind. The

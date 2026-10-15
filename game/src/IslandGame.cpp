@@ -2992,7 +2992,8 @@ namespace island
             deltaSeconds,windExposure,listener,
             birdFlock_.Birds(), monkeyTroop_.Monkeys(), boarHerd_.Boars(),
             goats_->Goats(),snakes_->Snakes(),&bear_->State(),
-            flightMotion_.IsActive()?0.0f:playerMotion_.SubmergedDepth());
+            flightMotion_.IsActive()?0.0f:playerMotion_.SubmergedDepth(),
+            frogPopulation_.Frogs());
     }
 
     bool IslandGame::IsDebugFreeCameraActive() const noexcept

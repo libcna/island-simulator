@@ -75,7 +75,8 @@ namespace island
                     std::span<const GoatState> goats,
                     std::span<const SnakeState> snakes,
                     const BearState* bear=nullptr,
-                    float submergedDepth=0.0f) noexcept;
+                    float submergedDepth=0.0f,
+                    std::span<const FrogState> frogs={}) noexcept;
 
         /** @brief Refreshes diagnostic emitter candidates even when audio playback is disabled. */
         void RefreshDebugSources(float listenerX, float listenerY, float listenerZ,
@@ -128,6 +129,7 @@ namespace island
         [[nodiscard]] int PlayedGoatCallCount() const noexcept { return playedGoatCallCount_; }
         [[nodiscard]] int PlayedSnakeHissCount() const noexcept { return playedSnakeHissCount_; }
         [[nodiscard]] int PlayedBearCallCount() const noexcept{return playedBearCallCount_;}
+        [[nodiscard]] int PlayedFrogCallCount() const noexcept{return playedFrogCallCount_;}
         [[nodiscard]] bool IsWildlifeCallActive() const noexcept
         {
             return wildlifeSecondsRemaining_ > 0.0f;
@@ -150,14 +152,17 @@ namespace island
         GoatCallScheduler goatScheduler_;
         SnakeHissScheduler snakeHissScheduler_;
         BearCallScheduler bearCallScheduler_;
+        FrogCallScheduler frogCallScheduler_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 6> boarEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 6> goatEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 2> snakeHissEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>,6> bearEffects_;
+        std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>,2> frogEffects_;
         BoarCallRequest activeBoarCall_;
         GoatCallRequest activeGoatCall_;
         SnakeHissRequest activeSnakeHiss_;
         BearCallRequest activeBearCall_;
+        FrogCallRequest activeFrogCall_;
         float boarVoiceGain_ = 1.0f;
         float goatVoiceGain_ = 1.0f;
         float snakeVoiceGain_ = 1.0f;
@@ -241,6 +246,7 @@ namespace island
         int playedGoatCallCount_ = 0;
         int playedSnakeHissCount_ = 0;
         int playedBearCallCount_=0;
+        int playedFrogCallCount_=0;
         float shipwreckX_ = 0.0f;
         float shipwreckY_ = 0.0f;
         float shipwreckZ_ = 0.0f;

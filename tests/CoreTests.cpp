@@ -1083,14 +1083,24 @@ int main()
     const island::AmbientLoop parrotCallAlternate = island::GenerateParrotCallAlternate();
     const island::AmbientLoop monkeyCall = island::GenerateMonkeyCall();
     const island::AmbientLoop monkeyCallAlternate = island::GenerateMonkeyCallAlternate();
+    const island::AmbientLoop frogCall = island::GenerateFrogCall(0U);
+    const island::AmbientLoop frogCallAlternate = island::GenerateFrogCall(1U);
     const island::AmbientLoop repeatedBirdCall = island::GenerateBirdCall();
     const island::AmbientLoop repeatedBirdCallAlternate = island::GenerateBirdCallAlternate();
     const island::AmbientLoop repeatedParrotCall = island::GenerateParrotCall();
     const island::AmbientLoop repeatedParrotCallAlternate = island::GenerateParrotCallAlternate();
     const island::AmbientLoop repeatedMonkeyCall = island::GenerateMonkeyCall();
     const island::AmbientLoop repeatedMonkeyCallAlternate = island::GenerateMonkeyCallAlternate();
+    const island::AmbientLoop repeatedFrogCall = island::GenerateFrogCall(0U);
     Check(surfLoop.sampleRate == 22050 && breezeLoop.sampleRate == 22050,
           "procedural ambience uses the intended portable sample rate");
+    Check(frogCall.sampleRate==22050&&frogCall.samples.size()==24255U
+              &&frogCallAlternate.sampleRate==22050&&frogCallAlternate.samples.size()==24255U
+              &&frogCall.samples!=frogCallAlternate.samples
+              &&frogCall.samples==repeatedFrogCall.samples
+              &&frogCall.samples.front()==0&&frogCall.samples.back()==0
+              &&frogCallAlternate.samples.front()==0&&frogCallAlternate.samples.back()==0,
+          "frog croaks are deterministic, distinct and have bounded silent endpoints");
     Check(surfLoop.samples.size() == 220500U && breezeLoop.samples.size() == 242550U,
           "procedural ambient loops have their intended staggered portable lengths");
     Check(jungleLoop.sampleRate == 22050 && jungleLoop.samples.size() == 639450U,

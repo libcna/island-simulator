@@ -651,6 +651,27 @@ namespace island
         return Quantize(samples, 0.60f);
     }
 
+    AmbientLoop GenerateFrogCall(const std::uint8_t variant)
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(
+            AmbientSampleRate * 11 / 10);
+        const std::vector<float> breath = CircularSmooth(
+            Noise(0xf20a6701U ^ static_cast<std::uint32_t>(variant) * 0x9e3779b9U,
+                  frameCount), 13U);
+        std::vector<float> samples(frameCount, 0.0f);
+        if (variant % 2U == 0U) {
+            AddMonkeyHoot(samples, breath, 0.06f, 0.31f, 238.0f, 151.0f, 0.58f);
+            AddMonkeyHoot(samples, breath, 0.49f, 0.34f, 214.0f, 132.0f, 0.52f);
+        } else {
+            AddMonkeyHoot(samples, breath, 0.05f, 0.24f, 176.0f, 259.0f, 0.52f);
+            AddMonkeyHoot(samples, breath, 0.38f, 0.22f, 192.0f, 282.0f, 0.48f);
+            AddMonkeyHoot(samples, breath, 0.70f, 0.25f, 184.0f, 137.0f, 0.54f);
+        }
+        samples.front() = 0.0f;
+        samples.back() = 0.0f;
+        return Quantize(samples, 0.58f);
+    }
+
     AmbientLoop GenerateMonkeyCall()
     {
         constexpr std::size_t frameCount = static_cast<std::size_t>(
@@ -1415,6 +1436,66 @@ namespace island
         request.volume=volume*(.88f+.12f*NextUnit());request.pitch=-.08f+.11f*NextUnit();
         request.source={true,bear.x,sourceY,bear.z};cooldown_=interval+NextUnit()*7;
         callPhase_=static_cast<std::uint8_t>((callPhase_+1U)%3U);return request;
+    }
+
+    void FrogCallScheduler::Reset() noexcept
+    {
+        randomState_ = 0xf206ca11U;
+        cooldown_ = 3.0f + NextUnit() * 2.0f;
+        nextAnimal_ = 0U;
+    }
+
+    float FrogCallScheduler::NextUnit() noexcept
+    {
+        randomState_ ^= randomState_ << 13U;
+        randomState_ ^= randomState_ >> 17U;
+        randomState_ ^= randomState_ << 5U;
+        return static_cast<float>(randomState_ & 0x00ffffffU)
+            / static_cast<float>(0x01000000U);
+    }
+
+    FrogCallRequest FrogCallScheduler::Update(
+        const float deltaSeconds, const float listenerX, const float listenerY,
+        const float listenerZ, const std::span<const FrogState> frogs,
+        const bool playbackSlotAvailable) noexcept
+    {
+        cooldown_ -= SafeDeltaSeconds(deltaSeconds);
+        if (cooldown_ > 0.0f || !playbackSlotAvailable || frogs.empty()
+            || !std::isfinite(listenerX) || !std::isfinite(listenerY)
+            || !std::isfinite(listenerZ)) {
+            return {};
+        }
+        float bestDistance = std::numeric_limits<float>::infinity();
+        std::size_t bestIndex = frogs.size();
+        for (std::size_t step = 0; step < frogs.size(); ++step) {
+            const std::size_t index = (nextAnimal_ + step) % frogs.size();
+            const FrogState& frog = frogs[index];
+            if (frog.simulationTier == WildlifeSimulationTier::Dormant
+                || frog.behavior == FrogBehavior::Flee) {
+                continue;
+            }
+            const float distance = std::hypot(std::hypot(
+                frog.x - listenerX, frog.z - listenerZ), frog.y - listenerY);
+            if (std::isfinite(distance) && distance < bestDistance && distance <= 42.0f) {
+                bestDistance = distance;
+                bestIndex = index;
+            }
+        }
+        if (bestIndex == frogs.size()) {
+            cooldown_ = 1.5f + NextUnit() * 2.0f;
+            return {};
+        }
+        const FrogState& frog = frogs[bestIndex];
+        FrogCallRequest request;
+        request.trigger = true;
+        request.variant = static_cast<std::uint8_t>(NextUnit() >= 0.5f);
+        request.animalIndex = bestIndex;
+        request.volume = std::clamp(0.34f * (1.0f - bestDistance / 46.0f), 0.025f, 0.31f);
+        request.pitch = -0.07f + NextUnit() * 0.15f;
+        request.source = {true, frog.x, frog.y + 0.05f, frog.z};
+        nextAnimal_ = (bestIndex + 1U) % frogs.size();
+        cooldown_ = 7.0f + NextUnit() * 8.0f;
+        return request;
     }
 
     void WildlifeCallScheduler::Reset() noexcept

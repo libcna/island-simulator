@@ -67,7 +67,7 @@ historical incident next steps, rejected visual iterations and superseded accept
 remaining material work is:
 
 - finish the requested fauna list with bounded, habitat-appropriate implementations (notably
-  frog calls; the smaller insects/rodents/deer are lower-value explicit entries and should follow
+  the smaller insects/rodents/deer are lower-value explicit entries and should follow
   visual/ecological fit rather than raw species count);
 - continue whole-island visual critique, especially jungle-floor/canopy repetition, continuous
   camera LOD transitions and moving-edge aliasing;
@@ -3622,9 +3622,11 @@ progress or require player interaction; dangerous species keep their distance li
   GL error and no context loss. The ARM64 Android APK builds and contains the implementation;
   Android runtime/device capture remains open because the emulator is intentionally untouched.
   Sound is not part of the current crocodile requirement. See docs/crocodiles.md.
-- [~] Frogs (near damp ground/water, calls). Ten deterministic moist-bank agents already rest,
-  hop and retreat in bounded stream/wetland homes with one shared render batch; a distinct local
-  frog-call voice remains open. See `docs/small-fauna.md`.
+- [x] Frogs (near damp ground/water, calls). Ten deterministic moist-bank agents rest, hop and
+  retreat in bounded stream/wetland homes with one shared render batch. Nearby non-fleeing frogs
+  now produce one of two original procedural low croak phrases through the existing pooled
+  positional wildlife voice; distance, simulation tier, mute state and the six-source ceiling are
+  enforced without adding a persistent audio source. See `docs/small-fauna.md`.
 - [x] Bats (fruit bats roosting/flying; fixed daytime activity limits). Six deterministic fruit bats
   use six real mature inland-canopy roosts: four remain hanging during the permanent sunny day and
   exactly two fly bounded crown-centred orbits. A separate one-draw renderer provides fur-coloured

@@ -326,6 +326,12 @@ namespace island
                     static_cast<BearCallKind>(1U+i/2U),static_cast<std::uint8_t>(i%2U)));
                 bearEffects_[i]->setNameProperty("Original procedural bear voice "+std::to_string(i));
             }
+            for (std::size_t i = 0; i < frogEffects_.size(); ++i) {
+                frogEffects_[i] = CreateOneShotSoundEffect(
+                    GenerateFrogCall(static_cast<std::uint8_t>(i)));
+                frogEffects_[i]->setNameProperty(
+                    "Original procedural stream frog call " + std::to_string(i));
+            }
 
             // CNA's 3D approximation uses this as the full-volume radius before inverse falloff.
             // Island world units are meters, so 24 m keeps calls local without disappearing.
@@ -373,6 +379,7 @@ namespace island
             goatScheduler_.Reset();
             snakeHissScheduler_.Reset();
             bearCallScheduler_.Reset();
+            frogCallScheduler_.Reset();
             waveAccentsEnabled_ = true;
             waterTransitionsEnabled_ = true;
             footstepsEnabled_ = true;
@@ -409,6 +416,8 @@ namespace island
                          "(shared wildlife voice, two original clips)\n";
             std::cout<<"island-simulator: positional peaceful bear breathing/snuffling/huffing enabled "
                          "(shared wildlife voice, six original clips)\n";
+            std::cout<<"island-simulator: positional stream and wetland frog croaks enabled "
+                         "(shared wildlife voice, two original clips)\n";
 #ifdef __ANDROID__
             // SDLActivity does not expose stdout through logcat. Mirror only the bounded set
             // consumed by Android runtime qualification without adding no-op calls elsewhere.
@@ -446,6 +455,7 @@ namespace island
             for (auto& effect : goatEffects_) effect.reset();
             for (auto& effect : snakeHissEffects_) effect.reset();
             for(auto& effect:bearEffects_)effect.reset();
+            for(auto& effect:frogEffects_)effect.reset();
             monkeyCallEffect_.reset();
             parrotCallAlternateEffect_.reset();
             parrotCallEffect_.reset();
@@ -483,7 +493,8 @@ namespace island
         const std::span<const BoarState> boars,
         const std::span<const GoatState> goats,
         const std::span<const SnakeState> snakes,
-        const BearState* bear,const float submergedDepth) noexcept
+        const BearState* bear,const float submergedDepth,
+        const std::span<const FrogState> frogs) noexcept
     {
         const float safeDelta = std::isfinite(deltaSeconds)
             ? std::clamp(deltaSeconds, 0.0f, 0.25f) : 0.0f;
@@ -958,6 +969,13 @@ namespace island
             wildlifeCall = {WildlifeCallType::Boar, boarCall.variant,
                 boarCall.volume, boarCall.pitch, boarCall.source};
         }
+        const FrogCallRequest frogCall = frogCallScheduler_.Update(safeDelta,
+            listenerState.x, listenerState.y, listenerState.z, frogs,
+            wildlifeSlotAvailable && wildlifeCall.type == WildlifeCallType::None);
+        if (frogCall.trigger) {
+            wildlifeCall = {WildlifeCallType::Frog, frogCall.variant,
+                frogCall.volume, frogCall.pitch, frogCall.source};
+        }
         if (wildlifeCall.type == WildlifeCallType::None) {
             return;
         }
@@ -987,6 +1005,8 @@ namespace island
         } else if(wildlifeCall.type==WildlifeCallType::Bear) {
             const std::size_t index=(static_cast<std::size_t>(bearCall.kind)-1U)*2U+bearCall.variant;
             wildlifeEffect=bearEffects_.at(index).get();
+        } else if (wildlifeCall.type == WildlifeCallType::Frog) {
+            wildlifeEffect = frogEffects_.at(wildlifeCall.variant).get();
         }
         if (!wildlifeEffect) {
             return;
@@ -1029,6 +1049,8 @@ namespace island
                 const float distance=std::hypot(std::hypot(bearCall.source.x-listenerState.x,
                     bearCall.source.z-listenerState.z),bearCall.source.y-listenerState.y);
                 bearVoiceGain_=bearCall.volume/std::max(.0001f,BearCallVolume(bearCall.kind,distance));
+            } else if (wildlifeCall.type == WildlifeCallType::Frog) {
+                activeFrogCall_ = frogCall;
             }
             wildlifeSecondsRemaining_ = wildlifeCall.type == WildlifeCallType::Monkey
                 ? 2.35f : wildlifeCall.type == WildlifeCallType::Snake ? 1.05f
@@ -1069,6 +1091,11 @@ namespace island
                 ++playedBearCallCount_;
                 if(playedBearCallCount_==1)std::cout<<"island-simulator: first positional peaceful bear call played; kind "
                     <<static_cast<int>(bearCall.kind)<<'\n'<<std::flush;
+            } else if (wildlifeCall.type == WildlifeCallType::Frog) {
+                ++playedFrogCallCount_;
+                if (playedFrogCallCount_ == 1) std::cout
+                    << "island-simulator: first positional frog call played; animal "
+                    << frogCall.animalIndex << '\n' << std::flush;
             }
         } catch (const std::exception& exception) {
             wildlifeInstance_.reset();
@@ -1173,6 +1200,7 @@ namespace island
         for (auto& effect : goatEffects_) effect.reset();
         for (auto& effect : snakeHissEffects_) effect.reset();
         for(auto& effect:bearEffects_)effect.reset();
+        for(auto& effect:frogEffects_)effect.reset();
         monkeyCallEffect_.reset();
         parrotCallAlternateEffect_.reset();
         parrotCallEffect_.reset();
