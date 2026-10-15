@@ -131,6 +131,21 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest aquatic visual pass — shark contrast and fin profile
+
+The current shark audit found the fourteen-station body and fitted anatomy recognisable, but its
+mid-grey flank merged into the cyan water and the primary dorsal plus pectorals still dominated the
+side silhouette. The near and far sharks now start from a darker charcoal-blue flank and back with
+a cleaner pale underside before the shared underwater daylight/depth treatment. The primary dorsal
+is lower and more rear-swept, and the pectorals are shorter and less plate-like.
+
+This is a colour/coordinate-only revision: the exact 1,896/15 near/far vertex inventory, one
+occasional animal, one draw, habitat, patrol, banking, body wave, activity fade and LOD are
+unchanged. Inspected native baseline `20261015T154643.115098Z-shark` and accepted current-binary
+evidence `20261015T155301.240953Z-shark` retain the live close animal while giving it a clearer
+water-separated profile. The accepted 1280x720 frame passes with 315 colour bins, 27.82 luminance
+deviation, 116.41 spatial contrast and an empty kernel delta.
+
 ## Latest vegetation visual pass — bounded understory age pigment
 
 The overview, jungle and clearing-edge audit found the terrain and crown structure coherent, but

@@ -94,3 +94,21 @@ evidence `build/browser-software/20261014T161411.521717Z-chrome-shark` passes wi
 different live poses, 60 finite positive intervals, GL error zero, an intact context and no new
 kernel GPU fault. The default arm64 APK assembles and application lint passes with the two-worker
 wrapper without starting an emulator; this compilation is not an Android runtime claim.
+
+## Flank contrast and restrained fin profile (2026-10-15)
+
+A fresh close side audit showed that the smooth anatomy remained readable but the middle-grey flank
+was too close to the surrounding cyan water. The primary dorsal and pectorals also still pulled too
+much attention from the long low body. Near and far tiers now begin with a deeper charcoal-blue
+flank and back plus a cleaner pale ventral colour before the existing activity and underwater-light
+functions are applied. The near primary dorsal is lower and swept farther aft, and both pectorals
+end closer to the torso with a less plate-like outline. The far dorsal receives the matching profile
+correction.
+
+No vertices, buffers or draws were added: the exact 1,896/15 near/far inventory, single occasional
+patrol, body wave, pitch, bank, habitat and LOD remain unchanged. Inspected llvmpipe/pixman baseline
+`20261015T154643.115098Z-shark` and accepted current-binary evidence
+`20261015T155301.240953Z-shark` retain the live shark in the same targeted view. The accepted
+1280x720 frame passes with 315 colour bins, 27.82 luminance deviation, 116.41 spatial contrast and
+an empty kernel delta. Native and browser gates require the new diagnostic so stale executables
+cannot satisfy this focused audit.

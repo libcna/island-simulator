@@ -971,6 +971,8 @@ def main():
                     raise RuntimeError("current close shark anatomy is missing; check for a stale executable")
                 if "shark uses a long low spindle, reinforced caudal peduncle, and swept restrained fins" not in diagnostics:
                     raise RuntimeError("current shark proportions are missing; check for a stale executable")
+                if "shark profile pass uses charcoal flank contrast, a lower rear-swept dorsal, and shorter pectorals" not in diagnostics:
+                    raise RuntimeError("current shark contrast and fin profile are missing; check for a stale executable")
                 if not re.search(r"shark visible activity \S+, 1 draw", diagnostics):
                     raise RuntimeError("shark capture did not submit the near detailed animal")
             if args.viewpoint == "dolphins":

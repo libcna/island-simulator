@@ -314,6 +314,7 @@ def validate_shark_report(report):
         or "near shark uses a smooth-lit blunt head and body, caudal peduncle and heterocercal tail" not in log
         or "near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes" not in log
         or "shark uses a long low spindle, reinforced caudal peduncle, and swept restrained fins" not in log
+        or "shark profile pass uses charcoal flank contrast, a lower rear-swept dorsal, and shorter pectorals" not in log
         or not re.search(r"shark visible activity \S+, 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("shark view lacks current anatomy, frames or clean graphics state")

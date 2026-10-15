@@ -917,6 +917,7 @@ try {
               && log.includes("shark retains deep dorsal and pale ventral countershading through water tint")
               && log.includes("near shark uses a smooth-lit blunt head and body, caudal peduncle and heterocercal tail")
               && log.includes("shark uses a long low spindle, reinforced caudal peduncle, and swept restrained fins")
+              && log.includes("shark profile pass uses charcoal flank contrast, a lower rear-swept dorsal, and shorter pectorals")
               && log.includes("shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight")
               && /shark visible activity \S+, 1 draw/.test(log)))
             && (!focusedDolphinCheck || (log.includes("near dolphins use closed-volume fins and flukes, short beaks, faceted eyes, mouth creases, and a blowhole")
@@ -2562,6 +2563,8 @@ try {
       "island-simulator: near shark uses a smooth-lit blunt head and body, caudal peduncle and heterocercal tail")
     && sharkResult.output?.includes(
       "island-simulator: shark uses a long low spindle, reinforced caudal peduncle, and swept restrained fins")
+    && sharkResult.output?.includes(
+      "island-simulator: shark profile pass uses charcoal flank contrast, a lower rear-swept dorsal, and shorter pectorals")
     && /shark visible activity/.test(sharkResult.output ?? "")
     && !sharkResult.error;
 

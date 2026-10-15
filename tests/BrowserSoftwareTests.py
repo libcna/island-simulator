@@ -467,13 +467,14 @@ class BrowserSoftwareTests(unittest.TestCase):
         marker = "near shark uses a fourteen-station eighteen-sided capped body, closed fins, five paired gill slits, and fitted eyes"
         profile = "near shark uses a smooth-lit blunt head and body, caudal peduncle and heterocercal tail"
         proportions = "shark uses a long low spindle, reinforced caudal peduncle, and swept restrained fins"
+        contrast = "shark profile pass uses charcoal flank contrast, a lower rear-swept dorsal, and shorter pectorals"
         geometry = "shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight"
         def report():
             return {"passed": True, "views": [{"mode": "shark", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "shark.png", "afterSimulationScreenshot": "shark-after.png",
                 "intervals": [16.7] * 60,
-                "result": {"output": marker + "\n" + profile + "\n" + proportions + "\n" + geometry + "\nshark visible activity 1, 1 draw"}}]}
+                "result": {"output": marker + "\n" + profile + "\n" + proportions + "\n" + contrast + "\n" + geometry + "\nshark visible activity 1, 1 draw"}}]}
         self.assertEqual(gate.validate_shark_report(report()), ("shark.png", "shark-after.png"))
         for mutate in (
             lambda value: value.update(passed=False),
