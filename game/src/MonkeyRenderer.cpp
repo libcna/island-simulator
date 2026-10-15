@@ -680,8 +680,8 @@ namespace island
                 // paired volumes replace the former hard oval edge with a broader primate
                 // face silhouette while remaining on the existing head bone and material.
                 for (float side : {-1.0f, 1.0f})
-                    AddEllipsoid(mesh, Vector3(side*.142f,.842f,.535f),
-                                 Vector3(.074f,.112f,.070f)*shape.headSize,
+                    AddEllipsoid(mesh, Vector3(side*.123f,.842f,.536f),
+                                 Vector3(.057f,.096f,.061f)*shape.headSize,
                                  Head, 6, 10);
             }
             for (float side : {-1.0f, 1.0f})
@@ -826,18 +826,26 @@ namespace island
                                            MonkeyFaceProfile::EyeCentreZ),
                              Vector3(MonkeyFaceProfile::EyeRadiusX,MonkeyFaceProfile::EyeRadiusY,
                                      MonkeyFaceProfile::EyeRadiusZ), Head, 5, 12);
+                // A tiny raised catchlight uses the same eye batch.  Its UV tag is
+                // brightened by the skinning shader, avoiding flat featureless black slits.
+                const std::size_t catchlightStart = mesh.vertices.size();
+                AddEllipsoid(mesh, Vector3(side * MonkeyFaceProfile::EyeCentreX - .004f,
+                                           MonkeyFaceProfile::EyeCentreY + .004f, .658f),
+                             Vector3(.0036f, .0030f, .0020f), Head, 3, 6);
+                for (std::size_t vertex = catchlightStart; vertex < mesh.vertices.size(); ++vertex)
+                    mesh.vertices[vertex].TextureCoordinate = Vector2(-1.5f, -1.0f);
                 // One fitted nostril per side. The former second pair read as four holes
                 // on a pig-like nasal disc in the actual close audit.
-                AddEllipsoid(mesh, Vector3(side * .014f, .817f, .689f),
-                             Vector3(.0075f, .0045f, .0035f), Head, 3, 6);
+                AddEllipsoid(mesh, Vector3(side * .012f, .814f, .693f),
+                             Vector3(.0060f, .0038f, .0030f), Head, 3, 6);
             }
             // Follow the curved muzzle instead of floating a straight mouth bar in front.
             const auto mouthBase = static_cast<std::uint16_t>(mesh.vertices.size());
             for (int step = 0; step <= 8; ++step) {
-                const float x = -.056f + .112f * step / 8.0f;
-                const float normalized = x / .056f;
-                const float z = .684f + .004f * (1.0f - normalized * normalized);
-                for (float y : {.7755f, .7790f})
+                const float x = -.045f + .090f * step / 8.0f;
+                const float normalized = x / .045f;
+                const float z = .685f + .0035f * (1.0f - normalized * normalized);
+                for (float y : {.7770f, .7800f})
                     AddVertex(mesh, Vector3(x,y,z), Vector3(0,0,1), Head, Vector2(.5f,.5f));
             }
             for (int step = 0; step < 8; ++step) {
@@ -958,10 +966,10 @@ namespace island
             Vector3(0.29f, 0.21f, 0.16f),
             Vector3(0.50f, 0.35f, 0.22f)};
         const std::array<Vector3, 4> FaceColors = {
-            Vector3(0.43f, 0.34f, 0.28f),
-            Vector3(0.48f, 0.37f, 0.30f),
-            Vector3(0.39f, 0.32f, 0.28f),
-            Vector3(0.51f, 0.39f, 0.31f)};
+            Vector3(0.49f, 0.39f, 0.32f),
+            Vector3(0.54f, 0.42f, 0.34f),
+            Vector3(0.45f, 0.37f, 0.32f),
+            Vector3(0.57f, 0.44f, 0.35f)};
         const Vector3 FurSpecularColor(0.04f, 0.04f, 0.035f);
         const Vector3 EyeSpecularColor(0.42f, 0.37f, 0.28f);
         constexpr float FurSpecularPower = 8.0f;
@@ -1467,7 +1475,7 @@ namespace island
                 applyMaterial(0.0f);
                 device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0,
                                               faceVertexCount_, 0, facePrimitiveCount_);
-                effect_->setDiffuseColorProperty(shaded(Vector3(0.025f, 0.022f, 0.018f)));
+                effect_->setDiffuseColorProperty(shaded(Vector3(0.055f, 0.042f, 0.025f)));
                 effect_->setSpecularColorProperty(EyeSpecularColor);
                 effect_->setSpecularPowerProperty(EyeSpecularPower);
                 device_.SetVertexBuffer(eyeVertices_.get());

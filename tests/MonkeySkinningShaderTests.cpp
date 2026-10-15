@@ -60,8 +60,9 @@ try {
         require(vertex.find("gl_Position.z = 2.0 * gl_Position.z - gl_Position.w") != std::string::npos);
         require(vertex.find("vDiffuse = clamp") != std::string::npos);
         require(vertex.find("aTexCoord.y < 0.0 ? clamp(-aTexCoord.y, 0.8, 1.0) : 1.0") != std::string::npos);
+        require(vertex.find("aTexCoord.x < -1.4 ? 18.0") != std::string::npos);
         require(vertex.find("aTexCoord.x < -0.9 ? 0.43") != std::string::npos);
-        require(vertex.find("aTexCoord.x < -0.6 ? 0.76 : 1.0") != std::string::npos);
+        require(vertex.find("aTexCoord.x < -0.6 ? 0.86 : 1.0") != std::string::npos);
         require(vertex.find("smoothstep(0.28, 0.50, abs(aTexCoord.x - 0.5))") != std::string::npos);
         require(vertex.find("vec3(0.78, 0.76, 0.72), faceEdge") != std::string::npos);
         require(vertex.find("vec3(0.47, 0.50, 0.42) * faceAmbient") != std::string::npos);

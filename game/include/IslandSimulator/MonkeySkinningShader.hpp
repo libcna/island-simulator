@@ -54,10 +54,11 @@ void main() {
     // Same one-light Gouraud material as the authored stock effect, white texture and alpha 1.
     // Negative V is reserved for untextured face skin; ordinary fur UVs are positive.
     float faceAmbient = aTexCoord.y < 0.0 ? clamp(-aTexCoord.y, 0.8, 1.0) : 1.0;
-    // Negative U tags attached facial volumes without another material draw: the paired
-    // muzzle pads are a restrained midtone and the smaller wet nose remains darkest.
-    float faceFeature = aTexCoord.x < -0.9 ? 0.43
-                      : aTexCoord.x < -0.6 ? 0.76 : 1.0;
+    // Negative U tags attached facial volumes without another material draw: corneal
+    // pinpoints remain legible, muzzle pads are a restrained midtone and the wet nose is dark.
+    float faceFeature = aTexCoord.x < -1.4 ? 18.0
+                      : aTexCoord.x < -0.9 ? 0.43
+                      : aTexCoord.x < -0.6 ? 0.86 : 1.0;
     float faceEdge = aTexCoord.y < 0.0 && aTexCoord.x >= 0.0
         ? smoothstep(0.28, 0.50, abs(aTexCoord.x - 0.5)) : 0.0;
     vec3 faceContour = mix(vec3(1.0), vec3(0.78, 0.76, 0.72), faceEdge);

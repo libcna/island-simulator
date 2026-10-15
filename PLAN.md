@@ -60,6 +60,30 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+## Latest visual-audit implementation — compact primate head and readable eyes
+
+The renewed close animal comparison selected the monkey ahead of the bear and boar as the weakest
+recognisable form. Its oversized round cranium, broad circular skin mask, large disc ears, buried
+black eye slits and projecting paired muzzle still produced the rat-like/toy reading reported by the
+operator. The shared head profile now has a 10--15% more compact cranium, smaller rear-set ears, a
+tapered heart-shaped facial outline, restrained cheek ruffs and a shorter, flatter nose/muzzle.
+Corneas intersect the socket surface instead of floating, and tiny shader-tagged catchlights keep
+the brown eyes readable without another material draw. Four face palettes are slightly lifted to
+preserve relief in canopy shade. The fourteen-bone rig, seven agents, quadrupedal/climbing motion,
+fur texture, LOD policy and three existing near draws are unchanged.
+
+Exact-final native close evidence is
+`build-consumer/software-captures/20261015T041051.347080Z-monkeys` (212 colour bins, 43.01
+luminance deviation, 222.47 spatial contrast; inspected). The eight-stage current-binary climbing
+sequence `build-consumer/software-captures/20261015T041133.348233Z-monkey-climb` passes its stage
+gates and was checked for attached head/face motion. Chrome/SwiftShader evidence
+`build/browser-software/20261015T041359.433988Z-chrome-monkeys` passes 60 finite positive movement
+intervals, GL0, a live context and clean kernel monitoring; all six saved views were inspected.
+The face/profile and shader CPU contracts pass. ARM64 assemble/lint passes without emulator/KVM
+(24,168,603-byte APK, SHA-256
+`1d35652edf2aa577df109d11cfaefde72da110a49811c4af1cd0a617d8973f43`, 19,126,032-byte stripped
+`libmain.so`). Details and the physical-device limitation are in `docs/monkey-face-profile.md`.
+
 ## Latest visual-audit implementation — swimming-height reflection ruffles
 
 The six-view overview/jungle/water/grass/palm/shipwreck critique selected the overly smooth

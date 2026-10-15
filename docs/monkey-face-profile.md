@@ -1,5 +1,34 @@
 # Connected monkey face profile — native first pass
 
+## 2026-10-15 compact primate head and socketed readable eyes
+
+A fresh side-by-side animal audit found the bear recognisable and the boar acceptable, while the
+monkey still had the weakest close silhouette: a large circular cranium and skin mask, oversized
+disc ears, almost hidden black eye slits and a projecting dog-like paired muzzle. The cranium is now
+10--15% smaller, the ears and cheek ruffs are reduced and moved inward, and the twelve-row facial
+surface tapers from a compact brow into narrower cheeks. The muzzle pads, nose and curved mouth are
+shorter and flatter; their existing signed-UV material separation is retained but the pads are a
+less severe midtone.
+
+The corneas now intersect the recessed socket surface and sit behind fitted eyelids. Each eye adds
+one tiny raised catchlight inside the existing eye buffer; a reserved negative-U shader tag raises
+only those vertices from the same dark-brown eye material, so this costs no texture, buffer or draw.
+Slightly lighter muted skin palettes keep the face modelled in canopy shade. The existing head bone,
+fourteen-bone palette, fur draw, face draw, eye draw, LOD distances and animation clips are unchanged.
+The CPU contracts now explicitly protect the compact heart-shaped outline, low-profile muzzle,
+cornea/socket intersection and portable catchlight tag.
+
+Exact-final native close evidence
+`build-consumer/software-captures/20261015T041051.347080Z-monkeys` passes (212 colour bins, 43.01
+luminance deviation, 222.47 spatial contrast) and was inspected. The current-binary eight-stage
+climb sequence `build-consumer/software-captures/20261015T041133.348233Z-monkey-climb` passes all
+stage validations. Chrome/SwiftShader
+`build/browser-software/20261015T041359.433988Z-chrome-monkeys` passes 60 finite positive intervals,
+GL error zero, a live context and clean kernel monitoring; all six movement frames were inspected.
+ARM64 assemble/lint passes through the bounded wrapper without emulator/KVM (24,168,603-byte APK,
+SHA-256 `1d35652edf2aa577df109d11cfaefde72da110a49811c4af1cd0a617d8973f43`, 19,126,032-byte stripped
+`libmain.so`). Physical-device appearance remains unqualified.
+
 ## 2026-10-14 muted skin and recessed perimeter
 
 The portable movement review after the compact-body pass exposed the remaining face mismatch:
