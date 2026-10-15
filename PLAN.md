@@ -60,7 +60,27 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
-## Latest visual-audit implementation — five-volume cumulus silhouettes
+## Latest visual-audit implementation — swimming-height reflection ruffles
+
+The six-view overview/jungle/water/grass/palm/shipwreck critique selected the overly smooth
+swimming-height surface as the weakest frequent foreground. The existing derivative-filtered
+crossing ripple cells now contribute a restrained signed reflection ruffle as the view becomes
+grazing, with the existing distance fade and wind exposure. Subsurface colour remains
+depth/Fresnel limited. This reuses the same phases and reflected-sky value, adding no frequency,
+noise lookup, texture, varying, geometry, buffer or draw.
+
+Accepted exact-final native evidence is
+`build-consumer/software-captures/20261015T034258.417110Z-water` (385 colour bins, 31.69 luminance
+deviation, 131.68 spatial contrast; inspected), with baseline
+`build-consumer/software-captures/20261015T031236.027478Z-water`. Chrome/SwiftShader
+`build/browser-software/20261015T034445.077463Z-chrome-coast` passes shipwreck, water, west and reef
+views for 120 finite positive intervals each, GL0, live contexts, distinct frames and clean kernel
+monitoring; the water frame was inspected. ARM64 assemble/lint passes without emulator/KVM
+(24,168,283-byte APK, SHA-256
+`ec2529261ff14dad464ea5aca75ce3181179b86f6a836ed5e7232b6b7aca9024`, 19,125,712-byte stripped
+`libmain.so`). Details are in `docs/grazing-water-ruffles.md`.
+
+## Previous visual-audit implementation — five-volume cumulus silhouettes
 
 The renewed overview/jungle/water audit selected smooth capsule-like wide clouds as the weakest
 large-scale atmospheric shape. Every existing fair-weather mass now combines five unequal upper
@@ -8583,7 +8603,9 @@ Android is not project completion.
   broad ocean foam and exact ribbon wash now share broken continuity shaping, removing the most
   obvious uninterrupted bright waterline from the low water view. A tightly shore-bounded
   derivative-normal sun sheen now distinguishes wet sand from the still-matte dry beach without
-  another texture or pass; repeated whole-island composition tuning remains.
+  another texture or pass. Filtered closed ripple cells now also retain restrained reflected
+  structure at the swimming-height grazing view; repeated whole-island composition tuning and
+  physical-device review remain.
 - [~] Refine jungle density versus traversability and strengthen landmarks/clearings/navigation
   cues. The existing open corridor now has a subtle authored footpath material tied to its exact
   placement curve; its visible wear was narrowed and given local shaded/sun-dry variation while the

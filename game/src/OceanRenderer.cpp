@@ -62,6 +62,8 @@ namespace island
             "island-simulator: distant grazing ocean converges on shared sky haze without a horizon seam";
         constexpr const char* RippleCellDiagnostic =
             "island-simulator: shallow ocean uses filtered crossing ripple cells with restrained sky flecks";
+        constexpr const char* GrazingRuffleDiagnostic =
+            "island-simulator: swimming-height ocean reuses filtered ripple cells for restrained grazing reflection ruffles";
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
@@ -221,6 +223,18 @@ void main()
     float rippleCellWeight = weightA * weightB * waveDetailFade
         * subsurfaceVisibility * mix(0.70, 1.0, windExposure);
     water += vec3(0.040, 0.094, 0.082) * rippleCells * rippleCellWeight;
+    // At a swimming-height grazing angle Fresnel correctly suppresses the subsurface term,
+    // but used to erase almost all small-scale shape and leave one flat cyan band. Reuse the
+    // same derivative-filtered closed cells for a restrained reflection ruffle that grows only
+    // as the view becomes grazing. This is not a new carrier and therefore cannot introduce a
+    // second temporal frequency or unfiltered distant shimmer.
+    float reflectionRuffleWeight = weightA * weightB * waveDetailFade
+        * mix(0.24, 0.84, smoothstep(0.18, 0.82, 1.0 - viewFacing))
+        * mix(0.74, 1.0, windExposure);
+    water += vec3(0.046, 0.098, 0.108) * rippleCells * reflectionRuffleWeight;
+    float reflectionFleck = smoothstep(0.42, 0.88, rippleCells)
+        * reflectionRuffleWeight;
+    water = mix(water, reflectedSky, reflectionFleck * 0.20);
     float rippleFlecks = smoothstep(0.12, 0.78, rippleCells) * rippleCellWeight;
     water += vec3(0.085, 0.155, 0.142) * rippleFlecks
         * (0.55 + 0.45 * max(dot(normal, toSun), 0.0));
@@ -408,6 +422,7 @@ void main()
                       << ReefBreakerDiagnostic << '\n'
                       << HorizonHazeDiagnostic << '\n'
                       << RippleCellDiagnostic << '\n'
+                      << GrazingRuffleDiagnostic << '\n'
                       << "island-simulator: ocean shoreline foam uses broken continuity mask\n";
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: ocean sunward ripple crests reuse analytic slope field");
@@ -420,6 +435,7 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(ReefBreakerDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(HorizonHazeDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(RippleCellDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(GrazingRuffleDiagnostic);
         } else {
             std::cerr << "island-simulator: ocean stock-effect fallback: " << fallbackReason_
                       << '\n';
