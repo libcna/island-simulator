@@ -75,10 +75,10 @@ namespace island
         };
 
         constexpr std::array<BodySection, 11> BodySections = {{
-            {0.55f, 0.010f, 0.014f},
-            {0.50f, 0.055f, 0.050f},
-            {0.40f, 0.105f, 0.095f},
-            {0.27f, 0.150f, 0.138f},
+            {0.55f, 0.030f, 0.027f},
+            {0.50f, 0.074f, 0.066f},
+            {0.40f, 0.122f, 0.108f},
+            {0.27f, 0.158f, 0.143f},
             {0.12f, 0.185f, 0.175f},
             {-0.04f, 0.195f, 0.185f},
             {-0.18f, 0.174f, 0.165f},
@@ -98,6 +98,8 @@ namespace island
             "island-simulator: fish use narrow caudal peduncles and shallow swept forked tails";
         constexpr std::string_view FishProfileDiagnostic =
             "island-simulator: fish profile pass uses six-facet oval eyes, tapered fork tips, and a lower rear-swept dorsal";
+        constexpr std::string_view FishHeadDiagnostic =
+            "island-simulator: near fish use blunt convex foreheads and rounded snouts instead of needle-point wedges";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -489,6 +491,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(FishTailDiagnostic);
         std::cout << FishProfileDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(FishProfileDiagnostic);
+        std::cout << FishHeadDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(FishHeadDiagnostic);
     }
 
     FishRenderer::~FishRenderer() = default;

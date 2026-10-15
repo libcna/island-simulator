@@ -1,5 +1,25 @@
 # Shallow-water fish form
 
+## Blunt convex head profile (2026-10-15)
+
+A current whole-animal contact sheet found that the fish still ended in a pointed wedge despite
+their eleven-station, sixteen-sided close body. The first ring was only 10 by 14 mm and expanded
+abruptly to 150 by 138 mm over the short forehead. The first four existing stations now widen
+progressively from a 30-by-27-mm blunt snout through a convex cheek into the unchanged shoulder.
+The fitted oval eyes, gill marks and lower mouth cue remain on that continuous surface.
+
+No geometry was added: the near/far inventory remains exactly 1,386/12 vertices, even if all 48
+agents enter the close tier. Schools, one dynamic draw, four shape/pigment families, progressive
+body wave, habitat and LOD are unchanged. Inspected native baseline
+`20261015T152714.068234Z-fish` and accepted current-binary evidence
+`20261015T201745.737686Z-fish` show the triangular faces replaced by rounded cheek and snout
+profiles. The final 1280x720 frame passes with 116 colour bins, 19.89 luminance deviation, 131.96
+spatial contrast and an empty kernel delta. Native and Web gates pin the explicit blunt-head
+diagnostic.
+Focused Chrome/SwiftShader evidence `20261015T201936.041330Z-chrome-fish` passes 60 finite
+intervals, two distinct inspected moving frames, GL error zero, a live context and an empty final
+kernel delta. Android packaging/runtime remains grouped with final integration.
+
 ## Oval eyes and tapered fin profile (2026-10-15)
 
 The current close school audit found that the body loft, gills, mouth, family pigment and movement

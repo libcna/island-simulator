@@ -908,6 +908,7 @@ try {
               && log.includes("fish use narrow caudal peduncles and shallow swept forked tails")
               && log.includes("near fish use capped smooth-lit bodies, caudal peduncles and progressive rear-body bends")
               && log.includes("fish profile pass uses six-facet oval eyes, tapered fork tips, and a lower rear-swept dorsal")
+              && log.includes("near fish use blunt convex foreheads and rounded snouts instead of needle-point wedges")
               && /fish [1-9][0-9]*\/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedStingrayCheck || (log.includes("stingrays use broad undulating discs, raised eyes, dorsal spots, pale undersides, and long tapered tails in one draw")
               && log.includes("near stingrays use a curved diamond disc, raised central body, wedge nose, and restrained dark rim")
@@ -2510,6 +2511,8 @@ try {
       "island-simulator: near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes")
     && fishResult.output?.includes(
       "island-simulator: fish profile pass uses six-facet oval eyes, tapered fork tips, and a lower rear-swept dorsal")
+    && fishResult.output?.includes(
+      "island-simulator: near fish use blunt convex foreheads and rounded snouts instead of needle-point wedges")
     && /fish [1-9][0-9]*\/48 visible/.test(fishResult.output ?? "")
     && !fishResult.error;
 

@@ -547,6 +547,26 @@ unchanged. Inspected native baseline `20261015T152048.597141Z-fish` and accepted
 passes at 1280x720 with 119 colour bins, 20.22 luminance deviation, 110.65 spatial contrast and an
 empty kernel delta.
 
+## Latest aquatic visual pass — blunt convex fish heads
+
+The next current-binary animal contact sheet retained the fish as the weakest requested aquatic
+family. Their eleven-station bodies were already genuinely volumetric, but the first head section
+was only 10 mm wide and expanded abruptly to 150 mm, so each otherwise rounded animal still ended
+in a triangular wedge. The first four existing sections now form a progressively widening convex
+forehead and a 30-by-27-mm blunt snout. Fitted eyes, gill and mouth cues remain on the resulting
+cheek surface instead of floating ahead of it.
+
+This is a coordinate-only change with the exact 1,386/12 near/far vertex inventory, 48 agents,
+four silhouette/pigment families, one dynamic draw, animation, habitat and LOD unchanged. Inspected
+baseline `20261015T152714.068234Z-fish` and accepted current-binary evidence
+`20261015T201745.737686Z-fish` show the pointed triangular faces replaced by rounded cheek and snout
+profiles. The accepted 1280x720 frame passes with 116 colour bins, 19.89 luminance deviation,
+131.96 spatial contrast and an empty kernel delta. Native and Web gates pin the new head-profile
+diagnostic.
+Focused Chrome/SwiftShader evidence `20261015T201936.041330Z-chrome-fish` passes 60 finite
+intervals, two distinct inspected animated frames, GL error zero, a live context and an empty
+final kernel delta. Android runtime remains grouped with final integration.
+
 ## Latest aquatic visual pass — dolphin skin and profile
 
 The current shark/dolphin/turtle/crab matrix selected the dolphin as the weakest aquatic close
