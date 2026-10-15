@@ -2524,6 +2524,7 @@ int main()
                   && bird.bankRadians == repeated.bankRadians
                   && bird.glideAmount == repeated.glideAmount
                   && bird.family == repeated.family
+                  && bird.species == repeated.species
                   && bird.colorVariant == repeated.colorVariant,
               "bird initialization is deterministic");
         Check(route.spawnX == repeatedRoute.spawnX
@@ -2567,6 +2568,13 @@ int main()
     }
     Check(shoreBirds == 10 && canopyBirds == 8 && highBirds == 6,
           "bird flock combines shore, canopy, and high route families");
+    Check(std::ranges::count_if(birds.Birds(), [](const auto& bird) {
+              return bird.species == island::BirdSpecies::Parrot;
+          }) == 4
+              && std::ranges::count_if(birds.Birds(), [](const auto& bird) {
+                     return bird.species == island::BirdSpecies::FruitDove;
+                 }) == 4,
+          "canopy flock retains four parrots and four tropical fruit doves");
     const std::array<std::size_t, 3> expectedBirdRegionPopulations = {10U, 8U, 6U};
     for (std::size_t index = 0; index < birds.RouteRegions().size(); ++index) {
         const island::BirdRouteRegion& region = birds.RouteRegions()[index];

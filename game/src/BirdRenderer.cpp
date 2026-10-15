@@ -42,6 +42,8 @@ namespace island
             "island-simulator: perched birds fold wings and add near feet silhouettes";
         constexpr std::string_view NearBirdHeadDiagnostic =
             "island-simulator: near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes";
+        constexpr std::string_view TropicalBirdDiagnostic =
+            "island-simulator: canopy flock includes hooked-beak long-tailed parrots and compact tropical fruit doves";
 
         struct BirdPalette
         {
@@ -65,6 +67,35 @@ namespace island
              Color(195, 211, 215, 255), Color(39, 50, 59, 255),
              Color(104, 124, 133, 255), Color(177, 122, 45, 255), Color(12, 13, 14, 255)}
         }};
+
+        const std::array<BirdPalette, 2> ParrotPalettes = {{
+            {Color(48, 130, 58, 255), Color(28, 96, 48, 255),
+             Color(210, 176, 40, 255), Color(26, 82, 47, 255),
+             Color(196, 54, 43, 255), Color(203, 187, 145, 255), Color(13, 12, 9, 255)},
+            {Color(57, 140, 65, 255), Color(35, 92, 118, 255),
+             Color(218, 182, 46, 255), Color(27, 84, 82, 255),
+             Color(224, 174, 43, 255), Color(59, 53, 47, 255), Color(12, 11, 8, 255)}
+        }};
+
+        const std::array<BirdPalette, 2> DovePalettes = {{
+            {Color(91, 137, 84, 255), Color(48, 102, 62, 255),
+             Color(181, 191, 150, 255), Color(45, 88, 59, 255),
+             Color(158, 86, 128, 255), Color(78, 70, 64, 255), Color(43, 20, 18, 255)},
+            {Color(99, 143, 94, 255), Color(54, 108, 69, 255),
+             Color(201, 196, 163, 255), Color(49, 92, 65, 255),
+             Color(111, 126, 144, 255), Color(83, 72, 62, 255), Color(47, 21, 17, 255)}
+        }};
+
+        [[nodiscard]] const BirdPalette& PaletteForBird(const BirdState& bird)
+        {
+            if (bird.species == BirdSpecies::Parrot) {
+                return ParrotPalettes[bird.colorVariant % ParrotPalettes.size()];
+            }
+            if (bird.species == BirdSpecies::FruitDove) {
+                return DovePalettes[bird.colorVariant % DovePalettes.size()];
+            }
+            return Palettes[bird.colorVariant % Palettes.size()];
+        }
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -140,14 +171,16 @@ namespace island
         void AppendNearHead(std::vector<VertexPositionColor>& vertices,
                             const Vector3& centre,const Vector3& right,
                             const Vector3& up,const Vector3& forward,const float scale,
-                            const BirdPalette& palette)
+                            const BirdPalette& palette, const BirdSpecies species)
         {
             constexpr int Sides=12;
-            const Vector3 top=LocalPoint(centre,right,up,forward,0,.195f,.405f,scale);
-            const Vector3 bottom=LocalPoint(centre,right,up,forward,0,-.075f,.395f,scale);
+            const float headScale = species == BirdSpecies::Parrot ? 1.10f
+                : (species == BirdSpecies::FruitDove ? .96f : 1.0f);
+            const Vector3 top=LocalPoint(centre,right,up,forward,0,.195f*headScale,.405f,scale);
+            const Vector3 bottom=LocalPoint(centre,right,up,forward,0,-.075f*headScale,.395f,scale);
             const auto ring=[&](float angle,float xRadius,float zRadius,float y) {
-                return LocalPoint(centre,right,up,forward,std::cos(angle)*xRadius,y,
-                    .405f+std::sin(angle)*zRadius,scale);
+                return LocalPoint(centre,right,up,forward,std::cos(angle)*xRadius*headScale,
+                    y*headScale,.405f+std::sin(angle)*zRadius*headScale,scale);
             };
             for(int side=0;side<Sides;++side) {
                 const float a0=6.28318530718f*static_cast<float>(side)/Sides;
@@ -166,11 +199,19 @@ namespace island
                 AddTriangle(vertices,middle0,lower1,middle1,color);
                 AddTriangle(vertices,bottom,lower1,lower0,color);
             }
-            const Vector3 beakTip=LocalPoint(centre,right,up,forward,0,.055f,.69f,scale);
-            const Vector3 beakLeft=LocalPoint(centre,right,up,forward,-.052f,.058f,.535f,scale);
-            const Vector3 beakRight=LocalPoint(centre,right,up,forward,.052f,.058f,.535f,scale);
-            const Vector3 beakTop=LocalPoint(centre,right,up,forward,0,.094f,.535f,scale);
-            const Vector3 beakBottom=LocalPoint(centre,right,up,forward,0,.022f,.535f,scale);
+            const bool parrot = species == BirdSpecies::Parrot;
+            const bool dove = species == BirdSpecies::FruitDove;
+            const float beakWidth = parrot ? .070f : (dove ? .034f : .052f);
+            const float beakBase = parrot ? .548f : (dove ? .525f : .535f);
+            const float beakReach = parrot ? .665f : (dove ? .625f : .69f);
+            const Vector3 beakTip=LocalPoint(centre,right,up,forward,0,
+                parrot ? .010f : .055f,beakReach,scale);
+            const Vector3 beakLeft=LocalPoint(centre,right,up,forward,-beakWidth,.058f,beakBase,scale);
+            const Vector3 beakRight=LocalPoint(centre,right,up,forward,beakWidth,.058f,beakBase,scale);
+            const Vector3 beakTop=LocalPoint(centre,right,up,forward,0,
+                parrot ? .125f : .094f,beakBase,scale);
+            const Vector3 beakBottom=LocalPoint(centre,right,up,forward,0,
+                parrot ? .018f : .022f,beakBase,scale);
             AddTriangle(vertices,beakTip,beakLeft,beakTop,palette.beak);
             AddTriangle(vertices,beakTip,beakTop,beakRight,palette.beak);
             AddTriangle(vertices,beakTip,beakRight,beakBottom,palette.beak);
@@ -186,7 +227,7 @@ namespace island
         void AppendNearBird(std::vector<VertexPositionColor>& vertices,
                             const BirdState& bird)
         {
-            const BirdPalette& palette = Palettes[bird.colorVariant % Palettes.size()];
+            const BirdPalette& palette = PaletteForBird(bird);
             const Vector3 centre(bird.x, bird.y, bird.z);
             const Vector3 forward(std::cos(bird.headingRadians), 0.0f,
                                   std::sin(bird.headingRadians));
@@ -197,7 +238,7 @@ namespace island
             const Vector3 up = Vector3::Up * bankCosine - levelRight * bankSine;
             const float scale = bird.scale;
             AppendNearBody(vertices,centre,right,up,forward,scale,palette);
-            AppendNearHead(vertices,centre,right,up,forward,scale,palette);
+            AppendNearHead(vertices,centre,right,up,forward,scale,palette,bird.species);
 
             const float perch = std::clamp(bird.perchAmount, 0.0f, 1.0f);
             const float wingLift = std::lerp(bird.wingPose * 0.38f, -0.025f, perch);
@@ -230,10 +271,14 @@ namespace island
 
             const Vector3 tailRoot = LocalPoint(
                 centre, right, up, forward, 0.0f, 0.0f, -0.40f, scale);
+            const float tailHalfWidth = bird.species == BirdSpecies::Parrot ? .16f
+                : (bird.species == BirdSpecies::FruitDove ? .29f : .34f);
+            const float tailLength = bird.species == BirdSpecies::Parrot ? -1.08f
+                : (bird.species == BirdSpecies::FruitDove ? -.75f : -.83f);
             const Vector3 tailLeft = LocalPoint(
-                centre, right, up, forward, -0.34f, 0.0f, -0.83f, scale);
+                centre, right, up, forward, -tailHalfWidth, 0.0f, tailLength, scale);
             const Vector3 tailRight = LocalPoint(
-                centre, right, up, forward, 0.34f, 0.0f, -0.83f, scale);
+                centre, right, up, forward, tailHalfWidth, 0.0f, tailLength, scale);
             AddDoubleSidedTriangle(vertices, tailRoot, tailLeft, tailRight, palette.tail);
 
             if (perch > 0.35f) {
@@ -252,7 +297,7 @@ namespace island
         void AppendFarBird(std::vector<VertexPositionColor>& vertices,
                            const BirdState& bird)
         {
-            const BirdPalette& palette = Palettes[bird.colorVariant % Palettes.size()];
+            const BirdPalette& palette = PaletteForBird(bird);
             const Vector3 centre(bird.x, bird.y, bird.z);
             const Vector3 forward(std::cos(bird.headingRadians), 0.0f,
                                   std::sin(bird.headingRadians));
@@ -303,6 +348,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(NearBirdFeatherDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(BirdPerchSilhouetteDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(NearBirdHeadDiagnostic);
+        std::cout << TropicalBirdDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(TropicalBirdDiagnostic);
     }
 
     BirdRenderer::~BirdRenderer() = default;

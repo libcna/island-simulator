@@ -119,6 +119,26 @@ assemble/lint passes without emulator/KVM (24,192,211-byte APK, SHA-256
 `b27cb4b889e2a6b1bb3f8deefd575f10d9a77690eae4ad510798fab529a52505`, 19,149,640-byte stripped
 `libmain.so`). Physical-device appearance and moving LOD quality remain unqualified.
 
+## Latest ecosystem implementation — parrots and tropical fruit doves
+
+The existing eight-agent canopy route family now contains four deterministic parrots and four
+tropical fruit doves instead of generic colour variants. Parrots have two tropical palettes, a
+larger head, deep hooked beak and long narrow tail; fruit doves have two restrained green/pink or
+green/blue palettes, a compact head, fine beak and shorter rounded tail. Both retain the existing
+bounded flight, banking, gliding, canopy perching, activation tiers, 24-bird total, dynamic buffer
+and single draw. The bird QA view now freezes a flying parrot rather than placing the camera inside
+the seeded canopy perch. Generic bird calls remain shared; species-specific parrot calls and a
+true ground-dove walking state remain open, so both original species items stay partial.
+
+Exact-final native evidence is `build-consumer/software-captures/20261015T052957.655925Z-birds`
+(366 colour bins, 37.93 luminance deviation, 230.52 spatial contrast; inspected).
+Chrome/SwiftShader evidence `build/browser-software/20261015T054015.321390Z-chrome-birds` passes
+the new focused birds scope with 60 finite positive intervals, GL0, live context and clean kernel
+monitoring; the matching image was inspected. ARM64 assemble/lint passes without emulator/KVM
+(24,196,227-byte APK, SHA-256
+`abec02b0a7961528218681b2c7a0378ad69be5f432ca01da578b2093eb47bf21`, 19,153,656-byte stripped
+`libmain.so`). Details and remaining limits are in `docs/tropical-birds.md`.
+
 ## Latest ecosystem implementation — stream-bank frogs
 
 Small-fauna item 17 now adds ten deterministic frogs across eight permanent-stream banks and two
@@ -3579,8 +3599,12 @@ progress or require player interaction; dangerous species keep their distance li
   plant-attached webs. Full requirements/evidence in docs/spiders.md.
   Inclusive native build/full48CPU PASS97.63s, spider test1.58s. No renderer or
   portable build/runtime qualification and no live population/world-report change.
-- [ ] Parrots (flocks, perching in canopy, calls)
-- [ ] Pigeons/doves (tropical fruit doves and ground doves)
+- [~] Parrots (flocks, perching in canopy, calls). Four deterministic canopy agents now use two
+  tropical palettes, hooked beaks and long narrow tails while retaining the existing flight and
+  branch-perching state machine. They still share generic bird calls; species-specific calls remain.
+- [~] Pigeons/doves (tropical fruit doves and ground doves). Four deterministic canopy agents now
+  use two fruit-dove palettes, compact heads, fine beaks and shorter tails. A separate ground-dove
+  walking/foraging state is not yet implemented.
 - [~] Crocodiles (saltwater crocodile in a suitable estuary/shore area, basking, keeps away).
   Three deterministic non-hostile animals now occupy the stream/mangrove estuary and cycle
   between bask, crawl and swim states; a player inside 14m makes them retreat toward shallow

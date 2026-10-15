@@ -29,6 +29,14 @@ namespace island
         Depart
     };
 
+    enum class BirdSpecies : std::uint8_t
+    {
+        Coastal,
+        Parrot,
+        FruitDove,
+        Seabird
+    };
+
     /** @brief Renderer-independent pose for one procedural bird. */
     struct BirdState
     {
@@ -43,6 +51,7 @@ namespace island
         float perchAmount = 0.0f;
         float scale = 1.0f;
         BirdPathFamily family = BirdPathFamily::Shore;
+        BirdSpecies species = BirdSpecies::Coastal;
         BirdBehavior behavior = BirdBehavior::Fly;
         WildlifeSimulationTier simulationTier = WildlifeSimulationTier::Dormant;
         std::uint8_t colorVariant = 0U;

@@ -73,18 +73,21 @@ namespace island
 
         if (index < 10U) {
             agent.state.family = BirdPathFamily::Shore;
+            agent.state.species = BirdSpecies::Coastal;
             route.preferredRadius = 218.0f + static_cast<float>(index % 5U) * 7.5f;
             route.baseAltitude = 28.0f + static_cast<float>(index % 4U) * 5.0f;
             route.minimumClearance = 17.0f;
             agent.state.speed = 10.0f + static_cast<float>(index % 4U) * 0.9f;
         } else if (index < 18U) {
             agent.state.family = BirdPathFamily::Canopy;
+            agent.state.species = index < 14U ? BirdSpecies::Parrot : BirdSpecies::FruitDove;
             route.preferredRadius = 70.0f + static_cast<float>(index % 6U) * 16.0f;
             route.baseAltitude = 31.0f + static_cast<float>(index % 4U) * 4.0f;
             route.minimumClearance = 15.0f;
             agent.state.speed = 7.6f + static_cast<float>(index % 3U) * 1.0f;
         } else {
             agent.state.family = BirdPathFamily::High;
+            agent.state.species = BirdSpecies::Seabird;
             route.preferredRadius = 125.0f + static_cast<float>(index % 5U) * 27.0f;
             route.baseAltitude = 71.0f + static_cast<float>(index % 4U) * 8.0f;
             route.minimumClearance = 46.0f;

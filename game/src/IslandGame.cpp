@@ -980,7 +980,10 @@ namespace island
             pitch_ = std::atan2(toFrond.Y, std::hypot(toFrond.X, toFrond.Z));
         } else if (viewpoint_ == FixedViewpoint::BirdDetail
                    && !birdFlock_.Birds().empty()) {
-            const BirdState& bird = birdFlock_.Birds().front();
+            // Agent 11 is a flying parrot. Agent 10 is intentionally seeded onto a canopy
+            // branch, where the close camera can sit inside foliage and hide the bird entirely.
+            const BirdState& bird = birdFlock_.Birds().size() > 11U
+                ? birdFlock_.Birds()[11U] : birdFlock_.Birds().front();
             const Vector3 flightForward(std::cos(bird.headingRadians), 0.0f,
                                         std::sin(bird.headingRadians));
             const Vector3 flightRight(-flightForward.Z, 0.0f, flightForward.X);
@@ -2035,7 +2038,8 @@ namespace island
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         }
-        birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        birdFlock_.Update(viewpoint_ == FixedViewpoint::BirdDetail ? 0.0f : deltaSeconds,
+                          cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         butterflyMeadow_.Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,
             cameraPosition_.Z);
         const GeckoState previousGeckoSubject=geckoPopulation_.Geckos()[2U];
