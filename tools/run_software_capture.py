@@ -1234,6 +1234,7 @@ def main():
                 for marker in (
                     "four inland deer use long legs, pointed ears, spotted coats and one antlered silhouette",
                     "near deer use vertex-blended ellipsoid light, curved tapered necks, articulated hocks, fitted muzzles, and smooth antler beams, with continuous five-ring necks, separate nasal pads, and surface-fitted oval coat spots",
+                    "deer use separated chest and haunch masses, muscle-profiled upper legs, and normal-driven dorsal-to-belly coat tone",
                     "deer QA camera frames one antlered clearing animal broadside"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"current deer diagnostic missing: {marker}")

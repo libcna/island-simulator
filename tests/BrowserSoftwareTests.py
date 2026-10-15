@@ -25,6 +25,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         markers = "\n".join((
             "four inland deer use long legs, pointed ears, spotted coats and one antlered silhouette",
             anatomy,
+            "deer use separated chest and haunch masses, muscle-profiled upper legs, and normal-driven dorsal-to-belly coat tone",
             "deer QA camera frames one antlered clearing animal broadside",
             "deer 2/4 visible, 1 draw"))
         def report():

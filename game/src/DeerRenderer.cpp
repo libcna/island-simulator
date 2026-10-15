@@ -30,7 +30,7 @@ namespace island
 {
     namespace
     {
-        constexpr int MaximumVerticesPerDeer = 5800;
+        constexpr int MaximumVerticesPerDeer = 7000;
         constexpr int Capacity = static_cast<int>(DeerHerd::Count) * MaximumVerticesPerDeer;
 
         void Triangle(std::vector<VertexPositionColor>& out, const Vector3& a,
@@ -52,10 +52,20 @@ namespace island
                              std::lround(base.getBProperty() * light), 0L, 255L)), 255);
         }
 
+        Color CoatTone(const Color base, const Vector3& normal, const float amount)
+        {
+            if (amount <= 0.0f) return base;
+            const Color target = normal.Y >= 0.0f ? Color(65, 45, 30)
+                                                   : Color(220, 190, 145);
+            return Color::Lerp(base, target,
+                               std::clamp(amount * std::abs(normal.Y), 0.0f, 1.0f));
+        }
+
         void Ellipsoid(std::vector<VertexPositionColor>& out, const Vector3& centre,
                        const Vector3& right, const Vector3& up, const Vector3& forward,
                        const float rx, const float ry, const float rz, const Color color,
-                       const float transmission, const int rings = 5, const int sides = 10)
+                       const float transmission, const int rings = 5, const int sides = 10,
+                       const float coatTone = 0.0f)
         {
             const auto point = [&](const int ring, const int side) {
                 const float latitude = -1.57079632679f
@@ -82,10 +92,12 @@ namespace island
                     if (result.LengthSquared() > 1e-8f) result.Normalize(); else result = up;
                     return result;
                 };
-                const Color ca=Lit(color,normal(ring,side),transmission);
-                const Color cb=Lit(color,normal(ring+1,side),transmission);
-                const Color cc=Lit(color,normal(ring+1,next),transmission);
-                const Color cd=Lit(color,normal(ring,next),transmission);
+                const Vector3 na=normal(ring,side),nb=normal(ring+1,side);
+                const Vector3 nc=normal(ring+1,next),nd=normal(ring,next);
+                const Color ca=Lit(CoatTone(color,na,coatTone),na,transmission);
+                const Color cb=Lit(CoatTone(color,nb,coatTone),nb,transmission);
+                const Color cc=Lit(CoatTone(color,nc,coatTone),nc,transmission);
+                const Color cd=Lit(CoatTone(color,nd,coatTone),nd,transmission);
                 out.emplace_back(a,ca);out.emplace_back(b,cb);out.emplace_back(c,cc);
                 out.emplace_back(a,ca);out.emplace_back(c,cc);out.emplace_back(d,cd);
             }
@@ -122,7 +134,7 @@ namespace island
                       const std::array<Vector3,RingCount>& centres,
                       const std::array<float,RingCount>& radii,
                       Vector3 right,const Color color,const float transmission,
-                      const int sides)
+                      const int sides,const float coatTone=0.0f)
         {
             static_assert(RingCount>=2);
             right.Normalize();
@@ -151,12 +163,12 @@ namespace island
                     const Vector3 b=centres[ring+1]+radialB*radii[ring+1];
                     const Vector3 c=centres[ring+1]+radialC*radii[ring+1];
                     const Vector3 d=centres[ring]+radialD*radii[ring];
-                    out.emplace_back(a,Lit(color,radialA,transmission));
-                    out.emplace_back(b,Lit(color,radialB,transmission));
-                    out.emplace_back(c,Lit(color,radialC,transmission));
-                    out.emplace_back(a,Lit(color,radialA,transmission));
-                    out.emplace_back(c,Lit(color,radialC,transmission));
-                    out.emplace_back(d,Lit(color,radialD,transmission));
+                    out.emplace_back(a,Lit(CoatTone(color,radialA,coatTone),radialA,transmission));
+                    out.emplace_back(b,Lit(CoatTone(color,radialB,coatTone),radialB,transmission));
+                    out.emplace_back(c,Lit(CoatTone(color,radialC,coatTone),radialC,transmission));
+                    out.emplace_back(a,Lit(CoatTone(color,radialA,coatTone),radialA,transmission));
+                    out.emplace_back(c,Lit(CoatTone(color,radialC,coatTone),radialC,transmission));
+                    out.emplace_back(d,Lit(CoatTone(color,radialD,coatTone),radialD,transmission));
                 }
             }
         }
@@ -175,17 +187,17 @@ namespace island
                                   std::sin(deer.headingRadians));
             const Vector3 right(-forward.Z, 0.0f, forward.X), up = Vector3::Up;
             const Vector3 body(deer.x, deer.y + 1.03f * scale, deer.z);
-            Ellipsoid(out, body, right, up, forward, .33f * scale, .37f * scale,
-                      .76f * scale, coat, transmission, near ? 10 : 4, near ? 20 : 8);
-            // A higher shoulder and slightly rounder rump avoid the single barrel primitive
-            // while keeping the complete silhouette inexpensive and contiguous.
-            Ellipsoid(out, body + forward * (.43f * scale) + up * (.08f * scale),
-                      right, up, forward, .34f * scale, .39f * scale, .37f * scale,
+            Ellipsoid(out, body, right, up, forward, .31f * scale, .32f * scale,
+                      .63f * scale, coat, transmission, near ? 10 : 4, near ? 20 : 8, .30f);
+            // The shorter central loin exposes a higher chest and a rounded haunch as
+            // separate anatomical masses instead of hiding both inside one long capsule.
+            Ellipsoid(out, body + forward * (.40f * scale) + up * (.10f * scale),
+                      right, up, forward, .33f * scale, .39f * scale, .35f * scale,
                       Color::Lerp(coat, dark, .06f), transmission, near ? 8 : 3,
-                      near ? 16 : 7);
-            Ellipsoid(out, body - forward * (.43f * scale) + up * (.015f * scale),
-                      right, up, forward, .35f * scale, .39f * scale, .40f * scale,
-                      coat, transmission, near ? 8 : 3, near ? 16 : 7);
+                      near ? 16 : 7, .30f);
+            Ellipsoid(out, body - forward * (.40f * scale) + up * (.025f * scale),
+                      right, up, forward, .35f * scale, .38f * scale, .38f * scale,
+                      coat, transmission, near ? 8 : 3, near ? 16 : 7, .30f);
             const float graze = deer.grazeAmount;
             const Vector3 neckBase = body + forward * (.62f * scale) + up * (.20f * scale);
             const Vector3 neckTop = neckBase + forward * (.30f * scale)
@@ -200,11 +212,11 @@ namespace island
                 neckTop}};
             const std::array<float,5> neckRadii{{.29f*scale,.26f*scale,.225f*scale,
                                                  .195f*scale,.17f*scale}};
-            LoftTube(out,neckStations,neckRadii,right,coat,transmission,near?10:7);
+            LoftTube(out,neckStations,neckRadii,right,coat,transmission,near?10:7,.24f);
             const Vector3 head = neckTop + forward * (.25f * scale)
                 + up * ((.06f - .12f * graze) * scale);
             Ellipsoid(out, head, right, up, forward, .18f * scale, .22f * scale,
-                      .34f * scale, coat, transmission, near ? 7 : 3, near ? 16 : 7);
+                      .34f * scale, coat, transmission, near ? 7 : 3, near ? 16 : 7, .22f);
             const Vector3 muzzle = head + forward * (.29f * scale) - up * (.055f * scale);
             Ellipsoid(out, muzzle, right, up, forward, .13f * scale, .12f * scale,
                       .19f * scale, Color::Lerp(coat,dark,.30f), transmission,
@@ -245,8 +257,12 @@ namespace island
                     - swing * .15f) * scale) - up * (.34f * scale);
                 const Vector3 hoofPoint = hock + forward * (((hind ? .18f : .04f)
                     - swing * .08f) * scale);
-                Tube(out, hip, knee, .082f * scale, .057f * scale, coat, transmission,
-                     near ? 9 : 7);
+                const float upperRootRadius = hind ? .120f : .108f;
+                const std::array<Vector3,4> upperLeg{{hip,Vector3::Lerp(hip,knee,.28f),
+                    Vector3::Lerp(hip,knee,.62f),knee}};
+                const std::array<float,4> upperLegRadii{{upperRootRadius*scale,
+                    (hind?.118f:.104f)*scale,.082f*scale,.065f*scale}};
+                LoftTube(out,upperLeg,upperLegRadii,right,coat,transmission,near?9:7);
                 Tube(out, knee, hock, .054f * scale, .038f * scale, dark, transmission,
                      near ? 9 : 7);
                 Tube(out, hock, Vector3(hoofPoint.X, deer.y + .060f * scale, hoofPoint.Z),
@@ -275,9 +291,9 @@ namespace island
                             1.0f-normalizedY*normalizedY-normalizedZ*normalizedZ));
                     };
                     const float halfWidth=std::max({
-                        widthAt(.33f,.37f,.76f,0,0),
-                        widthAt(.34f,.39f,.37f,.08f,.43f),
-                        widthAt(.35f,.39f,.40f,.015f,-.43f)})+.004f;
+                        widthAt(.31f,.32f,.63f,0,0),
+                        widthAt(.33f,.39f,.35f,.10f,.40f),
+                        widthAt(.35f,.38f,.38f,.025f,-.40f)})+.004f;
                     const Vector3 centre=body+forward*(z*scale)+up*(y*scale)
                         +right*(sideSign*halfWidth*scale);
                     constexpr int SpotSides=6;
@@ -335,6 +351,10 @@ namespace island
         constexpr auto anatomyDiagnostic =
             "island-simulator: near deer use vertex-blended ellipsoid light, curved tapered necks, articulated hocks, fitted muzzles, and smooth antler beams, with continuous five-ring necks, separate nasal pads, and surface-fitted oval coat spots";
         std::cout << anatomyDiagnostic << '\n';MirrorRuntimeDiagnosticToPlatformLog(anatomyDiagnostic);
+        constexpr auto proportionDiagnostic =
+            "island-simulator: deer use separated chest and haunch masses, muscle-profiled upper legs, and normal-driven dorsal-to-belly coat tone";
+        std::cout << proportionDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(proportionDiagnostic);
     }
 
     DeerRenderer::~DeerRenderer() = default;

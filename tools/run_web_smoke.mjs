@@ -792,6 +792,7 @@ try {
               && log.includes("goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes")))
             && (!focusedDeerCheck || (log.includes("four inland deer use long legs, pointed ears, spotted coats and one antlered silhouette")
               && log.includes("near deer use vertex-blended ellipsoid light, curved tapered necks, articulated hocks, fitted muzzles, and smooth antler beams, with continuous five-ring necks, separate nasal pads, and surface-fitted oval coat spots")
+              && log.includes("deer use separated chest and haunch masses, muscle-profiled upper legs, and normal-driven dorsal-to-belly coat tone")
               && log.includes("deer QA camera frames one antlered clearing animal broadside")
               && /deer [1-4]\/4 visible, 1 draw/.test(log)))
             && (!focusedHutCheck || (log.includes("hut beam-aligned weathered grain and filtered thatch fibres")

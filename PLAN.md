@@ -170,7 +170,26 @@ Inspected prior evidence `20261015T143659.327901Z-crocodiles` and accepted curre
 embedded side eye. The final 1280x720 frame passes with 313 colour bins, 39.27 luminance deviation,
 154.05 spatial contrast and an empty kernel delta.
 
-## Latest animal visual pass — continuous deer neck and fitted coat spots
+## Latest animal visual pass — separated deer masses and coat tone
+
+The renewed large-animal matrix selected the deer broadside after the monkey correction. Its long
+central ellipsoid hid the existing chest/rump, upper legs narrowed immediately into sticks, and
+uniform coat colour flattened the remaining form. The central loin is now shorter/shallower so a
+raised chest, rounded haunch and waist remain visible. Each animated upper leg uses one continuous
+four-ring muscle profile down to the unchanged knee rather than one rapidly tapering tube. Existing
+analytic normals also drive a restrained dark-dorsal/light-belly coat tone across the body, neck
+and head without a texture or shader.
+
+This adds 432 vertices per near deer. The conservative shared staging ceiling grows from23,200 to
+28,000 vertices (76,800 additional bytes at the current format), still one upload and one draw;
+population, LOD threshold, hocks/hooves, gait, grazing/retreat and habitat are unchanged. Two
+passing candidates211715.963205Z and212002.268480Z were intermediate only. Final current-binary
+native212646.918760Z-deer PASS at232bins/std33.62/spatial135.47/kernel[] and was inspected against
+baseline184054.192941Z. Chrome/SwiftShader212930.471582Z-chrome-deer PASS60finite intervals/GL0/
+context live/kernel[] and its PNG was inspected. Core and deer-herd tests pass; Android runtime
+evidence remains open.
+
+## Earlier animal visual pass — continuous deer neck and fitted coat spots
 
 After the crocodile repair, the same animal matrix retained the deer's overall species silhouette
 but selected three close defects: two straight neck tubes met at a visible collar, the whole muzzle

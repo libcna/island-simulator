@@ -26,6 +26,32 @@ assemble/lint passes without launching an emulator or touching KVM; the APK is 2
 with SHA-256 `6c56d7ec6bb56e0eac8f21d5d2e13cc375b4d201b1936d92c28723afef525a4f`, and the stripped
 `libmain.so` is 19,371,200 bytes. Physical-device appearance remains part of final acceptance.
 
+## Separated body masses, upper-leg muscles and coat tone — 2026-10-15
+
+The renewed large-animal contact sheet selected the deer as the weakest remaining broadside: the
+long central ellipsoid hid the existing shoulder and rump, upper legs narrowed immediately into
+sticks, and uniform vertex colour flattened the coat. The central loin is now shorter and
+shallower, exposing a raised chest, a rounded haunch and a visible waist while retaining overlap.
+Each upper leg uses one continuous four-ring muscle profile from its embedded root to the existing
+animated knee instead of a single rapidly tapering tube. Hooves, hocks, phase, terrain contact and
+behavior are unchanged.
+
+The same CPU vertex-colour path now derives restrained coat tone from each analytic normal: the
+dorsal surface trends darker and the underside lighter across body, shoulder, rump, neck and head.
+This adds no texture, shader, material or draw. The muscle profiles add 432 vertices per near deer;
+the conservative four-animal staging ceiling grows from 23,200 to 28,000 vertices (76,800 bytes at
+the current 16-byte vertex format), still uploaded once and drawn once. Far animals receive the
+same body proportions and cheaper profiled legs.
+
+The first proportion-only candidate `20261015T211715.963205Z-deer` and intermediate leg-profile
+candidate `20261015T212002.268480Z-deer` passed but were not retained as final evidence. Final
+current-binary native llvmpipe `20261015T212646.918760Z-deer` passes at 1280x720 with 232 colour
+bins, 33.62 luminance deviation, 135.47 spatial contrast and an empty kernel delta. Direct
+original-resolution comparison with `20261015T184054.192941Z-deer` was inspected. Focused
+Chrome/SwiftShader `20261015T212930.471582Z-chrome-deer` passes 60 finite positive intervals,
+`glError=0`, a live context and an empty kernel delta; its original PNG was inspected. Core and
+deer-herd tests pass. Current Android runtime evidence remains open.
+
 ## Continuous neck, separate nose and fitted spots — 2026-10-15
 
 A later twelve-family audit retained the deer's proportions and behavior but found three close-view
