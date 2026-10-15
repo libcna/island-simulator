@@ -187,6 +187,26 @@ baseline `20261015T173543.349535Z-shipwreck` and accepted current-binary evidenc
 the foreground trail. The final 1280x720 frame passes with 238 colour bins, 39.62 luminance
 deviation, 167.75 spatial contrast and an empty kernel delta.
 
+## Latest helicopter silhouette pass — fuller wrapped cockpit bubble
+
+The current exterior/interior comparison retained the open-door proportions and readable avionics,
+but selected the forward cabin as the remaining weak silhouette: its windscreen narrowed too
+uniformly into a dark wedge. The nine forward longitudinal stations now hold width and height
+through the upper windscreen before closing through a shorter, blunter nose cap. The glazing cutoff
+also wraps progressively below the cabin belt toward the nose instead of ending on one constant
+horizontal section. Existing smooth analytic normals describe the changed loft without a new mesh
+path or duplicated transparent shell.
+
+Triangle count remains 3,682 in the existing opaque/glass two draws. Doors, floor, all four entry
+corridors, collision, controls, stationary rotors and the deliberately non-flying state are
+unchanged. `IslandHelicopterLayoutTests`, `IslandCoreTests` and all 95 browser/capture gate tests
+pass. Inspected same-camera exterior baseline `20261015T173412.277344Z-helicopter` and accepted
+current-binary evidence `20261015T182504.108836Z-helicopter` show the fuller lower windscreen and
+less conical nose; the latter passes at 322 colour bins, 54.80 luminance deviation and 230.69
+spatial contrast. Interior guard `20261015T182542.524784Z-helicopter-inside` preserves the panel,
+controls and exit sightlines at 195 bins, 21.80 deviation and 93.69 contrast. Both kernel deltas
+are empty.
+
 ## Latest helicopter visual pass — readable open-cabin avionics
 
 The current exterior/interior audit found the grounded exterior recognisable and proportionally

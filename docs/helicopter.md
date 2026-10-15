@@ -246,3 +246,26 @@ and empty kernel deltas. The former confirms an unchanged grounded exterior and 
 latter distinguishes the panel, gauges, twin displays, pedestal, flight controls and seats without
 turning the cabin into an implausibly bright room. Physical Android/AMD appearance and interactive
 sitting remain outside this focused visual pass.
+
+## Fuller wrapped cockpit bubble — 2026-10-15
+
+The next same-camera comparison retained the airframe proportions and open access, but found that
+the forward windscreen still narrowed almost uniformly into a dark conical wedge. The nine forward
+longitudinal stations now retain more width and height through the upper windscreen and close through
+a shorter, blunter nose cap. Glazing wraps progressively below the belt toward that cap rather than
+using one constant cross-section cutoff. This changes the actual silhouette and glass/paint boundary;
+it is not a colour-only attempt to hide the old shape.
+
+The existing 32-sided cross sections and analytic loft normals consume the new stations directly.
+No geometry, texture, instance, collision or draw is added: the complete helicopter remains 3,682
+triangles in two draws, with its walkable floor, four door corridors, cockpit controls, stationary
+rotors and non-flying contract intact. `IslandHelicopterLayoutTests`, `IslandCoreTests` and all 95
+browser/capture gate tests pass.
+
+Inspected baseline `20261015T173412.277344Z-helicopter` and current-binary exterior
+`20261015T182504.108836Z-helicopter` show the fuller lower windscreen and less pointed nose. The
+accepted 1280x720 frame passes with 322 colour bins, 54.80 luminance deviation, 230.69 spatial
+contrast and an empty kernel delta. Interior guard `20261015T182542.524784Z-helicopter-inside`
+passes with 195 bins, 21.80 deviation, 93.69 contrast and an empty kernel delta; the panel, radios,
+controls, seats and open exits remain readable. This focused pass does not substitute for physical
+AMD/Android review or future evidence-driven rotor/body-detail work.

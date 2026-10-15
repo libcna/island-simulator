@@ -42,11 +42,11 @@ constexpr std::array<FuselageStation,15> Fuselage{{
     {-2.10f,1.35f,.68f,.64f},{-1.78f,1.38f,.94f,.82f},
     {-.30f,1.43f,1.07f,.98f},{.18f,1.44f,1.08f,.99f},
     {.62f,1.45f,1.075f,.985f},{1.02f,1.45f,1.05f,.97f},
-    {1.34f,1.43f,1.00f,.94f},{1.62f,1.40f,.94f,.88f},
-    {1.86f,1.36f,.84f,.81f},{2.08f,1.32f,.73f,.73f},
-    {2.30f,1.28f,.61f,.64f},{2.48f,1.24f,.49f,.55f},
-    {2.64f,1.21f,.35f,.44f},{2.76f,1.19f,.22f,.33f},
-    {2.84f,1.17f,.10f,.20f}}};
+    {1.34f,1.43f,1.00f,.94f},{1.62f,1.40f,.94f,.90f},
+    {1.86f,1.37f,.90f,.86f},{2.08f,1.34f,.83f,.80f},
+    {2.30f,1.30f,.73f,.72f},{2.48f,1.26f,.61f,.63f},
+    {2.64f,1.23f,.48f,.52f},{2.76f,1.20f,.34f,.40f},
+    {2.86f,1.18f,.18f,.27f}}};
 
 bool OpenDoorBand(const float z) {
     return (z>=.18f&&z<=1.48f)||(z>=-1.70f&&z<=-.30f);
@@ -336,7 +336,11 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
             };
             Color color=olive;
             Surface surface=Surface::Paint;
-            if(midZ>1.50f&&std::sin(mid)>-.08f) {
+            // The windshield wraps progressively below the belt toward the rounded
+            // nose. A constant horizontal cutoff made the otherwise smooth loft read
+            // as a dark wedge from the normal three-quarter walking view.
+            const float windshieldWrap=std::clamp((midZ-1.50f)/1.30f,0.0f,1.0f);
+            if(midZ>1.50f&&std::sin(mid)>-.08f-.22f*windshieldWrap) {
                 // Consistent glazing pigment lets the denser curved shell and its
                 // lighting describe the canopy instead of alternating dark/light
                 // wedges that made the cockpit look deliberately polygonal.
@@ -356,7 +360,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         return Vector3(std::cos(angle)*station.radiusX,
             station.centreY+std::sin(angle)*station.radiusY,station.z);
     };
-    const Vector3 noseTip(0,1.16f,2.92f);
+    const Vector3 noseTip(0,1.17f,2.96f);
     for(int slice=0;slice<FuselageSides;++slice) {
         const float a=tau*slice/FuselageSides;
         const float b=tau*((slice+1)%FuselageSides)/FuselageSides;
@@ -714,6 +718,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
     const std::string smoothSurfaces="island-simulator: helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry";
     std::cout<<smoothSurfaces<<'\n';MirrorRuntimeDiagnosticToPlatformLog(smoothSurfaces);
+    const std::string bubble="island-simulator: helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen";
+    std::cout<<bubble<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bubble);
 }
 
 HelicopterRenderer::~HelicopterRenderer()=default;

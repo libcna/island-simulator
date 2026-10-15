@@ -654,7 +654,8 @@ def main():
                                "helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals",
                                "helicopter open cabin uses restrained indirect light, a tapered instrument binnacle, and twin radio displays",
                                "helicopter realism pass adds a rounded chin and tail-root fairing, twelve-sided six-station tail boom, maintenance seams, engine intakes, shaped cushions, harnesses, centre pedestal, and overhead console",
-                               "helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry"):
+                               "helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry",
+                               "helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"helicopter integration diagnostic missing: {marker}")
                 if not re.search(r"helicopter 2 draw", diagnostics):
