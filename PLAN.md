@@ -100,6 +100,25 @@ emulator/KVM (24,191,747-byte APK, SHA-256
 `6d2ab4119a61b3b623337b82c9a02d6d8cf0bda0910bfa48364a3c78abde5fc1`, 19,149,176-byte stripped
 `libmain.so`); physical-device appearance remains unqualified.
 
+## Latest visual-audit implementation — layered juvenile broadleaf
+
+The next forest-floor audit found that ground-plant variant 1 still read as a flat ring of smooth
+green ovals despite its curved mature laminae. Its near rosette now adds two narrow, brighter young
+leaves at different heights and azimuths; one central emerging leaf remains in the far mesh so the
+new vertical silhouette does not disappear entirely at the LOD boundary. These leaves expose the
+existing petioles, midribs, analytic normals, wind and leaf-surface response. They remain in the
+same species mesh, vegetation instance batch, material and draw. Near geometry changes from
+234 vertices / 300 triangles to 312 / 400, and far from 52 / 40 to 65 / 50.
+
+Exact-final native evidence is
+`build-consumer/software-captures/20261015T051834.575594Z-ground-broadleaf` (234 colour bins,
+23.14 luminance deviation, 99.52 spatial contrast; inspected). Chrome/SwiftShader evidence
+`build/browser-software/20261015T051952.706764Z-chrome-ground-broadleaf` passes 60 finite positive
+intervals, GL0, live context and clean kernel monitoring; the matching frame was inspected. ARM64
+assemble/lint passes without emulator/KVM (24,192,211-byte APK, SHA-256
+`b27cb4b889e2a6b1bb3f8deefd575f10d9a77690eae4ad510798fab529a52505`, 19,149,640-byte stripped
+`libmain.so`). Physical-device appearance and moving LOD quality remain unqualified.
+
 ## Latest ecosystem implementation — stream-bank frogs
 
 Small-fauna item 17 now adds ten deterministic frogs across eight permanent-stream banks and two

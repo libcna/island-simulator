@@ -32,9 +32,10 @@ not exact per-vertex ground conformance. See `split-ground-leaves.md` for eviden
 
 Ground broadleaf variant 1 uses the same CPU-generated curved geometry, analytic-profile
 normals and existing leaf material on all three APIs. Its far mesh retains four of six
-source leaves rather than substituting fronds. BasicEffect receives the curved geometry but
-not custom leaf shading; that pass left other ground species unchanged. Runtime scope and the extra
-10,816 bytes of static vertex data are documented in `ground-broadleaf.md`.
+source leaves rather than substituting fronds, plus one of the two later central emerging leaves.
+BasicEffect receives the curved geometry but not custom leaf shading; that pass left other ground
+species unchanged. Runtime scope, including the original 10,816-byte curved-lamina increase and
+the later 4,732-byte layered-rosette increase, is documented in `ground-broadleaf.md`.
 
 The custom grass shader now contracts clusters over the last 16 m of the existing 135 m
 Linux/Web or 112 m Android range. Shared GLSL 330/ES 300 performs this without alpha or extra

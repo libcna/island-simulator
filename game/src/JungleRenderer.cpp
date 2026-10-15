@@ -1404,6 +1404,7 @@ void main()
             const bool splitLeaf = variant == 2;
             const int leafCount = uprightBroadleaf ? (farMesh ? 4 : 6)
                 : (splitLeaf ? (farMesh ? 4 : 5) : (farMesh ? 4 : 7));
+            const int emergingLeafCount = uprightBroadleaf ? (farMesh ? 1 : 2) : 0;
             const int segments = farMesh ? 2 : 4;
             const int verticesPerLeaf = uprightBroadleaf ? (farMesh ? 13 : 39)
                 : (splitLeaf ? SplitGroundLeafRows(farMesh)*SplitGroundLeafColumns(farMesh)
@@ -1411,8 +1412,10 @@ void main()
             const int indicesPerLeaf = uprightBroadleaf ? (farMesh ? 30 : 150)
                 : (splitLeaf ? (SplitGroundLeafRows(farMesh)-1)*(SplitGroundLeafColumns(farMesh)-1)*6
                     : segments * (farMesh ? 1 : 4) * 6);
-            geometry.vertices.reserve(static_cast<std::size_t>(leafCount * verticesPerLeaf));
-            geometry.indices.reserve(static_cast<std::size_t>(leafCount * indicesPerLeaf));
+            geometry.vertices.reserve(static_cast<std::size_t>(
+                (leafCount + emergingLeafCount) * verticesPerLeaf));
+            geometry.indices.reserve(static_cast<std::size_t>(
+                (leafCount + emergingLeafCount) * indicesPerLeaf));
             const Color color = variant == 0 ? Color(54, 132, 55, 255)
                 : (variant == 1 ? Color(45, 119, 48, 255)
                                 : Color(65, 139, 62, 255));
@@ -1438,6 +1441,21 @@ void main()
                 } else {
                     AppendFrond(geometry, angle, length, width, lift,
                                 leafColor, phase, segments);
+                }
+            }
+            if (uprightBroadleaf) {
+                // Young tropical rosettes carry one or two narrow, almost vertical leaves in the
+                // centre. They expose the petiole/midrib structure and break the low cluster of
+                // mature oval blades without introducing another instance or material batch.
+                const GroundBroadleaf emerging{
+                    6, 2.18f, .88f, .23f, .082f, .16f, 1.34f};
+                AppendUprightGroundLeaf(geometry, emerging, ShadeColor(color, emerging.pigment),
+                                        farMesh);
+                if (!farMesh) {
+                    const GroundBroadleaf unfurling{
+                        7, 5.04f, .72f, .20f, .064f, .71f, 1.25f};
+                    AppendUprightGroundLeaf(geometry, unfurling,
+                                            ShadeColor(color, unfurling.pigment), false);
                 }
             }
             if (!farMesh && variant == 0) {

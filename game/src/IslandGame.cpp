@@ -648,11 +648,15 @@ namespace island
             }
             if (selected == nullptr) selected = &jungleLayout_.GroundPlants().front();
             const float pathX = VegetationLayout::PrimaryPathCenterX(selected->z);
-            const float cameraOffset = pathX < selected->x ? -2.8f : 2.8f;
+            const float detailDistance = viewpoint_ == FixedViewpoint::GroundBroadleafDetail
+                ? 2.15f : 2.8f;
+            const float cameraOffset = pathX < selected->x ? -detailDistance : detailDistance;
             const float cameraX = selected->x + cameraOffset;
             const float cameraZ = selected->z;
+            const float detailEyeHeight = viewpoint_ == FixedViewpoint::GroundBroadleafDetail
+                ? 1.25f : PlayerMotion::EyeHeight;
             cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
-                                                   + PlayerMotion::EyeHeight,
+                                                   + detailEyeHeight,
                                       cameraZ);
             const Vector3 target(selected->x, selected->y + 0.42f * selected->scale,
                                  selected->z);

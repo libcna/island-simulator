@@ -15,6 +15,11 @@ the existing petiole endpoint. Their shared wind weights agree at that attachmen
 Analytic-profile normals and normalized material coordinates enable the existing
 filtered vein, age and daylight response instead of the untagged flat fallback.
 
+The 2026-10-15 follow-up adds two narrow, brighter emerging leaves to the near rosette at
+different heights and azimuths. One of them is retained by the far mesh. This breaks the
+low oval ring into a layered tropical-plant silhouette and makes the existing petiole/midrib
+structure readable without another instance, shader, material, buffer or draw.
+
 No new shader, texture, vertex format, per-frame buffer, plant placement, draw pass
 or framework change is needed. The BasicEffect fallback gets the geometry but not
 the custom leaf lighting/material. Far geometry is still coarse, and omitting two
@@ -22,9 +27,11 @@ leaves is not an invisible LOD morph. Other ground species still have mismatched
 near/far identity and angular silhouettes; this pass must not be described as fixing
 all vegetation.
 
-The revised near mesh has 234 vertices / 300 triangles (previously 54 / 36), far
-52 / 40 (previously 24 / 16). Total jungle static vertex payload is 2,617,212 bytes,
-up 10,816 bytes. Index storage and per-frame vertex processing are separate costs.
+The current near mesh has 312 vertices / 400 triangles (the first curved revision was
+234 / 300; originally 54 / 36), and far has 65 / 50 (first revision 52 / 40; originally
+24 / 16). The latest two-tier addition costs 4,732 static vertex bytes plus 660 index
+bytes. Total jungle static vertex payload is 2,621,944 bytes. Index storage and
+per-frame vertex processing are separate costs.
 The extra geometry follows the existing species/LOD batches, not one draw per leaf.
 Physical-device cost remains unqualified.
 
@@ -96,3 +103,18 @@ Inspect the far representation during real camera travel; source identity alone 
 not a screen-space coverage measurement. Improve split ground leaves and near bushes,
 which remain prominent angular forms, then review overall density/composition. Preserve
 the same plant-specific QA discipline when choosing comparison crops.
+
+## 2026-10-15 layered-rosette evidence
+
+Exact-final native evidence
+`build-consumer/software-captures/20261015T051834.575594Z-ground-broadleaf` passes with 234 colour
+bins, 23.14 luminance deviation and 99.52 spatial contrast. The inspected image shows the taller
+bright emerging leaf, smaller offset unfurling leaf, mature cupped blades and attached petioles.
+The lower, closer QA camera is inspection-only and does not affect play.
+
+Chrome/SwiftShader evidence
+`build/browser-software/20261015T051952.706764Z-chrome-ground-broadleaf` passes 60 finite positive
+presentation intervals, GL0, live context and clean kernel supervision; its inspected image matches
+native. ARM64 assemble/lint passes without emulator/KVM (24,192,211-byte APK, SHA-256
+`b27cb4b889e2a6b1bb3f8deefd575f10d9a77690eae4ad510798fab529a52505`, 19,149,640-byte stripped
+`libmain.so`). Physical-device appearance and moving-camera LOD behavior remain unqualified.
