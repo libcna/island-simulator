@@ -18,7 +18,7 @@ from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_id
 from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
     validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "dragonflies", "crocodiles", "fish", "shark", "dolphins", "bear", "resident")
+SCOPES = ("full", "terrain", "cliffs", "sky", "distant", "canopy-light", "snags", "saplings", "wildlife-foliage", "coast", "shipwreck", "grounding", "vegetation", "palms", "mangroves", "bushes", "ground-broadleaf", "split-ground", "grass-motion", "litter", "materials", "stream", "wetland", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "helicopter", "campfire", "cave", "bunker", "goats", "boars", "spiders", "turtles", "crabs", "hermit-crabs", "coconut-crabs", "butterflies", "geckos", "skinks", "dragonflies", "crocodiles", "fish", "shark", "dolphins", "bear", "resident")
 
 
 def validate_shipwreck_report(report):
@@ -420,6 +420,29 @@ def validate_gecko_report(report):
     return frames
 
 
+def validate_skink_report(report):
+    views=report.get("views",[])
+    if report.get("passed") is not True or len(views)!=1 or views[0].get("mode")!="skinks":
+        raise RuntimeError("skink report lacks one successful focused view")
+    view=views[0];result=view.get("result",{});log=result.get("output","")
+    frames=(view.get("screenshot"),view.get("afterSimulationScreenshot"))
+    intervals=view.get("intervals",[])
+    if (view.get("passed") is not True or view.get("glError")!=0
+        or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+        or "SwiftShader" not in view.get("renderer","") or len(intervals)!=60
+        or not all(isinstance(value,(int,float)) and not isinstance(value,bool)
+                   and math.isfinite(value) and value>0 for value in intervals)
+        or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
+        or len(set(frames))!=2
+        or "eight open-ground skinks bask, forage, and flee in the shared butterfly batch" not in log
+        or "skinks use smooth elongated trunks, short articulated limbs, tapered tails, longitudinal stripes, and highlighted eyes" not in log
+        or "skink QA camera frames one striped basking lizard on open inland ground" not in log
+        or not re.search(r"skinks [1-8]/8 visible in shared draw",log)
+        or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):
+        raise RuntimeError("skink view lacks current anatomy, frames or clean graphics state")
+    return frames
+
+
 def validate_dragonfly_report(report):
     views=report.get("views",[])
     if report.get("passed") is not True or len(views)!=1 or views[0].get("mode")!="dragonflies":
@@ -818,6 +841,16 @@ def main(argv=None):
                 if identities[0]["sha256"]==identities[1]["sha256"]:
                     raise RuntimeError("gecko separated-time frames are byte-identical")
                 metadata["gecko_frames"]=identities
+            if args.scope == "skinks":
+                skink_report=json.loads((evidence / "island-browser-skinks.json").read_text())
+                frames=validate_skink_report(skink_report)
+                paths=[evidence / frame for frame in frames]
+                if not all(path.is_file() for path in paths):
+                    raise RuntimeError("skink image file missing")
+                identities=[artifact_identity(path) for path in paths]
+                if identities[0]["sha256"]==identities[1]["sha256"]:
+                    raise RuntimeError("skink separated-time frames are byte-identical")
+                metadata["skink_frames"]=identities
             if args.scope == "dragonflies":
                 dragonfly_report=json.loads((evidence / "island-browser-dragonflies.json").read_text())
                 frames=validate_dragonfly_report(dragonfly_report)

@@ -6,6 +6,7 @@
 
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/GeckoPopulation.hpp"
+#include "IslandSimulator/SkinkPopulation.hpp"
 #include "IslandSimulator/DragonflySwarm.hpp"
 #include "Microsoft/Xna/Framework/Matrix.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
@@ -40,6 +41,7 @@ namespace island
                   std::span<const ButterflyState> butterflies,
                   std::span<const ButterflyFlowerPatch> flowerPatches,
                   std::span<const GeckoState> geckos,
+                  std::span<const SkinkState> skinks,
                   std::span<const DragonflyState> dragonflies);
 
         [[nodiscard]] int VisibleButterflyCount() const noexcept {
@@ -53,6 +55,7 @@ namespace island
         }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
         [[nodiscard]] int VisibleGeckoCount() const noexcept { return visibleGeckoCount_; }
+        [[nodiscard]] int VisibleSkinkCount() const noexcept { return visibleSkinkCount_; }
         [[nodiscard]] int VisibleDragonflyCount() const noexcept { return visibleDragonflyCount_; }
 
     private:
@@ -64,6 +67,7 @@ namespace island
         int visibleNearButterflyCount_ = 0;
         int visibleFarButterflyCount_ = 0;
         int visibleGeckoCount_ = 0;
+        int visibleSkinkCount_ = 0;
         int visibleDragonflyCount_ = 0;
         int drawCallCount_ = 0;
         float maximumDistance_ = 72.0f;

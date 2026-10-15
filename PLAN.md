@@ -83,7 +83,29 @@ SHA-256 `b97097bfd39510ab0a679d7ba8b8f52a9f43ce2ce1c80d0b8a03cbe55a66e52d`,
 self-shadowing. The filtered non-display regression passes 60/60 (five display-producing tests
 remain disabled). Details are in `docs/large-object-shadows.md`.
 
-## Latest ecosystem implementation — fourth small-fauna stage
+## Latest ecosystem implementation — fifth small-fauna stage
+
+Macro-ecosystem item 17 now also includes eight deterministic open-ground skinks in compact homes
+around clearings, a wetland edge and two inland patches. They bask, forage and flee from a nearby
+player, remain grounded on qualified terrain and use the shared distance-throttled wildlife policy.
+The close model has a smooth elongated body, narrow head, short articulated legs and toes, a long
+tapered tail, paired longitudinal stripes, highlighted eyes and restrained breathing. It joins the
+existing butterfly/gecko dynamic buffer and draw, adding no renderer, buffer, material switch or
+draw call.
+
+Accepted native evidence is
+`build-consumer/software-captures/20261015T031940.818537Z-skinks` (259 colour bins, 34.54 luminance
+deviation, 161.63 spatial contrast; inspected). Chrome/SwiftShader evidence
+`build/browser-software/20261015T032541.058370Z-chrome-skinks` passes 60 finite positive intervals,
+GL0, a live context, two distinct frames and clean kernel monitoring; the first frame was inspected.
+Core tests and the valid world fingerprint `be62b2929cd5657f` cover deterministic identity, habitat,
+grounding, separation from geckos, movement states and player reaction. ARM64 assemble/lint passes
+without emulator/KVM (24,166,699-byte APK, SHA-256
+`ece98364f55a7c0566fabf2662bff944b0018bf12185661c4334855cd7343c5e`, 19,124,128-byte stripped
+`libmain.so`). Additional shorebirds, fruit bats, cicadas and beetles remain. Details are in
+`docs/small-fauna.md`.
+
+## Previous ecosystem implementation — fourth small-fauna stage
 
 Macro-ecosystem item 17 now also includes six deterministic coconut crabs in compact dry coastal
 palm-zone home ranges 22--58 m inland. They rest, forage and retreat from a nearby player while
@@ -3980,10 +4002,10 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   ripples, shells, small fish, suspended particles, subtle caustics, blue-green depth extinction.
   Completed by the spatial habitat work plus the 2026-10-15 shallow-scene audit recorded above.
 - [~] 17. Small fauna with simple behaviour (for example a gecko that sits, flees, disappears):
-  eight grounded rest/flee/hide geckos, nine moist-habitat hover/patrol/dart dragonflies and ten
-  sheltered-beach pause/forage/retreat hermit crabs plus six palm-zone coconut crabs are complete in
-  existing shared batches, with native, WebGL and ARM64 qualification described above and in
-  `docs/small-fauna.md`. Skinks, more small crabs, shorebirds/seabirds, fruit bats, cicadas and
+  eight grounded rest/flee/hide geckos, eight bask/forage/flee skinks, nine moist-habitat
+  hover/patrol/dart dragonflies, ten sheltered-beach hermit crabs and six palm-zone coconut crabs
+  are complete in existing shared batches, with native, WebGL and ARM64 qualification described
+  above and in `docs/small-fauna.md`. More small crabs, shorebirds/seabirds, fruit bats, cicadas and
   beetles remain.
 - [x] 18. Tie wildlife to places: crabs on specific beach sections with burrows, butterflies at
   specific flowers, coastal/jungle/seabirds in their zones, reef fish at coral patches and small

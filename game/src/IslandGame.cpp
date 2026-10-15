@@ -142,6 +142,7 @@ namespace island
             case FixedViewpoint::SnakeHeadDetail: return "snake-head";
             case FixedViewpoint::ButterflyDetail: return "butterflies";
             case FixedViewpoint::GeckoDetail: return "geckos";
+            case FixedViewpoint::SkinkDetail: return "skinks";
             case FixedViewpoint::DragonflyDetail: return "dragonflies";
             case FixedViewpoint::SeaTurtleDetail: return "turtles";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
@@ -172,6 +173,7 @@ namespace island
           birdFlock_(terrain_),
           butterflyMeadow_(terrain_),
           geckoPopulation_(terrain_),
+          skinkPopulation_(terrain_),
           dragonflySwarm_(terrain_),
           crabColony_(terrain_),
           hermitCrabGroup_(terrain_),
@@ -1371,6 +1373,21 @@ namespace island
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
             std::cout << "island-simulator: gecko QA camera frames a resting inland lizard at ground level\n";
+        } else if (viewpoint_ == FixedViewpoint::SkinkDetail
+                   && skinkPopulation_.Skinks().size() > 1U) {
+            const SkinkState& skink = skinkPopulation_.Skinks()[1U];
+            const Vector3 forward(std::cos(skink.headingRadians), 0.0f,
+                                  std::sin(skink.headingRadians));
+            const Vector3 side(-forward.Z, 0.0f, forward.X);
+            const float cameraX = skink.x - forward.X * .62f + side.X * .38f;
+            const float cameraZ = skink.z - forward.Z * .62f + side.Z * .38f;
+            cameraPosition_ = Vector3(cameraX,
+                std::max(terrain_.Height(cameraX, cameraZ) + .38f, skink.y + .35f), cameraZ);
+            const Vector3 direction = Vector3(skink.x, skink.y + .065f, skink.z)
+                - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+            std::cout << "island-simulator: skink QA camera frames one striped basking lizard on open inland ground\n";
         } else if(viewpoint_==FixedViewpoint::DragonflyDetail&&!dragonflySwarm_.Dragonflies().empty()) {
             const auto& fly=dragonflySwarm_.Dragonflies()[1U];
             const Vector3 forward(std::cos(fly.headingRadians),0,std::sin(fly.headingRadians));
@@ -1713,6 +1730,8 @@ namespace island
                   << " agents in deterministic low-altitude habitats\n"
                   << "island-simulator: geckos " << geckoPopulation_.Geckos().size()
                   << " agents in deterministic inland rest, flee, and hide habitats\n"
+                  << "island-simulator: skinks " << skinkPopulation_.Skinks().size()
+                  << " agents in deterministic open-ground bask, forage, and flee habitats\n"
                   << "island-simulator: dragonflies " << dragonflySwarm_.Dragonflies().size()
                   << " agents in three stream and wetland habitats\n"
                   << "island-simulator: beach crabs " << crabColony_.Crabs().size()
@@ -1805,6 +1824,11 @@ namespace island
                                   << geckoPopulation_.Geckos().size()
                                   << " agents in deterministic inland rest, flee, and hide habitats";
         MirrorRuntimeDiagnosticToPlatformLog(geckoPopulationDiagnostic.str());
+        std::ostringstream skinkPopulationDiagnostic;
+        skinkPopulationDiagnostic << "island-simulator: skinks "
+                                  << skinkPopulation_.Skinks().size()
+                                  << " agents in deterministic open-ground bask, forage, and flee habitats";
+        MirrorRuntimeDiagnosticToPlatformLog(skinkPopulationDiagnostic.str());
         std::ostringstream dragonflyPopulationDiagnostic;
         dragonflyPopulationDiagnostic<<"island-simulator: dragonflies "
             <<dragonflySwarm_.Dragonflies().size()<<" agents in three stream and wetland habitats";
@@ -2005,6 +2029,13 @@ namespace island
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         }
+        Vector3 skinkObserver = cameraPosition_;
+        if (viewpoint_ == FixedViewpoint::SkinkDetail) {
+            const SkinkState& skink = skinkPopulation_.Skinks()[1U];
+            skinkObserver = Vector3(skink.x, skink.y + 18.0f, skink.z);
+        }
+        skinkPopulation_.Update(viewpoint_ == FixedViewpoint::SkinkDetail ? 0.0f : deltaSeconds,
+                                skinkObserver.X, skinkObserver.Y, skinkObserver.Z);
         Vector3 dragonflyObserver=cameraPosition_;
         if(viewpoint_==FixedViewpoint::DragonflyDetail){const auto& fly=dragonflySwarm_.Dragonflies()[1U];dragonflyObserver=Vector3(fly.x,fly.y+20,fly.z);}
         dragonflySwarm_.Update(viewpoint_==FixedViewpoint::DragonflyDetail?0.0f:deltaSeconds,
@@ -3382,7 +3413,8 @@ namespace island
             butterflyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                      butterflyMeadow_.Butterflies(),
                                      butterflyMeadow_.FlowerPatches(),
-                                     geckoPopulation_.Geckos(),dragonflySwarm_.Dragonflies());
+                                     geckoPopulation_.Geckos(), skinkPopulation_.Skinks(),
+                                     dragonflySwarm_.Dragonflies());
         }
 
         {
@@ -3922,6 +3954,9 @@ namespace island
                       << butterflyRenderer_->DrawCallCount() << " draw; geckos "
                       << butterflyRenderer_->VisibleGeckoCount() << '/'
                       << geckoPopulation_.Geckos().size()
+                      << " visible in shared draw; skinks "
+                      << butterflyRenderer_->VisibleSkinkCount() << '/'
+                      << skinkPopulation_.Skinks().size()
                       << " visible in shared draw; dragonflies "
                       << butterflyRenderer_->VisibleDragonflyCount() << '/'
                       << dragonflySwarm_.Dragonflies().size()

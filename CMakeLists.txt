@@ -73,6 +73,7 @@ add_library(island_core STATIC
     game/src/GroundCoverField.cpp
     game/src/GrassLod.cpp
     game/src/GeckoPopulation.cpp
+    game/src/SkinkPopulation.cpp
     game/src/GroundBroadleaf.cpp
     game/src/SplitGroundLeaf.cpp
     game/src/BushProfile.cpp

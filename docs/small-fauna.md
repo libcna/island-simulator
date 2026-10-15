@@ -1,9 +1,9 @@
 # Small fauna
 
-Four bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, nine
-stream/wetland dragonflies, ten beach hermit crabs and six coconut crabs. This is not completion of
-the whole small-fauna list: skinks, additional shorebirds, fruit bats, cicadas and beetles remain
-candidates for later stages.
+Five bounded stages of macro-ecosystem item 17 now add eight deterministic inland geckos, eight
+open-ground skinks, nine stream/wetland dragonflies, ten beach hermit crabs and six coconut crabs.
+This is not completion of the whole small-fauna list: additional shorebirds, fruit bats, cicadas
+and beetles remain candidates for later stages.
 
 Each gecko owns a compact 5.2--6.1 m home range in one of the two clearings, near the seasonal
 wetland, or on suitable inland ground. Placement rejects beach proximity, steep slopes and invalid
@@ -144,3 +144,35 @@ Current evidence:
 
 Two rejected native captures document the correction from a lobster-like long abdomen and weak
 side silhouette to the accepted compact front-facing terrestrial animal.
+
+## Skinks
+
+Eight deterministic diurnal skinks occupy 6.4--7.5 m homes around clearings, a wetland edge and
+two open inland patches. Their homes are separated from the gecko homes by at least four metres.
+They bask, forage slowly and flee from a player within 3.1 m while remaining on dry, moderate-slope
+ground and using the shared full/reduced/dormant simulation policy.
+
+The close model is a distinct smooth-bodied lizard with a narrow elongated trunk and head, short
+articulated limbs and toes, a long five-section tapered tail, paired longitudinal stripes, small
+highlighted eyes and restrained breathing motion. It joins the existing butterfly/gecko dynamic
+buffer and single draw, adding no renderer, GPU buffer, material switch or draw call.
+
+Core tests cover deterministic construction and long simulation, habitat and ground contact, home
+bounds and gecko separation, invalid input, bask/forage/flee behaviour, player reaction and
+activation tiers. The world report fingerprints all eight animals and homes and validates as
+`be62b2929cd5657f`.
+
+Current evidence:
+
+- native 1280x720 llvmpipe capture:
+  `build-consumer/software-captures/20261015T031940.818537Z-skinks` (259 colour bins, 34.54
+  luminance deviation and 161.63 spatial contrast; inspected at full resolution);
+- Chrome/SwiftShader:
+  `build/browser-software/20261015T032541.058370Z-chrome-skinks`, 60 finite positive intervals,
+  GL0, live context, two distinct separated-time frames and no new kernel GPU fault;
+- ARM64 assemble/lint passes without launching an emulator or touching KVM; the APK is 24,166,699
+  bytes with SHA-256 `ece98364f55a7c0566fabf2662bff944b0018bf12185661c4334855cd7343c5e`
+  and its stripped `libmain.so` is 19,124,128 bytes.
+
+The first rejected capture exposed a skink and gecko occupying the same home. The accepted capture
+uses the separated final habitats and shows one unobstructed striped animal.

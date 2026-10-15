@@ -6,6 +6,7 @@
 #include "IslandSimulator/SpiderWebLayout.hpp"
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/GeckoPopulation.hpp"
+#include "IslandSimulator/SkinkPopulation.hpp"
 #include "IslandSimulator/DragonflySwarm.hpp"
 #include "IslandSimulator/HermitCrabGroup.hpp"
 #include "IslandSimulator/CoconutCrabGroup.hpp"
@@ -119,6 +120,7 @@ namespace
         island::BirdFlock birds{terrain};
         island::ButterflyMeadow butterflies{terrain};
         island::GeckoPopulation geckos{terrain};
+        island::SkinkPopulation skinks{terrain};
         island::DragonflySwarm dragonflies{terrain};
         island::HermitCrabGroup hermitCrabs{terrain};
         island::CoconutCrabGroup coconutCrabs{terrain};
@@ -424,6 +426,15 @@ namespace
             hash.AddByte(gecko.colorVariant);
             hash.AddFloat(home.x);hash.AddFloat(home.z);hash.AddFloat(home.radius);
         }
+        hash.AddSize(world.skinks.Skinks().size());
+        for(std::size_t index=0;index<world.skinks.Skinks().size();++index) {
+            const auto& skink=world.skinks.Skinks()[index];
+            const auto& home=world.skinks.Homes()[index];
+            HashPosition(hash,skink.x,skink.y,skink.z);
+            hash.AddFloat(skink.headingRadians);hash.AddFloat(skink.scale);
+            hash.AddEnum(skink.behavior);hash.AddByte(skink.colorVariant);
+            hash.AddFloat(home.x);hash.AddFloat(home.z);hash.AddFloat(home.radius);
+        }
         hash.AddSize(world.dragonflies.Dragonflies().size());
         for(std::size_t index=0;index<world.dragonflies.Dragonflies().size();++index) {
             const auto& dragonfly=world.dragonflies.Dragonflies()[index];
@@ -713,6 +724,8 @@ namespace
                 == island::ButterflyMeadow::HabitatCount
             && world.geckos.Geckos().size()==island::GeckoPopulation::Count
             && world.geckos.Homes().size()==island::GeckoPopulation::Count
+            && world.skinks.Skinks().size()==island::SkinkPopulation::Count
+            && world.skinks.Homes().size()==island::SkinkPopulation::Count
             && world.dragonflies.Dragonflies().size()==island::DragonflySwarm::Count
             && world.dragonflies.Homes().size()==island::DragonflySwarm::Count
             && world.hermitCrabs.Crabs().size()==island::HermitCrabGroup::Count
@@ -850,6 +863,20 @@ namespace
                 &&std::hypot(gecko.x-home.x,gecko.z-home.z)<=home.radius
                 &&sample.signedShoreDistance>=34.0f&&sample.slopeRadians<.52f
                 &&std::fabs(gecko.y-sample.height-.038f)<.001f;
+        }
+        for(std::size_t index=0;index<world.skinks.Skinks().size();++index) {
+            const auto& skink=world.skinks.Skinks()[index];
+            const auto& home=world.skinks.Homes()[index];
+            const auto sample=world.terrain.Sample(skink.x,skink.z);
+            finiteSpecializedData=finiteSpecializedData
+                &&AllFinite(skink.x,skink.y,skink.z,skink.headingRadians,
+                             skink.speed,skink.gaitPhase,skink.breathPhase,skink.scale,
+                             home.x,home.z,home.radius)
+                &&skink.scale>0.0f&&home.radius>0.0f
+                &&std::hypot(skink.x-home.x,skink.z-home.z)<=home.radius
+                &&sample.height>.15f&&sample.signedShoreDistance>=34.0f
+                &&sample.slopeRadians<.52f
+                &&std::fabs(skink.y-sample.height-.034f)<.001f;
         }
         for(std::size_t index=0;index<world.dragonflies.Dragonflies().size();++index) {
             const auto& dragonfly=world.dragonflies.Dragonflies()[index];
@@ -1332,6 +1359,7 @@ namespace
                << "    \"butterflyFlowerPatches\": "
                << world.butterflies.FlowerPatches().size() << ",\n"
                << "    \"geckos\": " << world.geckos.Geckos().size() << ",\n"
+               << "    \"skinks\": " << world.skinks.Skinks().size() << ",\n"
                << "    \"dragonflies\": " << world.dragonflies.Dragonflies().size() << ",\n"
                << "    \"hermitCrabs\": " << world.hermitCrabs.Crabs().size() << ",\n"
                << "    \"coconutCrabs\": " << world.coconutCrabs.Crabs().size() << ",\n"

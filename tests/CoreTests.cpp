@@ -5,6 +5,7 @@
 #include "IslandSimulator/BirdPerchLayout.hpp"
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/GeckoPopulation.hpp"
+#include "IslandSimulator/SkinkPopulation.hpp"
 #include "IslandSimulator/DragonflySwarm.hpp"
 #include "IslandSimulator/HermitCrabGroup.hpp"
 #include "IslandSimulator/CoconutCrabGroup.hpp"
@@ -2911,6 +2912,91 @@ int main()
               && std::hypot(hiddenGecko.x-initialReactiveGecko.x,
                             hiddenGecko.z-initialReactiveGecko.z)>.2f,
           "a nearby observer prompts a gecko to scurry away and hide");
+
+    island::SkinkPopulation skinks(terrain);
+    island::SkinkPopulation repeatedSkinks(terrain);
+    island::SkinkPopulation invalidInputSkinks(terrain);
+    Check(skinks.Skinks().size()==island::SkinkPopulation::Count
+              &&skinks.Homes().size()==island::SkinkPopulation::Count,
+          "skink simulation exposes eight bounded open-ground animals");
+    for(std::size_t index=0;index<skinks.Skinks().size();++index) {
+        const auto& skink=skinks.Skinks()[index];
+        const auto& repeated=repeatedSkinks.Skinks()[index];
+        const auto& home=skinks.Homes()[index];
+        const auto sample=terrain.Sample(skink.x,skink.z);
+        Check(skink.x==repeated.x&&skink.y==repeated.y&&skink.z==repeated.z
+                  &&skink.headingRadians==repeated.headingRadians
+                  &&skink.behavior==repeated.behavior
+                  &&skink.colorVariant==repeated.colorVariant,
+              "skink construction is deterministic");
+        Check(std::hypot(skink.x-home.x,skink.z-home.z)<=home.radius
+                  &&home.radius>=6.4f&&home.radius<=7.51f,
+              "each skink begins inside its compact home range");
+        Check(sample.height>.15f&&sample.signedShoreDistance>=34.0f
+                  &&sample.slopeRadians<.52f
+                  &&std::fabs(skink.y-sample.height-.034f)<.001f,
+              "each skink begins grounded in open inland habitat");
+        Check(std::ranges::all_of(geckos.Homes(),[&](const auto& geckoHome) {
+                  return std::hypot(home.x-geckoHome.x,home.z-geckoHome.z)>=4.0f;
+              }),
+              "skink homes remain visually separated from gecko homes");
+    }
+    invalidInputSkinks.Update(quietNan,quietNan,quietNan,quietNan);
+    Check(invalidInputSkinks.DormantSimulationCount()
+                  ==static_cast<int>(island::SkinkPopulation::Count)
+              &&std::ranges::all_of(invalidInputSkinks.Skinks(),[](const auto& skink) {
+                     return std::isfinite(skink.x)&&std::isfinite(skink.y)
+                         &&std::isfinite(skink.z)&&std::isfinite(skink.headingRadians)
+                         &&std::isfinite(skink.gaitPhase)&&std::isfinite(skink.breathPhase);
+                 }),
+          "skinks reject non-finite frame and observer input without state poisoning");
+    bool observedSkinkBask=false;
+    bool observedSkinkForage=false;
+    for(int frame=0;frame<3000;++frame) {
+        skinks.Update(1.0f/30.0f,0.0f,100.0f,0.0f);
+        repeatedSkinks.Update(1.0f/30.0f,0.0f,100.0f,0.0f);
+        for(std::size_t index=0;index<skinks.Skinks().size();++index) {
+            const auto& skink=skinks.Skinks()[index];
+            const auto& repeated=repeatedSkinks.Skinks()[index];
+            const auto& home=skinks.Homes()[index];
+            const auto sample=terrain.Sample(skink.x,skink.z);
+            Check(skink.x==repeated.x&&skink.y==repeated.y&&skink.z==repeated.z
+                      &&skink.headingRadians==repeated.headingRadians
+                      &&skink.gaitPhase==repeated.gaitPhase
+                      &&skink.behavior==repeated.behavior,
+                  "skink simulation remains deterministic over a long session");
+            Check(std::hypot(skink.x-home.x,skink.z-home.z)<=home.radius+.01f
+                      &&sample.signedShoreDistance>=33.99f
+                      &&sample.slopeRadians<.521f
+                      &&std::fabs(skink.y-sample.height-.034f)<.002f,
+                  "skinks remain grounded in bounded open habitats");
+            Check(std::isfinite(skink.speed)&&skink.speed>=0.0f
+                      &&std::isfinite(skink.gaitPhase)&&std::isfinite(skink.breathPhase),
+                  "skink movement phases remain finite");
+            observedSkinkBask|=skink.behavior==island::SkinkBehavior::Bask;
+            observedSkinkForage|=skink.behavior==island::SkinkBehavior::Forage;
+        }
+    }
+    Check(observedSkinkBask&&observedSkinkForage,
+          "skinks complete bask and forage activity states");
+    Check(skinks.FullSimulationCount()+skinks.ReducedSimulationCount()
+                  +skinks.DormantSimulationCount()
+              ==static_cast<int>(island::SkinkPopulation::Count),
+          "skink simulation tiers account for the complete population");
+    island::SkinkPopulation reactiveSkinks(terrain);
+    const auto initialReactiveSkink=reactiveSkinks.Skinks()[1U];
+    bool observedSkinkFlee=false;
+    for(int frame=0;frame<70;++frame) {
+        reactiveSkinks.Update(1.0f/60.0f,initialReactiveSkink.x,
+                              initialReactiveSkink.y,initialReactiveSkink.z);
+        observedSkinkFlee|=reactiveSkinks.Skinks()[1U].behavior
+            ==island::SkinkBehavior::Flee;
+    }
+    const auto& escapedSkink=reactiveSkinks.Skinks()[1U];
+    Check(observedSkinkFlee
+              &&std::hypot(escapedSkink.x-initialReactiveSkink.x,
+                            escapedSkink.z-initialReactiveSkink.z)>.25f,
+          "a nearby observer prompts a skink to flee across the ground");
 
     island::DragonflySwarm dragonflies(terrain);
     island::DragonflySwarm repeatedDragonflies(terrain);

@@ -35,6 +35,7 @@
 #include "IslandSimulator/DebugOverlay.hpp"
 #include "IslandSimulator/FlightMotion.hpp"
 #include "IslandSimulator/GeckoPopulation.hpp"
+#include "IslandSimulator/SkinkPopulation.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/DistantSceneryRenderer.hpp"
 #include "IslandSimulator/DolphinPod.hpp"
@@ -178,6 +179,7 @@ namespace island
         SnakeHeadDetail,
         ButterflyDetail,
         GeckoDetail,
+        SkinkDetail,
         DragonflyDetail,
         SeaTurtleDetail,
         BenchmarkTraversal
@@ -289,6 +291,7 @@ namespace island
         BirdFlock birdFlock_;
         ButterflyMeadow butterflyMeadow_;
         GeckoPopulation geckoPopulation_;
+        SkinkPopulation skinkPopulation_;
         DragonflySwarm dragonflySwarm_;
         CrabColony crabColony_;
         HermitCrabGroup hermitCrabGroup_;

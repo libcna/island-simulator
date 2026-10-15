@@ -35,10 +35,12 @@ namespace island
         constexpr int MaximumVerticesPerButterfly = 228;
         constexpr int MaximumFlowerVertices = 1800;
         constexpr int MaximumGeckoVertices = static_cast<int>(GeckoPopulation::Count) * 900;
+        constexpr int MaximumSkinkVertices = static_cast<int>(SkinkPopulation::Count) * 900;
         constexpr int MaximumDragonflyVertices =
             static_cast<int>(DragonflySwarm::Count) * 720;
         constexpr int MaximumVertexCount = static_cast<int>(ButterflyMeadow::ButterflyCount)
             * MaximumVerticesPerButterfly + MaximumFlowerVertices + MaximumGeckoVertices
+            + MaximumSkinkVertices
             +MaximumDragonflyVertices;
         constexpr std::string_view ButterflyDiagnostic =
             "island-simulator: clearing butterflies use hinged patterned wings in one culled batch";
@@ -48,6 +50,10 @@ namespace island
             "island-simulator: butterflies feed at three visible deterministic nectar-flower patches";
         constexpr std::string_view GeckoDiagnostic =
             "island-simulator: eight inland geckos rest, scurry from the player, and hide in the shared butterfly batch";
+        constexpr std::string_view SkinkDiagnostic =
+            "island-simulator: eight open-ground skinks bask, forage, and flee in the shared butterfly batch";
+        constexpr std::string_view SkinkAnatomyDiagnostic =
+            "island-simulator: skinks use smooth elongated trunks, short articulated limbs, tapered tails, longitudinal stripes, and highlighted eyes";
         constexpr std::string_view DragonflyDiagnostic=
             "island-simulator: nine stream and wetland dragonflies hover, patrol, and dart in the shared butterfly batch";
 
@@ -311,6 +317,103 @@ namespace island
                 AddDoubleSidedTriangle(vertices,spotCentre+forward*(.018f*scale),
                     spotCentre-right*width-forward*(.014f*scale),
                     spotCentre+right*width-forward*(.014f*scale),marking);
+            }
+        }
+
+        void AppendSkink(std::vector<VertexPositionColor>& vertices, const SkinkState& skink)
+        {
+            const std::array<Color, 4> backs = {{
+                Color(87, 102, 72, 255), Color(112, 88, 61, 255),
+                Color(70, 94, 94, 255), Color(126, 111, 73, 255)}};
+            const Color back = backs[skink.colorVariant % backs.size()];
+            const Color flank = Color::Lerp(back, Color(28, 36, 31, 255), .42f);
+            const Color underside = Color::Lerp(back, Color(210, 192, 146, 255), .62f);
+            const Color stripe = Color::Lerp(back, Color(225, 198, 105, 255), .47f);
+            const Color eye(47, 35, 20, 255);
+            const Color glint(215, 199, 151, 255);
+            const float scale = skink.scale;
+            const float breathing = 1.0f + .035f * std::sin(skink.breathPhase);
+            const Vector3 centre(skink.x, skink.y + .060f * scale, skink.z);
+            const Vector3 forward(std::cos(skink.headingRadians), 0.0f,
+                                  std::sin(skink.headingRadians));
+            const Vector3 right(-forward.Z, 0.0f, forward.X);
+            const Vector3 up = Vector3::Up;
+            constexpr std::array<float, 6> BodyStations =
+                {{-.28f, -.20f, -.08f, .08f, .22f, .30f}};
+            constexpr std::array<float, 6> BodyWidths =
+                {{.045f, .080f, .105f, .108f, .085f, .048f}};
+            constexpr std::array<float, 6> BodyHeights =
+                {{.032f, .055f, .068f, .070f, .057f, .034f}};
+            std::array<float, 6> breathingHeights = BodyHeights;
+            for (float& height : breathingHeights) height *= breathing;
+            AppendGeckoLoft(vertices, centre, right, up, forward, BodyStations,
+                            BodyWidths, breathingHeights, scale, back, flank, underside);
+
+            const Vector3 head = centre + forward * (.345f * scale) + up * (.006f * scale);
+            constexpr std::array<float, 4> HeadStations = {{-.045f, .02f, .105f, .16f}};
+            constexpr std::array<float, 4> HeadWidths = {{.050f, .078f, .070f, .036f}};
+            constexpr std::array<float, 4> HeadHeights = {{.035f, .052f, .046f, .025f}};
+            AppendGeckoLoft(vertices, head, right, up, forward, HeadStations,
+                            HeadWidths, HeadHeights, scale, back, flank, underside);
+
+            const float stride = std::sin(skink.gaitPhase) * .045f * scale;
+            for (const float side : {-1.0f, 1.0f}) {
+                for (int pair = 0; pair < 2; ++pair) {
+                    const float along = pair == 0 ? .17f : -.15f;
+                    const float phase = ((pair == 0) == (side > 0.0f)) ? stride : -stride;
+                    const Vector3 root = centre + forward * (along * scale)
+                        + right * (side * .065f * scale);
+                    const Vector3 elbow = root + right * (side * .075f * scale)
+                        + forward * phase - up * (.020f * scale);
+                    const Vector3 foot = elbow + right * (side * .082f * scale)
+                        + forward * ((pair == 0 ? .030f : -.026f) * scale - phase * .35f)
+                        - up * (.012f * scale);
+                    AppendGeckoSegment(vertices, root, elbow, .013f * scale, flank);
+                    AppendGeckoSegment(vertices, elbow, foot, .009f * scale, back);
+                    for (int toe = -1; toe <= 1; ++toe) {
+                        const Vector3 tip = foot + right * (side * .040f * scale)
+                            + forward * ((static_cast<float>(toe) * .018f
+                                + (pair == 0 ? .010f : -.010f)) * scale);
+                        AppendGeckoSegment(vertices, foot, tip, .0038f * scale, underside);
+                    }
+                }
+            }
+
+            Vector3 tailRoot = centre - forward * (.275f * scale);
+            for (int segment = 0; segment < 5; ++segment) {
+                const float length = (.145f - static_cast<float>(segment) * .014f) * scale;
+                const Vector3 tailEnd = tailRoot - forward * length
+                    + right * (std::sin(skink.gaitPhase * .24f
+                        + static_cast<float>(segment) * .66f) * .025f * scale);
+                AppendGeckoSegment(vertices, tailRoot, tailEnd,
+                    (.030f - static_cast<float>(segment) * .0045f) * scale, flank);
+                tailRoot = tailEnd;
+            }
+
+            // Two narrow dorsal lines distinguish the smooth skink from the spotted,
+            // broader-headed gecko while remaining readable at natural ground distance.
+            for (const float side : {-1.0f, 1.0f}) {
+                Vector3 stripeRoot = centre - forward * (.23f * scale)
+                    + right * (side * .048f * scale) + up * (.071f * scale);
+                for (int segment = 0; segment < 4; ++segment) {
+                    const Vector3 stripeEnd = centre
+                        + forward * ((-.23f + static_cast<float>(segment + 1) * .13f) * scale)
+                        + right * (side * (.048f - static_cast<float>(segment) * .004f) * scale)
+                        + up * (.073f * scale);
+                    AppendGeckoSegment(vertices, stripeRoot, stripeEnd, .0050f * scale, stripe);
+                    stripeRoot = stripeEnd;
+                }
+            }
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 eyeCentre = head + forward * (.065f * scale)
+                    + right * (side * .056f * scale) + up * (.028f * scale);
+                AppendGeckoDiamond(vertices, eyeCentre, right, up, forward,
+                                   .012f * scale, .013f * scale, .010f * scale, eye, eye);
+                const Vector3 highlight = eyeCentre + right * (side * .009f * scale)
+                    + forward * (.006f * scale) + up * (.007f * scale);
+                AddDoubleSidedTriangle(vertices, highlight + up * (.0035f * scale),
+                    highlight - forward * (.0035f * scale) - up * (.002f * scale),
+                    highlight + forward * (.0035f * scale) - up * (.002f * scale), glint);
             }
         }
 
@@ -583,11 +686,15 @@ namespace island
         std::cout << ButterflyAnatomyDiagnostic << '\n';
         std::cout << ButterflyHabitatDiagnostic << '\n';
         std::cout << GeckoDiagnostic << '\n';
+        std::cout << SkinkDiagnostic << '\n';
+        std::cout << SkinkAnatomyDiagnostic << '\n';
         std::cout << DragonflyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyHabitatDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(GeckoDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(SkinkDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(SkinkAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(DragonflyDiagnostic);
     }
 
@@ -598,6 +705,7 @@ namespace island
                                   const std::span<const ButterflyState> butterflies,
                                   const std::span<const ButterflyFlowerPatch> flowerPatches,
                                   const std::span<const GeckoState> geckos,
+                                  const std::span<const SkinkState> skinks,
                                   const std::span<const DragonflyState> dragonflies)
     {
         stagingVertices_.clear();
@@ -605,6 +713,7 @@ namespace island
         visibleNearButterflyCount_ = 0;
         visibleFarButterflyCount_ = 0;
         visibleGeckoCount_ = 0;
+        visibleSkinkCount_ = 0;
         visibleDragonflyCount_=0;
         drawCallCount_ = 0;
         const BoundingFrustum frustum(view * projection);
@@ -627,6 +736,16 @@ namespace island
             }
             AppendGecko(stagingVertices_, gecko);
             ++visibleGeckoCount_;
+        }
+        for (const SkinkState& skink : skinks) {
+            const Vector3 centre(skink.x, skink.y + .07f, skink.z);
+            if (Vector3::DistanceSquared(centre, cameraPosition)
+                    > maximumDistance_ * maximumDistance_
+                || !frustum.Intersects(BoundingSphere(centre, skink.scale * .65f))) {
+                continue;
+            }
+            AppendSkink(stagingVertices_, skink);
+            ++visibleSkinkCount_;
         }
         for(const DragonflyState& fly:dragonflies){
             const Vector3 centre(fly.x,fly.y,fly.z);
