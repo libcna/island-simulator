@@ -35,7 +35,7 @@ using namespace Microsoft::Xna::Framework::Graphics;
 namespace island {
 namespace {
 constexpr int FuselageSides=32;
-enum class Surface : std::uint8_t { Paint,Metal,Upholstery,Rubber,Glass,Emissive };
+enum class Surface : std::uint8_t { Paint,Metal,Upholstery,Rubber,Cabin,Glass,Emissive };
 struct Texel{std::uint8_t r,g,b,a;};
 struct FuselageStation{float z,centreY,radiusX,radiusY;};
 constexpr std::array<FuselageStation,15> Fuselage{{
@@ -131,7 +131,7 @@ Vector2 MaterialUv(const Vector3& point,const Vector3& normal,const Surface surf
     const auto repeat=[](const float value){return value-std::floor(value);};
     const float u=repeat(first*1.35f),v=repeat(second*1.35f);
     const int quadrant=surface==Surface::Metal?1:surface==Surface::Upholstery?2:
-        surface==Surface::Rubber?3:0;
+        (surface==Surface::Rubber||surface==Surface::Cabin)?3:0;
     constexpr float pad=.035f,span=.430f;
     return {static_cast<float>(quadrant%2)*.5f+pad+u*span,
             static_cast<float>(quadrant/2)*.5f+pad+v*span};
@@ -159,7 +159,13 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         a=world(a);b=world(b);d=world(d);
         Vector3 normal=Vector3::Cross(b-a,d-a);
         normal.Normalize();
-        const float light=.48f+.52f*std::max(0.0f,Vector3::Dot(normal,sun));
+        // The open cabin receives broad sky/ground bounce from four doorways. Treating
+        // every interior face like an exterior back face made the otherwise modelled
+        // controls disappear into a nearly black void. Emissive instruments remain
+        // self-lit; cabin trim and upholstery get restrained indirect light only.
+        const float ambient=surface==Surface::Emissive?1.0f:
+            surface==Surface::Cabin?.70f:surface==Surface::Upholstery?.60f:.48f;
+        const float light=ambient+(1.0f-ambient)*std::max(0.0f,Vector3::Dot(normal,sun));
         const Color color=ScaleColor(pigment,light);
         auto& target=pigment.getAProperty()<255?glassMesh:mesh;
         target.emplace_back(a,color,uvA);target.emplace_back(b,color,uvB);target.emplace_back(d,color,uvD);
@@ -182,7 +188,10 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
             return normal;
         };
         const auto litColor=[&](const Vector3& normal) {
-            const float light=.48f+.52f*std::max(0.0f,Vector3::Dot(worldNormal(normal),sun));
+            const float ambient=surface==Surface::Emissive?1.0f:
+                surface==Surface::Cabin?.70f:surface==Surface::Upholstery?.60f:.48f;
+            const float light=ambient+(1.0f-ambient)
+                *std::max(0.0f,Vector3::Dot(worldNormal(normal),sun));
             return ScaleColor(pigment,light);
         };
         auto& target=pigment.getAProperty()<255?glassMesh:mesh;
@@ -295,7 +304,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     };
     const Color olive(108,121,82),oliveLight(149,155,105),oliveDark(56,67,49);
     const Color glass(60,105,120,148),metal(91,96,92);
-    const Color interior(58,64,57),seat(57,61,52),rubber(30,32,30);
+    const Color interior(73,80,71),seat(68,73,61),rubber(30,32,30);
     const auto loftNormal=[](const auto& stations,const std::size_t index,
                              const float angle) {
         const std::size_t previous=index==0?0:index-1;
@@ -371,7 +380,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     beam({-.59f,1.03f,2.47f},{.59f,1.03f,2.47f},.055f,oliveDark);
 
     // Flat walkable floor, two-stage door sills and visible frames match collision support.
-    box({-.78f,.405f,-1.78f},{.78f,.455f,1.48f},interior,Surface::Rubber);
+    box({-.78f,.405f,-1.78f},{.78f,.455f,1.48f},interior,Surface::Cabin);
     for(const float side:{-1.0f,1.0f})for(const auto& door:
         {std::pair{-1.70f,-.30f},std::pair{.18f,1.48f}}) {
         const float lowX=side>0?.78f:-1.23f,highX=side>0?1.23f:-.78f;
@@ -438,12 +447,26 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     }
     box({-.72f,.48f,-1.72f},{.72f,.79f,-1.43f},seat,Surface::Upholstery);
     box({-.72f,.75f,-1.70f},{.72f,1.38f,-1.52f},seat,Surface::Upholstery);
-    box({-.72f,1.05f,1.30f},{.72f,1.39f,1.52f},rubber,Surface::Rubber);
-    // The central pedestal and glareshield break up the former single black slab.
-    box({-.17f,.47f,.87f},{.17f,1.02f,1.28f},Color(43,48,44),Surface::Rubber);
+    // A tapered, shallow instrument binnacle replaces the former full-width black box.
+    // Its narrower crown follows the windscreen and leaves the door-side sightlines open.
+    const std::array<Vector3,4> panelFront{{
+        {-.70f,1.03f,1.30f},{.70f,1.03f,1.30f},{.61f,1.40f,1.30f},{-.61f,1.40f,1.30f}}};
+    const std::array<Vector3,4> panelBack{{
+        {-.70f,1.03f,1.50f},{.70f,1.03f,1.50f},{.61f,1.40f,1.50f},{-.61f,1.40f,1.50f}}};
+    quad(panelFront[0],panelFront[1],panelFront[2],panelFront[3],
+         Color(51,58,52),Surface::Cabin);
+    quad(panelBack[3],panelBack[2],panelBack[1],panelBack[0],
+         Color(43,49,44),Surface::Cabin);
+    for(std::size_t edge=0;edge<panelFront.size();++edge) {
+        const std::size_t next=(edge+1)%panelFront.size();
+        quad(panelFront[edge],panelBack[edge],panelBack[next],panelFront[next],
+             Color(48,54,49),Surface::Cabin);
+    }
+    // The central pedestal and glareshield break up the panel into real cockpit volumes.
+    box({-.17f,.47f,.87f},{.17f,1.02f,1.28f},Color(52,59,53),Surface::Cabin);
     quad({-.73f,1.38f,1.33f},{.73f,1.38f,1.33f},{.61f,1.48f,1.15f},
-         {-.61f,1.48f,1.15f},Color(37,42,38),Surface::Rubber);
-    box({-.29f,1.91f,.42f},{.29f,1.99f,1.03f},Color(54,60,54),Surface::Rubber);
+         {-.61f,1.48f,1.15f},Color(46,52,47),Surface::Cabin);
+    box({-.29f,1.91f,.42f},{.29f,1.99f,1.03f},Color(62,69,61),Surface::Cabin);
     // Recessed round gauges, contrasting bezels and individual needles replace the
     // former grid of twelve coloured squares. Their layered planes face the cabin.
     constexpr std::array<float,4> gaugeX{{-.47f,-.16f,.16f,.47f}};
@@ -458,11 +481,17 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         triangle(centre-across,centre+along,centre+across,
                  gauge==0?Color(210,91,66):Color(218,207,168),Surface::Emissive);
     }
+    // Two recessed radio/navigation displays give the lower panel a readable centre
+    // stack instead of an undifferentiated row of coloured squares.
+    box({-.255f,1.055f,1.276f},{-.025f,1.145f,1.296f},
+        Color(56,126,105),Surface::Emissive);
+    box({.025f,1.055f,1.276f},{.255f,1.145f,1.296f},
+        Color(86,118,137),Surface::Emissive);
     for(int column=0;column<6;++column) {
         const Color lamp=column%3==0?Color(194,91,57):
             (column%3==1?Color(89,157,105):Color(204,177,80));
-        box({-.49f+column*.18f,1.09f,1.281f},
-            {-.44f+column*.18f,1.14f,1.291f},lamp,Surface::Emissive);
+        const float x=column<3?-.56f+column*.09f:.34f+(column-3)*.09f;
+        box({x,1.055f,1.279f},{x+.045f,1.105f,1.293f},lamp,Surface::Emissive);
     }
 
     // A low faceted engine cowling fills the previously flat/skeletal roof behind
@@ -679,6 +708,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<cowling<<'\n';MirrorRuntimeDiagnosticToPlatformLog(cowling);
     const std::string cockpit="island-simulator: helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals";
     std::cout<<cockpit<<'\n';MirrorRuntimeDiagnosticToPlatformLog(cockpit);
+    const std::string cabin="island-simulator: helicopter open cabin uses restrained indirect light, a tapered instrument binnacle, and twin radio displays";
+    std::cout<<cabin<<'\n';MirrorRuntimeDiagnosticToPlatformLog(cabin);
     const std::string anatomy="island-simulator: helicopter realism pass adds a rounded chin and tail-root fairing, twelve-sided six-station tail boom, maintenance seams, engine intakes, shaped cushions, harnesses, centre pedestal, and overhead console";
     std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
     const std::string smoothSurfaces="island-simulator: helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry";

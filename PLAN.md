@@ -131,6 +131,25 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest helicopter visual pass — readable open-cabin avionics
+
+The current exterior/interior audit found the grounded exterior recognisable and proportionally
+coherent, while the cockpit still collapsed into a nearly black rectangular panel. The open cabin
+now receives restrained sky/ground bounce through its four doorways; upholstery and interior trim
+use separate bounded ambient responses while exterior paint, glass and metal retain their prior
+lighting. The full-width panel box is replaced by a shallow tapered binnacle following the
+windscreen, with two recessed radio/navigation displays and separated outer annunciator banks.
+Emissive gauge needles, displays and lamps are self-lit instead of being darkened as back faces.
+
+The change preserves both batches, the generated atlas, floor, collision and all four entry
+corridors. Two thin display volumes are the only added geometry, raising the current complete model
+from 3658 to 3682 triangles. `IslandHelicopterLayoutTests` and `IslandCoreTests` pass. Inspected
+native evidence `20261015T173412.277344Z-helicopter` and
+`20261015T173428.597718Z-helicopter-inside` passes at 1280x720 with 332/186 colour bins,
+55.03/21.74 luminance deviation, 230.70/95.95 spatial contrast and empty kernel deltas. The
+exterior retains its grounded silhouette and open doors; the interior now separates panel,
+gauges, radios, pedestal, controls and seats without looking floodlit.
+
 ## Latest terrestrial-fauna visual pass — planted goat hocks
 
 The bear/resident/goat comparison selected the goats' lower legs as the weakest remaining close

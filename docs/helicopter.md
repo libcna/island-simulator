@@ -223,3 +223,26 @@ accessible cockpit evidence `20261015T150858.183359Z-helicopter-inside` passes w
 22.87 deviation, 96.99 contrast and an empty kernel delta. The exterior shows a continuous rounded
 nose, roof fairing and tail-root transition rather than alternating planar bands; the interior
 retains readable instruments, cyclics, collectives, pedals, seats and open exit sightlines.
+
+## Open-cabin light and avionics pass — 2026-10-15
+
+The next paired audit accepted the exterior silhouette but rejected the cockpit's nearly black,
+full-width rectangular instrument block. Since all four doors are visibly open, cabin surfaces now
+receive a restrained 70-percent indirect-light floor and upholstery a 60-percent floor, while
+exterior paint, glass, rubber and metal keep the existing 48-percent base. Emissive needles,
+annunciators and displays retain authored colour independent of sun direction. This is baked
+portable vertex colour, not a dynamic light or additional render pass.
+
+The panel itself is now a shallow tapered binnacle whose narrower crown follows the windscreen.
+Two recessed radio/navigation displays occupy the lower centre stack and the six annunciators are
+split into outer banks. The two thin display volumes add 24 triangles; the complete current model
+is 3682 triangles in the same opaque/glass two draws. The atlas, shell, floor, collision, all four
+entry routes and deliberately disabled flight state are unchanged.
+
+`IslandHelicopterLayoutTests` and `IslandCoreTests` pass. Inspected current-binary native captures
+`20261015T173412.277344Z-helicopter` and `20261015T173428.597718Z-helicopter-inside` pass at
+1280x720 with 332/186 colour bins, 55.03/21.74 luminance deviation, 230.70/95.95 spatial contrast
+and empty kernel deltas. The former confirms an unchanged grounded exterior and open doorways; the
+latter distinguishes the panel, gauges, twin displays, pedestal, flight controls and seats without
+turning the cabin into an implausibly bright room. Physical Android/AMD appearance and interactive
+sitting remain outside this focused visual pass.
