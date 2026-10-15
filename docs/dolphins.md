@@ -185,3 +185,25 @@ cruise/surface/dive simulation, bank/pitch, vertical tail-stock bend, horizontal
 with 144 colour bins, 45.17 luminance deviation, 213.05 spatial contrast and an empty kernel delta.
 Portable gates require the new proportion diagnostic; consolidated Web/Android qualification
 remains separate from this native visual pass.
+
+## Narrow pectorals and extended bottlenose profile — 2026-10-16
+
+The renewed fish/shark/dolphin/turtle comparison retained the dolphin's smooth fusiform shell and
+falcate dorsal but selected two remaining broadside cues: the seven-point pectorals still read as
+wide rectangular paddles and the rostrum remained a short nub beneath the melon. Both pectorals now
+follow a narrower rear-curved outline with reduced span, area and thickness while keeping their
+closed two-face/perimeter construction. The twelve-sided rostrum extends farther forward with a
+slightly fuller tapered tip, and its thin fitted lower-jaw seam follows the new length instead of
+ending inside the beak.
+
+This is a coordinate-only revision: the exact 3,168/15 near/far inventories, dynamic-buffer
+capacity, four-agent population, one draw, habitat and cruise/surface/dive animation are unchanged.
+`IslandDolphinPodTests`, `IslandCoreTests` and all 41 browser/capture harness tests pass. The first
+narrow-fin candidate `20261015T232823.186047Z-dolphins` was retained only as an intermediate
+because its bottlenose still looked too short. Accepted native evidence
+`20261015T233234.891640Z-dolphins` passes at 1280x720 with 132 colour bins, 44.93 luminance
+deviation, 214.36 spatial contrast and an empty kernel delta.
+
+Focused Chrome/SwiftShader `20261015T233646.005186Z-chrome-dolphins` passes two distinct inspected
+swimming frames, 60 finite intervals, GL error zero, a live context and an empty final kernel delta.
+Physical Android/AMD appearance and continuous interactive observation remain open.

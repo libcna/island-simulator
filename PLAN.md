@@ -286,6 +286,22 @@ and stronger body/underside separation. The accepted 1280x720 frame passes with 
 45.17 luminance deviation, 213.05 spatial contrast and an empty kernel delta. Native, Chrome and
 Web-smoke gates now require the complete new proportion diagnostic.
 
+## Latest aquatic visual pass — narrow dolphin pectorals and longer rostrum
+
+The next fish/shark/dolphin/turtle matrix retained the smooth body and falcate dorsal but found
+that broad seven-point pectorals still read as rectangular paddles and the bottlenose remained a
+short nub. Both closed pectoral volumes now use a narrower rear-curved outline with reduced span,
+area and tapered thickness. The closed twelve-sided rostrum extends farther forward and its fitted
+lower-jaw seam follows the full beak length.
+
+The exact 3,168/15 near/far inventory, four dolphins, one draw, dynamic buffer, habitat and motion
+remain unchanged. `IslandDolphinPodTests`, `IslandCoreTests` and all 41 browser/capture harness
+tests pass. Intermediate `20261015T232823.186047Z-dolphins` proved the narrower fins but retained
+the short beak. Accepted native `20261015T233234.891640Z-dolphins` passes with 132 colour bins,
+44.93 luminance deviation, 214.36 spatial contrast and kernel `[]`. Focused Chrome/SwiftShader
+`20261015T233646.005186Z-chrome-dolphins` passes two inspected frames, 60 finite intervals, GL0,
+a live context and kernel `[]`.
+
 ## Latest terrain-composition pass — softened aerial material classifications
 
 The new whole-island overview retained the authored open goat/bear ridges but selected their

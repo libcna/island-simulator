@@ -1020,6 +1020,8 @@ def main():
                     raise RuntimeError("current dolphin skin and silhouette pass is missing; check for a stale executable")
                 if "near dolphins use a slimmer fusiform midbody, narrower bottlenose rostrum, stronger countershading, a taller falcate dorsal, and root-thickened tapered fins and flukes" not in diagnostics:
                     raise RuntimeError("current dolphin proportion pass is missing; check for a stale executable")
+                if "near dolphins use narrow curved-back pectorals and a restrained fitted lower-jaw mouth seam" not in diagnostics:
+                    raise RuntimeError("current dolphin pectoral and mouth pass is missing; check for a stale executable")
                 if "dolphin near/far geometry 3168/15 vertices, closed fins and CPU faceted daylight" not in diagnostics:
                     raise RuntimeError("current dolphin geometry inventory is missing; check for a stale executable")
                 if not re.search(r"dolphins [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw", diagnostics):

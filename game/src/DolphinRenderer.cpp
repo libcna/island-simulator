@@ -228,11 +228,11 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
     const float angle = 2.0f * std::numbers::pi_v<float>
         * static_cast<float>(segment) / static_cast<float>(RostrumSegments);
     rostrumBase[segment] = Point(centre, axes, .096f * std::cos(angle),
-        -.033f + .068f * std::sin(angle), .875f, scale);
-    rostrumTip[segment] = Point(centre, axes, .047f * std::cos(angle),
-        -.042f + .043f * std::sin(angle), 1.205f, scale);
+        -.033f + .068f * std::sin(angle), .890f, scale);
+    rostrumTip[segment] = Point(centre, axes, .052f * std::cos(angle),
+        -.044f + .046f * std::sin(angle), 1.300f, scale);
   }
-  const auto rostrumCap = Point(centre, axes, 0, -.042f, 1.250f, scale);
+  const auto rostrumCap = Point(centre, axes, 0, -.044f, 1.350f, scale);
   for (int segment = 0; segment < RostrumSegments; ++segment) {
     const int next = (segment + 1) % RostrumSegments;
     const float angle = 2.0f * std::numbers::pi_v<float>
@@ -265,16 +265,18 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
       .012f*scale,.008f*scale,.010f*scale,.016f*scale,.022f*scale}};
   ClosedTaperedPolygon(out,dorsal,axes.right,dorsalThickness,colors[0],colors[1]);
   for (float side : {-1.0f, 1.0f}) {
+    // Long narrow pectorals follow the lower flank and sweep rearward.  The former
+    // broad seven-point plate overpowered the head/body in close broadside views.
     const std::array fin{
         Point(centre, axes, side * .17f, -.055f, .34f, scale),
-        Point(centre, axes, side * .25f, -.082f, .26f, scale),
-        Point(centre, axes, side * .34f, -.115f, .12f, scale),
-        Point(centre, axes, side * .43f, -.145f, -.055f, scale),
-        Point(centre, axes, side * .36f, -.154f, -.180f, scale),
-        Point(centre, axes, side * .25f, -.135f, -.220f, scale),
-        Point(centre, axes, side * .14f, -.102f, -.130f, scale)};
-    const std::array<float, 7> finThickness{{.030f*scale,.024f*scale,
-        .016f*scale,.008f*scale,.014f*scale,.023f*scale,.031f*scale}};
+        Point(centre, axes, side * .225f, -.076f, .275f, scale),
+        Point(centre, axes, side * .292f, -.102f, .155f, scale),
+        Point(centre, axes, side * .355f, -.128f, .015f, scale),
+        Point(centre, axes, side * .322f, -.139f, -.105f, scale),
+        Point(centre, axes, side * .238f, -.126f, -.178f, scale),
+        Point(centre, axes, side * .145f, -.096f, -.105f, scale)};
+    const std::array<float, 7> finThickness{{.027f*scale,.021f*scale,
+        .014f*scale,.007f*scale,.012f*scale,.020f*scale,.028f*scale}};
     ClosedTaperedPolygon(out,fin,axes.up,finThickness,colors[0],colors[1]);
   }
   const float tail = dolphin.tailBeat * .12f;
@@ -309,10 +311,10 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
              Point(centre, axes, side * .224f, .061f, .653f, scale),
              Point(centre, axes, side * .224f, .060f, .646f, scale), eyeShine);
 
-    const auto mouthFront = Point(centre, axes, side * .027f, -.078f, 1.150f, scale);
-    const auto mouthOuter = Point(centre, axes, side * .092f, -.078f, .905f, scale);
-    const auto mouthKnee = Point(centre, axes, side * .070f, -.088f, 1.020f, scale);
-    const auto mouthInner = Point(centre, axes, side * .025f, -.086f, 1.125f, scale);
+    const auto mouthFront = Point(centre, axes, side * .030f, -.080f, 1.292f, scale);
+    const auto mouthOuter = Point(centre, axes, side * .092f, -.078f, .915f, scale);
+    const auto mouthKnee = Point(centre, axes, side * .074f, -.084f, 1.075f, scale);
+    const auto mouthInner = Point(centre, axes, side * .028f, -.083f, 1.260f, scale);
     Triangle(out, mouthFront, mouthOuter, mouthKnee, colors[3]);
     Triangle(out, mouthFront, mouthKnee, mouthInner, colors[3]);
   }
@@ -389,6 +391,10 @@ DolphinRenderer::DolphinRenderer(GraphicsDevice &device,
       "island-simulator: near dolphins use an extended fitted rostrum, lower swept fins, and readable grey countershading";
   std::cout << profile << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(profile);
+  const char *pectoralProfile =
+      "island-simulator: near dolphins use narrow curved-back pectorals and a restrained fitted lower-jaw mouth seam";
+  std::cout << pectoralProfile << '\n';
+  MirrorRuntimeDiagnosticToPlatformLog(pectoralProfile);
   const char *face =
       "island-simulator: dolphin facial pass uses a stout tapered rostrum and small six-facet oval eyes instead of flat diamond marks";
   std::cout << face << '\n';
