@@ -602,13 +602,41 @@ Default ARM64 assembly/lint restored and passes9s; APK SHA256
 These packages include code29c23a0. No game-code change, hardware run, dependency
 change or Android/KVM configuration change occurred during this qualification.
 
+## Barrel, limb-root and coat-direction refinement
+
+The renewed whole-island animal audit selected the goats after the deer pass. Close views showed
+three related defects: the barrel collapsed into sharp cones at both ends, the planted leg chains
+emerged as narrow sticks without shoulder or haunch mass, and the otherwise detailed source fur
+ran longitudinally across the flank so that it read as engraved horizontal scratches.
+
+The body loft now uses thirteen rings rather than eleven. Two closely spaced terminal tapers keep
+the mesh closed while preserving broad rump, barrel, brisket and shoulder volumes. Each leg keeps
+the exact same planted root, knee, hoof, fixed bone chain and sole pivot, but gains a seventh
+longitudinal station plus larger, body-overlapping shoulder/haunch and upper-limb radii. The body
+UV projection is rotated so the source image's vertical fibres follow physical body height; head,
+neck and limb sweeps keep their existing longitudinal mapping. The source image, mip chain,
+materials, six-agent population, behaviour, sounds, two draws and buffer allocation are unchanged.
+
+Near/far meshes now contain 7476/4188 vertices; six all-near animals use 44856 vertices beneath
+the unchanged 8192-per-animal and 49152-batch guards. Updated mesh tests cover the 1.22 m physical
+body window, downward height mapping and 75/90 mm front/rear upper-limb volumes across both LODs,
+sixteen gait phases and eleven grazing amounts. The focused test reports the unchanged conservative
+horizontal bound of 1.17903 m.
+
+The CPU orthographic before/after was inspected, then the actual contained llvmpipe capture
+`20261015T142227.065114Z-goats` passed at 1280x720 with 238 colour bins, 58.24 luminance deviation,
+252.91 spatial contrast and an empty kernel delta. A same-camera comparison confirmed a fuller
+silhouette and vertically falling flank hair rather than the prior bands. This is a focused native
+appearance check, not physical AMD/Android qualification or proof of natural motion from every
+angle. Hoof rotational locking, self-contact and subjective call listening remain open.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.
   Whole cloven-hoof contact, persistent stance behavior and the final body envelope
   still need validation with the actual model and live motion.
-- [~] First head/body/ears, horns/beard and cloven-hoof mesh with CPU shape review above.
-  Improve anatomy and add readable coat; actual in-game visual acceptance remains open.
+- [~] Head/body/ears, horns/beard and cloven-hoof mesh plus the focused native appearance pass
+  above are implemented. Further muzzle/joint anatomy and all-angle visual acceptance remain.
 - [~] Grazing/walking/rest/retreat CPU controller and bounded collision-aware movement
   implemented above. Browsing details, gait transitions and visual acceptance remain.
   The40m grouping radius is NOT a traversable-area guarantee; initial sites do not
@@ -616,8 +644,8 @@ change or Android/KVM configuration change occurred during this qualification.
 - [~] Actual population/update/renderer integration, lighting/contact shadows and vertex
   capacity implemented above; CPU/performance budgets and portable runtime remain open.
 - [x] Live diagnostic counts and initial WorldReport coverage after runtime integration.
-- [ ] Actual unobscured native/Web/Android appearance and motion audits; CPU placement
-  tests and a successful build do not satisfy this acceptance requirement.
+- [~] Unobscured native appearance is current for the latest barrel/limb/coat pass. Web/Android
+  captures still predate it, and continuous all-angle motion remains open.
 
 The AMD hardware stop latch remains unchanged. No Android emulator/KVM or dependency
 configuration was changed for this integration.

@@ -39,7 +39,7 @@ struct Builder {
             // Physical-height projection preserves hair spacing through the rump
             // taper. Angular ring coordinates squeeze a full fur window into every
             // shrinking ring. Author before body bob so the coat cannot swim.
-            u=(p.z+.58f)/1.12f;
+            u=(p.z+.62f)/1.22f;
             v=std::clamp((p.y-.52f)/.56f,0.0f,1.0f);
         }
         if(attachment==Attachment::Head) {
@@ -204,11 +204,15 @@ GoatMesh BuildGoatMesh(const GoatGroundPose& pose,float grazing,bool detailed) {
     Builder b{{},pose.bodyBob,grazing*.85f,grazing*.18f};
     b.mesh.vertices.reserve(GoatMesh::MaximumVertices);
     const int sides=detailed?12:6;
-    const std::array<Ring,11> body{{
-        {-.58f,.80f,.03f,.07f},{-.52f,.82f,.15f,.20f},{-.43f,.82f,.25f,.25f},
-        {-.30f,.81f,.245f,.26f},{-.12f,.79f,.25f,.26f},{.06f,.80f,.23f,.25f},
-        {.20f,.83f,.24f,.245f},{.30f,.83f,.245f,.25f},{.40f,.80f,.245f,.25f},
-        {.48f,.80f,.215f,.22f},{.54f,.78f,.025f,.05f}}};
+    // Closely spaced terminal rings retain closed ends without pulling the rump
+    // and brisket into the old two sharp cones. The broad middle rings supply a
+    // recognisable barrel, shoulder and hindquarter rather than one uniform tube.
+    const std::array<Ring,13> body{{
+        {-.62f,.82f,.025f,.06f},{-.57f,.81f,.12f,.17f},{-.49f,.80f,.22f,.245f},
+        {-.40f,.80f,.265f,.27f},{-.25f,.80f,.27f,.275f},{-.08f,.80f,.27f,.275f},
+        {.10f,.81f,.25f,.265f},{.24f,.81f,.255f,.26f},{.36f,.80f,.26f,.265f},
+        {.46f,.80f,.235f,.245f},{.52f,.80f,.17f,.20f},{.57f,.81f,.08f,.12f},
+        {.60f,.81f,.025f,.055f}}};
     b.Loft(body,sides,GoatMaterial::Coat,Attachment::Body);
     b.part=GoatPart::Neck;
     std::array<Tube,4> neck{{{{0,.86f,.22f},.14f},{{0,.98f,.35f},.115f},
@@ -229,10 +233,15 @@ GoatMesh BuildGoatMesh(const GoatGroundPose& pose,float grazing,bool detailed) {
         // Flesh follows the existing fixed-length chain; no foot or joint displacement.
         // Preserve longitudinal masses in both LODs, reducing only ring tessellation.
         const auto upper=Add(leg.root,Mul(Sub(leg.knee,leg.root),.36f));
+        const auto upperLower=Add(leg.root,Mul(Sub(leg.knee,leg.root),.68f));
         const auto lower=Add(leg.knee,Mul(Sub(leg.hoof,leg.knee),.55f));
-        const std::array<Tube,6> limb{{{Add(leg.root,{0,.10f,0}),.050f},
-            {leg.root,front?.065f:.073f},{upper,front?.059f:.076f},
-            {leg.knee,.039f},{lower,.027f},{leg.hoof,.024f}}};
+        // Bury a generous shoulder/haunch root inside the barrel, then taper
+        // through a separate upper-limb station. Joint and hoof locations remain
+        // the authored planted-foot chain; only the visible flesh silhouette grows.
+        const std::array<Tube,7> limb{{{Add(leg.root,{0,.14f,0}),front?.105f:.125f},
+            {leg.root,front?.095f:.115f},{upper,front?.075f:.090f},
+            {upperLower,front?.060f:.072f},{leg.knee,front?.045f:.050f},
+            {lower,front?.030f:.035f},{leg.hoof,.024f}}};
         b.Sweep(limb,detailed?8:5,GoatMaterial::Coat,Attachment::Leg);
         b.part=GoatPart::Hoof;
         b.hoofPivot=Add(leg.hoof,{0,-GoatLegPose::HoofHeight,GoatLegPose::SoleForward});

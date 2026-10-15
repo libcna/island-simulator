@@ -13,6 +13,11 @@ namespace island {
     const float across=vertex.part==GoatPart::Body?vertex.v:
         vertex.part==GoatPart::Head?.5f+.5f*std::sin(angle):.5f-.5f*std::cos(angle);
     const float along=vertex.part==GoatPart::Body?1-vertex.u:vertex.u;
+    // The source fibres run down its image V axis. On the barrel that axis must
+    // follow physical height, otherwise close views read the coat as horizontal
+    // scratches along the flank. Swept head/limb parts still follow their length.
+    if(vertex.part==GoatPart::Body)
+        return {.06f+.88f*along,.06f+.88f*across};
     return {.06f+.88f*across,.06f+.88f*along};
 }
 }

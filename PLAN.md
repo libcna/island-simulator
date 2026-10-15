@@ -131,6 +131,24 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest visual-audit implementation — goat anatomy and coat direction
+
+The next animal audit selected the goats as the weakest close silhouette after the deer pass.
+Their body terminated in sharp cones, thin planted leg chains lacked shoulder and haunch mass,
+and high-quality source fur was mapped along the flank so it appeared as horizontal scratches.
+The portable mesh now has a thirteen-ring barrel with broad rump/brisket transitions and seven-
+station limbs whose larger roots overlap the body while retaining the exact existing planted-foot
+IK points, gait, terrain supports and hoof pivots. Body UV axes are rotated so source fibres follow
+physical height; head/neck/limb flow is unchanged. No animal, texture, draw or allocation was added.
+
+Near/far counts are 7476/4188 vertices and the six-goat worst case is 44856 beneath the unchanged
+49152 batch guard. The focused mesh regression passes across both LODs, sixteen phases and eleven
+grazing amounts. Actual llvmpipe evidence `20261015T142227.065114Z-goats` passes at 1280x720 with
+238 colour bins, 58.24 luminance deviation, 252.91 spatial contrast and an empty kernel delta;
+the inspected same-camera comparison shows fuller upper limbs and downward rather than banded
+flank hair. Current Web/Android goat captures predate this pass, and hoof rotational locking,
+self-contact, all-angle motion review and subjective call listening remain open.
+
 ## Latest visual-audit implementation — mid-scale aerial terrain material
 
 After the ocean correction, the same whole-island view selected the inland hills: close material

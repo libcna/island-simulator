@@ -64,12 +64,13 @@ int main() {
             }
             const auto uv=GoatCoatUv(vertex);
             if(vertex.part==GoatPart::Body) {
-                check(std::abs(vertex.u-(vertex.position.z+.58f)/1.12f)<1e-5f,
+                check(std::abs(vertex.u-(vertex.position.z+.62f)/1.22f)<1e-5f,
                     "goat body coat stretches according to ring index rather than physical length");
                 check(std::abs(vertex.v-(vertex.position.y-pose.bodyBob-.52f)/.56f)<1e-5f,
                     "goat body coat squeezes around taper or swims with body bob");
-                check(std::abs(uv[0]-(.06f+.88f*vertex.v))<1e-6f,
-                    "body coat lost physical height projection");
+                check(std::abs(uv[0]-(.06f+.88f*(1-vertex.u)))<1e-6f
+                    &&std::abs(uv[1]-(.06f+.88f*vertex.v))<1e-6f,
+                    "body coat lost downward physical-height projection");
             }
             check(uv[0]>=.05999f&&uv[0]<=.94001f&&uv[1]>=.05999f&&uv[1]<=.94001f,
                 "goat fur UV leaves interior source window");
@@ -108,7 +109,7 @@ int main() {
                 if(std::abs(dot(offset,axis))<1e-5f&&radius<.15f)
                     largestRadius=std::max(largestRadius,radius);
             }
-            check(std::abs(largestRadius-(legIndex%2==1?.059f:.076f))<1e-5f,
+            check(std::abs(largestRadius-(legIndex%2==1?.075f:.090f))<1e-5f,
                 "goat upper limb volume missing or inconsistent between LODs");
         }
         for(std::size_t i=0;i<mesh.vertices.size();i+=3) {
@@ -166,10 +167,10 @@ int main() {
         const auto end=GoatCoatUv(vertex);
         if(part!=GoatPart::Body)
             check(std::abs(start[0]-end[0])<1e-6f&&start[1]==end[1],"goat coat circumferential seam");
-        else check(std::abs(start[0]-.06f)<1e-6f&&std::abs(end[0]-.94f)<1e-6f,
+        else check(std::abs(start[1]-.06f)<1e-6f&&std::abs(end[1]-.94f)<1e-6f,
             "body physical height window changed");
-        vertex.u=.1f;const float low=GoatCoatUv(vertex)[1];
-        vertex.u=.9f;const float high=GoatCoatUv(vertex)[1];
+        vertex.u=.1f;const float low=GoatCoatUv(vertex)[part==GoatPart::Body?0:1];
+        vertex.u=.9f;const float high=GoatCoatUv(vertex)[part==GoatPart::Body?0:1];
         check(part==GoatPart::Body?high<low:high>low,"goat coat strand direction reversed");
     }
     for(const auto part:{GoatPart::Head}) {
