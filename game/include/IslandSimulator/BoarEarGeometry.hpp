@@ -16,11 +16,13 @@ struct BoarEarMesh { std::array<BoarEarTriangle,64> triangles; std::size_t count
 
 inline BoarEarMesh MakeBoarEarRestMesh(int side,bool detailed) {
     constexpr std::array<BoarJoint,8> control{{
-        {0,0,0},{0.06f,0.015f,-0.035f},{0.115f,0.10f,-0.055f},
-        {0.13f,0.20f,-0.035f},{0.10f,0.245f,0.005f},
-        {0.05f,0.205f,0.075f},{0.035f,0.11f,0.145f},{0.012f,0.02f,0.12f}}};
+        {0,0,0},{0.055f,0.015f,-0.038f},{0.095f,0.085f,-0.030f},
+        {0.100f,0.175f,-0.008f},{0.070f,0.248f,0.025f},
+        {0.045f,0.175f,0.070f},{0.025f,0.080f,0.135f},{0.010f,0.015f,0.110f}}};
     constexpr BoarJoint cup{0.035f,0.105f,0.05f},back{0.010f,0.105f,0.05f};
-    // Cut the eight near silhouette corners into a softly rounded pinna.
+    // Bevel each outline corner only narrowly. The former twenty/eighty-percent
+    // cuts rounded the apex into a mouse-like disc; these close cuts retain a
+    // closed smooth rim while preserving the tall triangular wild-boar pinna.
     // Keep the coarse distant outline and the original root/cup placement.
     std::array<BoarJoint,16> outline{},inner{};
     const std::size_t count=detailed?16:8;
@@ -28,7 +30,7 @@ inline BoarEarMesh MakeBoarEarRestMesh(int side,bool detailed) {
         if(!detailed) {outline[i]=control[i];continue;}
         const auto a=control[i],b=control[(i+1)%control.size()];
         for(std::size_t j=0;j<2;++j) {
-            const float t=j==0?0.20f:0.80f;
+            const float t=j==0?0.08f:0.92f;
             outline[i*2+j]={std::lerp(a.x,b.x,t),std::lerp(a.y,b.y,t),std::lerp(a.z,b.z,t)};
         }
     }

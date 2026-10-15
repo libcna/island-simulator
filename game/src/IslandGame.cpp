@@ -2431,11 +2431,19 @@ namespace island
                                      subject.y-previousCrocodile.y,
                                      subject.z-previousCrocodile.z);
         }
-        const auto previousBoar=boarHerd_.Boars().front();
         boarHerd_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         if(viewpoint_==FixedViewpoint::BoarDetail) {
             const auto& current=boarHerd_.Boars().front();
-            cameraPosition_+=Vector3(current.x-previousBoar.x,current.y-previousBoar.y,current.z-previousBoar.z);
+            // Follow both translation and heading. The old camera translated with
+            // the subject but retained its original world-space offset, so a normal
+            // habitat turn converted the intended front-quarter audit into a rear
+            // view and hid the face that this scope is meant to qualify.
+            const float c=std::cos(current.headingRadians);
+            const float s=std::sin(current.headingRadians);
+            const float x=current.x+c*2.8f+s*6.6f;
+            const float z=current.z+s*2.8f-c*6.6f;
+            cameraPosition_=Vector3(x,
+                std::max(terrain_.Height(x,z)+.4f,current.y+2.4f),z);
             const Vector3 target(current.x,current.y+.5f,current.z);
             const auto direction=target-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);

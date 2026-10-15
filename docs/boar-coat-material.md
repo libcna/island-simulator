@@ -289,3 +289,26 @@ unchanged pose JSON. Matched enlarged stage-zero images were inspected: outer
 ears integrate better with the coat, but the body is still overly streaked and
 the cheek/inner ear remain simplified. No full visual acceptance or portable
 qualification is claimed.
+
+## Pointed pinnae and curved adult tusks — 2026-10-15
+
+The current multi-species matrix selected the boar as the weakest readable terrestrial animal, but
+the first fresh capture also exposed a QA error: the camera translated with the subject without
+following its changing heading. An ordinary turn therefore produced a rear view. The audit camera
+now rebuilds its front-quarter offset from the live heading every frame; this affects only the
+fixed `boars` evidence view, not gameplay or animal decisions.
+
+The corrected view showed the coat, continuous body and planted gait working, while the softly
+rounded pinnae read as mouse ears and the three-triangle tusks nearly vanished. The near ear keeps
+its closed 64-triangle rim/cup/back construction but moves the same sixteen bevel samples close to
+a taller triangular control outline, retaining a pointed wild-boar apex. Each adult tusk is now
+two joined six-sided tapered volumes following an outward and upward bend. The replacement adds
+42 triangles per near adult and no texture, allocation, simulation or draw; all six animals still
+share the existing fur/solid two-draw submission.
+
+`IslandBoarPoseTests`, `IslandBoarHerdTests`, `IslandBoarCoatTextureTests` and `IslandCoreTests`
+pass. Same-camera baseline `20261015T192040.416969Z-boars` and accepted current-binary evidence
+`20261015T193043.395756Z-boars` were inspected side by side. The accepted 1280x720 frame passes
+with 258 colour bins, 32.55 luminance deviation, 139.14 spatial contrast and an empty kernel delta.
+Portable gates require the new anatomy diagnostic; consolidated Chrome/Android qualification
+remains separate from this native visual pass.

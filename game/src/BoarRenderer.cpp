@@ -293,13 +293,11 @@ namespace island
                                    Vector3(0.021f, 0.013f, 0.0063f), Color(17, 15, 13), 6, 3);
                     if (boar.scale > 0.8f) {
                         const Vector3 root(x * 0.125f, 0.375f - dip + bob, BoarMuzzleZ(0.91f));
-                        const Vector3 bend(x * 0.195f, 0.43f - dip + bob, BoarMuzzleZ(0.945f));
-                        const Vector3 tip(x * 0.205f, 0.505f - dip + bob, BoarMuzzleZ(0.92f));
-                        const Vector3 edge(0.0f, 0.0f, -0.0175f);
+                        const Vector3 bend(x * 0.205f, 0.43f - dip + bob, BoarMuzzleZ(0.98f));
+                        const Vector3 tip(x * 0.225f, 0.54f - dip + bob, BoarMuzzleZ(0.945f));
                         const Color ivory(185, 171, 134);
-                        mesh.Triangle(root, bend, root + edge, ivory);
-                        mesh.Triangle(root + edge, bend, bend + edge * 0.5f, ivory);
-                        mesh.Triangle(bend, tip, bend + edge * 0.5f, ivory);
+                        mesh.Limb(root,bend,.022f,.016f,ivory,6);
+                        mesh.Limb(bend,tip,.016f,.0035f,ivory,6);
                     }
                 }
             }
@@ -390,6 +388,10 @@ namespace island
             "island-simulator: boar face retains a warm nasal disc and visible amber eye catchlight in wet understory";
         std::cout << faceReadabilityDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(faceReadabilityDiagnostic);
+        constexpr const char* speciesDetailDiagnostic =
+            "island-simulator: near adult boars use sharp triangular pinnae and paired two-segment curved ivory tusks";
+        std::cout << speciesDetailDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(speciesDetailDiagnostic);
         constexpr const char* contactDiagnostic =
             "island-simulator: boar soles fit rendered terrain independently with fixed-length limbs";
         std::cout << contactDiagnostic << '\n';

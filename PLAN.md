@@ -188,6 +188,28 @@ spots lying on the coat instead of protruding. The final 1280x720 frame passes w
 33.63 luminance deviation, 135.46 spatial contrast and an empty kernel delta. Native, Chrome and
 Web-smoke gates now require the complete new anatomy diagnostic.
 
+## Latest animal visual pass — pointed boar ears and curved tusks
+
+The refreshed terrestrial matrix initially made the boar look like an indistinct rear-facing
+bristle mass. Audit infrastructure was partly responsible: its camera followed translation but not
+heading, so an ordinary habitat turn hid the very face the scope was intended to inspect. The
+camera now recomputes the same front-quarter orbit from the live heading every frame. That honest
+view selected two real species defects: the heavily rounded pinnae read as mouse ears and each
+adult tusk was only three flat triangles.
+
+Near ear rims retain their closed 64-triangle mesh and inner cup, but use narrow corner bevels
+around a taller triangular control outline. Each adult tusk is now two joined six-sided tapered
+volumes following an outward/upward curve, rather than a flat card. This adds 42 triangles per near
+adult while retaining the six-animal population, movement, habitat, fur texture, dynamic-buffer
+ceiling and existing two material draws. `IslandBoarPoseTests`, `IslandBoarHerdTests`,
+`IslandBoarCoatTextureTests` and `IslandCoreTests` pass.
+
+Inspected same-camera baseline `20261015T192040.416969Z-boars` and accepted current-binary
+`20261015T193043.395756Z-boars` show pointed species-appropriate ears and an ivory tusk curve that
+remains readable against the dark wet understory. The accepted 1280x720 frame passes with 258 colour
+bins, 32.55 luminance deviation, 139.14 spatial contrast and an empty kernel delta. Native, Chrome
+and Web-smoke gates now require the new anatomy diagnostic.
+
 ## Latest terrain-composition pass — softened aerial material classifications
 
 The new whole-island overview retained the authored open goat/bear ridges but selected their

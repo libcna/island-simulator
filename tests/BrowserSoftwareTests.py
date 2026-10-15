@@ -683,6 +683,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn('boars use a lifted shoulder mantle and broad sealed nasal disc', source)
         self.assertIn('near boars retain warm shoulder, cheek, nose, and eye contrast in canopy shade', source)
         self.assertIn('boar face retains a warm nasal disc and visible amber eye catchlight in wet understory', source)
+        self.assertIn('near adult boars use sharp triangular pinnae and paired two-segment curved ivory tusks', source)
         self.assertIn('/boars [1-6]\\/6 visible, 2 draw/.test(log)', source)
         self.assertNotIn('/boars [1-6]\\/6 visible, 1 draw/.test(log)', source)
         log = ("boar QA camera frames and follows non-hostile inland wildlife\n"
@@ -691,6 +692,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                "boars use a lifted shoulder mantle and broad sealed nasal disc\n"
                "near boars retain warm shoulder, cheek, nose, and eye contrast in canopy shade\n"
                "boar face retains a warm nasal disc and visible amber eye catchlight in wet understory\n"
+               "near adult boars use sharp triangular pinnae and paired two-segment curved ivory tusks\n"
                "boars 1/6 visible, 2 draw")
         report = {"passed":True,"views":[{"mode":"boars","passed":True,"glError":0,
             "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,
@@ -700,6 +702,8 @@ class BrowserSoftwareTests(unittest.TestCase):
         for mutate in (lambda r:r["views"][0].update({"contextLost":True}),
                        lambda r:r["views"][0].update({"intervals":[1.0]*59}),
                        lambda r:r["views"][0]["result"].update({"output":"boars 1/6 visible, 2 draw"}),
+                       lambda r:r["views"][0]["result"].update({"output":log.replace(
+                           "near adult boars use sharp triangular pinnae and paired two-segment curved ivory tusks\n", "")}),
                        lambda r:r["views"][0].update({"afterSimulationScreenshot":"before.png"})):
             bad = {"passed":True,"views":[{"mode":"boars","passed":True,"glError":0,
                 "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,
