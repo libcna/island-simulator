@@ -17,6 +17,26 @@ from gpu_incident_qualification import contained_command
 
 
 class BrowserSoftwareTests(unittest.TestCase):
+    def test_deer_scope_requires_continuous_neck_nose_and_fitted_spots(self):
+        self.assertIn("deer", gate.SCOPES)
+        anatomy = ("near deer use vertex-blended ellipsoid light, curved tapered necks, "
+                   "articulated hocks, fitted muzzles, and smooth antler beams, with continuous "
+                   "five-ring necks, separate nasal pads, and surface-fitted oval coat spots")
+        markers = "\n".join((
+            "four inland deer use long legs, pointed ears, spotted coats and one antlered silhouette",
+            anatomy,
+            "deer QA camera frames one antlered clearing animal broadside",
+            "deer 2/4 visible, 1 draw"))
+        def report():
+            return {"passed": True, "views": [{"mode": "deer", "passed": True,
+                "glError": 0, "contextLost": False, "screenshot": "deer.png",
+                "result": {"output": markers}}]}
+        self.assertEqual(gate.validate_deer_report(report()), ("deer.png",))
+        missing = report()
+        missing["views"][0]["result"]["output"] = markers.replace(anatomy + "\n", "")
+        with self.assertRaises(RuntimeError):
+            gate.validate_deer_report(missing)
+
     def test_bunker_scope_requires_all_rooms_material_and_sealed_end(self):
         self.assertIn("bunker", gate.SCOPES)
         modes = ["bunker", "bunker-corridor", "bunker-computers", "bunker-reactor",

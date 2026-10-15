@@ -170,6 +170,24 @@ Inspected prior evidence `20261015T143659.327901Z-crocodiles` and accepted curre
 embedded side eye. The final 1280x720 frame passes with 313 colour bins, 39.27 luminance deviation,
 154.05 spatial contrast and an empty kernel delta.
 
+## Latest animal visual pass — continuous deer neck and fitted coat spots
+
+After the crocodile repair, the same animal matrix retained the deer's overall species silhouette
+but selected three close defects: two straight neck tubes met at a visible collar, the whole muzzle
+was one dark bulb, and ten pale triangular cards projected from the flanks like spikes. A single
+five-ring loft now follows the animated shoulder, mid-neck and head targets with continuous changing
+cross sections. The furred muzzle keeps coat colour and ends in a separate compact dark nasal pad.
+The old cards are replaced by small six-sided oval patches whose centres solve the outermost surface
+of the overlapping barrel, shoulder and rump ellipsoids before being placed.
+
+Four-agent population, habitat, grazing/retreat/walk simulation, articulated legs, antlers, LOD and
+one-draw batching are unchanged. `IslandDeerHerdTests` and `IslandCoreTests` pass. Inspected baseline
+`20261015T124054.189699Z-deer` and current-binary evidence
+`20261015T184054.192941Z-deer` show a smoother shoulder-to-head taper, smaller defined nose and oval
+spots lying on the coat instead of protruding. The final 1280x720 frame passes with 235 colour bins,
+33.63 luminance deviation, 135.46 spatial contrast and an empty kernel delta. Native, Chrome and
+Web-smoke gates now require the complete new anatomy diagnostic.
+
 ## Latest vegetation-composition pass — connected broadleaf crown mass
 
 The overview/jungle/litter audit accepted the forest-floor material and open goat/bear hill, but

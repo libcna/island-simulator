@@ -25,3 +25,25 @@ intervals, GL0, a live context, clean kernel monitoring and a matching inspected
 assemble/lint passes without launching an emulator or touching KVM; the APK is 24,413,771 bytes
 with SHA-256 `6c56d7ec6bb56e0eac8f21d5d2e13cc375b4d201b1936d92c28723afef525a4f`, and the stripped
 `libmain.so` is 19,371,200 bytes. Physical-device appearance remains part of final acceptance.
+
+## Continuous neck, separate nose and fitted spots — 2026-10-15
+
+A later twelve-family audit retained the deer's proportions and behavior but found three close-view
+construction cues. Two independently framed straight tubes left a collar around the middle of the
+neck; the entire muzzle was one oversized dark ellipsoid; and the five markings on each flank were
+double-sided triangular cards outside the body surface.
+
+The animated base, mid-neck and top targets now feed one five-ring loft. Its cross-section begins
+inside the shoulder mass, follows the grazing bend and narrows continuously into the head. The
+furred muzzle uses a restrained coat-to-dark blend and carries a separate compact nasal ellipsoid at
+its tip. Each marking is now a small six-sided oval. Its lateral centre is derived from the maximum
+surface width of the actual overlapping barrel, shoulder and rump ellipsoids at that longitudinal
+and vertical coordinate, so it hugs the current coat rather than floating at a constant width.
+
+Population, placement, state machine, gait targets, antlers, near/far threshold, buffer and one-draw
+submission remain unchanged. `IslandDeerHerdTests` and `IslandCoreTests` pass. Baseline
+`20261015T124054.189699Z-deer` and accepted current-binary native evidence
+`20261015T184054.192941Z-deer` were inspected side by side. The latter passes at 1280x720 with 235
+colour bins, 33.63 luminance deviation, 135.46 spatial contrast and an empty kernel delta. Current
+native, Chrome and Web-smoke gates require the complete neck/nose/spot diagnostic; refreshed Web and
+physical-Android images remain part of consolidated portable qualification.
