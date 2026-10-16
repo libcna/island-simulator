@@ -1,5 +1,26 @@
 # Monkey fur material
 
+## Hidden rear/underside texture seam — 2026-10-16
+
+The current close-view audit found that the texture itself and the rounded body geometry were
+working, but the old mirrored angular UV map folded the directional hair field across the visible
+crown and dorsal line. That fold produced a conspicuous rectangular ladder on the head and repeated
+stripes on the limbs, making the moving animal look assembled from patterned primitives.
+
+Monkey surfaces now use one monotonic 0.1--0.9 circumference window. Its only wrap is placed on the
+rear of ellipsoidal head volumes and the underside of longitudinal body, limb and tail forms, where
+the discontinuity is naturally hidden. The boar deliberately retains the earlier folded mapping;
+the new helper is monkey-specific. This changes no texture, geometry, bone, palette, buffer, draw,
+population, movement or habitat rule.
+
+Inspected native baseline `20261016T013823.392228Z-monkeys` and accepted current-binary evidence
+`20261016T014451.760335Z-monkeys` show the crown ladder and limb folds removed while the coat remains
+directional. The accepted 1280x720 frame passes with 214 colour bins, 42.4583 luminance deviation,
+211.3467 spatial contrast and an empty kernel delta. Focused Chrome/SwiftShader evidence
+`20261016T014709.182548Z-chrome-monkeys` passes its initial, four intermediate and final images over
+60 finite positive intervals with `glError=0`, a live context and an empty final kernel delta. All
+six frames were inspected together and retain the clean mapping while the animal turns.
+
 ## Shallow waisted trunk and shortened face — 2026-10-15
 
 The latest ordinary close capture still read as a large rodent or anteater despite the existing

@@ -811,6 +811,22 @@ deltas. Focused Chrome/SwiftShader `20261016T012926.788171Z-chrome-birds` passes
 views, 60 finite intervals per view, GL error zero, live contexts and an empty kernel delta.
 Native/Web/Android guards require the new profile marker.
 
+## Latest primate material pass — hidden fur seam
+
+The following close monkey audit found a material-coordinate defect rather than another anatomy
+problem: the shared mirrored angular map folded directional hairs across the visible crown and
+dorsal line, producing a rectangular ladder on the head and repeated bands on moving limbs. Monkey
+head, body, limb and tail surfaces now use a monotonic circumference window with one discontinuity
+hidden at the rear or underside. Boars keep their existing mapping. No texture, geometry, bone,
+buffer, draw, population, behavior or habitat cost changes.
+
+Inspected native baseline `20261016T013823.392228Z-monkeys` and accepted evidence
+`20261016T014451.760335Z-monkeys` show the ladder and bands removed; the accepted frame passes with
+214 colour bins, 42.4583 luminance deviation, 211.3467 spatial contrast and kernel `[]`. Focused
+Chrome/SwiftShader `20261016T014709.182548Z-chrome-monkeys` passes six inspected moving frames, 60
+finite positive intervals, GL error zero, a live context and an empty kernel delta. Native/Web/
+Android guards pin the new mapping diagnostic.
+
 ## Latest aquatic visual pass — blunt convex fish heads
 
 The next current-binary animal contact sheet retained the fish as the weakest requested aquatic

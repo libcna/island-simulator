@@ -353,6 +353,8 @@ def inspection_arguments(values):
 def validate_monkey_capture_log(diagnostics, require_tree_grips=False):
     if "monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes" not in diagnostics:
         raise RuntimeError("monkey capture did not load the required fur material")
+    if "monkey fur uses one hidden underside/rear UV seam instead of mirrored crown and dorsal folds" not in diagnostics:
+        raise RuntimeError("monkey capture did not retain the current non-mirrored fur mapping")
     # Submission is necessary, not proof of visible pixels: still inspect the image.
     if not re.search(r"monkey capture visible [1-9][0-9]*; near [1-9][0-9]*; draws [1-9][0-9]*;", diagnostics):
         raise RuntimeError("monkey capture did not retain a close subject at readback")

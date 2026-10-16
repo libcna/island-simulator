@@ -407,6 +407,7 @@ class SoftwareCaptureTests(unittest.TestCase):
     def test_monkey_close_subject_must_still_be_submitted_at_capture(self):
         valid = ("island-simulator: monkey capture visible 2; near 1; draws 4; subject 55,19,17\n"
                  "monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes\n"
+                 "monkey fur uses one hidden underside/rear UV seam instead of mirrored crown and dorsal folds\n"
                  "near monkey tails keep a compact muscular hook and thirty-six raised fur clumps\n"
                  "near monkey faces use paired fur cheek ruffs around the skin mask\n"
                  "near monkey faces use a fitted dark nose pad and raised readable corneas\n"

@@ -456,7 +456,7 @@ namespace island
                         local.Y / std::max(radii.Y, 0.001f),
                         local.Z / std::max(radii.Z, 0.001f)));
                     AddVertex(mesh, position, normal, bone,
-                        Vector2(MonkeyFurUv::Around(longitude),
+                        Vector2(MonkeyFurUv::AroundHiddenSeam(longitude),
                             MonkeyFurUv::Along(1.0f-static_cast<float>(ring)/rings)));
                 }
             }
@@ -508,7 +508,7 @@ namespace island
                         * static_cast<float>(segment) / static_cast<float>(segments);
                     const Vector3 normal = right * std::cos(angle) + up * std::sin(angle);
                     AddVertex(mesh, vector(section.centre) + normal * section.radius, normal,
-                        bones[section.firstBone], Vector2(MonkeyFurUv::Around(angle), MonkeyFurUv::Along(t)));
+                        bones[section.firstBone], Vector2(MonkeyFurUv::AroundHiddenSeam(angle), MonkeyFurUv::Along(t)));
                     mesh.vertices.back().BlendWeight = Vector4(1-section.secondWeight,
                         section.secondWeight, 0, 0);
                     mesh.vertices.back().BlendIndices[1] = static_cast<std::uint8_t>(bones[section.secondBone]);
@@ -545,7 +545,7 @@ namespace island
                     const auto first=static_cast<std::uint16_t>(mesh.vertices.size());
                     for(std::size_t i=0;i<points.size();++i) {
                         AddVertex(mesh,points[i],radial,bones[section.firstBone],
-                            Vector2(MonkeyFurUv::Around(angle),MonkeyFurUv::Along(t+(i==3?.012f:0))));
+                            Vector2(MonkeyFurUv::AroundHiddenSeam(angle),MonkeyFurUv::Along(t+(i==3?.012f:0))));
                         mesh.vertices.back().BlendWeight=Vector4(1-section.secondWeight,
                             section.secondWeight,0,0);
                         mesh.vertices.back().BlendIndices[1]=static_cast<std::uint8_t>(
@@ -590,7 +590,7 @@ namespace island
                     // Interior-only mirrored window: no unverified repeat seam. V follows
                     // the spine from neck to tail and stays attached to the rest mesh.
                     AddVertex(mesh, section.centre + radial, normal, section.firstBone,
-                        Vector2(MonkeyFurUv::Around(angle),
+                        Vector2(MonkeyFurUv::AroundHiddenSeam(angle),
                             0.9f - 0.8f * static_cast<float>(ring) / (sections.size() - 1)));
                     auto& vertex = mesh.vertices.back();
                     vertex.BlendWeight = Vector4(1.0f - section.secondWeight,
@@ -633,7 +633,7 @@ namespace island
                     const int secondBone = collar ? upperBone : lowerBone;
                     const float blend = collar ? 1-section.bodyWeight : section.lowerWeight;
                     AddVertex(mesh, centre + radial * section.radius, normal, firstBone,
-                        Vector2(MonkeyFurUv::Around(angle), MonkeyFurUv::Along(t)));
+                        Vector2(MonkeyFurUv::AroundHiddenSeam(angle), MonkeyFurUv::Along(t)));
                     mesh.vertices.back().BlendWeight = Vector4(1.0f - blend, blend, 0.0f, 0.0f);
                     mesh.vertices.back().BlendIndices[1] = static_cast<std::uint8_t>(secondBone);
                 }
@@ -1013,6 +1013,10 @@ namespace island
         const char* furDiagnostic = "island-simulator: monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes";
         std::cout << furDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(furDiagnostic);
+        const char* furUvDiagnostic =
+            "island-simulator: monkey fur uses one hidden underside/rear UV seam instead of mirrored crown and dorsal folds";
+        std::cout << furUvDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(furUvDiagnostic);
         const RigDefinition rig = CreateRig();
         skinningData_ = CreateSkinningData(rig);
         ValidateSkinningDataOrThrow(*skinningData_);

@@ -1154,7 +1154,10 @@ every proposed move at least 48 m inland on supported low-slope ground, while ne
 awareness produces a brief non-hostile retreat. The shared wildlife activation policy throttles
 distant decisions. `MonkeyRenderer` generates a fourteen-bone hierarchy, three pairs of near/far
 silhouette meshes, four coordinated body/face palettes, and idle, observe, walk, and run clips; one
-CNA `AnimationPlayer` per agent supplies palettes to the portable `SkinnedEffect`. Near monkeys add
+CNA `AnimationPlayer` per agent supplies palettes to the portable `SkinnedEffect`. Near monkey
+surfaces use a monotonic fur circumference map whose single discontinuity is hidden behind the head
+or beneath the trunk, limbs and tail, avoiding mirrored texture folds across the visible crown and
+back. They add
 a light upper-face mask plus muzzle/ear detail in one pass and surface-visible eye/nose geometry in
 a second. Dark eyes use a restrained glossy response. Three small tetrahedral crown/cheek tufts
 break up the near head silhouette in the existing body pass and follow the head bone. They add 27

@@ -1140,6 +1140,7 @@ try {
             && !log.includes("boar terrain contact limited by limb reach")
             && log.includes("monkeys receive footprint-averaged canopy light through 14-bone skinning")
             && log.includes("monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes")
+            && log.includes("monkey fur uses one hidden underside/rear UV seam instead of mirrored crown and dorsal folds")
             && log.includes("near monkey faces use a fitted dark nose pad and raised readable corneas")
             && log.includes("monkey shoulder and hip mantles blend the trunk into all four animated limbs")
             // Curved leaf budgets are unchanged; flared trunks, rounded buttresses and six-sided branches.
@@ -1365,6 +1366,8 @@ try {
     && result.output?.includes(
       "island-simulator: shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
+    && result.output?.includes(
+      "island-simulator: monkey fur uses one hidden underside/rear UV seam instead of mirrored crown and dorsal folds")
     && result.output?.includes(
       "island-simulator: keyboard run/walk toggle uses a transient mode confirmation")
     && result.output?.includes(
@@ -2679,6 +2682,8 @@ try {
     && monkeyResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && monkeyResult.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
+    && monkeyResult.output?.includes(
+      "island-simulator: monkey fur uses one hidden underside/rear UV seam instead of mirrored crown and dorsal folds")
     && monkeyResult.output?.includes("3 silhouettes, 4 palettes")
     && monkeyResult.output?.includes(
       "island-simulator: monkeys use a horizontal lofted trunk and distance-driven quadrupedal gait")

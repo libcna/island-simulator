@@ -60,6 +60,24 @@ try {
         const float density=std::abs(fur::Around(centre+.01f)-fur::Around(centre-.01f))/.02f;
         Require(std::abs(density-.8f/pi)<1e-4f,"side-facing fur must not collapse into a stretched stripe");
     }
+    for (int i=0;i<720;++i) {
+        const float angle=i*pi/180.0f;
+        Require(fur::AroundHiddenSeam(angle)>=.09999f
+                && fur::AroundHiddenSeam(angle)<=.90001f,
+            "hidden-seam fur UV stays inside source image");
+        Require(std::abs(fur::AroundHiddenSeam(angle)
+                         -fur::AroundHiddenSeam(angle+2*pi))<1e-5f,
+            "hidden-seam fur UV remains periodic");
+    }
+    for (float centre : {0.0f,pi*.5f,pi}) {
+        const float density=std::abs(fur::AroundHiddenSeam(centre+.01f)
+            -fur::AroundHiddenSeam(centre-.01f))/.02f;
+        Require(std::abs(density-.4f/pi)<1e-4f,
+            "visible monkey fur circumference must stay monotonic without a mirror fold");
+    }
+    Require(std::abs(fur::AroundHiddenSeam(pi*1.5f-.01f)
+                     -fur::AroundHiddenSeam(pi*1.5f+.01f))>.79f,
+        "monkey fur wrap must remain confined to the hidden underside/rear seam");
     Require(fur::Along(0)==.1f && std::abs(fur::Along(1)-.9f)<1e-6f,"longitudinal UV interior endpoints");
     for (float x : {-.2f,0.0f,.2f})
         for (float y : {-.55f,-.2f,.2f})
