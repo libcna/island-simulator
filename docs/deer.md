@@ -6,11 +6,11 @@ shared static-world obstacle set. Each remains in a 13--15 m home. The bounded s
 alternates grazing, resting and walking; a player within 9 m causes a non-aggressive retreat. The
 existing full/reduced/dormant wildlife activation policy limits distant simulation.
 
-The portable procedural mesh uses a narrower layered torso with raised shoulder and rump masses,
-a tapered elevated neck, elongated head and muzzle, pointed ears, eyes, pale tail and underside,
-restrained flank spots and articulated three-section legs with compact hooves. One adult has a
-branched antler silhouette. Near geometry increases roundness and detail while distant animals use
-a reduced form. Every visible animal appends to one dynamic vertex buffer and one opaque draw.
+The portable procedural mesh uses one continuous eight-section torso, a shoulder-grown tapered
+neck, compact head and muzzle, leaf-shaped ears, readable eyes, pale tail and underside, restrained
+staggered flank spots and articulated three-section legs with split hooves. One adult has a curved
+multi-tine antler silhouette. Near geometry increases roundness and detail while distant animals
+use a reduced form. Every visible animal appends to one dynamic vertex buffer and one opaque draw.
 
 Deterministic CPU coverage checks the exact population, safe habitat, repeatable simulation,
 walking, grazing, bounded homes and player-triggered retreat. The accepted native Release
@@ -25,6 +25,34 @@ intervals, GL0, a live context, clean kernel monitoring and a matching inspected
 assemble/lint passes without launching an emulator or touching KVM; the APK is 24,413,771 bytes
 with SHA-256 `6c56d7ec6bb56e0eac8f21d5d2e13cc375b4d201b1936d92c28723afef525a4f`, and the stripped
 `libmain.so` is 19,371,200 bytes. Physical-device appearance remains part of final acceptance.
+
+## Continuous torso and species silhouette — 2026-10-16
+
+The current close animal matrix compared deer, geckos and rats and selected the deer. Although its
+previous parts were individually rounded, three overlapping barrel/chest/haunch ellipsoids still
+read as a blocky assembled figurine. Its large upright neck and tiny face suggested a llama, the
+ears collapsed into pale triangles behind the antlers, and the single-piece hooves remained blunt.
+
+One closed eight-section body loft now establishes the rump, waist, withers and chest as a single
+surface. It uses twenty radial samples near the camera and nine in the far tier, analytic
+normal-driven daylight and restrained deterministic coat variation. The neck begins inside the
+raised shoulder and tapers through five existing animated stations. The face is shorter and more
+compact; ears have an outer leaf and inset inner plane; eyes gain small fitted catchlights. Fuller
+upper/lower legs terminate in two separated toes, and the antlered adult uses a curved three-part
+beam with three progressively tapered tines per side. Seven smaller spots form two staggered rows
+and derive their lateral position from the new body cross-section, so they remain surface-fitted.
+
+The connected body is cheaper than the three overlapping volumes. Even with the additional facial,
+hoof and antler detail, the conservative shared staging allocation is reduced from 28,000 to
+26,000 vertices. Four agents, one draw, habitat, state machine, grazing, retreat, contact and the
+48 m near threshold are unchanged. Inspected native evidence
+`build-consumer/software-captures/20261016T143955.877693Z-deer` passes at 236 colour bins, 33.58
+luminance deviation, 135.73 spatial contrast and kernel `[]`; baseline is
+`20261016T142214.520131Z-deer`. `IslandCoreTests`, `IslandDeerHerdTests` and all 42 browser/capture
+harness tests pass. Focused Chrome/SwiftShader
+`build/browser-software/20261016T144210.079030Z-chrome-deer` passes 60 finite intervals, GL0, a
+live context and kernel `[]`. WebAssembly builds. Android ARM64 assemble/lint passes without
+emulator/KVM; the APK is 24,680,923 bytes and packaged `libmain.so` is 19,638,352 bytes.
 
 ## Separated body masses, upper-leg muscles and coat tone — 2026-10-15
 

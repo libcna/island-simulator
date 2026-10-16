@@ -22,6 +22,7 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 
 using namespace Microsoft::Xna::Framework;
 using namespace Microsoft::Xna::Framework::Graphics;
@@ -30,7 +31,7 @@ namespace island
 {
     namespace
     {
-        constexpr int MaximumVerticesPerDeer = 7000;
+        constexpr int MaximumVerticesPerDeer = 6500;
         constexpr int Capacity = static_cast<int>(DeerHerd::Count) * MaximumVerticesPerDeer;
 
         void Triangle(std::vector<VertexPositionColor>& out, const Vector3& a,
@@ -173,6 +174,102 @@ namespace island
             }
         }
 
+        struct BodySection
+        {
+            float forward;
+            float lift;
+            float halfWidth;
+            float halfHeight;
+        };
+
+        constexpr std::array DeerBodySections{
+            BodySection{-.72f,.060f,.045f,.050f},
+            BodySection{-.62f,.035f,.255f,.275f},
+            BodySection{-.43f,.015f,.340f,.345f},
+            BodySection{-.15f,.000f,.350f,.340f},
+            BodySection{ .15f,.015f,.340f,.345f},
+            BodySection{ .40f,.065f,.330f,.370f},
+            BodySection{ .58f,.140f,.265f,.295f},
+            BodySection{ .68f,.195f,.055f,.065f},
+        };
+
+        [[nodiscard]] float BodyHalfWidthAt(const float longitudinal,
+                                            const float height) noexcept
+        {
+            std::size_t upper=1;
+            while(upper+1<DeerBodySections.size()
+                  && longitudinal>DeerBodySections[upper].forward) ++upper;
+            const auto& a=DeerBodySections[upper-1];
+            const auto& b=DeerBodySections[upper];
+            const float t=std::clamp((longitudinal-a.forward)
+                /std::max(b.forward-a.forward,.0001f),0.0f,1.0f);
+            const float radius=a.halfWidth+(b.halfWidth-a.halfWidth)*t;
+            const float verticalRadius=a.halfHeight+(b.halfHeight-a.halfHeight)*t;
+            const float centreHeight=a.lift+(b.lift-a.lift)*t;
+            const float normalized=(height-centreHeight)/std::max(verticalRadius,.0001f);
+            return radius*std::sqrt(std::max(0.0f,1.0f-normalized*normalized));
+        }
+
+        void AppendBody(std::vector<VertexPositionColor>& out,const Vector3& centre,
+                        const Vector3& right,const Vector3& up,const Vector3& forward,
+                        const float scale,const Color coat,const float transmission,
+                        const bool near)
+        {
+            const int sides=near?20:9;
+            const Color shadowCoat=Color::Lerp(coat,Color(72,48,30),.32f);
+            const auto point=[&](const std::size_t section,const int side) {
+                const auto& profile=DeerBodySections[section];
+                const float angle=6.28318530718f*static_cast<float>(side)
+                    /static_cast<float>(sides);
+                return centre+forward*(profile.forward*scale)+up*(profile.lift*scale)
+                    +right*(std::cos(angle)*profile.halfWidth*scale)
+                    +up*(std::sin(angle)*profile.halfHeight*scale);
+            };
+            const auto normal=[&](const std::size_t section,const int side) {
+                const auto& profile=DeerBodySections[section];
+                const float angle=6.28318530718f*static_cast<float>(side)
+                    /static_cast<float>(sides);
+                Vector3 result=right*(std::cos(angle)/profile.halfWidth)
+                    +up*(std::sin(angle)/profile.halfHeight);
+                result.Normalize();
+                return result;
+            };
+            const auto colour=[&](const std::size_t section,const int side,const Vector3& n) {
+                const float mottle=.5f+.5f*std::sin(
+                    static_cast<float>(section)*2.17f+static_cast<float>(side)*1.31f);
+                return Lit(CoatTone(Color::Lerp(coat,shadowCoat,.018f+.035f*mottle),n,.30f),
+                           n,transmission);
+            };
+            for(std::size_t section=0;section+1<DeerBodySections.size();++section) {
+                for(int side=0;side<sides;++side) {
+                    const int next=(side+1)%sides;
+                    const Vector3 a=point(section,side),b=point(section+1,side);
+                    const Vector3 c=point(section+1,next),d=point(section,next);
+                    const Vector3 na=normal(section,side),nb=normal(section+1,side);
+                    const Vector3 nc=normal(section+1,next),nd=normal(section,next);
+                    out.emplace_back(a,colour(section,side,na));
+                    out.emplace_back(b,colour(section+1,side,nb));
+                    out.emplace_back(c,colour(section+1,next,nc));
+                    out.emplace_back(a,colour(section,side,na));
+                    out.emplace_back(c,colour(section+1,next,nc));
+                    out.emplace_back(d,colour(section,next,nd));
+                }
+            }
+            for(const auto& [section,reverse]:{
+                    std::pair<std::size_t,bool>{0U,true},
+                    std::pair<std::size_t,bool>{DeerBodySections.size()-1U,false}}) {
+                const Vector3 capCentre=centre+forward*(DeerBodySections[section].forward*scale)
+                    +up*(DeerBodySections[section].lift*scale);
+                const Vector3 capNormal=reverse?-forward:forward;
+                const Color capColor=Lit(CoatTone(coat,capNormal,.30f),capNormal,transmission);
+                for(int side=0;side<sides;++side) {
+                    const int next=(side+1)%sides;
+                    Triangle(out,capCentre,point(section,reverse?next:side),
+                             point(section,reverse?side:next),capColor);
+                }
+            }
+        }
+
         void AppendDeer(std::vector<VertexPositionColor>& out, const DeerState& deer,
                         const float transmission, const bool near)
         {
@@ -187,58 +284,59 @@ namespace island
                                   std::sin(deer.headingRadians));
             const Vector3 right(-forward.Z, 0.0f, forward.X), up = Vector3::Up;
             const Vector3 body(deer.x, deer.y + 1.03f * scale, deer.z);
-            Ellipsoid(out, body, right, up, forward, .31f * scale, .32f * scale,
-                      .63f * scale, coat, transmission, near ? 10 : 4, near ? 20 : 8, .30f);
-            // The shorter central loin exposes a higher chest and a rounded haunch as
-            // separate anatomical masses instead of hiding both inside one long capsule.
-            Ellipsoid(out, body + forward * (.40f * scale) + up * (.10f * scale),
-                      right, up, forward, .33f * scale, .39f * scale, .35f * scale,
-                      Color::Lerp(coat, dark, .06f), transmission, near ? 8 : 3,
-                      near ? 16 : 7, .30f);
-            Ellipsoid(out, body - forward * (.40f * scale) + up * (.025f * scale),
-                      right, up, forward, .35f * scale, .38f * scale, .38f * scale,
-                      coat, transmission, near ? 8 : 3, near ? 16 : 7, .30f);
+            AppendBody(out,body,right,up,forward,scale,coat,transmission,near);
             const float graze = deer.grazeAmount;
-            const Vector3 neckBase = body + forward * (.62f * scale) + up * (.20f * scale);
-            const Vector3 neckTop = neckBase + forward * (.30f * scale)
-                + up * ((.57f - .68f * graze) * scale);
-            const Vector3 neckMid = neckBase + forward * (.10f * scale)
-                + up * ((.31f - .34f * graze) * scale);
+            const Vector3 neckBase = body + forward * (.58f * scale) + up * (.24f * scale);
+            const Vector3 neckTop = neckBase + forward * (.27f * scale)
+                + up * ((.50f - .62f * graze) * scale);
+            const Vector3 neckMid = neckBase + forward * (.12f * scale)
+                + up * ((.27f - .31f * graze) * scale);
             const std::array<Vector3,5> neckStations{{
-                body+forward*(.55f*scale)+up*(.13f*scale),
+                body+forward*(.48f*scale)+up*(.17f*scale),
                 neckBase,
                 neckMid,
                 Vector3::Lerp(neckMid,neckTop,.56f),
                 neckTop}};
-            const std::array<float,5> neckRadii{{.29f*scale,.26f*scale,.225f*scale,
-                                                 .195f*scale,.17f*scale}};
+            const std::array<float,5> neckRadii{{.245f*scale,.225f*scale,.185f*scale,
+                                                 .155f*scale,.132f*scale}};
             LoftTube(out,neckStations,neckRadii,right,coat,transmission,near?10:7,.24f);
-            const Vector3 head = neckTop + forward * (.25f * scale)
-                + up * ((.06f - .12f * graze) * scale);
-            Ellipsoid(out, head, right, up, forward, .18f * scale, .22f * scale,
-                      .34f * scale, coat, transmission, near ? 7 : 3, near ? 16 : 7, .22f);
-            const Vector3 muzzle = head + forward * (.29f * scale) - up * (.055f * scale);
-            Ellipsoid(out, muzzle, right, up, forward, .13f * scale, .12f * scale,
-                      .19f * scale, Color::Lerp(coat,dark,.30f), transmission,
+            const Vector3 head = neckTop + forward * (.22f * scale)
+                + up * ((.045f - .105f * graze) * scale);
+            Ellipsoid(out, head, right, up, forward, .155f * scale, .19f * scale,
+                      .29f * scale, coat, transmission, near ? 8 : 3, near ? 18 : 7, .22f);
+            const Vector3 muzzle = head + forward * (.255f * scale) - up * (.055f * scale);
+            Ellipsoid(out, muzzle, right, up, forward, .112f * scale, .098f * scale,
+                      .17f * scale, Color::Lerp(coat,dark,.25f), transmission,
                       near ? 6 : 2, near ? 12 : 6);
-            const Vector3 nose=muzzle+forward*(.18f*scale)-up*(.010f*scale);
-            Ellipsoid(out,nose,right,up,forward,.105f*scale,.075f*scale,.065f*scale,
+            const Vector3 nose=muzzle+forward*(.16f*scale)-up*(.010f*scale);
+            Ellipsoid(out,nose,right,up,forward,.086f*scale,.058f*scale,.052f*scale,
                       dark,transmission,near?5:2,near?12:6);
             // Long pointed ears establish a deer rather than goat silhouette.
             for (const float sideSign : {-1.0f, 1.0f}) {
-                const Vector3 earRoot = head - forward * (.06f * scale)
-                    + right * (sideSign * .13f * scale) + up * (.14f * scale);
-                const Vector3 earTip = earRoot - forward * (.09f * scale)
-                    + right * (sideSign * .19f * scale) + up * (.24f * scale);
-                Triangle(out, earRoot - right * (sideSign * .055f * scale), earTip,
-                         earRoot + forward * (.12f * scale), Lit(dark, up, transmission));
-                Triangle(out, earRoot + forward * (.12f * scale), earTip,
-                         earRoot - right * (sideSign * .055f * scale), Lit(pale, up, transmission));
+                const Vector3 earRoot = head - forward * (.07f * scale)
+                    + right * (sideSign * .105f * scale) + up * (.13f * scale);
+                const Vector3 earTip = earRoot - forward * (.075f * scale)
+                    + right * (sideSign * .16f * scale) + up * (.23f * scale);
+                const Vector3 earFront=earRoot+forward*(.105f*scale)
+                    +right*(sideSign*.018f*scale);
+                const Vector3 earBack=earRoot-forward*(.070f*scale)
+                    -right*(sideSign*.014f*scale);
+                const Color earOuter=Lit(Color::Lerp(coat,dark,.22f),up,transmission);
+                Triangle(out,earBack,earTip,earFront,earOuter);
+                Triangle(out,earFront,earTip,earBack,earOuter);
+                const Vector3 innerRoot=Vector3::Lerp(earBack,earFront,.52f)+up*(.018f*scale);
+                const Vector3 innerTip=Vector3::Lerp(earRoot,earTip,.78f);
+                Triangle(out,innerRoot-right*(sideSign*.022f*scale),innerTip,
+                         innerRoot+right*(sideSign*.022f*scale),Lit(pale,up,transmission));
                 if (near) {
-                    const Vector3 eyeCentre = head + forward * (.14f * scale)
-                        + right * (sideSign * .17f * scale) + up * (.035f * scale);
-                    Ellipsoid(out, eyeCentre, right, up, forward, .025f * scale,
-                              .030f * scale, .018f * scale, eye, transmission, 4, 10);
+                    const Vector3 eyeCentre = head + forward * (.12f * scale)
+                        + right * (sideSign * .148f * scale) + up * (.030f * scale);
+                    Ellipsoid(out, eyeCentre, right, up, forward, .022f * scale,
+                              .026f * scale, .016f * scale, eye, transmission, 4, 10);
+                    const Vector3 glint=eyeCentre+forward*(.010f*scale)
+                        +right*(sideSign*.014f*scale)+up*(.008f*scale);
+                    Ellipsoid(out,glint,right,up,forward,.005f*scale,.006f*scale,
+                              .004f*scale,Color(225,205,145),transmission,3,8);
                 }
             }
             // Four articulated legs; diagonal phase offsets make walk and retreat readable.
@@ -257,43 +355,38 @@ namespace island
                     - swing * .15f) * scale) - up * (.34f * scale);
                 const Vector3 hoofPoint = hock + forward * (((hind ? .18f : .04f)
                     - swing * .08f) * scale);
-                const float upperRootRadius = hind ? .120f : .108f;
+                const float upperRootRadius = hind ? .142f : .128f;
                 const std::array<Vector3,4> upperLeg{{hip,Vector3::Lerp(hip,knee,.28f),
                     Vector3::Lerp(hip,knee,.62f),knee}};
                 const std::array<float,4> upperLegRadii{{upperRootRadius*scale,
-                    (hind?.118f:.104f)*scale,.082f*scale,.065f*scale}};
+                    (hind?.132f:.118f)*scale,.091f*scale,.069f*scale}};
                 LoftTube(out,upperLeg,upperLegRadii,right,coat,transmission,near?9:7);
-                Tube(out, knee, hock, .054f * scale, .038f * scale, dark, transmission,
+                Tube(out, knee, hock, .060f * scale, .043f * scale, dark, transmission,
                      near ? 9 : 7);
                 Tube(out, hock, Vector3(hoofPoint.X, deer.y + .060f * scale, hoofPoint.Z),
-                     .037f * scale, .028f * scale, dark, transmission, near ? 9 : 7);
+                     .043f * scale, .031f * scale, dark, transmission, near ? 9 : 7);
                 const Vector3 groundedHoof(hoofPoint.X, deer.y + .060f * scale, hoofPoint.Z);
-                Tube(out, groundedHoof - forward * (.045f * scale),
-                     groundedHoof + forward * (.075f * scale), .038f * scale,
-                     .028f * scale, hoof, transmission, near ? 8 : 6);
+                for(const float toeSide:{-.018f,.018f}) {
+                    const Vector3 offset=right*(toeSide*scale);
+                    Tube(out,groundedHoof-forward*(.042f*scale)+offset,
+                         groundedHoof+forward*(.085f*scale)+offset,
+                         .032f*scale,.022f*scale,hoof,transmission,near?8:6);
+                }
             }
             const Vector3 tailRoot = body - forward * (.77f * scale) + up * (.17f * scale);
             const Vector3 tailTip = tailRoot - forward * (.31f * scale) + up * (.08f * scale);
-            Tube(out, tailRoot, tailTip, .105f * scale, .025f * scale, pale, transmission,
+            Tube(out, tailRoot, tailTip, .085f * scale, .022f * scale, pale, transmission,
                  near ? 10 : 8);
             if (near) {
                 // Fitted oval patches replace the old double-sided triangles, which
                 // projected beyond the coat like small pale spikes. Each centre uses
                 // the outermost of the overlapping barrel, shoulder and rump ellipsoids.
-                for (int spot = 0; spot < 5; ++spot) for (const float sideSign : {-1.0f, 1.0f}) {
-                    const float z=-.43f+.20f*spot;
-                    constexpr float y=.12f;
-                    const auto widthAt=[&](const float rx,const float ry,const float rz,
-                                           const float centreY,const float centreZ) {
-                        const float normalizedY=(y-centreY)/ry;
-                        const float normalizedZ=(z-centreZ)/rz;
-                        return rx*std::sqrt(std::max(0.0f,
-                            1.0f-normalizedY*normalizedY-normalizedZ*normalizedZ));
-                    };
-                    const float halfWidth=std::max({
-                        widthAt(.31f,.32f,.63f,0,0),
-                        widthAt(.33f,.39f,.35f,.10f,.40f),
-                        widthAt(.35f,.38f,.38f,.025f,-.40f)})+.004f;
+                constexpr std::array<std::array<float,2>,7> spots{{
+                    {{-.36f,.15f}},{{-.13f,.15f}},{{.10f,.15f}},{{.33f,.15f}},
+                    {{-.25f,.015f}},{{-.02f,.015f}},{{.21f,.015f}}}};
+                for (const auto& spot : spots) for (const float sideSign : {-1.0f, 1.0f}) {
+                    const float z=spot[0],y=spot[1];
+                    const float halfWidth=BodyHalfWidthAt(z,y)+.004f;
                     const Vector3 centre=body+forward*(z*scale)+up*(y*scale)
                         +right*(sideSign*halfWidth*scale);
                     constexpr int SpotSides=6;
@@ -301,10 +394,10 @@ namespace island
                     for(int edge=0;edge<SpotSides;++edge) {
                         const float a=6.28318530718f*static_cast<float>(edge)/SpotSides;
                         const float b=6.28318530718f*static_cast<float>(edge+1)/SpotSides;
-                        const Vector3 first=centre+up*(std::sin(a)*.032f*scale)
-                            +forward*(std::cos(a)*.045f*scale);
-                        const Vector3 second=centre+up*(std::sin(b)*.032f*scale)
-                            +forward*(std::cos(b)*.045f*scale);
+                        const Vector3 first=centre+up*(std::sin(a)*.024f*scale)
+                            +forward*(std::cos(a)*.034f*scale);
+                        const Vector3 second=centre+up*(std::sin(b)*.024f*scale)
+                            +forward*(std::cos(b)*.034f*scale);
                         Triangle(out,centre,sideSign>0?first:second,
                                  sideSign>0?second:first,
                                  Lit(spotColor,right*sideSign,transmission));
@@ -315,17 +408,24 @@ namespace island
                 for (const float sideSign : {-1.0f, 1.0f}) {
                     const Vector3 base = head - forward * (.12f * scale)
                         + right * (sideSign * .075f * scale) + up * (.18f * scale);
-                    const Vector3 beam = base - forward * (.07f * scale)
-                        + right * (sideSign * .07f * scale) + up * (.39f * scale);
-                    const Vector3 crown = beam + forward * (.22f * scale) + up * (.19f * scale);
-                    Tube(out, base, beam, .026f * scale, .018f * scale, antler, transmission, 8);
-                    Tube(out, beam, crown, .019f * scale, .010f * scale, antler, transmission, 8);
-                    Tube(out, beam + forward * (.05f * scale),
-                         beam + forward * (.18f * scale) + up * (.10f * scale),
-                         .015f * scale, .008f * scale, antler, transmission, 8);
-                    Tube(out, crown - forward * (.06f * scale),
-                         crown - forward * (.02f * scale) + up * (.16f * scale),
-                         .012f * scale, .006f * scale, antler, transmission, 8);
+                    const Vector3 lowerBeam=base-forward*(.055f*scale)
+                        +right*(sideSign*.045f*scale)+up*(.22f*scale);
+                    const Vector3 upperBeam=lowerBeam-forward*(.018f*scale)
+                        +right*(sideSign*.040f*scale)+up*(.20f*scale);
+                    const Vector3 crown=upperBeam+forward*(.18f*scale)
+                        +right*(sideSign*.025f*scale)+up*(.16f*scale);
+                    Tube(out,base,lowerBeam,.030f*scale,.024f*scale,antler,transmission,8);
+                    Tube(out,lowerBeam,upperBeam,.025f*scale,.018f*scale,antler,transmission,8);
+                    Tube(out,upperBeam,crown,.019f*scale,.010f*scale,antler,transmission,8);
+                    Tube(out,lowerBeam+forward*(.010f*scale),
+                         lowerBeam+forward*(.16f*scale)+up*(.09f*scale),
+                         .017f*scale,.008f*scale,antler,transmission,8);
+                    Tube(out,upperBeam+forward*(.035f*scale),
+                         upperBeam+forward*(.15f*scale)+up*(.12f*scale),
+                         .014f*scale,.006f*scale,antler,transmission,8);
+                    Tube(out,crown-forward*(.035f*scale),
+                         crown+forward*(.015f*scale)+up*(.14f*scale),
+                         .011f*scale,.005f*scale,antler,transmission,8);
                 }
             }
         }
@@ -355,6 +455,10 @@ namespace island
             "island-simulator: deer use separated chest and haunch masses, muscle-profiled upper legs, and normal-driven dorsal-to-belly coat tone";
         std::cout << proportionDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(proportionDiagnostic);
+        constexpr auto silhouetteDiagnostic =
+            "island-simulator: near deer use a continuous sectioned torso, slender shoulder-grown neck, compact tapered face, leaf-shaped ears, split hooves, and curved multi-tine antlers";
+        std::cout << silhouetteDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(silhouetteDiagnostic);
     }
 
     DeerRenderer::~DeerRenderer() = default;

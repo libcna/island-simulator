@@ -112,6 +112,31 @@ hard grass/bush wall at a tier boundary; WebGL remains live, GL error is zero, t
 error is 1.075 m and kernel monitoring is clean. This is representative motion evidence, not a
 mathematical all-view aliasing proof.
 
+## Latest deer visual pass — continuous torso and species silhouette
+
+The renewed animal/landscape audit compared deer, geckos and rats after accepting current water,
+palms and shipwreck. The deer remained the weakest close form: three overlapping torso volumes
+read as an assembled block, the upright neck and tiny head suggested a llama, pale planar ears
+disappeared behind straight antlers, and the hooves were blunt single tubes.
+
+The three overlapping body volumes are replaced by one closed eight-section torso that carries a
+continuous rump, waist, withers and chest. The shoulder-grown five-station neck is slimmer, the
+head/muzzle/nasal pad are more compact, ears now have leaf-shaped outer and inset inner planes, and
+eyes retain small fitted catchlights. Fuller articulated legs end in separated cloven toes. The
+antlered adult now carries curved three-part beams with three tapered tines per side, while seven
+smaller flank spots form two fitted staggered rows. Analytic daylight and subtle deterministic
+coat variation remain vertex-only.
+
+The connected body more than pays for the new detail: conservative shared capacity decreases from
+28,000 to 26,000 vertices. Four agents, one dynamic upload/draw, near/far policy, simulation,
+habitat and contact are unchanged. Inspected native baseline
+`20261016T142214.520131Z-deer` and accepted `20261016T143955.877693Z-deer` show the corrected
+silhouette; accepted evidence passes at 236 colour bins, 33.58 luminance deviation, 135.73 spatial
+contrast and kernel `[]`. Core/deer tests and all 42 browser/capture harness tests pass. Focused
+Chrome/SwiftShader `20261016T144210.079030Z-chrome-deer` passes 60 finite intervals, GL0, a live
+context and kernel `[]`. WebAssembly and Android ARM64 assemble/lint pass; the APK is 24,680,923
+bytes with a 19,638,352-byte packaged library. No emulator/KVM was used.
+
 ## Latest bunker atmosphere pass — bounded underground electrical hum
 
 The next whole-island sound/interior audit found that the powered bunker remained acoustically an
