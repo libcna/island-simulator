@@ -1,5 +1,26 @@
 # Grounded helicopter
 
+## Separated entry-step braces — 2026-10-16
+
+The refreshed paired audit retained the rounded airframe, glazing, parked rotor mechanisms and
+readable cockpit, but selected the dense tubular grids below the four open doors. Four identical
+cross rungs per doorway overlapped in the normal front-quarter view and made the landing assembly
+look like a ladder laid on the ground. Each step keeps both longitudinal anti-slip rails but now
+uses two deliberately spaced cross-braces. The actual twin terrain-following skids and their four
+struts remain unchanged and are easier to distinguish through the lighter structure.
+
+Removing eight redundant tubes reduces the complete helicopter from 5,648 to 5,520 triangles in
+the same opaque/glass two draws. Placement, four terrain contacts, all four tested entry corridors,
+collision, supported floor, interior equipment and the stationary non-flying state are unchanged.
+`IslandHelicopterLayoutTests`, `IslandCoreTests` and all 96 browser/capture harness tests pass.
+Inspected native exterior `20261016T085700.093212Z-helicopter` passes at 316 colour bins, 54.43
+luminance deviation and 232.16 spatial contrast; interior guard
+`20261016T085726.610599Z-helicopter-inside` passes at 183/21.05/64.33. Both have empty kernel
+deltas. Focused Chrome/SwiftShader `20261016T085923.549779Z-chrome-helicopter` passes both
+inspected views with 60 finite positive intervals each, GL error zero and live contexts. Kernel
+supervision found no GPU fault; four unrelated Wine seccomp audit entries remain recorded in the
+evidence. Native and Web guards require the two-brace diagnostic.
+
 ## Articulated windscreen equipment — 2026-10-16
 
 The next exterior audit accepted the rounded canopy, open doors, transmission and interior, but

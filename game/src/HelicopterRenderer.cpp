@@ -415,8 +415,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
              metal,Surface::Metal);
         tube({stepOuterX,.055f,stepRearZ},{stepOuterX,.055f,stepFrontZ},.026f,
              metal,Surface::Metal);
-        for(int rung=0;rung<4;++rung) {
-            const float fraction=.14f+static_cast<float>(rung)*.72f/3.0f;
+        for(int rung=0;rung<2;++rung) {
+            const float fraction=.28f+static_cast<float>(rung)*.44f;
             const float z=std::lerp(stepRearZ,stepFrontZ,fraction);
             tube({stepInnerX,.055f,z},{stepOuterX,.055f,z},.020f,
                  metal,Surface::Metal);
@@ -908,6 +908,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<empennage<<'\n';MirrorRuntimeDiagnosticToPlatformLog(empennage);
     const std::string entrySteps="island-simulator: helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs";
     std::cout<<entrySteps<<'\n';MirrorRuntimeDiagnosticToPlatformLog(entrySteps);
+    const std::string stepProfile="island-simulator: helicopter entry steps use two spaced cross-braces per doorway instead of repeated ladder rungs";
+    std::cout<<stepProfile<<'\n';MirrorRuntimeDiagnosticToPlatformLog(stepProfile);
     const std::string seating="island-simulator: helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench";
     std::cout<<seating<<'\n';MirrorRuntimeDiagnosticToPlatformLog(seating);
     const std::string rotorMast="island-simulator: helicopter rotor mast uses concentric tubular shafts, a flattened round swashplate, and a rounded gearbox housing";

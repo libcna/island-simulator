@@ -149,6 +149,26 @@ contrast and kernel `[]`. Inspected Chrome/SwiftShader
 intervals, GL error zero, a live context and an empty kernel delta. Physical Android appearance and
 hardware performance remain unqualified.
 
+## Latest helicopter visual pass — separated entry-step braces
+
+The refreshed exterior/interior audit retained the rounded airframe, glazing, rotor mechanisms and
+readable cockpit, but selected the dense grids below the four open doors. Four identical cross
+rungs per doorway overlapped in the normal front-quarter view and made the landing assembly look
+like a ladder laid on the ground. Each open tubular step now keeps both longitudinal anti-slip
+rails but uses two deliberately spaced cross-braces. The actual twin terrain-following skids and
+their four struts are unchanged and more visible through the lighter step structure.
+
+Removing eight redundant tubes reduces the complete helicopter from 5,648 to 5,520 triangles in
+the same opaque/glass two draws. Placement, terrain contacts, collision, all four tested entry
+corridors, floor support, interior and the stationary non-flying state are unchanged. Inspected
+native exterior `20261016T085700.093212Z-helicopter` passes at 316 colour bins, 54.43 luminance
+deviation and 232.16 spatial contrast; interior guard
+`20261016T085726.610599Z-helicopter-inside` passes at 183/21.05/64.33. Both have empty kernel
+deltas. Inspected Chrome/SwiftShader `20261016T085923.549779Z-chrome-helicopter` passes exterior
+and interior with 60 finite positive intervals each, GL error zero and live contexts. Kernel
+supervision reports no GPU fault; four unrelated Wine seccomp audit entries are retained in the
+evidence rather than misreported as an empty journal delta.
+
 ## Latest vegetation microhabitat pass — canopy trunk epiphytes
 
 The next vegetation audit accepted the connected crowns, bark and traversable forest floor but

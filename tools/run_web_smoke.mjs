@@ -847,6 +847,7 @@ try {
               && log.includes("lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands")
               && log.includes("helicopter empennage uses a closed swept vertical fin and separate tapered horizontal stabilizers")
               && log.includes("helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs")
+              && log.includes("helicopter entry steps use two spaced cross-braces per doorway instead of repeated ladder rungs")
               && log.includes("helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench")
               && log.includes("helicopter rotor mast uses concentric tubular shafts, a flattened round swashplate, and a rounded gearbox housing")
               && /helicopter 2 draw/.test(log)))

@@ -90,6 +90,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             "lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands",
             "helicopter empennage uses a closed swept vertical fin and separate tapered horizontal stabilizers",
             "helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs",
+            "helicopter entry steps use two spaced cross-braces per doorway instead of repeated ladder rungs",
             "helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench",
             "helicopter rotor mast uses concentric tubular shafts, a flattened round swashplate, and a rounded gearbox housing",
             "helicopter 2 draw",
@@ -139,6 +140,10 @@ class BrowserSoftwareTests(unittest.TestCase):
             gate.validate_helicopter_report(report)
         report["views"][1]["result"]["output"] = markers.replace(
             "helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs\n", "")
+        with self.assertRaises(RuntimeError):
+            gate.validate_helicopter_report(report)
+        report["views"][1]["result"]["output"] = markers.replace(
+            "helicopter entry steps use two spaced cross-braces per doorway instead of repeated ladder rungs\n", "")
         with self.assertRaises(RuntimeError):
             gate.validate_helicopter_report(report)
         report["views"][1]["result"]["output"] = markers.replace(
