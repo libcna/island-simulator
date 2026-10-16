@@ -41,15 +41,15 @@ constexpr std::array<Section, 19> Body{{{-.80f, .042f, .040f, 0},
                                         {-.62f, .082f, .074f, 0},
                                         {-.50f, .115f, .103f, 0},
                                         {-.37f, .155f, .137f, 0},
-                                        {-.22f, .184f, .159f, 0},
-                                        {-.06f, .212f, .177f, 0},
-                                        {.10f, .226f, .188f, 0},
-                                        {.25f, .230f, .191f, 0},
-                                        {.40f, .224f, .189f, .002f},
-                                        {.53f, .211f, .182f, .006f},
-                                        {.64f, .198f, .176f, .014f},
-                                        {.73f, .183f, .166f, .025f},
-                                        {.81f, .166f, .155f, .038f},
+                                        {-.22f, .176f, .148f, 0},
+                                        {-.06f, .198f, .161f, 0},
+                                        {.10f, .210f, .170f, 0},
+                                        {.25f, .214f, .172f, 0},
+                                        {.40f, .209f, .170f, .002f},
+                                        {.53f, .198f, .165f, .006f},
+                                        {.64f, .188f, .161f, .014f},
+                                        {.73f, .176f, .154f, .025f},
+                                        {.81f, .161f, .147f, .038f},
                                         {.87f, .144f, .141f, .052f},
                                         {.92f, .117f, .127f, .064f},
                                         {.955f, .092f, .107f, .068f},
@@ -272,15 +272,15 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
     // Long narrow pectorals follow the lower flank and sweep rearward.  The former
     // broad seven-point plate overpowered the head/body in close broadside views.
     const std::array fin{
-        Point(centre, axes, side * .17f, -.055f, .34f, scale),
-        Point(centre, axes, side * .220f, -.072f, .285f, scale),
-        Point(centre, axes, side * .300f, -.095f, .195f, scale),
-        Point(centre, axes, side * .370f, -.114f, .080f, scale),
-        Point(centre, axes, side * .405f, -.126f, -.025f, scale),
-        Point(centre, axes, side * .360f, -.130f, -.110f, scale),
-        Point(centre, axes, side * .270f, -.122f, -.180f, scale),
-        Point(centre, axes, side * .190f, -.104f, -.165f, scale),
-        Point(centre, axes, side * .140f, -.085f, -.080f, scale)};
+        Point(centre, axes, side * .160f, -.052f, .32f, scale),
+        Point(centre, axes, side * .205f, -.068f, .270f, scale),
+        Point(centre, axes, side * .265f, -.087f, .190f, scale),
+        Point(centre, axes, side * .315f, -.104f, .090f, scale),
+        Point(centre, axes, side * .335f, -.114f, .000f, scale),
+        Point(centre, axes, side * .300f, -.118f, -.075f, scale),
+        Point(centre, axes, side * .240f, -.110f, -.135f, scale),
+        Point(centre, axes, side * .180f, -.094f, -.125f, scale),
+        Point(centre, axes, side * .135f, -.078f, -.055f, scale)};
     const std::array<float, 9> finThickness{{.027f*scale,.022f*scale,
         .017f*scale,.011f*scale,.006f*scale,.008f*scale,.014f*scale,
         .021f*scale,.028f*scale}};
@@ -421,6 +421,10 @@ DolphinRenderer::DolphinRenderer(GraphicsDevice &device,
       "island-simulator: dolphin silhouette pass uses a ten-point falcate dorsal, nine-point curved pectorals, eight-point forked flukes, and brighter swept ventral countershading";
   std::cout << silhouettePolish << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(silhouettePolish);
+  const char *streamline =
+      "island-simulator: near dolphins use a lean tapered peduncle-to-melon trunk and compact rear-swept pectorals";
+  std::cout << streamline << '\n';
+  MirrorRuntimeDiagnosticToPlatformLog(streamline);
 }
 DolphinRenderer::~DolphinRenderer() = default;
 

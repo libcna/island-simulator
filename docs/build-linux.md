@@ -445,7 +445,7 @@ software frames.
 fourteen-station/eighteen-sided capped anatomy marker and the same water-column lighting diagnostic. Its closer
 camera follows subject translation only, preserving live heading, pitch, bank and tail motion.
 `IslandGameDolphinCapture` writes a close offshore pod view to
-`build/island-dolphin-capture.ppm` and requires the exact 708/15-vertex inventory plus current
+`build/island-dolphin-capture.ppm` and requires the exact 3300/15-vertex inventory plus current
 short-beak/faceted-eye/shaped-fin marker. Its closer camera follows subject translation only,
 preserving live pitch, bank, fluke beat and behaviour.
 `IslandGameMonkeyCapture` writes a close GPU-skinned jungle wildlife view to

@@ -131,6 +131,24 @@ contrast and kernel `[]`. Inspected Chrome/SwiftShader
 intervals, GL error zero, a live context and an empty kernel delta. Android runtime remains grouped
 with final integration.
 
+## Latest dolphin visual pass — lean trunk and compact pectorals
+
+The current cross-animal contact sheet retained the dolphin's cetacean face, falcate dorsal and
+horizontal flukes, but its broad midbody and large near-side pectoral still made the animal read as
+a thick grey cylinder with a rectangular paddle. Nine existing axial body sections now form a
+leaner uninterrupted taper from caudal peduncle through trunk and melon. Both nine-point pectorals
+retain their closed tapered volumes but use a shorter span, smaller chord and tighter rear sweep.
+
+This is coordinate-only: the exact 3,300/15 near/far inventory, four-agent pod, one dynamic draw,
+habitat, cruise/surface/dive behaviour and vertical fluke stroke are unchanged. Inspected native
+baseline `20261016T045838.259438Z-dolphins` and accepted evidence
+`20261016T084851.788152Z-dolphins` show a visibly slimmer trunk and less slab-like near fin. The
+accepted 1280x720 frame passes at 146 colour bins, 44.88 luminance deviation, 213.99 spatial
+contrast and kernel `[]`. Inspected Chrome/SwiftShader
+`20261016T085114.640082Z-chrome-dolphins` passes two distinct moving frames, 60 finite positive
+intervals, GL error zero, a live context and an empty kernel delta. Physical Android appearance and
+hardware performance remain unqualified.
+
 ## Latest vegetation microhabitat pass — canopy trunk epiphytes
 
 The next vegetation audit accepted the connected crowns, bark and traversable forest floor but

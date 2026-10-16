@@ -1,5 +1,23 @@
 # Offshore dolphin pod
 
+## Lean trunk and compact pectorals — 2026-10-16
+
+The renewed animal contact sheet retained the dolphin's facial cues, falcate dorsal and horizontal
+flukes, but the broad midbody and near-side pectoral still read as a thick grey cylinder with a
+rectangular paddle. Nine existing axial body sections now narrow smoothly from the caudal peduncle
+through the trunk into the melon. Both nine-point pectorals keep their closed tapered volumes while
+using a shorter span, smaller chord and tighter rear sweep.
+
+The pass changes coordinates only. Near/far inventory remains exactly 3,300/15 vertices; all four
+dolphins, one dynamic draw, habitat, LOD, cruise/surface/dive behaviour and vertical fluke stroke
+are unchanged. Native baseline `20261016T045838.259438Z-dolphins` and accepted current-binary
+evidence `20261016T084851.788152Z-dolphins` were inspected side by side. The accepted 1280x720 frame
+passes with 146 colour bins, 44.88 luminance deviation, 213.99 spatial contrast and an empty kernel
+delta. Focused Chrome/SwiftShader `20261016T085114.640082Z-chrome-dolphins` contains two inspected
+distinct moving frames, 60 finite positive intervals, GL error zero, a live context and an empty
+kernel delta. Native and Web gates require the new streamlined-proportion marker. Physical Android
+appearance and hardware performance remain unqualified.
+
 ## Scope
 
 The island now has four peaceful dolphins beyond the western reef. `DolphinPod` owns a
@@ -14,10 +32,10 @@ animation or sound recording.
 ## Form and rendering
 
 `DolphinRenderer` emits all visible animals into one dynamic `BasicEffect` batch. The close form
-has a nineteen-station, twenty-four-sided tapered fusiform body, pale underside, short closed
-twelve-facet beak below the melon,
-two-facet highlighted eyes, shaped swept pectoral fins, a rear-curved dorsal fin and broad
-horizontal flukes. The dorsal, both pectorals and both flukes are thin closed volumes with separate
+has a nineteen-station, twenty-four-sided tapered fusiform body, pale underside, fitted closed
+twelve-facet rostrum below the melon, six-facet oval highlighted eyes, compact swept pectoral fins,
+a falcate ten-point dorsal fin and rounded horizontal flukes. The dorsal, both pectorals and both
+flukes are thin closed volumes with separate
 faces and darker perimeter edges rather than coincident zero-thickness sheets. A two-part mouth
 crease and two-facet blowhole retain cetacean head cues. The
 body follows smoothed dive pitch and turn bank, while the tail stock bends vertically through the

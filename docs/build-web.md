@@ -717,7 +717,7 @@ error zero. The shark view must report
 the active offshore patrol, exact 1896/15-vertex inventory, fourteen-station/eighteen-sided capped anatomy marker
 and the same lighting diagnostic. A focused `--scope shark` run additionally requires two
 different-hash separated-time frames, 60 positive intervals, SwiftShader, an intact context and GL
-error zero. A focused `--scope dolphins` run requires the 708/15-vertex inventory and current
+error zero. A focused `--scope dolphins` run requires the 3300/15-vertex inventory and current
 short-beak/faceted-eye/shaped-fin marker, a visible near member of the four-animal pod, two
 different-hash separated-time frames, 60 positive intervals, SwiftShader, an intact context and GL
 error zero. The monkey view must report a visible member of the

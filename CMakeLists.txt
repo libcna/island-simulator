@@ -1124,7 +1124,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "dolphin near/far geometry 708/15 vertices, closed fins and CPU faceted daylight")
+                "dolphin near/far geometry 3300/15 vertices, closed fins and CPU faceted daylight")
         add_test(NAME IslandGameBearCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-bear-capture.ppm"
                     --viewpoint bear)
