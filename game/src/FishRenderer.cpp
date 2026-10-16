@@ -53,18 +53,14 @@ namespace island
         };
 
         const std::array<FishPalette, 4> Palettes = {{
-            {Color(66, 111, 117, 255), Color(126, 166, 166, 255),
-             Color(207, 214, 184, 255),
-             Color(105, 143, 132, 255)},
-            {Color(21, 76, 91, 255), Color(41, 126, 138, 255),
-             Color(125, 191, 175, 255),
-             Color(58, 106, 118, 255)},
-            {Color(102, 79, 51, 255), Color(174, 133, 74, 255),
-             Color(223, 194, 129, 255),
-             Color(143, 109, 64, 255)},
-            {Color(28, 48, 91, 255), Color(59, 82, 126, 255),
-             Color(140, 168, 180, 255),
-             Color(82, 108, 137, 255)}
+            {Color(48, 96, 112, 255), Color(126, 174, 168, 255),
+             Color(220, 221, 187, 255), Color(201, 164, 65, 255)},
+            {Color(16, 72, 96, 255), Color(30, 139, 157, 255),
+             Color(136, 204, 182, 255), Color(211, 164, 48, 255)},
+            {Color(115, 70, 40, 255), Color(193, 137, 61, 255),
+             Color(235, 205, 132, 255), Color(169, 86, 43, 255)},
+            {Color(36, 42, 100, 255), Color(68, 79, 148, 255),
+             Color(155, 178, 193, 255), Color(112, 91, 158, 255)}
         }};
 
         struct BodySection
@@ -104,6 +100,8 @@ namespace island
             "island-simulator: near fish use restrained upper-flank iridescence and palette-matched gill creases";
         constexpr std::string_view FishEyeDiagnostic =
             "island-simulator: near fish eyes use palette-tinted oval irises, inset dark pupils, and raised highlights";
+        constexpr std::string_view FishSpeciesDiagnostic =
+            "island-simulator: four fish families use slender fusilier, deep sergeant, disk-bodied reef, and long snapper silhouettes";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -292,8 +290,17 @@ namespace island
             };
             const PoseAxes axes = MakePoseAxes(fish);
             const float scale = fish.scale;
-            const float widthScale = fish.colorVariant % 4U == 1U ? 0.88f : 1.0f;
-            const float heightScale = fish.colorVariant % 4U == 2U ? 1.12f : 1.0f;
+            const std::size_t variant = fish.colorVariant % 4U;
+            constexpr std::array<float, 4> WidthScales = {{.82f, .90f, .74f, .94f}};
+            constexpr std::array<float, 4> HeightScales = {{.86f, 1.12f, 1.34f, .96f}};
+            constexpr std::array<float, 4> LengthScales = {{1.14f, 1.02f, .88f, 1.18f}};
+            constexpr std::array<float, 4> TailHeightScales = {{.92f, 1.06f, 1.18f, .96f}};
+            constexpr std::array<float, 4> DorsalHeightScales = {{.78f, 1.06f, 1.24f, .88f}};
+            const float widthScale = WidthScales[variant];
+            const float heightScale = HeightScales[variant];
+            const float lengthScale = LengthScales[variant];
+            const float tailHeightScale = TailHeightScales[variant];
+            const float dorsalHeightScale = DorsalHeightScales[variant];
             std::array<std::array<Vector3, BodySegments>, BodySections.size()> rings{};
             for (std::size_t row = 0; row < BodySections.size(); ++row) {
                 const BodySection& section = BodySections[row];
@@ -305,7 +312,8 @@ namespace island
                     rings[row][segment] = LocalPoint(
                         centre, axes,
                         bend + section.halfWidth * widthScale * std::cos(angle),
-                        section.halfHeight * heightScale * std::sin(angle), section.z, scale);
+                        section.halfHeight * heightScale * std::sin(angle),
+                        section.z * lengthScale, scale);
                 }
             }
             for (std::size_t row = 0; row + 1U < BodySections.size(); ++row) {
@@ -357,46 +365,50 @@ namespace island
                                             color, palette.body, nextColor);
                 }
             };
-            appendBodyCap(0U, .562f, true);
-            appendBodyCap(BodySections.size() - 1U, -.575f, false);
+            appendBodyCap(0U, .562f * lengthScale, true);
+            appendBodyCap(BodySections.size() - 1U, -.575f * lengthScale, false);
 
             const float bend = fish.bodyWave * 0.105f;
-            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.56f, scale);
+            const Vector3 rear = LocalPoint(
+                centre, axes, bend, 0.0f, -0.56f * lengthScale, scale);
 
             const float tailBend = fish.bodyWave * 0.17f;
             const auto tailPoint = [&](const float y, const float z, const float wave) {
                 return LocalPoint(centre, axes, tailBend * wave, y, z, scale);
             };
-            const std::array upperTail{rear, tailPoint(.045f,-.65f,1.02f),
-                tailPoint(.135f,-.86f,1.09f), tailPoint(.080f,-.92f,1.11f),
-                tailPoint(0,-.79f,1.07f)};
-            const std::array lowerTail{rear, tailPoint(0,-.79f,1.07f),
-                tailPoint(-.080f,-.92f,1.11f), tailPoint(-.135f,-.86f,1.09f),
-                tailPoint(-.045f,-.65f,1.02f)};
-            AppendClosedPolygon(vertices, upperTail, axes.right * (0.004f * scale),
+            const std::array upperTail{rear,
+                tailPoint(.045f*tailHeightScale,-.65f*lengthScale,1.02f),
+                tailPoint(.135f*tailHeightScale,-.86f*lengthScale,1.09f),
+                tailPoint(.080f*tailHeightScale,-.92f*lengthScale,1.11f),
+                tailPoint(0,-.79f*lengthScale,1.07f)};
+            const std::array lowerTail{rear,tailPoint(0,-.79f*lengthScale,1.07f),
+                tailPoint(-.080f*tailHeightScale,-.92f*lengthScale,1.11f),
+                tailPoint(-.135f*tailHeightScale,-.86f*lengthScale,1.09f),
+                tailPoint(-.045f*tailHeightScale,-.65f*lengthScale,1.02f)};
+            AppendClosedPolygon(vertices, upperTail, axes.right * (0.009f * scale),
                                 palette.fin, palette.back);
-            AppendClosedPolygon(vertices, lowerTail, axes.right * (0.004f * scale),
+            AppendClosedPolygon(vertices, lowerTail, axes.right * (0.009f * scale),
                                 palette.fin, palette.back);
 
             const std::array dorsal{
-                LocalPoint(centre, axes, 0, .14f, .15f, scale),
-                LocalPoint(centre, axes, 0, .19f, .05f, scale),
-                LocalPoint(centre, axes, 0, .235f, -.05f, scale),
-                LocalPoint(centre, axes, bend*.18f, .25f, -.12f, scale),
-                LocalPoint(centre, axes, bend*.38f, .18f, -.22f, scale),
-                LocalPoint(centre, axes, bend*.50f, .12f, -.30f, scale)};
-            AppendClosedPolygon(vertices, dorsal, axes.right * (0.006f * scale),
+                LocalPoint(centre,axes,0,.14f*heightScale,.15f*lengthScale,scale),
+                LocalPoint(centre,axes,0,.19f*dorsalHeightScale,.05f*lengthScale,scale),
+                LocalPoint(centre,axes,0,.235f*dorsalHeightScale,-.05f*lengthScale,scale),
+                LocalPoint(centre,axes,bend*.18f,.25f*dorsalHeightScale,-.12f*lengthScale,scale),
+                LocalPoint(centre,axes,bend*.38f,.18f*dorsalHeightScale,-.22f*lengthScale,scale),
+                LocalPoint(centre,axes,bend*.50f,.12f*heightScale,-.30f*lengthScale,scale)};
+            AppendClosedPolygon(vertices, dorsal, axes.right * (0.010f * scale),
                                 palette.fin, palette.back);
 
             for (const float side : {-1.0f, 1.0f}) {
                 const std::array pectoral{
-                    LocalPoint(centre, axes, side*.145f,-.015f,.13f,scale),
-                    LocalPoint(centre, axes, side*.175f,-.038f,.035f,scale),
-                    LocalPoint(centre, axes, side*.22f,-.058f,-.06f,scale),
-                    LocalPoint(centre, axes, side*.205f,-.064f,-.115f,scale),
-                    LocalPoint(centre, axes, side*.17f,-.055f,-.16f,scale),
-                    LocalPoint(centre, axes, side*.125f,-.048f,-.19f,scale)};
-                AppendClosedPolygon(vertices, pectoral, axes.up * (0.004f * scale),
+                    LocalPoint(centre,axes,side*.145f*widthScale,-.015f*heightScale,.13f*lengthScale,scale),
+                    LocalPoint(centre,axes,side*.175f*widthScale,-.038f*heightScale,.035f*lengthScale,scale),
+                    LocalPoint(centre,axes,side*.22f*widthScale,-.058f*heightScale,-.06f*lengthScale,scale),
+                    LocalPoint(centre,axes,side*.205f*widthScale,-.064f*heightScale,-.115f*lengthScale,scale),
+                    LocalPoint(centre,axes,side*.17f*widthScale,-.055f*heightScale,-.16f*lengthScale,scale),
+                    LocalPoint(centre,axes,side*.125f*widthScale,-.048f*heightScale,-.19f*lengthScale,scale)};
+                AppendClosedPolygon(vertices, pectoral, axes.up * (0.007f * scale),
                                     palette.fin, palette.back);
             }
 
@@ -409,32 +421,34 @@ namespace island
             for (const float side : {-1.0f, 1.0f}) {
                 constexpr int EyeSegments = 6;
                 const Vector3 eyeCentre = LocalPoint(
-                    centre, axes, side * .159f, .045f, .283f, scale);
+                    centre, axes, side * .159f * widthScale,
+                    .045f * heightScale, .283f * lengthScale, scale);
                 for (int segment = 0; segment < EyeSegments; ++segment) {
                     const float first = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(segment) / static_cast<float>(EyeSegments);
                     const float next = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(segment + 1) / static_cast<float>(EyeSegments);
                     const auto edge = [&](const float angle) {
-                        return LocalPoint(centre, axes, side * .161f,
-                            .045f + std::sin(angle) * .032f,
-                            .283f + std::cos(angle) * .036f, scale);
+                        return LocalPoint(centre, axes, side * .161f * widthScale,
+                            (.045f + std::sin(angle) * .032f) * heightScale,
+                            (.283f + std::cos(angle) * .036f) * lengthScale, scale);
                     };
                     if (side > 0.0f)
                         AddTriangle(vertices, eyeCentre, edge(next), edge(first), iris);
                     else AddTriangle(vertices, eyeCentre, edge(first), edge(next), iris);
                 }
                 const Vector3 pupilCentre = LocalPoint(
-                    centre, axes, side * .163f, .045f, .283f, scale);
+                    centre, axes, side * .163f * widthScale,
+                    .045f * heightScale, .283f * lengthScale, scale);
                 for (int segment = 0; segment < EyeSegments; ++segment) {
                     const float first = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(segment) / static_cast<float>(EyeSegments);
                     const float next = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(segment + 1) / static_cast<float>(EyeSegments);
                     const auto pupilEdge = [&](const float angle) {
-                        return LocalPoint(centre, axes, side * .164f,
-                            .045f + std::sin(angle) * .018f,
-                            .283f + std::cos(angle) * .020f, scale);
+                        return LocalPoint(centre, axes, side * .164f * widthScale,
+                            (.045f + std::sin(angle) * .018f) * heightScale,
+                            (.283f + std::cos(angle) * .020f) * lengthScale, scale);
                     };
                     if (side > 0.0f)
                         AddTriangle(vertices, pupilCentre,
@@ -443,23 +457,23 @@ namespace island
                                      pupilEdge(first), pupilEdge(next), pupil);
                 }
                 AddTriangle(vertices,
-                    LocalPoint(centre, axes, side * 0.165f, 0.060f, 0.291f, scale),
-                    LocalPoint(centre, axes, side * 0.166f, 0.051f, 0.297f, scale),
-                    LocalPoint(centre, axes, side * 0.166f, 0.050f, 0.284f, scale), eyeShine);
+                    LocalPoint(centre,axes,side*.165f*widthScale,.060f*heightScale,.291f*lengthScale,scale),
+                    LocalPoint(centre,axes,side*.166f*widthScale,.051f*heightScale,.297f*lengthScale,scale),
+                    LocalPoint(centre,axes,side*.166f*widthScale,.050f*heightScale,.284f*lengthScale,scale),eyeShine);
             }
             AddTriangle(vertices,
-                        LocalPoint(centre, axes, -0.190f, 0.070f, 0.145f, scale),
-                        LocalPoint(centre, axes, -0.192f, -0.060f, 0.115f, scale),
-                        LocalPoint(centre, axes, -0.193f, -0.042f, 0.158f, scale), gill);
+                        LocalPoint(centre,axes,-.190f*widthScale,.070f*heightScale,.145f*lengthScale,scale),
+                        LocalPoint(centre,axes,-.192f*widthScale,-.060f*heightScale,.115f*lengthScale,scale),
+                        LocalPoint(centre,axes,-.193f*widthScale,-.042f*heightScale,.158f*lengthScale,scale),gill);
             AddTriangle(vertices,
-                        LocalPoint(centre, axes, 0.190f, 0.070f, 0.145f, scale),
-                        LocalPoint(centre, axes, 0.193f, -0.042f, 0.158f, scale),
-                        LocalPoint(centre, axes, 0.192f, -0.060f, 0.115f, scale), gill);
+                        LocalPoint(centre,axes,.190f*widthScale,.070f*heightScale,.145f*lengthScale,scale),
+                        LocalPoint(centre,axes,.193f*widthScale,-.042f*heightScale,.158f*lengthScale,scale),
+                        LocalPoint(centre,axes,.192f*widthScale,-.060f*heightScale,.115f*lengthScale,scale),gill);
             for (const float side : {-1.0f, 1.0f}) {
                 AddTriangle(vertices,
-                            LocalPoint(centre, axes, side * 0.035f, -0.027f, 0.486f, scale),
-                            LocalPoint(centre, axes, side * 0.110f, -0.034f, 0.405f, scale),
-                            LocalPoint(centre, axes, side * 0.040f, -0.045f, 0.465f, scale),
+                            LocalPoint(centre,axes,side*.035f*widthScale,-.027f*heightScale,.486f*lengthScale,scale),
+                            LocalPoint(centre,axes,side*.110f*widthScale,-.034f*heightScale,.405f*lengthScale,scale),
+                            LocalPoint(centre,axes,side*.040f*widthScale,-.045f*heightScale,.465f*lengthScale,scale),
                             gill);
             }
             if (vertices.size() - startingVertexCount != FishRenderer::NearVertexCount) {
@@ -534,6 +548,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(FishSurfaceDiagnostic);
         std::cout << FishEyeDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(FishEyeDiagnostic);
+        std::cout << FishSpeciesDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(FishSpeciesDiagnostic);
     }
 
     FishRenderer::~FishRenderer() = default;

@@ -961,6 +961,7 @@ try {
               && log.includes("near fish use blunt convex foreheads and rounded snouts instead of needle-point wedges")
               && log.includes("near fish use restrained upper-flank iridescence and palette-matched gill creases")
               && log.includes("near fish eyes use palette-tinted oval irises, inset dark pupils, and raised highlights")
+              && log.includes("four fish families use slender fusilier, deep sergeant, disk-bodied reef, and long snapper silhouettes")
               && /fish [1-9][0-9]*\/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedStingrayCheck || (log.includes("stingrays use broad undulating discs, raised eyes, dorsal spots, pale undersides, and long tapered tails in one draw")
               && log.includes("near stingrays use a curved diamond disc, raised central body, wedge nose, and restrained dark rim")
@@ -2637,6 +2638,8 @@ try {
       "island-simulator: near fish use restrained upper-flank iridescence and palette-matched gill creases")
     && fishResult.output?.includes(
       "island-simulator: near fish eyes use palette-tinted oval irises, inset dark pupils, and raised highlights")
+    && fishResult.output?.includes(
+      "island-simulator: four fish families use slender fusilier, deep sergeant, disk-bodied reef, and long snapper silhouettes")
     && /fish [1-9][0-9]*\/48 visible/.test(fishResult.output ?? "")
     && !fishResult.error;
 

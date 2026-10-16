@@ -1,5 +1,28 @@
 # Shallow-water fish form
 
+## Four distinct family silhouettes (2026-10-16)
+
+The next exact close-school audit found that the four existing palette families still shared
+almost the same body outline. Their existing eleven-station lofts now apply bounded,
+family-specific length, width and height profiles: the fusilier is long and slender, the
+sergeant is deeper through the shoulder, the reef fish has a short disk-like body, and the
+snapper is long with a fuller flank. Caudal, dorsal and pectoral outlines follow those
+proportions, while slightly stronger but still underwater-muted palette separation keeps the
+families legible when their silhouettes overlap.
+
+This is a coordinate and colour pass over the existing mesh. The exact 1,422/12 near/far vertex
+inventory, 48 animals in eight schools, one dynamic draw, animation, habitat, culling and LOD are
+unchanged. Native evidence `20261016T184507.393156Z-fish` passes at 1280 by 720 with 155 colour
+bins, 21.08 luminance deviation and 113.79 spatial contrast. Focused Chrome/SwiftShader evidence
+`20261016T184808.199761Z-chrome-fish` preserves the four forms across two moving frames, 60
+finite positive intervals, GL error zero, a live context and an empty kernel delta. Core tests and
+all 102 browser/capture harness tests pass.
+
+ARM64 Android assemble/lint passes without an emulator or KVM. The APK is 24,738,755 bytes with
+SHA-256 `489ecfef6b69fce09951d94315a6ad8c917c5cae24515b0515f44086ae15b11e`;
+stripped `libmain.so` is 19,696,184 bytes. Physical-device appearance and sustained performance
+remain unqualified.
+
 ## Layered palette-aware eyes (2026-10-16)
 
 The renewed close-school audit retained the rounded head, four family palettes, surface pigment,

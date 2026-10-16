@@ -16379,6 +16379,21 @@ Existing observation and qualification queue:
   SHA-256 `331fac249354a32e6f1256de82e358daca937bda48bb2669d87de45239dc5f2e`; stripped
   `libmain.so` is 19,694,888 bytes.
 
+### 2026-10-16 — Four distinct shallow-water fish families
+
+- The exact close-school audit found that all four palette families still shared nearly one
+  outline. Reprofiled the existing loft and fitted fins into a long slender fusilier, deeper
+  sergeant, short disk-bodied reef fish and long fuller snapper, with stronger restrained palette
+  separation. The change uses only existing vertices and colours.
+- The exact 1,422/12 near/far vertex budget, 48 animals, eight schools, simulation, habitat, LOD,
+  buffer capacity and one dynamic draw remain unchanged. Native evidence
+  `20261016T184507.393156Z-fish` and Chrome/SwiftShader evidence
+  `20261016T184808.199761Z-chrome-fish` were inspected and pass image, GL0, live-context and kernel
+  gates; core and all 102 browser/capture harness tests pass.
+- ARM64 Android assemble/lint passes without an emulator or KVM. The APK is 24,738,755 bytes with
+  SHA-256 `489ecfef6b69fce09951d94315a6ad8c917c5cae24515b0515f44086ae15b11e`; stripped
+  `libmain.so` is 19,696,184 bytes.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.
