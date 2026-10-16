@@ -68,6 +68,9 @@ remaining material work is:
 
 - continue whole-island visual critique, especially jungle-floor/canopy repetition and any
   moving-edge aliasing that is visible in ordinary first-person play;
+- implement the retained tree-dwelling snake variant; the 50 ground snakes now have bounded live
+  crawl, positional hissing and a current native/Web head-and-body visual pass, but arboreal snakes
+  are still absent;
 - complete subjective headphone/speaker listening and real audio-focus/lifecycle checks; the
   recorded traversal, material/lighting and wildlife/motion plus automated long-session sound
   passes are complete;
@@ -130,6 +133,28 @@ spiders, boar/goat/snake sound, flight/diving controls, stream/wetland/mangroves
 the latest animal repairs already exist and are not reopened merely because an older section still
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
+
+## Latest ground-snake visual pass — broad low head and fitted pupils
+
+The current body/head audit selected the nearly conical round face as the weakest ground-snake
+feature. Its four-section head now expands into a broad low temple, tapers through a longer cheek
+and ends in a blunt muzzle. Both raised amber eyes carry separate fitted vertical pupils instead of
+dark polar caps. This adds 20 pupil triangles per rendered snake while retaining all 50 live agents,
+the nearest-16 GPU cap, one dynamic draw, existing scale texture and body simulation.
+
+The complete head, eyes and lip are sampled through 360 degrees inside the original 50mm collision
+envelope. The heading-following three-quarter QA camera uses a non-threatening virtual observer so
+the close view shows natural crawl rather than a blocked retreat, while existing local interaction
+bends immediate QA grass without altering ordinary play or the companion body view. Inspected
+native current-binary evidence `20261016T025231.524706Z-snake-head` and
+`20261016T025834.966323Z-snakes` passes the explicit bounded close-natural-detail profile with four
+moving stages and empty kernel deltas. Focused Chrome/SwiftShader
+`20261016T025358.584777Z-chrome-snakes` passes both inspected views, four motion frames per view,
+60 finite positive intervals, GL error zero, live contexts and kernel `[]`. The retained arboreal
+snake variant and physical Android appearance remain open. A fresh ARM64 assemble/lint attempt is
+currently blocked before source compilation by the shared read-only `sharp-runtime` checkout being
+at `f2aecfefeac171b331787e5cdc4849507363ef0e` instead of the deliberately pinned
+`7805c5dc695d8e84abd45168ab218793e10a4ad3`; the dependency checkout and lock remain untouched.
 
 ## Latest helicopter exterior pass — rounded rotor transmission
 

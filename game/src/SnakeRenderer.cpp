@@ -60,6 +60,8 @@ SnakeRenderer::SnakeRenderer(GraphicsDevice& device, const CanopyLightField& can
     effect_->setFogStartProperty(45.0f); effect_->setFogEndProperty(80.0f);
     const char* anatomy="island-simulator: snakes use a readable dorsal saddle and active forked-tongue flicks";
     std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
+    const char* headAnatomy="island-simulator: near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils";
+    std::cout<<headAnatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(headAnatomy);
 }
 SnakeRenderer::~SnakeRenderer()=default;
 void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector3& camera,
@@ -177,14 +179,27 @@ void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vecto
             auto eyeVertex=[&](const float angle,const float elevation) {
                 const auto normal=(forward*std::cos(angle)+eyeUp*std::sin(angle))*std::cos(elevation)
                     +n*std::sin(elevation);
-                const Color color=elevation>=1.04f ? Color(5,6,3) : Color(171,133,53);
-                return vertex(eye+normal*SnakeEyeRadius,normal,color,Vector2(0,0));
+                return vertex(eye+normal*SnakeEyeRadius,normal,Color(171,133,53),Vector2(0,0));
             };
             for(int ring=0;ring<3;++ring) for(int k=0;k<10;++k) {
                 const float a=Tau*static_cast<float>(k)/10,b=Tau*static_cast<float>(k+1)/10;
                 const float low=static_cast<float>(ring)*Tau/12,high=static_cast<float>(ring+1)*Tau/12;
                 triangle(eyeVertex(a,low),eyeVertex(b,low),eyeVertex(a,high));
                 if(ring<2) triangle(eyeVertex(b,low),eyeVertex(b,high),eyeVertex(a,high));
+            }
+            // A fitted vertical pupil follows the outward eye tangent. The old black
+            // polar cap read as a dark polygon rather than a snake eye from the side.
+            const Vector3 pupilCentre=eye+n*(SnakeEyeRadius+.00035f);
+            const auto pupilVertex=[&](const float angle) {
+                const Vector3 offset=forward*(std::cos(angle)*SnakeEyeRadius*.42f)
+                    +eyeUp*(std::sin(angle)*SnakeEyeRadius*.82f);
+                return vertex(pupilCentre+offset,n,Color(6,7,4),Vector2(0,0));
+            };
+            const auto pupilMiddle=vertex(pupilCentre,n,Color(6,7,4),Vector2(0,0));
+            for(int k=0;k<10;++k) {
+                const float a=Tau*static_cast<float>(k)/10.0f;
+                const float b=Tau*static_cast<float>(k+1)/10.0f;
+                triangle(pupilMiddle,pupilVertex(a),pupilVertex(b));
             }
         }
         // A brief split-tongue flick follows the existing locomotion phase. It is absent at

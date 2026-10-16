@@ -1,5 +1,41 @@
 # Ground snake implementation and visual evidence
 
+## Broad low head, fitted pupils and moving close audit — 2026-10-16
+
+The renewed body/head audit found that the scale material and S-curve motion were readable, but the
+head still continued the body as a nearly round cone. Its amber eyes ended in dark polar caps rather
+than fitted snake pupils, and the old world-axis close camera repeatedly looked through tall grass.
+The revised four-section profile now grows into a restrained broad temple, flattens vertically and
+tapers through a longer cheek into a blunt muzzle. Both raised amber eyes carry a separate fitted
+vertical pupil. Twenty pupil triangles are added per rendered near snake; the body mesh, scale
+texture, 50-agent population, nearest-16 submission cap and one dynamic draw remain unchanged.
+
+Every head section is sampled through 360 degrees by the CPU test and remains inside the existing
+50mm spherical collision envelope, including the lip margin and complete eyes. The head QA camera
+now follows the subject's live heading from a three-quarter angle. A nearby non-threatening virtual
+observer prevents that capture-only camera from forcing an indefinitely blocked retreat, and the
+existing player-interaction field bends only the immediate grass around the QA head. Ordinary play,
+the overhead body view, habitat vegetation and snake behavior are unchanged.
+
+Both deliberately shaded forest-floor views now use the already bounded `close-natural-detail`
+profile: at least 20% relative luminance variation with a hard floor of 10, at least 40 quantized
+colour bins and at least 15 spatial contrast. This explicitly reviewed profile still rejects flat,
+missing and washed-out captures. Inspected current-binary native head evidence
+`20261016T025231.524706Z-snake-head` passes at 66 colour bins, 18.29 luminance deviation and 47.26
+spatial contrast; body evidence `20261016T025834.966323Z-snakes` passes at 116/14.39/26.84. Both
+have empty kernel deltas and four valid moving stages.
+
+Focused current-binary Chrome/SwiftShader evidence
+`20261016T025358.584777Z-chrome-snakes` passes both views with 60 finite positive intervals each,
+four inspected motion frames per view, GL error zero, live contexts and an empty final kernel delta.
+The body-view head moves at 1.15m/s and the anatomy-view head at 0.38m/s through all four samples.
+This closes the current ground-snake head/material audit; the retained tree-dwelling snake variant,
+ordinary player encounter review and physical Android-device appearance remain open. A fresh ARM64
+assemble/lint attempt reached native configuration but was stopped before compilation because the
+shared read-only `sharp-runtime` checkout is at `f2aecfefeac171b331787e5cdc4849507363ef0e`, while
+this repository deliberately pins `7805c5dc695d8e84abd45168ab218793e10a4ad3`; neither dependency
+checkout nor lock file was mutated to manufacture an Android pass.
+
 ## Dorsal readability and tongue flick — 2026-10-13
 
 The upper third of the existing olive body now carries a restrained lighter dorsal

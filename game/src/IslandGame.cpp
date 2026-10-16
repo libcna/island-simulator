@@ -1317,10 +1317,16 @@ namespace island
             // Frame the entire body from above; the old oblique head-relative
             // camera crossed nearby broad leaves and lost the retreating head.
             cameraPosition_ = centre + Vector3(0.0f,2.0f,0.35f);
-            if(viewpoint_ == FixedViewpoint::SnakeHeadDetail)
-                cameraPosition_ = Vector3(head.x+0.35f,head.y+0.25f,head.z+0.30f);
+            if(viewpoint_ == FixedViewpoint::SnakeHeadDetail) {
+                const Vector3 headPosition(head.x,head.y,head.z);
+                const auto neck=snake.body[1];
+                const Vector3 forward=Vector3::Normalize(headPosition-Vector3(neck.x,neck.y,neck.z));
+                const Vector3 right=Vector3::Normalize(Vector3::Cross(Vector3::Up,forward));
+                cameraPosition_=headPosition+forward*.38f+right*.25f+Vector3::Up*.10f;
+                std::cout << "island-simulator: snake-head QA isolates facial geometry while the companion body view retains habitat grass\n";
+            }
             const Vector3 target = viewpoint_ == FixedViewpoint::SnakeHeadDetail
-                ? Vector3(head.x+0.01f,head.y,head.z) : centre;
+                ? Vector3(head.x,head.y+.012f,head.z) : centre;
             const Vector3 direction = target-cameraPosition_;
             yaw_ = std::atan2(direction.X,direction.Z);
             pitch_ = std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
@@ -2497,13 +2503,35 @@ namespace island
             return centre/static_cast<float>(SnakeState::StationCount);
         };
         const auto previousSnakeCentre = snakeCentre();
+        Vector3 snakeObserver=cameraPosition_;
+        if(viewpoint_==FixedViewpoint::SnakeHeadDetail) {
+            // The anatomy camera sits inside the normal 8 m retreat radius. Drive this
+            // isolated QA view with a nearby but non-threatening virtual observer so a
+            // constrained retreat cannot freeze the very motion sequence being reviewed.
+            const auto& subject=snakes_->Snakes().front();
+            const Vector3 head(subject.body[0].x,subject.body[0].y,subject.body[0].z);
+            const Vector3 neck(subject.body[1].x,subject.body[1].y,subject.body[1].z);
+            snakeObserver=head+Vector3::Normalize(head-neck)*12.0f+Vector3::Up*1.7f;
+        }
         measureWildlife(2, [&] {
-            snakes_->Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z);
+            snakes_->Update(deltaSeconds,snakeObserver.X,snakeObserver.Y,snakeObserver.Z);
         });
-        if (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail) {
+        if (viewpoint_ == FixedViewpoint::SnakeDetail) {
             // Follow translation only: preserve the viewing direction and live retreat behavior.
             // Software frames can span many simulation updates; otherwise the close subject exits.
             cameraPosition_ += snakeCentre()-previousSnakeCentre;
+        } else if(viewpoint_==FixedViewpoint::SnakeHeadDetail) {
+            // Follow both translation and heading so the close audit continues to see the
+            // moving face rather than drifting into foliage as the live snake turns.
+            const auto& subject=snakes_->Snakes().front();
+            const Vector3 head(subject.body[0].x,subject.body[0].y,subject.body[0].z);
+            const Vector3 neck(subject.body[1].x,subject.body[1].y,subject.body[1].z);
+            const Vector3 forward=Vector3::Normalize(head-neck);
+            const Vector3 right=Vector3::Normalize(Vector3::Cross(Vector3::Up,forward));
+            cameraPosition_=head+forward*.38f+right*.25f+Vector3::Up*.10f;
+            const Vector3 direction=head+Vector3::Up*.012f-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         }
         const FishState previousFishSubject = fishSchools_.Fish().front();
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
@@ -3795,12 +3823,18 @@ namespace island
         }
 
         const PlayerPosition& grassPlayer = playerMotion_.Position();
+        Vector3 grassInteractionPosition(grassPlayer.x,grassPlayer.y,grassPlayer.z);
+        float grassInteractionStrength=grassInteractionModel_.Strength();
+        if(viewpoint_==FixedViewpoint::SnakeHeadDetail) {
+            const auto head=snakes_->Snakes().front().body.front();
+            grassInteractionPosition=Vector3(head.x,head.y,head.z);
+            grassInteractionStrength=1.0f;
+        }
         {
             GpuDiagnosticScope gpuPass("grass");
             grassRenderer_->Draw(
                 cameraView_, cameraProjection_, renderCameraPosition_,
-                Vector3(grassPlayer.x, grassPlayer.y, grassPlayer.z),
-                grassInteractionModel_.Strength(), timeSeconds);
+                grassInteractionPosition,grassInteractionStrength,timeSeconds);
         }
 
         {

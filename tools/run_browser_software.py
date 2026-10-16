@@ -913,6 +913,10 @@ def validate_snake_report(report):
         log=view.get("result", {}).get("output", "")
         if "snakes use a readable dorsal saddle and active forked-tongue flicks" not in log:
             raise RuntimeError("snake browser report lacks the current anatomy material")
+        if "near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils" not in log:
+            raise RuntimeError("snake browser report lacks the current head anatomy")
+        if view["mode"] == "snake-head" and "snake-head QA isolates facial geometry while the companion body view retains habitat grass" not in log:
+            raise RuntimeError("snake browser report lacks the isolated head view")
         result.append({"mode":view["mode"], **validate_snake_runtime_samples(log)})
     return result
 

@@ -1020,6 +1020,8 @@ try {
               && !log.includes("terrain material fallback:")))
             && (!focusedSnakeCheck || (snakeMotionFrames.length === 4
               && log.includes("snakes use a readable dorsal saddle and active forked-tongue flicks")
+              && log.includes("near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils")
+              && (mode !== "snake-head" || log.includes("snake-head QA isolates facial geometry while the companion body view retains habitat grass"))
               && /snakes (?:[1-9]|[1-4][0-9]|50)\/50 visible, 1 draw/.test(log)))
             && (!focusedClimbCheck || log.includes("monkey climb held summit presented after eight cycle stages"))
             && (!focusedPalmCheck || (log.includes("palm crowns use dense narrow leaflets, irregular arcs, and emerging spear fronds")

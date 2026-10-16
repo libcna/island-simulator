@@ -693,6 +693,10 @@ def main():
             if args.viewpoint in ("snakes", "snake-head"):
                 if "snakes use a readable dorsal saddle and active forked-tongue flicks" not in diagnostics:
                     raise RuntimeError("current snake anatomy material is missing")
+                if "near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils" not in diagnostics:
+                    raise RuntimeError("current snake head anatomy is missing")
+                if args.viewpoint == "snake-head" and "snake-head QA isolates facial geometry while the companion body view retains habitat grass" not in diagnostics:
+                    raise RuntimeError("snake-head capture did not isolate the facial geometry")
                 validate_snake_motion_stages(log)
                 for stage in range(4):
                     if not Path(str(capture)+f".snake-stage-{stage}.ppm").is_file():

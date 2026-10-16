@@ -232,7 +232,11 @@ def validate_game_logs(directory, lifecycle, viewpoint=None):
         if "monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes" not in log:
             raise RuntimeError("application did not confirm the required monkey fur material")
         if viewpoint in ("snakes", "snake-head"):
+            if "near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils" not in log:
+                raise RuntimeError("application did not confirm the current snake head anatomy")
             validate_snake_runtime_samples(log)
+            if viewpoint == "snake-head" and "snake-head QA isolates facial geometry while the companion body view retains habitat grass" not in log:
+                raise RuntimeError("application did not confirm the isolated snake head view")
         if viewpoint == "spiders":
             validate_spider_render_log(log)
             validate_spider_lighting(log)

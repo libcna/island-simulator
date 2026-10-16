@@ -76,6 +76,10 @@ int main(int argc,char** argv)
     Check(island::SnakeHeadSections.front().width==island::SnakePopulation::RadiusAt(0)
         && island::SnakeNoseForward<=island::SnakePopulation::MaximumRadius,
         "snake head does not join body or nose exceeds clearance");
+    Check(island::SnakeHeadSections[1].width>island::SnakeHeadSections.front().width
+        && island::SnakeHeadSections[2].width>island::SnakeHeadSections.back().width
+        && island::SnakeHeadSections[1].height<island::SnakeHeadSections.front().height,
+        "snake head does not form a broad low temple and tapered cheek");
     Check(std::hypot(island::SnakeEyeForward,std::hypot(island::SnakeEyeSide,island::SnakeEyeHeight))+island::SnakeEyeRadius
         <=island::SnakePopulation::MaximumRadius,"eyes exceed head horizontal clearance");
     const island::IslandTerrain terrain;
