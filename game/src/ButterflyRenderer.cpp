@@ -35,7 +35,7 @@ namespace island
         constexpr int MaximumVerticesPerButterfly = 264;
         constexpr int MaximumFlowerVertices = 1800;
         constexpr int MaximumGeckoVertices = static_cast<int>(GeckoPopulation::Count) * 2300;
-        constexpr int MaximumSkinkVertices = static_cast<int>(SkinkPopulation::Count) * 900;
+        constexpr int MaximumSkinkVertices = static_cast<int>(SkinkPopulation::Count) * 1700;
         constexpr int MaximumDragonflyVertices =
             static_cast<int>(DragonflySwarm::Count) * 720;
         constexpr int MaximumFrogVertices = static_cast<int>(FrogPopulation::Count) * 720;
@@ -70,6 +70,8 @@ namespace island
             "island-simulator: eight open-ground skinks bask, forage, and flee in the shared butterfly batch";
         constexpr std::string_view SkinkAnatomyDiagnostic =
             "island-simulator: skinks use smooth elongated trunks, short articulated limbs, tapered tails, longitudinal stripes, and highlighted eyes";
+        constexpr std::string_view SkinkSolidDiagnostic =
+            "island-simulator: skinks use solid tapered leg, toe, and five-section tail volumes with surface-set highlighted eyes";
         constexpr std::string_view DragonflyDiagnostic=
             "island-simulator: nine stream and wetland dragonflies hover, patrol, and dart in the shared butterfly batch";
         constexpr std::string_view FrogDiagnostic =
@@ -459,13 +461,14 @@ namespace island
                     const Vector3 foot = elbow + right * (side * .082f * scale)
                         + forward * ((pair == 0 ? .030f : -.026f) * scale - phase * .35f)
                         - up * (.012f * scale);
-                    AppendGeckoSegment(vertices, root, elbow, .013f * scale, flank);
-                    AppendGeckoSegment(vertices, elbow, foot, .009f * scale, back);
+                    AppendGeckoTube(vertices,root,elbow,.016f*scale,.012f*scale,flank);
+                    AppendGeckoTube(vertices,elbow,foot,.012f*scale,.008f*scale,back);
                     for (int toe = -1; toe <= 1; ++toe) {
                         const Vector3 tip = foot + right * (side * .040f * scale)
                             + forward * ((static_cast<float>(toe) * .018f
                                 + (pair == 0 ? .010f : -.010f)) * scale);
-                        AppendGeckoSegment(vertices, foot, tip, .0038f * scale, underside);
+                        AppendGeckoTube(vertices,foot,tip,.0048f*scale,
+                                        .0028f*scale,underside,5);
                     }
                 }
             }
@@ -476,8 +479,10 @@ namespace island
                 const Vector3 tailEnd = tailRoot - forward * length
                     + right * (std::sin(skink.gaitPhase * .24f
                         + static_cast<float>(segment) * .66f) * .025f * scale);
-                AppendGeckoSegment(vertices, tailRoot, tailEnd,
-                    (.030f - static_cast<float>(segment) * .0045f) * scale, flank);
+                const float rootRadius=(.031f-static_cast<float>(segment)*.0048f)*scale;
+                const float tipRadius=std::max(.0055f,
+                    .0262f-static_cast<float>(segment)*.0048f)*scale;
+                AppendGeckoTube(vertices,tailRoot,tailEnd,rootRadius,tipRadius,flank);
                 tailRoot = tailEnd;
             }
 
@@ -497,14 +502,14 @@ namespace island
             }
             for (const float side : {-1.0f, 1.0f}) {
                 const Vector3 eyeCentre = head + forward * (.065f * scale)
-                    + right * (side * .056f * scale) + up * (.028f * scale);
+                    + right * (side * .071f * scale) + up * (.038f * scale);
                 AppendGeckoDiamond(vertices, eyeCentre, right, up, forward,
-                                   .012f * scale, .013f * scale, .010f * scale, eye, eye);
-                const Vector3 highlight = eyeCentre + right * (side * .009f * scale)
-                    + forward * (.006f * scale) + up * (.007f * scale);
-                AddDoubleSidedTriangle(vertices, highlight + up * (.0035f * scale),
-                    highlight - forward * (.0035f * scale) - up * (.002f * scale),
-                    highlight + forward * (.0035f * scale) - up * (.002f * scale), glint);
+                                   .014f * scale, .015f * scale, .011f * scale, eye, eye);
+                const Vector3 highlight = eyeCentre + right * (side * .011f * scale)
+                    + forward * (.006f * scale) + up * (.008f * scale);
+                AddDoubleSidedTriangle(vertices, highlight + up * (.0040f * scale),
+                    highlight - forward * (.0040f * scale) - up * (.0025f * scale),
+                    highlight + forward * (.0040f * scale) - up * (.0025f * scale), glint);
             }
         }
 
@@ -1363,6 +1368,7 @@ namespace island
         std::cout << GeckoAnatomyDiagnostic << '\n';
         std::cout << SkinkDiagnostic << '\n';
         std::cout << SkinkAnatomyDiagnostic << '\n';
+        std::cout << SkinkSolidDiagnostic << '\n';
         std::cout << DragonflyDiagnostic << '\n';
         std::cout << FrogDiagnostic << '\n';
         std::cout << RodentDiagnostic << '\n';
@@ -1383,6 +1389,7 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(GeckoAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(SkinkDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(SkinkAnatomyDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(SkinkSolidDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(DragonflyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(FrogDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(RodentDiagnostic);

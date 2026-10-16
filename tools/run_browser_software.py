@@ -524,6 +524,7 @@ def validate_skink_report(report):
         or len(set(frames))!=2
         or "eight open-ground skinks bask, forage, and flee in the shared butterfly batch" not in log
         or "skinks use smooth elongated trunks, short articulated limbs, tapered tails, longitudinal stripes, and highlighted eyes" not in log
+        or "skinks use solid tapered leg, toe, and five-section tail volumes with surface-set highlighted eyes" not in log
         or "skink QA camera frames one striped basking lizard on open inland ground" not in log
         or not re.search(r"skinks [1-8]/8 visible in shared draw",log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):

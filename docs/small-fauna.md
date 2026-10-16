@@ -483,3 +483,25 @@ Current evidence:
 
 The first rejected capture exposed a skink and gecko occupying the same home. The accepted capture
 uses the separated final habitats and shows one unobstructed striped animal.
+
+### Solid skink limbs and tail — 2026-10-16
+
+A renewed close comparison against the frog selected the skink because its card-built legs, toes
+and tail collapsed into hairlines despite the readable elongated striped trunk. Upper and lower
+legs are now closed tapered six-sided volumes, the twelve toes use compact five-sided tapers, and
+five joined closed tail volumes preserve the existing animated curve while narrowing continuously
+to the tip. Slightly larger amber eyes sit on the upper lateral head surface with fitted highlights.
+The eight-agent habitat, scale, stripes, bask/forage/flee behaviour, distance policy and shared
+single-draw submission remain unchanged.
+
+One detailed animal uses 1,464 vertices inside its 1,700-vertex slot. The conservative population
+allocation grows from 7,200 to 13,600 vertices, adding 102,400 bytes to the existing shared dynamic
+buffer. Inspected baseline `build-consumer/software-captures/20261016T150052.571013Z-skinks` and
+accepted native evidence `build-consumer/software-captures/20261016T150442.061788Z-skinks` show the
+solid appendages; accepted metrics are 273 colour bins, 34.19 luminance deviation, 158.91 spatial
+contrast and kernel `[]`. Core and all 44 browser/capture harness tests pass. Chrome/SwiftShader
+`build/browser-software/20261016T150833.844577Z-chrome-skinks` passes two distinct separated-time
+frames, 60 finite intervals, GL0, a live context and kernel `[]`. WebAssembly and Android ARM64
+assemble/lint pass without an emulator or KVM; the APK is 24,684,075 bytes with SHA-256
+`04ba31fa7da5c555e062aa745e500d20794f6281fdf06a0eb42bbb8b69adcf50` and contains a
+19,641,504-byte stripped `libmain.so`.

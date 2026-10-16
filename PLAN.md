@@ -112,6 +112,28 @@ hard grass/bush wall at a tier boundary; WebGL remains live, GL error is zero, t
 error is 1.075 m and kernel monitoring is clean. This is representative motion evidence, not a
 mathematical all-view aliasing proof.
 
+## Latest skink visual pass — solid limbs, toes and segmented tail
+
+The next close-animal comparison selected the skink over the current frog. Its elongated striped
+body already read correctly, but card-built legs, toes and tail collapsed into hairlines and made
+the animal look painted onto the ground. Upper and lower legs are now closed tapered six-sided
+volumes, each of the twelve toes is a small five-sided taper, and the long tail is five joined
+closed volumes whose narrowing radii preserve the existing animated curve. Slightly larger amber
+eyes now sit on the upper lateral head surface with fitted highlights. The eight-agent habitat,
+bask/forage/flee simulation, scale, stripes, visibility policy and shared one-draw submission are
+unchanged.
+
+The conservative full-population allocation grows from 7,200 to 13,600 vertices, adding 102,400
+bytes to the existing shared dynamic buffer; one detailed skink uses 1,464 vertices inside its
+1,700 slot bound. Inspected native baseline `20261016T150052.571013Z-skinks` and accepted
+`20261016T150442.061788Z-skinks` show the corrected silhouette; accepted evidence passes at 273
+colour bins, 34.19 luminance deviation, 158.91 spatial contrast and kernel `[]`. Core and all 44
+browser/capture harness tests pass. Focused Chrome/SwiftShader
+`20261016T150833.844577Z-chrome-skinks` passes two distinct frames, 60 finite intervals, GL0, a
+live context and kernel `[]`. WebAssembly and Android ARM64 assemble/lint pass; the APK is
+24,684,075 bytes with a 19,641,504-byte packaged library and SHA-256
+`04ba31fa7da5c555e062aa745e500d20794f6281fdf06a0eb42bbb8b69adcf50`. No emulator/KVM was used.
+
 ## Latest gecko visual pass — solid limbs, tail and adhesive toes
 
 The next close animal audit compared the current gecko and rat after the deer repair and selected

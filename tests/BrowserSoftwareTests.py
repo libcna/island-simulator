@@ -17,6 +17,28 @@ from gpu_incident_qualification import contained_command
 
 
 class BrowserSoftwareTests(unittest.TestCase):
+    def test_skink_scope_requires_solid_limbs_and_tail(self):
+        solid = ("skinks use solid tapered leg, toe, and five-section tail volumes "
+                 "with surface-set highlighted eyes")
+        markers = "\n".join((
+            "eight open-ground skinks bask, forage, and flee in the shared butterfly batch",
+            "skinks use smooth elongated trunks, short articulated limbs, tapered tails, longitudinal stripes, and highlighted eyes",
+            solid,
+            "skink QA camera frames one striped basking lizard on open inland ground",
+            "skinks 1/8 visible in shared draw"))
+        def report():
+            return {"passed": True, "views": [{"mode": "skinks", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": "skink.png", "afterSimulationScreenshot": "skink-after.png",
+                "intervals": [16.7] * 60,
+                "result": {"output": markers, "error": "", "exited": False}}]}
+        self.assertEqual(gate.validate_skink_report(report()),
+                         ("skink.png", "skink-after.png"))
+        missing = report()
+        missing["views"][0]["result"]["output"] = markers.replace(solid + "\n", "")
+        with self.assertRaises(RuntimeError):
+            gate.validate_skink_report(missing)
+
     def test_gecko_scope_requires_solid_anatomy(self):
         anatomy = ("geckos use rounded wedge heads, solid tapered limbs and tails, "
                    "twelve expanded toe pads, raised eyes, and fitted dorsal spots")

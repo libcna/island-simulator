@@ -1173,6 +1173,7 @@ def main():
             if args.viewpoint == "skinks":
                 for marker in ("eight open-ground skinks bask, forage, and flee in the shared butterfly batch",
                                "skinks use smooth elongated trunks, short articulated limbs, tapered tails, longitudinal stripes, and highlighted eyes",
+                               "skinks use solid tapered leg, toe, and five-section tail volumes with surface-set highlighted eyes",
                                "skink QA camera frames one striped basking lizard on open inland ground"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"skink integration diagnostic missing: {marker}")

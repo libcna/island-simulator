@@ -912,6 +912,7 @@ try {
               && /geckos [1-8]\/8 visible in shared draw/.test(log)))
             && (!focusedSkinkCheck || (log.includes("eight open-ground skinks bask, forage, and flee in the shared butterfly batch")
               && log.includes("skinks use smooth elongated trunks, short articulated limbs, tapered tails, longitudinal stripes, and highlighted eyes")
+              && log.includes("skinks use solid tapered leg, toe, and five-section tail volumes with surface-set highlighted eyes")
               && log.includes("skink QA camera frames one striped basking lizard on open inland ground")
               && /skinks [1-8]\/8 visible in shared draw/.test(log)))
             && (!focusedDragonflyCheck || (log.includes("nine stream and wetland dragonflies hover, patrol, and dart in the shared butterfly batch")
