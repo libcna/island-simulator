@@ -131,6 +131,23 @@ intervals, GL0, a live context and kernel `[]`. The wider
 `20261016T041449.453724Z-chrome-vegetation` attempt exceeded its multi-scene software timeout and
 is explicitly rejected. Details are in `docs/canopy-epiphytes.md`.
 
+## Latest underwater visual pass — living staghorn base and coral surface
+
+The water/reef comparison accepted the surface optics but selected the foreground staghorn's
+uniform rusty pigment and single mound as the weakest underwater object. The shared coral material
+now adds footprint-filtered broad living pigment, near-only polyp flecks and pale growing tips.
+Near staghorn variant zero also carries five low differently coloured encrusting coral and sponge
+colonies around its base. They add 125 vertices and 200 triangles only to that near mesh; the 314
+placements, far LOD, culling limits, buffers and draw count stay fixed.
+
+Native before evidence `20261016T042943.312246Z-reef-habitat` had 120 colour bins; accepted current
+evidence `20261016T043419.469049Z-reef-habitat` passes at 161 bins, 25.76 luminance deviation and
+137.98 spatial contrast with kernel `[]`, 51/314 habitat instances and 15 total prop draws. Focused
+Chrome/SwiftShader `20261016T044815.059085Z-chrome-fish` reports both new material diagnostics and
+passes 60 finite positive intervals, GL0, a live context and kernel `[]`. The broad
+`20261016T043640.536564Z-chrome-coast` attempt exceeded its multi-scene software timeout and is
+explicitly rejected. Details are in `docs/reef-seabed.md`.
+
 The current Firefox qualification exposed a real beach-start regression rather than a renderer
 failure: the relocated firewood collision sat 1.73 m ahead of the old `(0,-225)` start and rejected
 forward movement. The player now starts at `(4,-225)` inside the unchanged 17 m reserved beach

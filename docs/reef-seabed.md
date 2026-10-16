@@ -158,3 +158,25 @@ water, west and the new outer-shelf reef composition with 120 finite intervals e
 zero, intact contexts and an empty kernel-fault delta. Both time-separated reef frames were
 inspected: the breaker carrier and fish positions move while the substrate field remains fixed.
 Android qualification and physical performance remain open.
+
+## Living staghorn base and coral surface — 2026-10-16
+
+The latest water/reef comparison accepted the surface optics but selected the foreground staghorn
+as the weakest underwater object: its silhouette was established, yet the uniform rusty pigment
+and single basal mound still read as a dead shrub. The shared coral material now applies
+footprint-filtered broad living pigment and small near-only polyp flecks before depth tint and
+diffuse underwater light. Staghorn growing tips use a deliberately pale live edge. Its near mesh
+also carries five low, differently pigmented encrusting coral and sponge mounds around the base.
+
+The colonies add 125 vertices and 200 triangles only to near variant zero. The 314-placement
+population, far LOD, 46/138 m LOD and culling limits, shader inputs, buffers and draws are unchanged.
+Native before evidence `20261016T042943.312246Z-reef-habitat` passed with 120 colour bins; accepted
+current evidence `20261016T043419.469049Z-reef-habitat` passes at 1280x720 with 161 bins, 25.76
+luminance deviation, 137.98 spatial contrast and an empty kernel delta. The view submits 51/314
+habitat objects and retains 15 total natural-prop draws.
+
+Core and capture gates pass. Focused Chrome/SwiftShader reef-adjacent evidence
+`20261016T044815.059085Z-chrome-fish` contains both new material diagnostics and passes 60 finite
+positive intervals, GL error zero, a live context and kernel `[]`. The broader four-scene
+`20261016T043640.536564Z-chrome-coast` attempt exceeded its software-capture time limit and is
+rejected rather than counted as evidence.

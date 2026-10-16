@@ -854,6 +854,10 @@ def main():
                     raise RuntimeError("current staghorn coral silhouette diagnostic missing")
                 if "near staghorn coral uses bent two-stage stems and paired lower and upper forks" not in diagnostics:
                     raise RuntimeError("current staghorn coral growth structure diagnostic missing")
+                if "near reef coral adds footprint-filtered polyp flecks, broad living pigment, and pale growing tips" not in diagnostics:
+                    raise RuntimeError("current reef coral material diagnostic missing")
+                if "near staghorn bases carry five low encrusting coral and sponge colonies in the shared reef draw" not in diagnostics:
+                    raise RuntimeError("current reef coral colony diagnostic missing")
                 if not re.search(r"reef habitat QA camera underwater with [1-9][0-9]* neighbours", diagnostics):
                     raise RuntimeError("reef-habitat camera did not select a populated patch")
                 if not re.search(r"[1-9][0-9]*/[1-9][0-9]* reef habitat", diagnostics):

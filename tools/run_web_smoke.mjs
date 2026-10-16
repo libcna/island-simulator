@@ -2227,6 +2227,10 @@ try {
     && reefResult.output?.includes(
       "island-simulator: near staghorn coral uses bent two-stage stems and paired lower and upper forks")
     && reefResult.output?.includes(
+      "island-simulator: near reef coral adds footprint-filtered polyp flecks, broad living pigment, and pale growing tips")
+    && reefResult.output?.includes(
+      "island-simulator: near staghorn bases carry five low encrusting coral and sponge colonies in the shared reef draw")
+    && reefResult.output?.includes(
       "island-simulator: broken reef-crest foam follows the shared 62-86m habitat field without new draws")
     && reefResult.output?.includes(
       "island-simulator: reef QA camera targets peak broken crest weight")

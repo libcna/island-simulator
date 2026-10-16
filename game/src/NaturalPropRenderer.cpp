@@ -84,6 +84,10 @@ namespace island
             "island-simulator: branching reef form uses dense upright staghorn stems, offset side forks, and small growing tips";
         constexpr std::string_view StaghornGrowthDiagnostic =
             "island-simulator: near staghorn coral uses bent two-stage stems and paired lower and upper forks";
+        constexpr std::string_view CoralMaterialDiagnostic =
+            "island-simulator: near reef coral adds footprint-filtered polyp flecks, broad living pigment, and pale growing tips";
+        constexpr std::string_view CoralColonyDiagnostic =
+            "island-simulator: near staghorn bases carry five low encrusting coral and sponge colonies in the shared reef draw";
         constexpr int FallenFrondMaterialDetail = 248;
 
         struct PropGeometry
@@ -210,9 +214,17 @@ void main()
         float direct = max(dot(normal, normalize(uToSun)), 0.0);
         float sky = max(normal.y, 0.0);
         float depth = max(-vWorld.y, 0.0);
+        float nearDetail = 1.0 - smoothstep(34.0, 72.0, distanceToCamera);
+        float broadPigment = filteredStoneNoise(vWorld * 2.7, worldFootprint * 2.7);
+        float polypField = filteredStoneNoise(
+            vWorld * 23.0 + vec3(broadPigment * 1.8), worldFootprint * 27.0);
+        float polypFleck = smoothstep(0.73, 0.88, polypField) * nearDetail;
+        vec3 coralAlbedo = vColor * (0.88 + 0.22 * broadPigment);
+        coralAlbedo = mix(coralAlbedo,
+            coralAlbedo * vec3(1.20, 1.11, 0.94), polypFleck * 0.44);
         vec3 underwater = mix(vec3(1.0), vec3(0.70,0.86,0.82),
                               smoothstep(0.4,6.5,depth)*0.34);
-        materialColor = vColor * underwater * (0.56 + 0.34*direct + 0.14*sky);
+        materialColor = coralAlbedo * underwater * (0.63 + 0.29*direct + 0.15*sky);
     } else if (vMaterialDetail < 0.375) {
         vec3 normal = vNormal * inversesqrt(max(dot(vNormal,vNormal), 0.000001));
         float direct = max(dot(normal, normalize(uToSun)), 0.0);
@@ -525,10 +537,28 @@ void main()
             PropGeometry geometry;
             const int sides = farMesh ? 5 : 7;
             if (variant == 0) {
-                const Color coral(202, 126, 101, 16);
-                const Color growingTip = ShadeColor(coral, 1.12f);
+                const Color coral(208, 139, 124, 16);
+                const Color growingTip(244, 211, 180, 16);
                 AppendReefMound(geometry, Vector3(0,-.04f,0), .31f, .20f,
                     farMesh ? 2 : 3, farMesh ? 6 : 9, .4f, ShadeColor(coral, .82f));
+                if (!farMesh) {
+                    const std::array<Color,5> colonyColors{{
+                        Color(218,151,112,16), Color(180,126,150,16),
+                        Color(211,174,111,16), Color(194,117,126,16),
+                        Color(225,166,137,16)}};
+                    for (int colony = 0; colony < 5; ++colony) {
+                        const float colonyAngle = .58f
+                            + static_cast<float>(colony) * 2.39996f;
+                        const float distance = .24f + .045f
+                            * static_cast<float>((colony * 2) % 3);
+                        const Vector3 centre(std::cos(colonyAngle) * distance, -.015f,
+                                             std::sin(colonyAngle) * distance);
+                        AppendReefMound(geometry, centre,
+                            .105f + .018f * static_cast<float>(colony % 3),
+                            .105f + .028f * static_cast<float>((colony + 1) % 3),
+                            3, 8, colonyAngle, colonyColors[static_cast<std::size_t>(colony)]);
+                    }
+                }
                 const int branches = farMesh ? 5 : 11;
                 for (int branch = 0; branch < branches; ++branch) {
                     const float angle = .31f + static_cast<float>(branch) * 2.39996f;
@@ -1403,6 +1433,10 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(StaghornCoralDiagnostic);
             std::cout << StaghornGrowthDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(StaghornGrowthDiagnostic);
+            std::cout << CoralMaterialDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(CoralMaterialDiagnostic);
+            std::cout << CoralColonyDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(CoralColonyDiagnostic);
         } else {
             std::cerr << "island-simulator: natural-prop stock-effect fallback: "
                       << fallbackReason_ << '\n';
