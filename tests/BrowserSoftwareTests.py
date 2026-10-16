@@ -604,12 +604,13 @@ class BrowserSoftwareTests(unittest.TestCase):
         detail = "fish profile pass uses six-facet oval eyes, tapered fork tips, and a lower rear-swept dorsal"
         head = "near fish use blunt convex foreheads and rounded snouts instead of needle-point wedges"
         surface = "near fish use restrained upper-flank iridescence and palette-matched gill creases"
+        eyes = "near fish eyes use palette-tinted oval irises, inset dark pupils, and raised highlights"
         def report():
             return {"passed": True, "views": [{"mode": "fish", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "fish.png", "afterSimulationScreenshot": "fish-after.png",
                 "intervals": [16.7] * 60,
-                "result": {"output": marker + "\n" + profile + "\n" + pattern + "\n" + tail + "\n" + detail + "\n" + head + "\n" + surface
+                "result": {"output": marker + "\n" + profile + "\n" + pattern + "\n" + tail + "\n" + detail + "\n" + head + "\n" + surface + "\n" + eyes
                     + "\nfish 6/48 visible (near 6, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_fish_report(report()), ("fish.png", "fish-after.png"))
         for mutate in (
@@ -626,6 +627,9 @@ class BrowserSoftwareTests(unittest.TestCase):
                 + "\n" + pattern + "\nfish 6/48 visible (near 6, far 0), 1 draw"),
             lambda value: value["views"][0]["result"].update(output=marker + "\n" + profile
                 + "\n" + pattern + "\n" + tail + "\n" + detail + "\n" + head
+                + "\nfish 6/48 visible (near 6, far 0), 1 draw"),
+            lambda value: value["views"][0]["result"].update(output=marker + "\n" + profile
+                + "\n" + pattern + "\n" + tail + "\n" + detail + "\n" + head + "\n" + surface
                 + "\nfish 6/48 visible (near 6, far 0), 1 draw"),
         ):
             invalid = report(); mutate(invalid)

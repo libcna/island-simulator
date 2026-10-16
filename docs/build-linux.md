@@ -435,10 +435,11 @@ turtle, exactly one culled aquatic-wildlife draw, and the current staggered-scut
 marker. Its closer QA camera follows only subject translation so slow software captures retain the
 same animated animal without freezing its heading or flipper stroke.
 `IslandGameFishCapture` writes a close shallow-water school view to
-`build/island-fish-capture.ppm` and requires the exact 1386/12-vertex, closed-fin,
-CPU-faceted daylight path, the eleven-station/sixteen-sided anatomy marker, and the shared
-depth/sun-band lighting diagnostic. Its closer camera follows subject translation only, preserving
-live heading, banking and tail movement across slow software frames.
+`build/island-fish-capture.ppm` and requires the exact 1422/12-vertex, closed-fin,
+CPU-faceted daylight path, the eleven-station/sixteen-sided anatomy marker, the layered
+iris/pupil/highlight marker, and the shared depth/sun-band lighting diagnostic. Its closer camera
+follows subject translation only, preserving live heading, banking and tail movement across slow
+software frames.
 `IslandGameSharkCapture` writes a close offshore patrol view to
 `build/island-shark-capture.ppm` and requires the exact 1896/15-vertex inventory, current
 fourteen-station/eighteen-sided capped anatomy marker and the same water-column lighting diagnostic. Its closer

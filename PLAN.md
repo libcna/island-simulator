@@ -112,6 +112,25 @@ hard grass/bush wall at a tier boundary; WebGL remains live, GL error is zero, t
 error is 1.075 m and kernel monitoring is clean. This is representative motion evidence, not a
 mathematical all-view aliasing proof.
 
+## Latest aquatic visual pass — layered fish eyes
+
+The renewed close-school audit retained the rounded heads, family pigment, fins and live schooling,
+but selected one remaining artificial facial cue: each eye still read as a separate black bead.
+Every near eye now has a palette-tinted six-facet oval iris, a smaller dark pupil raised just above
+it and a restrained outer highlight. The three layers follow the existing cheek and preserve one
+coherent eye silhouette instead of enlarging the feature.
+
+The pupil layer adds 36 vertices / 12 triangles per near fish, taking the near/far inventory from
+1,386/12 to 1,422/12 vertices. Even the conservative all-48-near allocation remains bounded at
+68,256 vertices or 1,092,096 bytes; schools, habitat, four families, LOD, motion and one dynamic
+draw are unchanged. Inspected native baseline `20261016T074018.769503Z-fish` and accepted evidence
+`20261016T084028.237645Z-fish` show the black bead replaced by a readable iris/pupil boundary. The
+accepted 1280x720 frame passes at 117 colour bins, 19.83 luminance deviation, 131.96 spatial
+contrast and kernel `[]`. Inspected Chrome/SwiftShader
+`20261016T084213.266338Z-chrome-fish` passes two distinct moving frames, 60 finite positive
+intervals, GL error zero, a live context and an empty kernel delta. Android runtime remains grouped
+with final integration.
+
 ## Latest vegetation microhabitat pass — canopy trunk epiphytes
 
 The next vegetation audit accepted the connected crowns, bark and traversable forest floor but

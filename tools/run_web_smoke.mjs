@@ -949,6 +949,7 @@ try {
               && log.includes("fish profile pass uses six-facet oval eyes, tapered fork tips, and a lower rear-swept dorsal")
               && log.includes("near fish use blunt convex foreheads and rounded snouts instead of needle-point wedges")
               && log.includes("near fish use restrained upper-flank iridescence and palette-matched gill creases")
+              && log.includes("near fish eyes use palette-tinted oval irises, inset dark pupils, and raised highlights")
               && /fish [1-9][0-9]*\/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedStingrayCheck || (log.includes("stingrays use broad undulating discs, raised eyes, dorsal spots, pale undersides, and long tapered tails in one draw")
               && log.includes("near stingrays use a curved diamond disc, raised central body, wedge nose, and restrained dark rim")
@@ -1379,7 +1380,7 @@ try {
     && result.output?.includes(
       "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
     && result.output?.includes(
-      "island-simulator: fish near/far geometry 1386/12 vertices, closed fins and CPU faceted daylight")
+      "island-simulator: fish near/far geometry 1422/12 vertices, closed fins and CPU faceted daylight")
     && result.output?.includes(
       "island-simulator: shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
@@ -2594,7 +2595,7 @@ try {
     && fishResult.output?.includes(
       "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
     && fishResult.output?.includes(
-      "island-simulator: fish near/far geometry 1386/12 vertices, closed fins and CPU faceted daylight")
+      "island-simulator: fish near/far geometry 1422/12 vertices, closed fins and CPU faceted daylight")
     && fishResult.output?.includes(
       "island-simulator: near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes")
     && fishResult.output?.includes(
@@ -2603,6 +2604,8 @@ try {
       "island-simulator: near fish use blunt convex foreheads and rounded snouts instead of needle-point wedges")
     && fishResult.output?.includes(
       "island-simulator: near fish use restrained upper-flank iridescence and palette-matched gill creases")
+    && fishResult.output?.includes(
+      "island-simulator: near fish eyes use palette-tinted oval irises, inset dark pupils, and raised highlights")
     && /fish [1-9][0-9]*\/48 visible/.test(fishResult.output ?? "")
     && !fishResult.error;
 

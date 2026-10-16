@@ -102,6 +102,8 @@ namespace island
             "island-simulator: near fish use blunt convex foreheads and rounded snouts instead of needle-point wedges";
         constexpr std::string_view FishSurfaceDiagnostic =
             "island-simulator: near fish use restrained upper-flank iridescence and palette-matched gill creases";
+        constexpr std::string_view FishEyeDiagnostic =
+            "island-simulator: near fish eyes use palette-tinted oval irises, inset dark pupils, and raised highlights";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -398,7 +400,9 @@ namespace island
                                     palette.fin, palette.back);
             }
 
-            const Color eye(19, 31, 33, 255);
+            const Color iris = wildlife_render::ScaleColor(
+                Color::Lerp(palette.belly, palette.fin, .42f), .84f);
+            const Color pupil(19, 31, 33, 255);
             const Color eyeShine(132, 158, 151, 255);
             const Color gill = wildlife_render::ScaleColor(
                 Color::Lerp(palette.back, palette.body, .38f), .76f);
@@ -417,13 +421,31 @@ namespace island
                             .283f + std::cos(angle) * .036f, scale);
                     };
                     if (side > 0.0f)
-                        AddTriangle(vertices, eyeCentre, edge(next), edge(first), eye);
-                    else AddTriangle(vertices, eyeCentre, edge(first), edge(next), eye);
+                        AddTriangle(vertices, eyeCentre, edge(next), edge(first), iris);
+                    else AddTriangle(vertices, eyeCentre, edge(first), edge(next), iris);
+                }
+                const Vector3 pupilCentre = LocalPoint(
+                    centre, axes, side * .163f, .045f, .283f, scale);
+                for (int segment = 0; segment < EyeSegments; ++segment) {
+                    const float first = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(segment) / static_cast<float>(EyeSegments);
+                    const float next = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(segment + 1) / static_cast<float>(EyeSegments);
+                    const auto pupilEdge = [&](const float angle) {
+                        return LocalPoint(centre, axes, side * .164f,
+                            .045f + std::sin(angle) * .018f,
+                            .283f + std::cos(angle) * .020f, scale);
+                    };
+                    if (side > 0.0f)
+                        AddTriangle(vertices, pupilCentre,
+                                    pupilEdge(next), pupilEdge(first), pupil);
+                    else AddTriangle(vertices, pupilCentre,
+                                     pupilEdge(first), pupilEdge(next), pupil);
                 }
                 AddTriangle(vertices,
-                    LocalPoint(centre, axes, side * 0.162f, 0.070f, 0.292f, scale),
-                    LocalPoint(centre, axes, side * 0.163f, 0.052f, 0.305f, scale),
-                    LocalPoint(centre, axes, side * 0.163f, 0.051f, 0.279f, scale), eyeShine);
+                    LocalPoint(centre, axes, side * 0.165f, 0.060f, 0.291f, scale),
+                    LocalPoint(centre, axes, side * 0.166f, 0.051f, 0.297f, scale),
+                    LocalPoint(centre, axes, side * 0.166f, 0.050f, 0.284f, scale), eyeShine);
             }
             AddTriangle(vertices,
                         LocalPoint(centre, axes, -0.190f, 0.070f, 0.145f, scale),
@@ -510,6 +532,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(FishHeadDiagnostic);
         std::cout << FishSurfaceDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(FishSurfaceDiagnostic);
+        std::cout << FishEyeDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(FishEyeDiagnostic);
     }
 
     FishRenderer::~FishRenderer() = default;

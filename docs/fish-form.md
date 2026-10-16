@@ -1,5 +1,25 @@
 # Shallow-water fish form
 
+## Layered palette-aware eyes (2026-10-16)
+
+The renewed close-school audit retained the rounded head, four family palettes, surface pigment,
+fins and live movement, but each eye still read as one detached black bead. The existing six-facet
+oval is now a muted iris derived from that fish family's underwater-adjusted belly and fin colours.
+A smaller six-facet dark pupil sits just above it, with the restrained highlight raised once more
+to avoid coplanar flicker. The three fitted layers keep the original eye footprint and follow the
+cheek rather than projecting a larger sphere from it.
+
+The pupil layer adds 36 vertices / 12 triangles per near fish. Near/far inventory is now
+1,422/12 vertices; the conservative all-48-near allocation is 68,256 vertices or 1,092,096 bytes.
+Population, eight schools, four families, body/fin geometry, animation, habitat, LOD and one dynamic
+draw remain unchanged. Native baseline `20261016T074018.769503Z-fish` and accepted current-binary
+evidence `20261016T084028.237645Z-fish` were inspected at original resolution. The accepted frame
+passes with 117 colour bins, 19.83 luminance deviation, 131.96 spatial contrast and an empty kernel
+delta. Focused Chrome/SwiftShader evidence `20261016T084213.266338Z-chrome-fish` contains two
+inspected distinct moving poses, 60 finite positive intervals, GL error zero, a live context and an
+empty kernel delta. Native and Web gates require the layered-eye diagnostic. Physical Android
+appearance and hardware performance remain unqualified.
+
 ## Restrained flank sheen and family gills (2026-10-16)
 
 The next current-binary wildlife audit found that the close fish silhouettes, heads and four

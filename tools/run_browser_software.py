@@ -365,6 +365,7 @@ def validate_fish_report(report):
         or "fish profile pass uses six-facet oval eyes, tapered fork tips, and a lower rear-swept dorsal" not in log
         or "near fish use blunt convex foreheads and rounded snouts instead of needle-point wedges" not in log
         or "near fish use restrained upper-flank iridescence and palette-matched gill creases" not in log
+        or "near fish eyes use palette-tinted oval irises, inset dark pupils, and raised highlights" not in log
         or not re.search(r"fish [1-9][0-9]*/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("fish view lacks current anatomy, frames or clean graphics state")
