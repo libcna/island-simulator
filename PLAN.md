@@ -16446,6 +16446,22 @@ Existing observation and qualification queue:
   SHA-256 `c2f2b9a2974dbb74ee00884c14c560c4d7161f370dce215ca11fdf91e241d8e5`; stripped
   `libmain.so` is 19,701,976 bytes.
 
+### 2026-10-16 — Dolphin dorsal-cape and swept-flank pigment
+
+- The current aquatic comparison found that underwater lighting still compressed the already
+  detailed dolphin mesh into nearly one grey value. Strengthened the existing CPU vertex-colour
+  model into a darker continuous dorsal cape and a clearer pale swept flank/belly transition while
+  retaining restrained individual palette and fine skin variation.
+- This is colour-only: near/far inventory remains exactly 3,300/15 vertices, four dolphins, one
+  dynamic draw, and unchanged habitat, LOD, depth pitch, banking and vertical fluke stroke.
+- Inspected native evidence `20261016T203834.024985Z-dolphins` and focused Chrome/SwiftShader
+  evidence `20261016T204046.771863Z-chrome-dolphins` pass; the latter has two distinct frames, 60
+  intervals, GL0, a live context and clean kernel monitoring. Dolphin, core and all 103 harness
+  tests pass.
+- Android ARM64 assemble/lint passes without emulator or KVM. The APK is 24,745,011 bytes with
+  SHA-256 `8ad627081d00340177abb1c242c12bbd22baa6b87d32b269f379c573850de6e2`; stripped
+  `libmain.so` is 19,702,440 bytes.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.

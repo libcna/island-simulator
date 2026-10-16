@@ -1005,6 +1005,7 @@ try {
               && log.includes("near dolphins use narrow curved-back pectorals and a restrained fitted lower-jaw mouth seam")
               && log.includes("dolphin silhouette pass uses a ten-point falcate dorsal, nine-point curved pectorals, eight-point forked flukes, and brighter swept ventral countershading")
               && log.includes("near dolphins use a lean tapered peduncle-to-melon trunk and compact rear-swept pectorals")
+              && log.includes("dolphin pigment pass retains a dark dorsal cape and swept pale flanks under underwater light")
               && log.includes("dolphin near/far geometry 3300/15 vertices, closed fins and CPU faceted daylight")
               && /dolphins [1-4]\/4 visible \(near [1-4], far [0-4]\), 1 draw/.test(log)))
             && (!focusedShipwreckCheck || (log.includes("shipwreck wood loaded Content/structures/shipwreck-weathered-wood.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored interior atlas")

@@ -94,9 +94,14 @@ Color SmoothBodyColor(const std::array<Color, 4> &colors, const Axes &axes,
   const float sideFacing = std::abs(std::cos(angle));
   const float headToShoulder = std::clamp((axialPosition + .48f) / 1.20f,
                                           0.0f, 1.0f);
-  const float lowerFlank = std::clamp((.34f - vertical) / .82f, 0.0f, 1.0f);
-  const float flankFlash = sideFacing * headToShoulder * lowerFlank * .34f;
+  const float lowerFlank = std::clamp((.46f - vertical) / .86f, 0.0f, 1.0f);
+  const float flankFlash = sideFacing * (.38f + .62f * headToShoulder)
+      * lowerFlank * .56f;
   Color pigment = Color::Lerp(BodyColor(colors, vertical), colors[2], flankFlash);
+  const float dorsalCape = std::clamp((vertical - .06f) / .74f, 0.0f, 1.0f)
+      * std::clamp((axialPosition + .72f) / .28f, 0.0f, 1.0f)
+      * .42f;
+  pigment = Color::Lerp(pigment, colors[1], dorsalCape);
   const float phase = static_cast<float>(colorVariant % 3U) * 1.71f;
   const float skinVariation = 1.0f
       + .022f * std::sin(axialPosition * 18.0f + angle * 3.0f + phase)
@@ -155,12 +160,12 @@ Vector3 Point(const Vector3 &centre, const Axes &axes, float x, float y,
 
 std::array<Color, 4> Palette(const DolphinState &dolphin, float time) {
   const std::array<std::array<Color, 4>, 3> colors{
-      {std::array{Color(105, 124, 132, 255), Color(82, 103, 114, 255),
-                  Color(184, 194, 190, 255), Color(20, 28, 33, 255)},
-       std::array{Color(112, 128, 133, 255), Color(87, 106, 116, 255),
-                  Color(190, 198, 188, 255), Color(18, 27, 31, 255)},
-       std::array{Color(96, 118, 132, 255), Color(74, 97, 113, 255),
-                  Color(178, 193, 196, 255), Color(17, 25, 30, 255)}}};
+      {std::array{Color(91, 115, 125, 255), Color(57, 79, 92, 255),
+                  Color(207, 207, 190, 255), Color(20, 28, 33, 255)},
+       std::array{Color(99, 121, 128, 255), Color(63, 84, 95, 255),
+                  Color(212, 211, 189, 255), Color(18, 27, 31, 255)},
+       std::array{Color(83, 108, 123, 255), Color(50, 74, 91, 255),
+                  Color(198, 205, 198, 255), Color(17, 25, 30, 255)}}};
   auto result = colors[dolphin.colorVariant % colors.size()];
   const auto light = AquaticLightAt(dolphin.x, dolphin.y, dolphin.z, time);
   for (auto &color : result)
@@ -425,6 +430,10 @@ DolphinRenderer::DolphinRenderer(GraphicsDevice &device,
       "island-simulator: near dolphins use a lean tapered peduncle-to-melon trunk and compact rear-swept pectorals";
   std::cout << streamline << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(streamline);
+  const char *pigment =
+      "island-simulator: dolphin pigment pass retains a dark dorsal cape and swept pale flanks under underwater light";
+  std::cout << pigment << '\n';
+  MirrorRuntimeDiagnosticToPlatformLog(pigment);
 }
 DolphinRenderer::~DolphinRenderer() = default;
 

@@ -312,6 +312,7 @@ def validate_dolphin_report(report):
         or "near dolphins use narrow curved-back pectorals and a restrained fitted lower-jaw mouth seam" not in log
         or "dolphin silhouette pass uses a ten-point falcate dorsal, nine-point curved pectorals, eight-point forked flukes, and brighter swept ventral countershading" not in log
         or "near dolphins use a lean tapered peduncle-to-melon trunk and compact rear-swept pectorals" not in log
+        or "dolphin pigment pass retains a dark dorsal cape and swept pale flanks under underwater light" not in log
         or "dolphin near/far geometry 3300/15 vertices, closed fins and CPU faceted daylight" not in log
         or not re.search(r"dolphins [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):

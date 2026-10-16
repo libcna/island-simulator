@@ -1109,6 +1109,8 @@ def main():
                     raise RuntimeError("current dolphin silhouette polish is missing; check for a stale executable")
                 if "near dolphins use a lean tapered peduncle-to-melon trunk and compact rear-swept pectorals" not in diagnostics:
                     raise RuntimeError("current streamlined dolphin proportions are missing; check for a stale executable")
+                if "dolphin pigment pass retains a dark dorsal cape and swept pale flanks under underwater light" not in diagnostics:
+                    raise RuntimeError("current dolphin pigment separation is missing; check for a stale executable")
                 if "dolphin near/far geometry 3300/15 vertices, closed fins and CPU faceted daylight" not in diagnostics:
                     raise RuntimeError("current dolphin geometry inventory is missing; check for a stale executable")
                 if not re.search(r"dolphins [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw", diagnostics):

@@ -1,5 +1,29 @@
 # Offshore dolphin pod
 
+## Dorsal-cape and swept-flank pigment — 2026-10-16
+
+The renewed aquatic contact sheet showed that the current geometry already retained its fitted
+rostrum, eye, falcate dorsal, compact pectorals and horizontal flukes, but the underwater light
+compressed most of the body into one grey value. The CPU vertex-colour model now carries a darker
+continuous dorsal cape from the peduncle through the melon and a stronger swept pale flank/belly
+transition. Three related palettes keep their small individual differences; the existing bounded
+fine skin variation remains subordinate to the broad anatomical pattern.
+
+This is a colour-only change. Near/far inventory stays exactly 3,300/15 vertices, with four
+dolphins, one dynamic buffer/draw, existing culling, LOD, habitat, depth pitch, banking and vertical
+tail-stock motion unchanged. Inspected same-camera native baseline
+`20261016T203040.899589Z-dolphins` and accepted evidence
+`20261016T203834.024985Z-dolphins` show the clearer dark back and pale lower side. The final frame
+passes at 1280x720 with 149 colour bins, 45.45 luminance deviation and 214.08 spatial contrast.
+
+Focused Chrome/SwiftShader evidence `20261016T204046.771863Z-chrome-dolphins` passes two distinct
+inspected motion frames, 60 finite positive intervals, GL error zero, a live context, one draw and
+no new kernel GPU fault. `IslandDolphinPodTests`, `IslandCoreTests` and all 103 browser/capture
+harness tests pass. Android ARM64 assemble/lint passes through the two-worker wrapper without
+emulator or KVM. The APK is 24,745,011 bytes with SHA-256
+`8ad627081d00340177abb1c242c12bbd22baa6b87d32b269f379c573850de6e2`; stripped `libmain.so` is
+19,702,440 bytes. Physical-device appearance remains unqualified.
+
 ## Lean trunk and compact pectorals — 2026-10-16
 
 The renewed animal contact sheet retained the dolphin's facial cues, falcate dorsal and horizontal
