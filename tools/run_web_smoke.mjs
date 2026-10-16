@@ -1173,6 +1173,7 @@ try {
             && log.includes("monkey fur uses one hidden underside/rear UV seam instead of mirrored crown and dorsal folds")
             && log.includes("near monkey faces use fitted sculpted supraorbital ridges and warmer modelled skin")
             && log.includes("near monkey faces use a fitted dark nose pad and raised readable corneas")
+            && log.includes("near monkeys use a compact forward-set cranium, reduced cheek ruffs, and fitted ears")
             && log.includes("monkey shoulder and hip mantles blend the trunk into all four animated limbs")
             // Curved leaf budgets are unchanged; flared trunks, rounded buttresses and six-sided branches.
             && /canopy mesh variant=0 near-vertices=4874 near-triangles=4688 far-vertices=1071 far-triangles=1120/.test(log)
@@ -1423,6 +1424,8 @@ try {
       "island-simulator: near monkey faces use a fitted dark nose pad and raised readable corneas")
     && result.output?.includes(
       "island-simulator: monkey face skin uses muted brown palettes and a recessed perimeter shade")
+    && result.output?.includes(
+      "island-simulator: near monkeys use a compact forward-set cranium, reduced cheek ruffs, and fitted ears")
     && result.output?.includes(
       "island-simulator: calm monkeys use bounded skeletal head attention")
     && result.output?.includes("3 silhouettes, 4 palettes")
@@ -2759,6 +2762,8 @@ try {
       "island-simulator: near monkey faces use a fitted dark nose pad and raised readable corneas")
     && monkeyResult.output?.includes(
       "island-simulator: monkey face skin uses muted brown palettes and a recessed perimeter shade")
+    && monkeyResult.output?.includes(
+      "island-simulator: near monkeys use a compact forward-set cranium, reduced cheek ruffs, and fitted ears")
     && monkeyResult.output?.includes(
       "island-simulator: calm monkeys use bounded skeletal head attention")
     && /monkeys [1-9]\/7 visible/.test(monkeyResult.output ?? "")

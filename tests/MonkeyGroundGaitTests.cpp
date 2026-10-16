@@ -119,9 +119,12 @@ try {
     Require(face::Rows[4].halfWidth>=.110f&&face::Rows[8].halfWidth>=.082f
             &&face::Rows[8].halfWidth<face::Rows[4].halfWidth,
         "short monkey face lost its compact heart-shaped brow and tapered muzzle");
-    Require(face::CraniumRadii.x>=.15f&&face::CraniumRadii.y>=.165f
+    Require(face::CraniumRadii.x>=.135f&&face::CraniumRadii.x<=.142f
+        &&face::CraniumRadii.y>=.142f&&face::CraniumRadii.y<=.150f
+        &&face::CraniumRadii.z>=face::CraniumRadii.x
+        &&face::CraniumCentre.z>=.465f
         &&face::EarCentre.x+face::EarRadii.x>face::CraniumRadii.x,
-        "compact monkey cranium or visible outer ear became too small");
+        "compact forward monkey cranium or visible fitted ear changed");
     Require(face::Relief(face::EyeCentreX,face::EyeCentreY)<-.004f,"orbit must be recessed");
     Require(face::Relief(face::EyeCentreX,.907f)>.007f,"brow must project beyond socket");
     Require(face::Relief(0,.850f)>.007f,"nose bridge must have relief");

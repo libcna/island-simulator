@@ -2075,6 +2075,7 @@ namespace island
                   << "island-simulator: near monkey faces use fitted sculpted supraorbital ridges and warmer modelled skin\n"
                   << "island-simulator: near monkey faces use a fitted dark nose pad and raised readable corneas\n"
                   << "island-simulator: monkey face skin uses muted brown palettes and a recessed perimeter shade\n"
+                  << "island-simulator: near monkeys use a compact forward-set cranium, reduced cheek ruffs, and fitted ears\n"
                   << "island-simulator: calm monkeys use bounded skeletal head attention\n"
                   << "island-simulator: terrain-conforming contact shadows in one portable "
                      "near-field batch\n"

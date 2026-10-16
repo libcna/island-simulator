@@ -15,12 +15,12 @@ namespace island::MonkeyFaceProfile
         {.827f,.101f,.639f}, {.807f,.094f,.646f}, {.788f,.086f,.649f},
         {.770f,.071f,.641f}, {.755f,.043f,.615f}, {.746f,.015f,.586f}
     }};
-    inline constexpr Point CraniumCentre{0,.877f,.446f};
-    inline constexpr Point CraniumRadii{.155f,.170f,.140f};
-    inline constexpr Point EarCentre{.163f,.866f,.438f};
-    inline constexpr Point EarRadii{.042f,.052f,.019f};
-    inline constexpr Point InnerEarCentre{.164f,.866f,.447f};
-    inline constexpr Point InnerEarRadii{.031f,.039f,.014f};
+    inline constexpr Point CraniumCentre{0,.867f,.470f};
+    inline constexpr Point CraniumRadii{.138f,.145f,.145f};
+    inline constexpr Point EarCentre{.145f,.855f,.458f};
+    inline constexpr Point EarRadii{.034f,.043f,.018f};
+    inline constexpr Point InnerEarCentre{.146f,.855f,.467f};
+    inline constexpr Point InnerEarRadii{.025f,.032f,.013f};
     inline constexpr float EyeCentreX=.049f,EyeCentreY=.880f,EyeCentreZ=.625f;
     inline constexpr float EyeRadiusX=.020f,EyeRadiusY=.012f,EyeRadiusZ=.013f;
     inline constexpr Point MuzzlePadCentre{.026f,.797f,.647f};

@@ -680,8 +680,8 @@ namespace island
                 // paired volumes replace the former hard oval edge with a broader primate
                 // face silhouette while remaining on the existing head bone and material.
                 for (float side : {-1.0f, 1.0f})
-                    AddEllipsoid(mesh, Vector3(side*.118f,.842f,.515f),
-                                 Vector3(.052f,.085f,.052f)*shape.headSize,
+                    AddEllipsoid(mesh, Vector3(side*.105f,.833f,.535f),
+                                 Vector3(.043f,.066f,.045f)*shape.headSize,
                                  Head, 6, 10);
             }
             for (float side : {-1.0f, 1.0f})

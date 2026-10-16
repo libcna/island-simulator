@@ -1,5 +1,31 @@
 # Connected monkey face profile — native first pass
 
+## 2026-10-16 compact forward-set cranium
+
+The renewed monkey/spider/goat comparison selected the monkey again. Its face details, fur,
+quadrupedal gait and compact tail were present, but rear and side views still read as a long body
+attached to an oversized round head. The broad cheek ruffs and protruding disc ears reinforced the
+old rodent-like silhouette whenever the face turned away.
+
+The existing cranium is now 11% narrower and 15% lower, slightly deeper and shifted 2.4 cm
+forward, exposing a clearer neck interval while keeping the same short face surface. Outer and
+inner ears move inward and shrink; both cheek ruffs are lower, narrower and shallower. The fitted
+eyes, eyelids, brows, nose, muzzle and mouth remain on the same head bone. These are coordinate-
+only edits: vertex/index counts, three body silhouettes, fourteen bones, seven agents, fur/face/
+eye draws, LOD, ground gait, tree approach and climbing are unchanged. The focused profile test
+now protects the smaller, forward-set cranium and fitted-ear envelope.
+
+Inspected native evidence `20261016T140836.585993Z-monkeys` passes at 216 colour bins, 42.33
+luminance deviation and 211.40 spatial contrast; it presents the face directly and no longer reads
+as a featureless head ball. The independent tree sequence
+`20261016T140845.702231Z-monkey-tree` passes all nine frames; the accepted first frame is
+231/45.80/197.91 and retains the smaller side/rear head during a real tree approach. Both runs have
+empty kernel deltas. WebAssembly rebuilt, and the current Chrome/SwiftShader frame was inspected
+with the same face and proportions, but the complete motion audit exceeded its software-runner
+time limit and is not claimed as a Web runtime pass. Android ARM64 assemble/lint passes against
+the locked dependency copy, producing a 24,671,963-byte APK with a 19,629,392-byte `libmain.so`;
+no emulator or KVM was used.
+
 ## 2026-10-16 shallow supraorbital relief and warmer skin
 
 The current close capture retained the compact primate face, fitted eyes, nostrils and mouth, but

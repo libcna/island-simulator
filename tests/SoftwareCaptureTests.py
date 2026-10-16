@@ -415,6 +415,7 @@ class SoftwareCaptureTests(unittest.TestCase):
                  "near monkey faces use fitted sculpted supraorbital ridges and warmer modelled skin\n"
                  "near monkey faces use a fitted dark nose pad and raised readable corneas\n"
                  "monkey face skin uses muted brown palettes and a recessed perimeter shade\n"
+                 "near monkeys use a compact forward-set cranium, reduced cheek ruffs, and fitted ears\n"
                  "near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail\n"
                  "near monkeys use a lower tapered trunk, separated crown, and restrained furry tail root\n"
                  "near monkeys use a shallow waisted torso and shortened facial projection\n"

@@ -303,6 +303,23 @@ Chrome/SwiftShader evidence `20261016T093607.963542Z-chrome-shark` retains the g
 distinct moving frames and passes 60 finite positive intervals, GL error zero, a live context and
 kernel `[]`. Details are in `docs/shark-form.md`.
 
+## Latest monkey proportion pass — compact forward-set cranium
+
+The renewed monkey/spider/goat comparison selected the monkey's rear and side head silhouette.
+Its existing facial anatomy was readable from the front, but an oversized round cranium, broad
+ruff volumes and disc-like ears still made turned-away poses resemble a rodent. The cranium is now
+11% narrower, 15% lower, slightly deeper and shifted 2.4 cm forward; ears and cheek ruffs are
+smaller and fitted closer to the skull. Existing vertex/index counts, seven agents, fourteen-bone
+skinning, three silhouettes, draws, gait, tree approach and climbing remain unchanged.
+
+Inspected native `20261016T140836.585993Z-monkeys` passes at 216 colour bins, 42.33 luminance
+deviation and 211.40 spatial contrast. Nine-frame tree evidence
+`20261016T140845.702231Z-monkey-tree` also passes, with the first frame at 231/45.80/197.91; both
+kernel deltas are empty. WebAssembly and Android ARM64 assemble/lint pass, producing a
+24,671,963-byte APK and 19,629,392-byte `libmain.so`. The inspected Chrome/SwiftShader frame retains
+the new proportions, but its full movement run exceeded the software capture time limit, so no new
+Web runtime acceptance is claimed. Details are in `docs/monkey-face-profile.md`.
+
 ## Latest monkey facial pass — shallow supraorbital relief
 
 The next close monkey audit retained the fur, quadrupedal silhouette, compact hooked tail and
