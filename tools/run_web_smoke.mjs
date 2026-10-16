@@ -1462,6 +1462,8 @@ try {
     && result.output?.includes(
       "island-simulator: selected near canopy trunks carry elevated epiphyte rosettes")
     && result.output?.includes(
+      "island-simulator: canopy forms use distinct emerald, olive, blue-green, and warm-green palettes with bounded lobe variation")
+    && result.output?.includes(
       "island-simulator: jungle near canopy irregular buttress roots ground trunk bases")
     && result.output?.includes(
       "island-simulator: jungle near canopy procedural bark fissures")
@@ -2060,6 +2062,8 @@ try {
       "island-simulator: selected near canopy variants include hanging leafy lianas")
     && jungleResult.output?.includes(
       "island-simulator: selected near canopy trunks carry elevated epiphyte rosettes")
+    && jungleResult.output?.includes(
+      "island-simulator: canopy forms use distinct emerald, olive, blue-green, and warm-green palettes with bounded lobe variation")
     && jungleResult.output?.includes(
       "island-simulator: jungle near canopy irregular buttress roots ground trunk bases")
     && jungleResult.output?.includes(

@@ -90,6 +90,8 @@ namespace island
             "island-simulator: jungle near canopy uses irregular trunks and bent support branches";
         constexpr const char* CanopyEpiphyteDiagnostic =
             "island-simulator: selected near canopy trunks carry elevated epiphyte rosettes";
+        constexpr const char* CanopyPaletteDiagnostic =
+            "island-simulator: canopy forms use distinct emerald, olive, blue-green, and warm-green palettes with bounded lobe variation";
 
         struct LeafSurface
         {
@@ -1075,9 +1077,9 @@ void main()
 
             constexpr int clusterCount = 8;
             const std::array<Color, CanopyFormCount> foliageColors{
-                Color(34,104,48), Color(42,123,52), Color(34,114,48), Color(42,131,52),
-                Color(55,105,45), Color(42,98,59), Color(59,112,42), Color(42,110,51),
-                Color(37,94,48)};
+                Color(28,92,44), Color(47,128,55), Color(54,110,39), Color(31,121,55),
+                Color(67,102,37), Color(32,91,63), Color(71,112,35), Color(29,100,50),
+                Color(31,83,47)};
             const Color leafBase = foliageColors.at(static_cast<std::size_t>(variant));
             for (int cluster = 0; cluster < clusterCount; ++cluster) {
                 const auto profile = MakeCanopyCrownProfile(variant, cluster);
@@ -1085,6 +1087,13 @@ void main()
                 const Vector3 centre(profile.x, profile.y, profile.z);
                 const float width = profile.width;
                 const float phase = profile.phase;
+                Color clusterLeaf = leafBase;
+                if (cluster % 4 == 1)
+                    clusterLeaf = Color::Lerp(leafBase, Color(104, 128, 43, 255), .14f);
+                else if (cluster % 4 == 2)
+                    clusterLeaf = Color::Lerp(leafBase, Color(20, 73, 54, 255), .13f);
+                else if (cluster % 4 == 3)
+                    clusterLeaf = Color::Lerp(leafBase, Color(82, 119, 67, 255), .11f);
                 // Primary crown supports still occupy visible pixels at the LOD boundary.
                 // Share their exact geometry/material/wind instead of dropping all branches.
                 if (cluster > 0) {
@@ -1101,7 +1110,7 @@ void main()
                                   Vector3(width * crownFill.coreX,
                                           crownHeight * crownFill.coreY,
                                           width * 0.91f * crownFill.coreZ),
-                                  cluster % 3 == 0 ? ShadeColor(leafBase, 1.10f) : leafBase,
+                                  cluster % 3 == 0 ? ShadeColor(clusterLeaf, 1.10f) : clusterLeaf,
                                   phase, farMesh, farMesh);
                 {
                     // Retain source identities on the golden-angle shell. Fewer shoots fund
@@ -1128,7 +1137,7 @@ void main()
                                 leafAngle, (0.68f + leafVariation * 0.30f)*posture.lengthScale,
                                 (0.19f + leafVariation * 0.065f)*posture.widthScale,
                                 0.13f + 0.16f * (1.0f - leafVariation),
-                                ShadeColor(leafBase, 0.83f + leafVariation * 0.25f
+                                ShadeColor(clusterLeaf, 0.83f + leafVariation * 0.25f
                                     + shellY * 0.09f),
                                 std::fmod(phase + sprig * 0.071f, 1.0f), 0.075f, posture.pitch, posture.roll);
                         }
@@ -1145,8 +1154,8 @@ void main()
                         (1.48f + 0.11f * static_cast<float>((cluster + variant) % 4))*edgePosture.lengthScale,
                         (0.42f + 0.04f * static_cast<float>((cluster * 2 + variant) % 3))*edgePosture.widthScale,
                         0.42f + 0.08f * static_cast<float>((cluster + variant) % 3),
-                        cluster % 2 == 0 ? ShadeColor(leafBase, 1.03f)
-                                         : ShadeColor(leafBase, 0.91f),
+                        cluster % 2 == 0 ? ShadeColor(clusterLeaf, 1.03f)
+                                         : ShadeColor(clusterLeaf, 0.91f),
                         phase, 0.16f, edgePosture.pitch, edgePosture.roll);
                     if ((cluster + variant) % 2 == 0) {
                         const float lowerLeafAngle = angle
@@ -1166,8 +1175,8 @@ void main()
                                 * static_cast<float>((cluster + variant) % 3))*lowerPosture.widthScale,
                             0.68f + 0.08f
                                 * static_cast<float>((cluster * 3 + variant) % 3),
-                            cluster % 3 == 0 ? ShadeColor(leafBase, 0.88f)
-                                             : ShadeColor(leafBase, 0.97f),
+                            cluster % 3 == 0 ? ShadeColor(clusterLeaf, 0.88f)
+                                             : ShadeColor(clusterLeaf, 0.97f),
                             std::fmod(phase + 0.071f, 1.0f), 0.11f, lowerPosture.pitch, lowerPosture.roll);
                     }
                 }
@@ -1886,6 +1895,8 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(CanopyLianaDiagnostic);
             std::cout << CanopyEpiphyteDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(CanopyEpiphyteDiagnostic);
+            std::cout << CanopyPaletteDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(CanopyPaletteDiagnostic);
             std::cout << "island-simulator: jungle near canopy irregular buttress roots ground trunk bases\n";
             std::cout << "island-simulator: jungle near canopy procedural bark fissures\n";
             std::cout << "island-simulator: jungle near bushes with pointed leaf edge breakup\n";

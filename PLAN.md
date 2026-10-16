@@ -112,6 +112,29 @@ hard grass/bush wall at a tier boundary; WebGL remains live, GL error is zero, t
 error is 1.075 m and kernel monitoring is clean. This is representative motion evidence, not a
 mathematical all-view aliasing proof.
 
+## Latest canopy visual pass — botanical colour families and lobe variation
+
+The renewed overview/jungle/clearing-edge audit found current terrain, water and lighting coherent,
+but middle-distance broadleaf crowns still merged into one saturated green band despite their
+eight structural forms. The eight natural forms and mangrove form now use more distinct deep
+emerald, fresh green, olive, blue-green, warm-green and salt-shaded base palettes. Four bounded
+within-crown blends give neighbouring lobes subtle warm, cool and muted identities while retaining
+the same daylight/material pipeline. Geometry, placement, crown shadow volumes, near/far policy,
+buffers and draw counts are unchanged.
+
+Inspected native before/after overview `20261016T154402.094853Z-overview` and
+`20261016T155915.626879Z-overview`, plus accepted walking view
+`20261016T160202.673643Z-jungle`, show better crown separation without artificial rainbow
+patching. The final overview passes at 375 colour bins, 38.05 luminance deviation and 206.13
+spatial contrast; the jungle view passes at 286/46.38/213.00, both with kernel `[]`. Core and all
+101 capture/browser harness tests pass. A two-scene Chrome vegetation run produced valid jungle,
+grass and later grass frames but is explicitly rejected because the full CPU-rendered set exceeded
+its 420-second evidence limit. The narrower representative Chrome/SwiftShader
+`20261016T161301.458033Z-chrome-canopy-light` passes its jungle scene with 60 finite intervals,
+GL0, a live context and kernel `[]`. WebAssembly and Android ARM64 assemble/lint pass; the APK is
+24,692,083 bytes with a 19,649,512-byte packaged library and SHA-256
+`a956aab986ab2ce955d955b67c8e73965d98df7183d2b003978b992da2f15f48`. No emulator/KVM was used.
+
 ## Latest fly visual pass — recognisable three-part insect anatomy
 
 The small-fauna comparison selected the fly after the frog repair. The old close model was one
