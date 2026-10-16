@@ -34,7 +34,7 @@ namespace island
         constexpr float NearLodDistance = 25.0f;
         constexpr int MaximumVerticesPerButterfly = 264;
         constexpr int MaximumFlowerVertices = 1800;
-        constexpr int MaximumGeckoVertices = static_cast<int>(GeckoPopulation::Count) * 900;
+        constexpr int MaximumGeckoVertices = static_cast<int>(GeckoPopulation::Count) * 2300;
         constexpr int MaximumSkinkVertices = static_cast<int>(SkinkPopulation::Count) * 900;
         constexpr int MaximumDragonflyVertices =
             static_cast<int>(DragonflySwarm::Count) * 720;
@@ -64,6 +64,8 @@ namespace island
             "island-simulator: butterflies feed at three visible deterministic nectar-flower patches";
         constexpr std::string_view GeckoDiagnostic =
             "island-simulator: eight inland geckos rest, scurry from the player, and hide in the shared butterfly batch";
+        constexpr std::string_view GeckoAnatomyDiagnostic =
+            "island-simulator: geckos use rounded wedge heads, solid tapered limbs and tails, twelve expanded toe pads, raised eyes, and fitted dorsal spots";
         constexpr std::string_view SkinkDiagnostic =
             "island-simulator: eight open-ground skinks bask, forage, and flee in the shared butterfly batch";
         constexpr std::string_view SkinkAnatomyDiagnostic =
@@ -229,6 +231,55 @@ namespace island
             AddDoubleSidedTriangle(vertices, a + side, b - side * .52f, a - side, color);
         }
 
+        void AppendGeckoTube(std::vector<VertexPositionColor>& vertices,
+                             const Vector3& a,const Vector3& b,
+                             const float radiusA,const float radiusB,
+                             const Color& color,const int sides=6)
+        {
+            Vector3 axis=b-a;
+            const float length=axis.Length();
+            if(length<.0001f) return;
+            axis/=length;
+            Vector3 side=Vector3::Cross(axis,std::abs(axis.Y)<.88f
+                ?Vector3::Up:Vector3::Right);
+            side.Normalize();
+            const Vector3 other=Vector3::Cross(axis,side);
+            const auto radial=[&](const int index) {
+                const float angle=6.28318530718f*static_cast<float>(index)
+                    /static_cast<float>(sides);
+                return side*std::cos(angle)+other*std::sin(angle);
+            };
+            const auto shade=[&](const Vector3& normal) {
+                return Color::Lerp(color,normal.Y>.25f?Color(220,225,170,255)
+                                                        :Color(32,43,27,255),
+                                   normal.Y>.25f?.10f:.07f);
+            };
+            for(int index=0;index<sides;++index) {
+                const Vector3 first=radial(index),second=radial(index+1);
+                const Vector3 p0=a+first*radiusA,p1=b+first*radiusB;
+                const Vector3 p2=b+second*radiusB,p3=a+second*radiusA;
+                AddTriangle(vertices,p0,p1,p2,shade(first));
+                AddTriangle(vertices,p0,p2,p3,shade(second));
+            }
+        }
+
+        void AppendGeckoSpot(std::vector<VertexPositionColor>& vertices,
+                             const Vector3& centre,const Vector3& right,
+                             const Vector3& forward,const float halfWidth,
+                             const float halfLength,const Color& color)
+        {
+            constexpr int Sides=8;
+            for(int edge=0;edge<Sides;++edge) {
+                const float a=6.28318530718f*static_cast<float>(edge)/Sides;
+                const float b=6.28318530718f*static_cast<float>(edge+1)/Sides;
+                const Vector3 first=centre+right*(std::sin(a)*halfWidth)
+                    +forward*(std::cos(a)*halfLength);
+                const Vector3 second=centre+right*(std::sin(b)*halfWidth)
+                    +forward*(std::cos(b)*halfLength);
+                AddDoubleSidedTriangle(vertices,centre,first,second,color);
+            }
+        }
+
         template<std::size_t StationCount>
         void AppendGeckoLoft(std::vector<VertexPositionColor>& vertices,
                              const Vector3& centre,const Vector3& right,
@@ -290,15 +341,15 @@ namespace island
             const Vector3 right(-forward.Z, 0, forward.X);
             const Vector3 up = Vector3::Up;
             const Vector3 body=centre;
-            constexpr std::array<float,5> BodyStations={{-.23f,-.14f,.0f,.14f,.22f}};
-            constexpr std::array<float,5> BodyWidths={{.045f,.105f,.13f,.115f,.075f}};
-            constexpr std::array<float,5> BodyHeights={{.035f,.072f,.082f,.076f,.052f}};
+            constexpr std::array<float,6> BodyStations={{-.24f,-.16f,-.04f,.08f,.18f,.24f}};
+            constexpr std::array<float,6> BodyWidths={{.045f,.110f,.135f,.140f,.120f,.065f}};
+            constexpr std::array<float,6> BodyHeights={{.032f,.067f,.085f,.088f,.075f,.045f}};
             AppendGeckoLoft(vertices,body,right,up,forward,BodyStations,BodyWidths,
                             BodyHeights,scale,back,flank,underside);
             const Vector3 head=centre+forward*(.275f*scale)+up*(.018f*scale);
-            constexpr std::array<float,4> HeadStations={{-.07f,.0f,.105f,.15f}};
-            constexpr std::array<float,4> HeadWidths={{.070f,.115f,.105f,.055f}};
-            constexpr std::array<float,4> HeadHeights={{.042f,.060f,.055f,.032f}};
+            constexpr std::array<float,6> HeadStations={{-.095f,-.050f,.025f,.095f,.155f,.188f}};
+            constexpr std::array<float,6> HeadWidths={{.055f,.100f,.128f,.122f,.082f,.034f}};
+            constexpr std::array<float,6> HeadHeights={{.038f,.063f,.076f,.071f,.050f,.024f}};
             AppendGeckoLoft(vertices,head,right,up,forward,HeadStations,HeadWidths,
                             HeadHeights,scale,back,flank,underside);
             const float stride = std::sin(gecko.gaitPhase) * .055f * scale;
@@ -314,45 +365,49 @@ namespace island
                         + forward * opposed;
                     const Vector3 toe = knee + right * (sideSign * .10f * scale)
                         + forward * ((pair == 0 ? .055f : -.045f) * scale - opposed * .35f);
-                    AppendGeckoSegment(vertices, root, knee, .016f * scale, flank);
-                    AppendGeckoSegment(vertices, knee, toe, .012f * scale, back);
+                    AppendGeckoTube(vertices,root,knee,.020f*scale,.015f*scale,flank);
+                    AppendGeckoTube(vertices,knee,toe,.015f*scale,.010f*scale,back);
                     for(int digit=-1;digit<=1;++digit) {
                         const Vector3 digitEnd=toe+right*(sideSign*.055f*scale)
                             +forward*((static_cast<float>(digit)*.030f
                                 +(pair==0?.018f:-.018f))*scale);
-                        AppendGeckoSegment(vertices,toe,digitEnd,.0055f*scale,underside);
+                        AppendGeckoTube(vertices,toe,digitEnd,.0065f*scale,
+                                        .0040f*scale,underside);
+                        AppendGeckoDiamond(vertices,digitEnd,right,up,forward,
+                            .010f*scale,.0045f*scale,.016f*scale,underside,flank);
                     }
                 }
             }
-            Vector3 tailRoot = body - forward * (.19f * scale);
-            for (int segment = 0; segment < 4; ++segment) {
+            Vector3 tailRoot = body - forward * (.205f * scale);
+            for (int segment = 0; segment < 5; ++segment) {
                 const float phase = gecko.gaitPhase * .35f + static_cast<float>(segment) * .72f;
-                const float length = (.15f - static_cast<float>(segment) * .018f) * scale;
+                const float length = (.142f - static_cast<float>(segment) * .017f) * scale;
                 const Vector3 tailEnd = tailRoot - forward * length
-                    + right * (std::sin(phase) * .035f * scale);
-                AppendGeckoSegment(vertices, tailRoot, tailEnd,
-                    (.036f - static_cast<float>(segment) * .006f) * scale, flank);
+                    + right * (std::sin(phase) * (.032f+.004f*segment) * scale);
+                const float rootRadius=(.040f-static_cast<float>(segment)*.0065f)*scale;
+                const float tipRadius=std::max(.006f,
+                    .0335f-static_cast<float>(segment)*.0065f)*scale;
+                AppendGeckoTube(vertices,tailRoot,tailEnd,rootRadius,tipRadius,flank);
                 tailRoot = tailEnd;
             }
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
                 const float sideSign = static_cast<float>(sideIndex);
                 const Vector3 eyeCentre = head + forward * (.065f * scale)
-                    + right * (sideSign * .075f * scale) + up * (.035f * scale);
+                    + right * (sideSign * .108f * scale) + up * (.050f * scale);
                 AppendGeckoDiamond(vertices, eyeCentre, right, up, forward,
-                                   .018f * scale, .018f * scale, .012f * scale, eye, eye);
-                const Vector3 pupilCentre=eyeCentre+right*(sideSign*.015f*scale)
-                    +up*(.006f*scale);
-                AddDoubleSidedTriangle(vertices,pupilCentre+up*(.009f*scale),
-                    pupilCentre-forward*(.010f*scale)-up*(.007f*scale),
-                    pupilCentre+forward*(.010f*scale)-up*(.007f*scale),pupil);
+                                   .021f * scale, .021f * scale, .014f * scale, eye, eye);
+                const Vector3 pupilCentre=eyeCentre+right*(sideSign*.018f*scale)
+                    +up*(.007f*scale);
+                AddDoubleSidedTriangle(vertices,pupilCentre+up*(.010f*scale),
+                    pupilCentre-forward*(.011f*scale)-up*(.008f*scale),
+                    pupilCentre+forward*(.011f*scale)-up*(.008f*scale),pupil);
             }
-            for(int spot=0;spot<5;++spot) {
-                const float z=(-.15f+static_cast<float>(spot)*.075f)*scale;
-                const float width=(spot%2==0?.045f:.032f)*scale;
-                const Vector3 spotCentre=body+forward*z+up*(.086f*scale);
-                AddDoubleSidedTriangle(vertices,spotCentre+forward*(.018f*scale),
-                    spotCentre-right*width-forward*(.014f*scale),
-                    spotCentre+right*width-forward*(.014f*scale),marking);
+            for(int spot=0;spot<6;++spot) {
+                const float z=(-.155f+static_cast<float>(spot)*.062f)*scale;
+                const float width=(spot%2==0?.025f:.019f)*scale;
+                const Vector3 spotCentre=body+forward*z+up*(.090f*scale);
+                AppendGeckoSpot(vertices,spotCentre,right,forward,width,
+                                (spot%2==0?.018f:.014f)*scale,marking);
             }
         }
 
@@ -1305,6 +1360,7 @@ namespace island
         std::cout << ButterflyBodyDiagnostic << '\n';
         std::cout << ButterflyHabitatDiagnostic << '\n';
         std::cout << GeckoDiagnostic << '\n';
+        std::cout << GeckoAnatomyDiagnostic << '\n';
         std::cout << SkinkDiagnostic << '\n';
         std::cout << SkinkAnatomyDiagnostic << '\n';
         std::cout << DragonflyDiagnostic << '\n';
@@ -1324,6 +1380,7 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyBodyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyHabitatDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(GeckoDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(GeckoAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(SkinkDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(SkinkAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(DragonflyDiagnostic);

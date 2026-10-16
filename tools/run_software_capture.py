@@ -1164,6 +1164,8 @@ def main():
             if args.viewpoint == "geckos":
                 if "eight inland geckos rest, scurry from the player, and hide in the shared butterfly batch" not in diagnostics:
                     raise RuntimeError("current gecko renderer is missing; check for a stale executable")
+                if "geckos use rounded wedge heads, solid tapered limbs and tails, twelve expanded toe pads, raised eyes, and fitted dorsal spots" not in diagnostics:
+                    raise RuntimeError("current gecko anatomy is missing; check for a stale executable")
                 if "gecko QA camera frames a resting inland lizard at ground level" not in diagnostics:
                     raise RuntimeError("current gecko inspection composition is missing")
                 if not re.search(r"geckos [1-8]/8 visible in shared draw", diagnostics):

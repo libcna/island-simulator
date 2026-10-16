@@ -907,6 +907,7 @@ try {
               && log.includes("butterfly QA camera follows one live near animal at its nectar patch")
               && /butterflies [1-9][0-9]*\/18 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedGeckoCheck || (log.includes("eight inland geckos rest, scurry from the player, and hide in the shared butterfly batch")
+              && log.includes("geckos use rounded wedge heads, solid tapered limbs and tails, twelve expanded toe pads, raised eyes, and fitted dorsal spots")
               && log.includes("gecko QA camera frames a resting inland lizard at ground level")
               && /geckos [1-8]\/8 visible in shared draw/.test(log)))
             && (!focusedSkinkCheck || (log.includes("eight open-ground skinks bask, forage, and flee in the shared butterfly batch")

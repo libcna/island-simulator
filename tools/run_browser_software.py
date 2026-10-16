@@ -500,6 +500,7 @@ def validate_gecko_report(report):
         or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
         or len(set(frames))!=2
         or "eight inland geckos rest, scurry from the player, and hide in the shared butterfly batch" not in log
+        or "geckos use rounded wedge heads, solid tapered limbs and tails, twelve expanded toe pads, raised eyes, and fitted dorsal spots" not in log
         or "gecko QA camera frames a resting inland lizard at ground level" not in log
         or not re.search(r"geckos [1-8]/8 visible in shared draw",log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):

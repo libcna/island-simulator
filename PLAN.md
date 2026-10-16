@@ -112,6 +112,30 @@ hard grass/bush wall at a tier boundary; WebGL remains live, GL error is zero, t
 error is 1.075 m and kernel monitoring is clean. This is representative motion evidence, not a
 mathematical all-view aliasing proof.
 
+## Latest gecko visual pass — solid limbs, tail and adhesive toes
+
+The next close animal audit compared the current gecko and rat after the deer repair and selected
+the gecko. Its closed body/head were recognisable, but four legs, twelve digits and four tail
+sections were still double-sided cards that collapsed into hairlines. Eyes were buried inside the
+broad head and five triangular dorsal marks looked painted on.
+
+The body and broad wedge head now use six unequal sections. Upper/lower limbs, digits and five
+curved tail sections are closed six-sided tapered tubes, and every digit ends in a small closed
+expanded adhesive pad. Raised amber eyes sit on the upper lateral head surface with dark pupils;
+six compact eight-sided oval dorsal spots replace the triangles. Habitat, eight-agent
+rest/scurry/hide simulation, scale, visibility fade and the existing shared one-draw submission
+remain unchanged.
+
+The conservative full-population gecko allocation grows from 7,200 to 18,400 vertices, adding
+179,200 bytes to the already shared dynamic buffer; one detailed animal uses 2,112 vertices inside
+its 2,300 slot bound. Inspected native baseline `20261016T142237.642668Z-geckos` and accepted
+`20261016T145148.912962Z-geckos` show the corrected anatomy; accepted evidence passes at 296 colour
+bins, 19.99 luminance deviation, 72.65 spatial contrast and kernel `[]`. Core and all 43
+browser/capture harness tests pass. Focused Chrome/SwiftShader
+`20261016T145535.589704Z-chrome-geckos` passes two distinct frames, 60 finite intervals, GL0, a
+live context and kernel `[]`. WebAssembly and Android ARM64 assemble/lint pass; the APK is
+24,683,675 bytes with a 19,641,104-byte packaged library. No emulator/KVM was used.
+
 ## Latest deer visual pass — continuous torso and species silhouette
 
 The renewed animal/landscape audit compared deer, geckos and rats after accepting current water,

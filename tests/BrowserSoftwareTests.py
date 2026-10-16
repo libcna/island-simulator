@@ -17,6 +17,27 @@ from gpu_incident_qualification import contained_command
 
 
 class BrowserSoftwareTests(unittest.TestCase):
+    def test_gecko_scope_requires_solid_anatomy(self):
+        anatomy = ("geckos use rounded wedge heads, solid tapered limbs and tails, "
+                   "twelve expanded toe pads, raised eyes, and fitted dorsal spots")
+        markers = "\n".join((
+            "eight inland geckos rest, scurry from the player, and hide in the shared butterfly batch",
+            anatomy,
+            "gecko QA camera frames a resting inland lizard at ground level",
+            "geckos 1/8 visible in shared draw"))
+        def report():
+            return {"passed": True, "views": [{"mode": "geckos", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": "gecko.png", "afterSimulationScreenshot": "gecko-after.png",
+                "intervals": [16.7] * 60,
+                "result": {"output": markers, "error": "", "exited": False}}]}
+        self.assertEqual(gate.validate_gecko_report(report()),
+                         ("gecko.png", "gecko-after.png"))
+        missing = report()
+        missing["views"][0]["result"]["output"] = markers.replace(anatomy + "\n", "")
+        with self.assertRaises(RuntimeError):
+            gate.validate_gecko_report(missing)
+
     def test_deer_scope_requires_continuous_neck_nose_and_fitted_spots(self):
         self.assertIn("deer", gate.SCOPES)
         anatomy = ("near deer use vertex-blended ellipsoid light, curved tapered necks, "

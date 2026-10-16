@@ -250,6 +250,35 @@ browser attempts are retained as rejected evidence: the first lacked the second-
 the second let the inspected animal complete its hide cycle before the slow software renderer took
 the screenshot. Neither is accepted as visual proof.
 
+### Gecko solid-anatomy pass — 2026-10-16
+
+A renewed deer/gecko/rat comparison selected the gecko after the deer repair. Its body and head
+were closed lofts, but all four legs, twelve digits and the segmented tail were still double-sided
+flat cards. From ordinary elevated viewing distance they collapsed into hairline strokes, while the
+eyes sat inside the broad head and five large triangular dorsal marks reinforced a toy silhouette.
+
+The body now has six unequal sections and a fuller shoulder profile. A longer six-section wedge
+head narrows from broad rear jaw corners into a compact blunt snout. Every upper/lower limb, digit
+and all five curved tail sections are closed six-sided tapered tubes. Each digit terminates in a
+small closed expanded adhesive pad, giving twelve readable gecko toes. Amber eye volumes are fitted
+to the upper lateral head surface with dark pupils, and six smaller eight-sided oval dorsal spots
+replace the large triangles.
+
+All eight animals remain in the existing shared small-fauna dynamic buffer and single draw, with
+the same scale, habitat, rest/scurry/hide simulation and visibility fade. Conservative gecko
+capacity rises from 7,200 to 18,400 vertices across the complete population, adding 179,200 bytes
+at the 16-byte vertex format; the current detailed animal uses 2,112 vertices inside its 2,300
+slot bound. Inspected native baseline `20261016T142237.642668Z-geckos` and accepted
+`build-consumer/software-captures/20261016T145148.912962Z-geckos` show solid legs/tail, separated
+toe pads, surface eyes and compact spots. Accepted evidence passes at 296 colour bins, 19.99
+luminance deviation, 72.65 spatial contrast and kernel `[]`.
+
+`IslandCoreTests` and all 43 browser/capture harness tests pass. Focused Chrome/SwiftShader
+`build/browser-software/20261016T145535.589704Z-chrome-geckos` provides two distinct separated-time
+frames and passes 60 finite positive intervals, GL0, a live context and kernel `[]`. WebAssembly
+builds. Android ARM64 assemble/lint passes without emulator/KVM; the APK is 24,683,675 bytes and
+the packaged `libmain.so` is 19,641,104 bytes. Physical-device appearance remains open.
+
 ## Dragonflies
 
 Nine deterministic dragonflies occupy three groups of three: one over the seasonal wetland and two
