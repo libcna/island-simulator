@@ -543,6 +543,33 @@ empty kernel delta. Focused Chrome/SwiftShader
 `20261015T231815.216785Z-chrome-coconut-crabs` passes two distinct inspected frames, 60 finite
 intervals, GL error zero, a live context and an empty final kernel delta.
 
+### Independent articulated terrestrial model (2026-10-16)
+
+A new exact-current capture showed that stretching the beach-crab base still left the coconut crab
+as a flat central disc with two wheel-like palms and thin bar legs. The near form no longer inherits
+that marine silhouette. It now builds a closed five-ring cephalothorax, a smaller tucked four-ring
+abdomen with fitted dorsal plates, four three-segment walking legs per side with solid knee and
+ankle joints, and two shoulder-connected chelipeds. Each unequal palm retains two separated bent
+solid fingers, while smaller stalked eyes, two-section antennae and dark mouth parts avoid the
+anthropomorphic expression exposed by the first revision.
+
+Ten restrained fitted armour marks and four established blue-grey, violet-brown, slate and warm-
+umber palettes break up the shell without a new texture or material. The exact geometry budget
+rises only from 2,616 to 2,664 vertices per visible animal (96 additional triangles across all six
+if they are simultaneously visible). Population, controller, terrain contact, culling, buffer and
+the shared one-draw crab submission remain unchanged.
+
+The stale baseline `20261016T173021.123752Z-coconut-crabs` and first rejected rebuild
+`20261016T173548.463314Z-coconut-crabs` document the flat-disc and over-large-eye problems.
+Accepted native llvmpipe/pixman evidence `20261016T174028.847385Z-coconut-crabs` passes at
+1280x720 with 298 colour bins, 44.10 luminance deviation, 216.91 spatial contrast and an empty
+kernel delta. Focused Chrome/SwiftShader evidence
+`20261016T174301.946263Z-chrome-coconut-crabs` passes 60 finite intervals, two inspected motion
+frames, GL error zero, a live context and no new kernel fault. The ARM64 Android assemble/lint gate
+passes without launching an emulator or touching KVM; the APK is 24,718,355 bytes with SHA-256
+`7d22b5c5f046d95c786f9ba2b96e1507aaed60325ebaedb0003ac0552c0b0bf8`, and stripped
+`libmain.so` is 19,675,784 bytes.
+
 ## Skinks
 
 Eight deterministic diurnal skinks occupy 6.4--7.5 m homes around clearings, a wetland edge and

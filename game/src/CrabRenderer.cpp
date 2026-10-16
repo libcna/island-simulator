@@ -42,7 +42,7 @@ namespace island
         constexpr int MaximumBurrowVertices = 1024;
         constexpr int MaximumHermitCrabVertices =
             static_cast<int>(HermitCrabGroup::Count) * 1024;
-        constexpr int CoconutCrabVertexCount = 2616;
+        constexpr int CoconutCrabVertexCount = 2664;
         constexpr int MaximumCoconutCrabVertices =
             static_cast<int>(CoconutCrabGroup::Count) * CoconutCrabVertexCount;
         constexpr int MaximumVertexCount = static_cast<int>(CrabColony::CrabCount)
@@ -73,9 +73,9 @@ namespace island
         constexpr std::string_view CoconutCrabDiagnostic =
             "island-simulator: six coastal palm-zone coconut crabs rest, forage, and retreat in the shared crab batch";
         constexpr std::string_view CoconutCrabAnatomyDiagnostic =
-            "island-simulator: coconut crabs use broad armored bodies, segmented terrestrial abdomens, robust walking legs, and massive unequal claws";
+            "island-simulator: coconut crabs use deep closed cephalothoraxes, tucked segmented abdomens, four-joint walking legs, and massive unequal claws";
         constexpr std::string_view CoconutCrabProfileDiagnostic =
-            "island-simulator: coconut crabs use elevated compact bodies, planted high-jointed legs, and arched abdominal plates";
+            "island-simulator: coconut crabs use elevated compact bodies, planted articulated legs, and fitted dorsal armour markings";
         constexpr std::string_view CoconutCrabClawDiagnostic =
             "island-simulator: near coconut crabs use rounded unequal claw palms over separated solid pincer fingers";
         constexpr std::string_view CoconutCrabColourDiagnostic =
@@ -107,21 +107,9 @@ namespace island
         }};
 
         const std::array<Color, 4> CoconutBodyColours = {{
-            Color(91, 88, 112, 255), Color(112, 79, 88, 255),
-            Color(76, 94, 103, 255), Color(116, 96, 78, 255)
+            Color(112, 112, 142, 255), Color(135, 91, 106, 255),
+            Color(84, 116, 126, 255), Color(139, 111, 82, 255)
         }};
-
-        [[nodiscard]] Color CoconutArmourColour(const Color& source,
-                                                const std::uint8_t variant)
-        {
-            const float luminance=(source.getRProperty()+source.getGProperty()
-                +source.getBProperty())/3.0f;
-            if(luminance<44.0f)return source;
-            const float tone=.68f+.85f*luminance/255.0f;
-            const Color cool=wildlife_render::ScaleColor(
-                CoconutBodyColours[variant%CoconutBodyColours.size()],tone);
-            return Color::Lerp(source,cool,.62f);
-        }
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -752,67 +740,70 @@ namespace island
         void AppendCoconutCrab(std::vector<VertexPositionColor>& vertices,
                                const CoconutCrabState& crab)
         {
-            CrabState base;
-            base.x = crab.x;
-            base.y = crab.y;
-            base.z = crab.z;
-            base.bodyYawRadians = crab.headingRadians;
-            base.travelHeadingRadians = crab.headingRadians;
-            base.speed = crab.speed;
-            base.legPhase = crab.legPhase;
-            base.clawPose = crab.clawPose;
-            base.scale = crab.scale;
-            base.behavior = CrabBehavior::Forage;
-            base.simulationTier = crab.simulationTier;
-            base.colorVariant = crab.colorVariant;
             const Vector3 centre(crab.x, crab.y, crab.z);
             const Vector3 forward(std::cos(crab.headingRadians), 0.0f,
                                   std::sin(crab.headingRadians));
             const Vector3 right(-forward.Z, 0.0f, forward.X);
             const Vector3 up = Vector3::Up;
             const float scale = crab.scale;
-            const std::size_t baseFirst=vertices.size();
-            AppendNearCrab(vertices, base, true);
-            // Beach crabs are low and broad. Preserve their detailed shared anatomy but
-            // compact this terrestrial form laterally, lift positive-height joints and
-            // incline the front slightly. The toes stay on their authored support plane.
-            for(std::size_t index=baseFirst;index<vertices.size();++index) {
-                const Vector3 delta=vertices[index].Position-centre;
-                const float localRight=Vector3::Dot(delta,right)*.75f;
-                const float localForward=Vector3::Dot(delta,forward)*.92f;
-                const float localUp=Vector3::Dot(delta,up);
-                const float raisedUp=localUp>0.0f
-                    ?localUp*2.20f+std::max(0.0f,localForward)*.12f:localUp;
-                vertices[index].Position=centre+right*localRight+forward*localForward
-                    +up*raisedUp;
-                vertices[index].Color=CoconutArmourColour(
-                    vertices[index].Color,crab.colorVariant);
-            }
             const std::array<Color, 4> plates = {{
-                Color(82, 88, 70, 255), Color(105, 82, 66, 255),
-                Color(91, 72, 58, 255), Color(119, 91, 61, 255)}};
+                Color(108, 116, 95, 255), Color(128, 91, 82, 255),
+                Color(94, 91, 119, 255), Color(145, 112, 72, 255)}};
             const Color plate = plates[crab.colorVariant % plates.size()];
             const Color plateShade = Color::Lerp(plate, Color(25, 28, 25, 255), .42f);
-            // A coconut crab carries a deep domed cephalothorax rather than the
-            // flat lateral pancake of its beach-crab base. This closed smooth-lit
-            // armour volume overlaps the shared shell and preserves every leg root.
-            const Color body=CoconutBodyColours[
-                crab.colorVariant%CoconutBodyColours.size()];
+            const Color body = CoconutBodyColours[
+                crab.colorVariant % CoconutBodyColours.size()];
+            const Color bodyLight = wildlife_render::ScaleColor(body, 1.16f);
+            const Color bodyShade = wildlife_render::ScaleColor(body, .72f);
+            const Color limb = Color::Lerp(body, plateShade, .36f);
+            const Color joint = wildlife_render::ScaleColor(limb, .69f);
+            const Color claw = Color::Lerp(bodyLight, plate, .38f);
+
+            // Build the terrestrial species directly. Reusing and stretching the
+            // beach-crab mesh made the animal read as a flat disc with wheel-shaped
+            // claws. This deep, closed volume keeps a high shoulder and a visible
+            // ventral edge from frontal, lateral and elevated views.
             AppendRoundedCoconutPalm(vertices,
-                centre+forward*(.055f*scale)+up*(.205f*scale),right,up,forward,
-                .305f*scale,.155f*scale,.235f*scale,
-                wildlife_render::ScaleColor(body,1.12f),
-                wildlife_render::ScaleColor(body,.78f));
+                centre + forward * (.025f * scale) + up * (.245f * scale),
+                right, up, forward, .340f * scale, .185f * scale,
+                .290f * scale, bodyLight, bodyShade);
+
+            struct ArmourMark { float x; float z; float halfX; float halfZ; };
+            constexpr std::array<ArmourMark, 10> ArmourMarks = {{
+                {-.20f, -.10f, .040f, .026f}, {-.07f, -.15f, .035f, .022f},
+                { .09f, -.14f, .042f, .025f}, { .21f, -.08f, .032f, .021f},
+                {-.24f,  .00f, .034f, .024f}, {-.09f, -.02f, .042f, .028f},
+                { .08f,  .00f, .037f, .025f}, { .23f,  .020f, .030f, .020f},
+                {-.14f,  .07f, .034f, .021f}, { .14f,  .08f, .038f, .022f},
+            }};
+            for (const ArmourMark& mark : ArmourMarks) {
+                const auto shellPoint = [&](const float x, const float z) {
+                    const float dome = std::sqrt(std::max(0.0f, 1.0f
+                        - x * x / (.340f * .340f) - z * z / (.290f * .290f)));
+                    return centre + right * (x * scale)
+                        + forward * ((z + .025f) * scale)
+                        + up * ((.245f + .185f * dome + .004f) * scale);
+                };
+                AddQuad(vertices,
+                        shellPoint(mark.x - mark.halfX, mark.z),
+                        shellPoint(mark.x, mark.z + mark.halfZ),
+                        shellPoint(mark.x + mark.halfX, mark.z),
+                        shellPoint(mark.x, mark.z - mark.halfZ),
+                        Color::Lerp(bodyShade, plate, .22f));
+            }
+
+            // Coconut crabs have a reduced, tucked abdomen. It remains readable
+            // behind the main shield without turning into a second flat shell.
             constexpr int Segments = 12;
-            constexpr std::array<float, 4> Stations = {{-.20f, -.125f, -.045f, .025f}};
-            constexpr std::array<float, 4> Widths = {{.17f, .25f, .27f, .18f}};
-            constexpr std::array<float, 4> Heights = {{.10f, .16f, .17f, .11f}};
+            constexpr std::array<float, 4> Stations = {{-.335f, -.275f, -.205f, -.125f}};
+            constexpr std::array<float, 4> Widths = {{.120f, .190f, .250f, .230f}};
+            constexpr std::array<float, 4> Heights = {{.070f, .105f, .140f, .120f}};
             const auto ringPoint = [&](std::size_t station, int segment) {
                 const float angle = TwoPi * static_cast<float>(segment)
                     / static_cast<float>(Segments);
                 return centre + forward * (Stations[station] * scale)
                     + right * (std::cos(angle) * Widths[station] * scale)
-                    + up * ((.15f + std::sin(angle) * Heights[station]) * scale);
+                    + up * ((.155f + std::sin(angle) * Heights[station]) * scale);
             };
             for (std::size_t station = 0; station + 1U < Stations.size(); ++station) {
                 for (int segment = 0; segment < Segments; ++segment) {
@@ -825,23 +816,151 @@ namespace island
                 }
             }
             const Vector3 rear = centre + forward * (Stations.front() * scale)
-                + up * (.15f * scale);
+                + up * (.155f * scale);
             for (int segment = 0; segment < Segments; ++segment) {
                 const int next = (segment + 1) % Segments;
                 AddTriangle(vertices, rear, ringPoint(0U, next),
                             ringPoint(0U, segment), plateShade);
             }
-            // Raised transverse plates retain a readable terrestrial abdomen at
-            // close range while using the same opaque batch as the beach crabs.
+
+            // Four fitted dorsal plates articulate the tucked abdomen.
             for (int band = 0; band < 4; ++band) {
-                const float z = (-.165f + static_cast<float>(band) * .052f) * scale;
-                const Vector3 a = centre + forward * z - right * (.21f * scale)
-                    + up * (.225f * scale);
-                const Vector3 b = centre + forward * z + right * (.21f * scale)
-                    + up * (.225f * scale);
-                const Vector3 crown=centre+forward*z+up*(.305f*scale);
-                AppendCrossedSegment(vertices,a,crown,.006f*scale,plateShade);
-                AppendCrossedSegment(vertices,crown,b,.006f*scale,plateShade);
+                const float z = -.305f + static_cast<float>(band) * .055f;
+                const float width = .115f + static_cast<float>(band) * .030f;
+                const float y = .236f + static_cast<float>(band) * .018f;
+                AddQuad(vertices,
+                    LocalPoint(centre, right, up, forward, -width, y, z-.010f, scale),
+                    LocalPoint(centre, right, up, forward,  width, y, z-.010f, scale),
+                    LocalPoint(centre, right, up, forward,  width, y, z+.010f, scale),
+                    LocalPoint(centre, right, up, forward, -width, y, z+.010f, scale),
+                    wildlife_render::ScaleColor(plate, 1.04f));
+            }
+
+            // Four strongly articulated walking legs per side provide the high,
+            // planted coconut-crab stance while every toe remains on the terrain.
+            for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
+                const float side = static_cast<float>(sideIndex);
+                for (int leg = 0; leg < 4; ++leg) {
+                    const float z = -.145f + static_cast<float>(leg) * .112f;
+                    const float stride = crab.legPhase
+                        * (leg % 2 == 0 ? .034f : -.034f);
+                    const Vector3 hip = LocalPoint(centre, right, up, forward,
+                        side * .245f, .175f, z, scale);
+                    const Vector3 knee = LocalPoint(centre, right, up, forward,
+                        side * (.455f + leg * .014f), .195f,
+                        z + stride, scale);
+                    const Vector3 ankle = LocalPoint(centre, right, up, forward,
+                        side * (.635f + leg * .012f), .080f,
+                        z + (leg < 2 ? -.038f : .038f) + stride * 1.35f, scale);
+                    const Vector3 toe = LocalPoint(centre, right, up, forward,
+                        side * (.790f + leg * .008f), .006f,
+                        z + (leg < 2 ? -.060f : .060f) + stride * 1.65f, scale);
+                    AppendTaperedLimbSegment(vertices, hip, knee,
+                        .041f * scale, .034f * scale, limb);
+                    AppendTaperedLimbSegment(vertices, knee, ankle,
+                        .035f * scale, .022f * scale, joint);
+                    AppendTaperedLimbSegment(vertices, ankle, toe,
+                        .023f * scale, .008f * scale, limb);
+                    AppendOctahedron(vertices, knee, right, up, forward,
+                        .045f * scale, .038f * scale, .045f * scale,
+                        limb, joint);
+                    AppendOctahedron(vertices, ankle, right, up, forward,
+                        .030f * scale, .025f * scale, .032f * scale,
+                        joint, bodyShade);
+                }
+            }
+
+            // The chelipeds bend forward from the shoulder. Their palms are
+            // unequal, integrated into the arms, and the two fingers converge
+            // toward the midline instead of presenting as circular side plates.
+            for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
+                const float side = static_cast<float>(sideIndex);
+                const bool major = sideIndex > 0;
+                const Vector3 root = LocalPoint(centre, right, up, forward,
+                    side * .205f, .230f, .180f, scale);
+                const Vector3 elbow = LocalPoint(centre, right, up, forward,
+                    side * .355f, .250f, .315f, scale);
+                const Vector3 wrist = LocalPoint(centre, right, up, forward,
+                    side * .405f, .215f, .430f, scale);
+                const Vector3 palm = LocalPoint(centre, right, up, forward,
+                    side * .410f, .225f, .510f, scale);
+                AppendTaperedLimbSegment(vertices, root, elbow,
+                    .050f * scale, .044f * scale, limb);
+                AppendTaperedLimbSegment(vertices, elbow, wrist,
+                    .046f * scale, .038f * scale, joint);
+                AppendOctahedron(vertices, elbow, right, up, forward,
+                    .055f * scale, .050f * scale, .060f * scale,
+                    limb, joint);
+                AppendRoundedCoconutPalm(vertices, palm, right, up, forward,
+                    (major ? .122f : .104f) * scale,
+                    (major ? .105f : .092f) * scale,
+                    (major ? .168f : .145f) * scale,
+                    claw, wildlife_render::ScaleColor(claw, .67f));
+
+                const float opening = .030f + crab.clawPose * .032f;
+                const Vector3 outerBase = palm + right * (side * .062f * scale)
+                    + forward * (.100f * scale);
+                const Vector3 innerBase = palm - right * (side * .040f * scale)
+                    + forward * (.105f * scale);
+                const Vector3 outerMid = palm + right * (side * .090f * scale)
+                    + forward * (.195f * scale) + up * (.015f * scale);
+                const Vector3 innerMid = palm - right * (side * .060f * scale)
+                    + forward * (.190f * scale) - up * (.014f * scale);
+                const Vector3 outerTip = palm + right * (side * opening * scale)
+                    + forward * ((major ? .285f : .255f) * scale);
+                const Vector3 innerTip = palm - right * (side * opening * .55f * scale)
+                    + forward * ((major ? .278f : .248f) * scale);
+                AppendPrismaticFinger(vertices, outerBase, outerMid, outerTip,
+                    (major ? .027f : .023f) * scale, claw, plateShade);
+                AppendPrismaticFinger(vertices, innerBase, innerMid, innerTip,
+                    (major ? .023f : .020f) * scale, bodyLight, plateShade);
+            }
+
+            const Color eye(20, 19, 17, 255);
+            const Color eyeGlint(184, 194, 186, 255);
+            for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
+                const float side = static_cast<float>(sideIndex);
+                const Vector3 eyeRoot = LocalPoint(centre, right, up, forward,
+                    side * .105f, .335f, .210f, scale);
+                const Vector3 eyeCentre = LocalPoint(centre, right, up, forward,
+                    side * .120f, .385f, .300f, scale);
+                AppendCrossedSegment(vertices, eyeRoot, eyeCentre,
+                    .013f * scale, plateShade);
+                AppendOctahedron(vertices, eyeCentre, right, up, forward,
+                    .022f * scale, .020f * scale, .021f * scale, eye, eye);
+                AppendOctahedron(vertices,
+                    eyeCentre + forward * (.025f * scale) + up * (.008f * scale),
+                    right, up, forward, .004f * scale, .004f * scale,
+                    .003f * scale, eyeGlint, eyeGlint);
+
+                const Vector3 antennaMid = LocalPoint(centre, right, up, forward,
+                    side * .115f, .370f, .345f, scale);
+                const Vector3 antennaTip = LocalPoint(centre, right, up, forward,
+                    side * (.180f + .018f * std::sin(crab.legPhase)),
+                    .435f, .490f, scale);
+                AppendCrossedSegment(vertices, eyeRoot, antennaMid,
+                    .006f * scale, joint);
+                AppendCrossedSegment(vertices, antennaMid, antennaTip,
+                    .0035f * scale, joint);
+            }
+
+            const Vector3 mouthCentre = LocalPoint(centre, right, up, forward,
+                0.0f, .190f, .307f, scale);
+            AddQuad(vertices,
+                mouthCentre - right * (.060f * scale) + up * (.010f * scale),
+                mouthCentre + right * (.060f * scale) + up * (.010f * scale),
+                mouthCentre + right * (.050f * scale) - up * (.012f * scale),
+                mouthCentre - right * (.050f * scale) - up * (.012f * scale), joint);
+            AddDoubleSidedTriangle(vertices,
+                mouthCentre - right * (.035f * scale) - up * (.014f * scale),
+                mouthCentre + right * (.035f * scale) - up * (.014f * scale),
+                mouthCentre - up * (.035f * scale), bodyShade);
+            for (const float side : {-1.0f, 1.0f}) {
+                AppendOctahedron(vertices,
+                    mouthCentre + right * (side * .078f * scale)
+                        + forward * (.015f * scale),
+                    right, up, forward, .045f * scale, .032f * scale,
+                    .046f * scale, limb, joint);
             }
         }
 

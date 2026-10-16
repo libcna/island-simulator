@@ -16319,6 +16319,21 @@ Existing observation and qualification queue:
   remained on their required `next` revisions, read-only and clean; no qualifying dependency
   defect was found.
 
+### 2026-10-16 — Coconut-crab independent anatomy audit
+
+- Replaced the stretched beach-crab derivative exposed by the current exact capture as a flat disc
+  with wheel-like claws. The six coconut crabs now use a dedicated closed cephalothorax, tucked
+  plated abdomen, eight three-segment planted legs with solid joints, connected unequal chelipeds,
+  separated pincer fingers, small stalked eyes, antennae and restrained shell markings.
+- The fixed visible-animal budget is 2,664 vertices, only 48 above the previous model. Population,
+  simulation, habitat, culling, dynamic buffer and the shared one-draw crab submission are
+  unchanged. Native exact evidence `20261016T174028.847385Z-coconut-crabs` and focused
+  Chrome/SwiftShader evidence `20261016T174301.946263Z-chrome-coconut-crabs` were inspected and
+  pass their image, GL0, live-context and kernel gates.
+- ARM64 Android assemble/lint passes without an emulator or KVM. The APK is 24,718,355 bytes with
+  SHA-256 `7d22b5c5f046d95c786f9ba2b96e1507aaed60325ebaedb0003ac0552c0b0bf8`; stripped
+  `libmain.so` is 19,675,784 bytes.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.

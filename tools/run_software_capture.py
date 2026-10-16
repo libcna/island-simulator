@@ -1263,9 +1263,9 @@ def main():
             if args.viewpoint == "coconut-crabs":
                 if "six coastal palm-zone coconut crabs rest, forage, and retreat in the shared crab batch" not in diagnostics:
                     raise RuntimeError("current coconut-crab renderer is missing; check for a stale executable")
-                if "coconut crabs use broad armored bodies, segmented terrestrial abdomens, robust walking legs, and massive unequal claws" not in diagnostics:
+                if "coconut crabs use deep closed cephalothoraxes, tucked segmented abdomens, four-joint walking legs, and massive unequal claws" not in diagnostics:
                     raise RuntimeError("current coconut-crab anatomy is missing; check for a stale executable")
-                if "coconut crabs use elevated compact bodies, planted high-jointed legs, and arched abdominal plates" not in diagnostics:
+                if "coconut crabs use elevated compact bodies, planted articulated legs, and fitted dorsal armour markings" not in diagnostics:
                     raise RuntimeError("current coconut-crab profile is missing; check for a stale executable")
                 if "near coconut crabs use rounded unequal claw palms over separated solid pincer fingers" not in diagnostics:
                     raise RuntimeError("current coconut-crab rounded claws are missing; check for a stale executable")

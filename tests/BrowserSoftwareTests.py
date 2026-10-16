@@ -612,10 +612,10 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn("coconut-crabs", gate.SCOPES)
         population = ("six coastal palm-zone coconut crabs rest, forage, and retreat in the "
                       "shared crab batch")
-        anatomy = ("coconut crabs use broad armored bodies, segmented terrestrial abdomens, "
-                   "robust walking legs, and massive unequal claws")
-        profile = ("coconut crabs use elevated compact bodies, planted high-jointed legs, "
-                   "and arched abdominal plates")
+        anatomy = ("coconut crabs use deep closed cephalothoraxes, tucked segmented abdomens, "
+                   "four-joint walking legs, and massive unequal claws")
+        profile = ("coconut crabs use elevated compact bodies, planted articulated legs, "
+                   "and fitted dorsal armour markings")
         claws = ("near coconut crabs use rounded unequal claw palms over separated solid "
                  "pincer fingers")
         colour = ("coconut crabs use cool blue-grey, violet-brown, slate, and warm umber "

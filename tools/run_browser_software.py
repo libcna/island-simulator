@@ -737,8 +737,8 @@ def validate_coconut_crab_report(report):
         or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
         or len(set(frames))!=2
         or "six coastal palm-zone coconut crabs rest, forage, and retreat in the shared crab batch" not in log
-        or "coconut crabs use broad armored bodies, segmented terrestrial abdomens, robust walking legs, and massive unequal claws" not in log
-        or "coconut crabs use elevated compact bodies, planted high-jointed legs, and arched abdominal plates" not in log
+        or "coconut crabs use deep closed cephalothoraxes, tucked segmented abdomens, four-joint walking legs, and massive unequal claws" not in log
+        or "coconut crabs use elevated compact bodies, planted articulated legs, and fitted dorsal armour markings" not in log
         or "near coconut crabs use rounded unequal claw palms over separated solid pincer fingers" not in log
         or "coconut crabs use cool blue-grey, violet-brown, slate, and warm umber limb armour with a front-raised terrestrial stance" not in log
         or "coconut-crab QA camera frames one large terrestrial animal in coastal vegetation" not in log
