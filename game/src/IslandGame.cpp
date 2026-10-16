@@ -1626,8 +1626,8 @@ namespace island
             const Vector3 forward(ant.forwardX,ant.forwardY,ant.forwardZ);
             const Vector3 up(ant.normalX,ant.normalY,ant.normalZ);
             const Vector3 side=Vector3::Normalize(Vector3::Cross(up,forward));
-            cameraPosition_=Vector3(ant.x,ant.y,ant.z)+up*.08f+side*.32f-forward*.07f;
-            const Vector3 direction=Vector3(ant.x,ant.y,ant.z)+up*.030f-cameraPosition_;
+            cameraPosition_=Vector3(ant.x,ant.y,ant.z)+up*.045f+side*.15f-forward*.03f;
+            const Vector3 direction=Vector3(ant.x,ant.y,ant.z)+up*.018f-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
             std::cout<<"island-simulator: ant QA camera frames a visible worker on one inland soil trail\n";

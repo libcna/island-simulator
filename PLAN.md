@@ -16349,6 +16349,21 @@ Existing observation and qualification queue:
   SHA-256 `7fda69cc5c227efbff6e5438047a9b6a4aad971b41ddc4bb669bf996bc759ac9`; stripped
   `libmain.so` is 19,683,896 bytes.
 
+### 2026-10-16 — Rounded leaf-cutter ant audit
+
+- Replaced the close ant's diamond chain and card legs with three closed five-station body volumes,
+  paired waist nodes, fitted eyes, mandibles, bent solid antennae and six three-segment legs with
+  knee volumes. Carrying workers now grip a broad eight-lobed leaf blade through its stem; the
+  camera sees its face and raised midrib instead of the old detached edge-on triangle.
+- Runtime guards enforce 1,692 vertices for an unladen worker and 1,800 for a carrying worker.
+  Population, four trail routes, terrain/trunk following, behaviour, culling and the shared single
+  draw remain unchanged. Native evidence `20261016T181019.874394Z-ants` and Chrome/SwiftShader
+  evidence `20261016T181311.210553Z-chrome-ants` were inspected and pass image, GL0, live-context
+  and kernel gates; core and all 102 browser/capture harness tests pass.
+- ARM64 Android assemble/lint passes without an emulator or KVM. The APK is 24,730,787 bytes with
+  SHA-256 `8008b0fa885b5aaa82598c544e21e5de8593d8d18ed1e85dd14aa1be68827e33`; stripped
+  `libmain.so` is 19,688,216 bytes.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.

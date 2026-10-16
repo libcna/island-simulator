@@ -645,7 +645,7 @@ def validate_ant_report(report):
         or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
         or len(set(frames))!=2
         or "four close-range ant trails use sixty-four soil and trunk-climbing agents in the shared small-fauna batch" not in log
-        or "close ants use three-part bodies, six articulated legs, paired antennae, and visible carried leaf fragments" not in log
+        or "close ants use rounded three-part bodies, paired waist nodes, fitted eyes, mandibles, solid three-segment legs, bent antennae, and physically attached carried leaves" not in log
         or "ant QA camera frames a visible worker on one inland soil trail" not in log
         or not re.search(r"ants [1-9][0-9]*/64 visible in shared draw",log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):

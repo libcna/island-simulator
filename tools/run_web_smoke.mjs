@@ -934,7 +934,7 @@ try {
               && log.includes("fly QA camera frames one close insect within its inland swarm")
               && /flies [1-9][0-9]*\/24 visible in shared draw/.test(log)))
             && (!focusedAntCheck || (log.includes("four close-range ant trails use sixty-four soil and trunk-climbing agents in the shared small-fauna batch")
-              && log.includes("close ants use three-part bodies, six articulated legs, paired antennae, and visible carried leaf fragments")
+              && log.includes("close ants use rounded three-part bodies, paired waist nodes, fitted eyes, mandibles, solid three-segment legs, bent antennae, and physically attached carried leaves")
               && log.includes("ant QA camera frames a visible worker on one inland soil trail")
               && /ants [1-9][0-9]*\/64 visible in shared draw/.test(log)))
             && (!focusedCicadaCheck || (log.includes("twelve cicadas rest, call, and make short flights from real broadleaf trunks in the shared small-fauna batch")

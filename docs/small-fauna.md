@@ -134,6 +134,26 @@ bytes with SHA-256 `618d1eb6a9bcd706c87790c897a1685e547f15363f8813742d8f29598968
 its packaged `libmain.so` is 19,430,472 bytes. Physical-device appearance remains final acceptance
 work.
 
+### Rounded leaf-cutter close anatomy (2026-10-16)
+
+The current exact audit showed only a tiny chain of dark diamonds under a detached edge-on green
+triangle. The QA camera is now close enough to judge one complete worker. Head, thorax and abdomen
+are independent closed five-station volumes linked by two waist nodes; six legs use three solid
+tapered sections and fitted knee joints. Smaller fitted eyes, two-section solid antennae and paired
+mandibles complete the head. Carrying workers hold an eight-lobed leaf blade by a solid stem at the
+mandibles; its face is angled toward the side view and a raised midrib connects the whole blade.
+
+Non-carrying and carrying forms have exact runtime-checked budgets of 1,692 and 1,800 vertices.
+All sixty-four workers remain in the existing small-fauna dynamic buffer and one draw, with no
+change to trail placement, population, behaviour, culling, material or activation tiers. Accepted
+native llvmpipe/pixman evidence `20261016T181019.874394Z-ants` passes at 1280x720 with 201 colour
+bins, 24.54 luminance deviation, 64.86 spatial contrast and a clean kernel delta. Focused
+Chrome/SwiftShader evidence `20261016T181311.210553Z-chrome-ants` passes 60 finite positive
+intervals, two inspected motion frames, GL error zero, a live context and no new kernel fault.
+ARM64 Android assemble/lint passes without an emulator or KVM; the APK is 24,730,787 bytes with
+SHA-256 `8008b0fa885b5aaa82598c544e21e5de8593d8d18ed1e85dd14aa1be68827e33`, and stripped
+`libmain.so` is 19,688,216 bytes.
+
 ## Flies
 
 Four deterministic inland swarms each contain six harmless close-range flies. The authored homes

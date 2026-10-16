@@ -1224,7 +1224,7 @@ def main():
             if args.viewpoint == "ants":
                 for marker in (
                     "four close-range ant trails use sixty-four soil and trunk-climbing agents in the shared small-fauna batch",
-                    "close ants use three-part bodies, six articulated legs, paired antennae, and visible carried leaf fragments",
+                    "close ants use rounded three-part bodies, paired waist nodes, fitted eyes, mandibles, solid three-segment legs, bent antennae, and physically attached carried leaves",
                     "ant QA camera frames a visible worker on one inland soil trail"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"ant integration diagnostic missing: {marker}")

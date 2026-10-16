@@ -43,7 +43,10 @@ namespace island
         // A close fly uses fewer than 1,400 vertices across three closed body volumes,
         // fitted eyes, swept wings and six articulated solid legs.
         constexpr int MaximumFlyVertices = static_cast<int>(FlySwarms::Count) * 1400;
-        constexpr int MaximumAntVertices = static_cast<int>(AntTrails::Count) * 360;
+        constexpr int AntVertexCount = 1692;
+        constexpr int CarryingAntVertexCount = 1800;
+        constexpr int MaximumAntVertices =
+            static_cast<int>(AntTrails::Count) * CarryingAntVertexCount;
         // A close cicada uses 1,740 vertices including continuous body lofts,
         // compound eyes, roof-folded wing veins, antennae and solid jointed legs.
         constexpr int MaximumCicadaVertices = static_cast<int>(CicadaColony::Count) * 1800;
@@ -93,7 +96,7 @@ namespace island
         constexpr std::string_view AntDiagnostic =
             "island-simulator: four close-range ant trails use sixty-four soil and trunk-climbing agents in the shared small-fauna batch";
         constexpr std::string_view AntAnatomyDiagnostic =
-            "island-simulator: close ants use three-part bodies, six articulated legs, paired antennae, and visible carried leaf fragments";
+            "island-simulator: close ants use rounded three-part bodies, paired waist nodes, fitted eyes, mandibles, solid three-segment legs, bent antennae, and physically attached carried leaves";
         constexpr std::string_view CicadaDiagnostic =
             "island-simulator: twelve cicadas rest, call, and make short flights from real broadleaf trunks in the shared small-fauna batch";
         constexpr std::string_view CicadaAnatomyDiagnostic =
@@ -930,19 +933,35 @@ namespace island
                            const float halfWidth,const float halfHeight,const float halfLength,
                            const Color& dorsal,const Color& flank)
         {
-            constexpr int Sides=8;
-            const Vector3 front=centre+forward*halfLength,rear=centre-forward*halfLength;
-            std::array<Vector3,Sides> ring{};
-            for(int side=0;side<Sides;++side) {
-                const float angle=6.28318530718f*static_cast<float>(side)/Sides;
-                ring[side]=centre+right*(std::cos(angle)*halfWidth)
-                    +up*(std::sin(angle)*halfHeight);
+            constexpr int Sides = 8;
+            constexpr std::array<float, 5> Stations = {{-1.0f, -.64f, 0.0f, .64f, 1.0f}};
+            constexpr std::array<float, 5> Radii = {{.08f, .76f, 1.0f, .76f, .08f}};
+            const auto point = [&](const std::size_t station, const int side) {
+                const float angle = 6.28318530718f * static_cast<float>(side) / Sides;
+                return centre + forward * (Stations[station] * halfLength)
+                    + right * (std::cos(angle) * Radii[station] * halfWidth)
+                    + up * (std::sin(angle) * Radii[station] * halfHeight);
+            };
+            for (std::size_t station = 0; station + 1U < Stations.size(); ++station) {
+                for (int side = 0; side < Sides; ++side) {
+                    const int next = (side + 1) % Sides;
+                    const float vertical = std::sin(6.28318530718f
+                        * (static_cast<float>(side) + .5f) / Sides);
+                    const Color color = vertical > .20f ? dorsal : flank;
+                    AddTriangle(vertices, point(station, side),
+                                point(station + 1U, side),
+                                point(station + 1U, next), color);
+                    AddTriangle(vertices, point(station, side),
+                                point(station + 1U, next),
+                                point(station, next), color);
+                }
             }
-            for(int side=0;side<Sides;++side) {
-                const int next=(side+1)%Sides;
-                const Color color=side>=1&&side<=3?dorsal:flank;
-                AddTriangle(vertices,front,ring[side],ring[next],color);
-                AddTriangle(vertices,rear,ring[next],ring[side],color);
+            const Vector3 rear = centre - forward * halfLength;
+            const Vector3 front = centre + forward * halfLength;
+            for (int side = 0; side < Sides; ++side) {
+                const int next = (side + 1) % Sides;
+                AddTriangle(vertices, rear, point(0U, next), point(0U, side), flank);
+                AddTriangle(vertices, front, point(4U, side), point(4U, next), dorsal);
             }
         }
 
@@ -958,46 +977,88 @@ namespace island
             const Color body=bodies[ant.colorVariant%bodies.size()];
             const Color flank=Color::Lerp(body,Color(9,7,6),.32f);
             const Color leg=Color::Lerp(body,Color(12,10,8),.50f);
+            const Color eye(12,9,7), eyeGlint(191,151,105);
             const Vector3 centre(ant.x,ant.y,ant.z);
-            AppendAntBody(vertices,centre,right,up,forward,
-                .34f*unit,.30f*unit,.40f*unit,body,flank);
-            const Vector3 head=centre+forward*(.70f*unit)+up*(.02f*unit);
+            const Vector3 thorax = centre + up * (.31f * unit);
+            AppendAntBody(vertices,thorax,right,up,forward,
+                .35f*unit,.31f*unit,.40f*unit,body,flank);
+            const Vector3 head=thorax+forward*(.70f*unit)+up*(.015f*unit);
             AppendAntBody(vertices,head,right,up,forward,
-                .31f*unit,.29f*unit,.34f*unit,body,flank);
-            const Vector3 abdomen=centre-forward*(.82f*unit)+up*(.04f*unit);
+                .32f*unit,.29f*unit,.34f*unit,body,flank);
+            const Vector3 abdomen=thorax-forward*(1.04f*unit)+up*(.04f*unit);
             AppendAntBody(vertices,abdomen,right,up,forward,
-                .48f*unit,.40f*unit,.58f*unit,body,flank);
+                .50f*unit,.43f*unit,.63f*unit,body,flank);
+            AppendGeckoDiamond(vertices, thorax - forward * (.43f * unit),
+                right, up, forward, .14f * unit, .13f * unit, .13f * unit,
+                body, flank);
+            AppendGeckoDiamond(vertices, thorax - forward * (.61f * unit),
+                right, up, forward, .12f * unit, .12f * unit, .12f * unit,
+                body, flank);
             const float step=std::sin(ant.gaitPhase);
             for(const float side:{-1.0f,1.0f}) for(int legIndex=0;legIndex<3;++legIndex) {
                 const float along=(.36f-static_cast<float>(legIndex)*.38f)*unit;
                 const float swing=step*side*(legIndex%2==0?1.0f:-1.0f)*.18f*unit;
-                const Vector3 hip=centre+forward*along+right*(side*.25f*unit);
+                const Vector3 hip=thorax+forward*along+right*(side*.25f*unit);
                 const Vector3 knee=hip+right*(side*.64f*unit)
                     +forward*((.18f-static_cast<float>(legIndex)*.18f)*unit+swing)
                     +up*(.10f*unit);
-                const Vector3 foot=knee+right*(side*.54f*unit)
+                const Vector3 ankle=knee+right*(side*.46f*unit)
                     +forward*((.28f-static_cast<float>(legIndex)*.28f)*unit+swing)
                     -up*(.18f*unit);
-                AppendGeckoSegment(vertices,hip,knee,.055f*unit,leg);
-                AppendGeckoSegment(vertices,knee,foot,.040f*unit,leg);
+                const Vector3 foot=ankle+right*(side*.30f*unit)
+                    +forward*((.15f-static_cast<float>(legIndex)*.14f)*unit)
+                    -up*(.12f*unit);
+                AppendGeckoTube(vertices,hip,knee,.060f*unit,.046f*unit,leg,5);
+                AppendGeckoTube(vertices,knee,ankle,.046f*unit,.030f*unit,leg,5);
+                AppendGeckoTube(vertices,ankle,foot,.030f*unit,.010f*unit,leg,5);
+                AppendGeckoDiamond(vertices,knee,right,up,forward,
+                    .052f*unit,.045f*unit,.052f*unit,leg,flank);
             }
             for(const float side:{-1.0f,1.0f}) {
+                const Vector3 eyeCentre=head+forward*(.16f*unit)
+                    +right*(side*.27f*unit)+up*(.08f*unit);
+                AppendGeckoDiamond(vertices,eyeCentre,right,up,forward,
+                    .050f*unit,.050f*unit,.038f*unit,eye,eye);
+                AddDoubleSidedTriangle(vertices,eyeCentre+up*(.052f*unit),
+                    eyeCentre+forward*(.025f*unit),
+                    eyeCentre+right*(side*.018f*unit),eyeGlint);
                 const Vector3 root=head+forward*(.27f*unit)+right*(side*.16f*unit);
                 const Vector3 elbow=root+forward*(.43f*unit)+right*(side*.24f*unit)
                     +up*(.12f*unit);
                 const Vector3 tip=elbow+forward*(.34f*unit)+right*(side*.25f*unit)
                     -up*(.08f*unit);
-                AppendGeckoSegment(vertices,root,elbow,.032f*unit,leg);
-                AppendGeckoSegment(vertices,elbow,tip,.024f*unit,leg);
+                AppendGeckoTube(vertices,root,elbow,.032f*unit,.022f*unit,leg,5);
+                AppendGeckoTube(vertices,elbow,tip,.022f*unit,.009f*unit,leg,5);
+
+                const Vector3 mandibleRoot=head+forward*(.29f*unit)
+                    +right*(side*.13f*unit)-up*(.07f*unit);
+                const Vector3 mandibleTip=mandibleRoot+forward*(.27f*unit)
+                    -right*(side*.08f*unit)-up*(.04f*unit);
+                AppendGeckoTube(vertices,mandibleRoot,mandibleTip,
+                    .040f*unit,.010f*unit,leg,5);
             }
             if(ant.behavior==AntBehavior::Carry) {
                 const Color leaf(76,112,42);
-                const Vector3 leafCentre=centre+up*(.92f*unit)-forward*(.10f*unit);
-                AddDoubleSidedTriangle(vertices,leafCentre-forward*(1.18f*unit),
-                    leafCentre+right*(.62f*unit),leafCentre+forward*(1.28f*unit),leaf);
-                AddDoubleSidedTriangle(vertices,leafCentre-forward*(1.18f*unit),
-                    leafCentre+forward*(1.28f*unit),leafCentre-right*(.62f*unit),
-                    Color(58,91,34));
+                const Color leafShade(58,91,34);
+                const Vector3 longAxis=Vector3::Normalize(up*.97f+right*.16f);
+                const Vector3 leafAcross=Vector3::Normalize(forward-right*.04f);
+                const Vector3 leafCentre=head+forward*(.22f*unit)+up*(1.18f*unit);
+                for(int edge=0;edge<8;++edge) {
+                    const float a=6.28318530718f*static_cast<float>(edge)/8.0f;
+                    const float b=6.28318530718f*static_cast<float>(edge+1)/8.0f;
+                    const Vector3 first=leafCentre+leafAcross*(std::sin(a)*.62f*unit)
+                        +longAxis*(std::cos(a)*1.24f*unit);
+                    const Vector3 second=leafCentre+leafAcross*(std::sin(b)*.62f*unit)
+                        +longAxis*(std::cos(b)*1.24f*unit);
+                    AddDoubleSidedTriangle(vertices,leafCentre,first,second,
+                        edge<4?leaf:leafShade);
+                }
+                const Vector3 leafBase=leafCentre-longAxis*(1.24f*unit);
+                AppendGeckoTube(vertices,head+forward*(.30f*unit),leafBase,
+                    .025f*unit,.015f*unit,leafShade,5);
+                AppendGeckoTube(vertices,leafBase,
+                    leafCentre+longAxis*(1.12f*unit),.015f*unit,.007f*unit,
+                    leafShade,5);
             }
         }
 
@@ -1745,7 +1806,13 @@ namespace island
             const Vector3 centre(ant.x,ant.y,ant.z);
             if(Vector3::DistanceSquared(centre,cameraPosition)>12.0f*12.0f
                 ||!frustum.Intersects(BoundingSphere(centre,.045f)))continue;
+            const std::size_t firstVertex = stagingVertices_.size();
             AppendAnt(stagingVertices_,ant);
+            const std::size_t expectedVertexCount = ant.behavior == AntBehavior::Carry
+                ? CarryingAntVertexCount : AntVertexCount;
+            if (stagingVertices_.size() - firstVertex != expectedVertexCount) {
+                throw std::logic_error("Ant geometry violated its exact vertex budget");
+            }
             ++visibleAntCount_;
         }
         for (const CicadaState& cicada : cicadas) {
