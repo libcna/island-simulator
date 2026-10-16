@@ -112,3 +112,20 @@ patrol, body wave, pitch, bank, habitat and LOD remain unchanged. Inspected llvm
 1280x720 frame passes with 315 colour bins, 27.82 luminance deviation, 116.41 spatial contrast and
 an empty kernel delta. Native and browser gates require the new diagnostic so stale executables
 cannot satisfy this focused audit.
+
+## Water-tint-resistant countershading (2026-10-16)
+
+The next shark/dolphin audit accepted the shark's low spindle, gill anatomy and fin proportions but
+found that the shared depth absorption still compressed dorsal, flank and fin pigments into nearly
+one cyan value. The existing body interpolation now begins its pale transition slightly above the
+mathematical underside, so a side view retains a readable lower flank. After the same aquatic-light
+sample, the dorsal pigment and fin edges receive a restrained dark scale while the pale belly gains
+a small compensating lift. This preserves underwater integration without outlining the animal or
+disabling depth tint.
+
+The pass changes only existing CPU vertex colours. The exact 1,896/15 near/far inventory, single
+draw, occasional patrol, body wave, banking, habitat and LOD remain unchanged. Native evidence
+`20261016T050848.219358Z-shark` passes at 1280x720 with 309 colour bins, 29.64 luminance deviation,
+129.81 spatial contrast and an empty kernel delta. Core, capture and all 41 browser/capture harness
+tests pass. Focused Chrome/SwiftShader `20261016T051153.378744Z-chrome-shark` passes two distinct
+animated frames, 60 finite positive intervals, GL error zero, a live context and kernel `[]`.

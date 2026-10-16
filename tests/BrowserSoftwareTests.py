@@ -618,13 +618,14 @@ class BrowserSoftwareTests(unittest.TestCase):
         profile = "near shark uses a smooth-lit blunt head and body, caudal peduncle and heterocercal tail"
         proportions = "shark uses a long low spindle, reinforced caudal peduncle, and swept restrained fins"
         contrast = "shark profile pass uses charcoal flank contrast, a lower rear-swept dorsal, and shorter pectorals"
+        skin = "shark skin pass preserves a dark dorsal and fin-edge silhouette with a raised pale lower flank after water tint"
         geometry = "shark near/far geometry 1896/15 vertices, closed fins and CPU faceted daylight"
         def report():
             return {"passed": True, "views": [{"mode": "shark", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "shark.png", "afterSimulationScreenshot": "shark-after.png",
                 "intervals": [16.7] * 60,
-                "result": {"output": marker + "\n" + profile + "\n" + proportions + "\n" + contrast + "\n" + geometry + "\nshark visible activity 1, 1 draw"}}]}
+                "result": {"output": marker + "\n" + profile + "\n" + proportions + "\n" + contrast + "\n" + skin + "\n" + geometry + "\nshark visible activity 1, 1 draw"}}]}
         self.assertEqual(gate.validate_shark_report(report()), ("shark.png", "shark-after.png"))
         for mutate in (
             lambda value: value.update(passed=False),
@@ -635,6 +636,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             lambda value: value["views"][0]["result"].update(output=marker + "\nshark culled activity 1, 0 draw"),
             lambda value: value["views"][0]["result"].update(output=marker + "\n" + profile
                 + "\n" + geometry + "\nshark visible activity 1, 1 draw"),
+            lambda value: value["views"][0]["result"].update(output=report()["views"][0]["result"]["output"].replace(skin + "\n", "")),
         ):
             invalid = report(); mutate(invalid)
             with self.assertRaises(RuntimeError): gate.validate_shark_report(invalid)

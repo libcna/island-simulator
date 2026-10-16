@@ -166,6 +166,21 @@ pass. Focused Chrome/SwiftShader `20261016T050134.095522Z-chrome-dolphins` passe
 frames, 60 finite positive intervals, GL0, a live context and kernel `[]`. Details are in
 `docs/dolphins.md`.
 
+## Latest shark visual pass — water-tint-resistant countershading
+
+The shark/dolphin audit accepted the shark's low spindle, gills and restrained fin proportions but
+selected its weak underwater colour separation: depth absorption compressed the dorsal, flank and
+fin pigments into nearly one cyan silhouette. The existing body blend now raises the pale lower
+flank into a readable side transition; after the same aquatic-light sample, the dorsal pigment and
+fin edges receive a restrained dark scale while the belly gains a small lift.
+
+This is a colour-only change to the existing CPU vertices. The exact 1,896/15 near/far inventory,
+single draw, occasional patrol, body wave, bank, habitat and LOD stay unchanged. Native evidence
+`20261016T050848.219358Z-shark` passes at 309 colour bins, 29.64 luminance deviation and 129.81
+spatial contrast with kernel `[]`. Core, capture and 41 browser/capture harness tests pass. Focused
+Chrome/SwiftShader `20261016T051153.378744Z-chrome-shark` passes two distinct frames, 60 finite
+positive intervals, GL0, a live context and kernel `[]`. Details are in `docs/shark-form.md`.
+
 The current Firefox qualification exposed a real beach-start regression rather than a renderer
 failure: the relocated firewood collision sat 1.73 m ahead of the old `(0,-225)` start and rejected
 forward movement. The player now starts at `(4,-225)` inside the unchanged 17 m reserved beach
