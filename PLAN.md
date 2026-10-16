@@ -151,6 +151,23 @@ transmission in place of the old dark rectangular tower. Focused Chrome/SwiftSha
 `20261016T003526.423226Z-chrome-helicopter` passes both inspected views with 60 finite positive
 intervals each, GL0, live contexts, zero target-close timeouts and kernel `[]`.
 
+## Latest helicopter interior pass — layered readable instruments
+
+The renewed exterior/interior audit retained the rounded airframe, seating and open access but
+selected the cockpit panel as the weakest close surface. All four formerly sparse black instruments
+now have nine unequal scale ticks and raised needle hubs; one adds a layered blue/brown artificial
+horizon and horizon bar. Both radio/navigation displays now use dark raised frames and three
+unequal luminous data rows instead of plain coloured rectangles.
+
+The pass adds 142 triangles, taking the complete procedural helicopter from 5,330 to 5,472
+triangles in the same two draws. Placement, material atlas, collision, supported floor, stationary
+non-flying state and all four entry corridors are unchanged. Inspected native evidence
+`20261016T015957.630793Z-helicopter-inside` and `20261016T020032.298965Z-helicopter` passes at
+187/325 colour bins with empty kernel deltas. Focused Chrome/SwiftShader
+`20261016T020214.653072Z-chrome-helicopter` passes both inspected views, 60 finite positive
+intervals each, GL error zero, live contexts and no new kernel GPU fault. Layout/core, native
+capture and all 41 browser/capture harness tests pass.
+
 ## Latest helicopter interior pass — rounded framed seating
 
 The renewed paired audit accepted the fuller canopy, open doors, rotors and controls but selected

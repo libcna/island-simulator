@@ -497,26 +497,80 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     quad({-.73f,1.38f,1.33f},{.73f,1.38f,1.33f},{.61f,1.48f,1.15f},
          {-.61f,1.48f,1.15f},Color(46,52,47),Surface::Cabin);
     box({-.29f,1.91f,.42f},{.29f,1.99f,1.03f},Color(62,69,61),Surface::Cabin);
-    // Recessed round gauges, contrasting bezels and individual needles replace the
-    // former grid of twelve coloured squares. Their layered planes face the cabin.
+    // Recessed round gauges, contrasting bezels, printed tick rings and individual
+    // needles replace the former grid of twelve coloured squares. One instrument
+    // carries a restrained blue/brown artificial horizon so the group reads as
+    // actual flight instrumentation rather than four identical black discs.
     constexpr std::array<float,4> gaugeX{{-.47f,-.16f,.16f,.47f}};
     for(std::size_t gauge=0;gauge<gaugeX.size();++gauge) {
         const Vector3 bezel(gaugeX[gauge],1.27f,1.289f);
         disc(bezel,.095f,16,Color(116,119,111),Surface::Metal);
         disc(bezel-Vector3(0,0,.006f),.073f,16,Color(14,17,15),Surface::Rubber);
+        if(gauge==1) {
+            const Vector3 horizon=bezel-Vector3(0,0,.0085f);
+            for(int segment=0;segment<8;++segment) {
+                const float first=std::numbers::pi_v<float>*segment/8.0f;
+                const float next=std::numbers::pi_v<float>*(segment+1)/8.0f;
+                triangle(horizon,
+                    horizon+Vector3(std::cos(first)*.061f,std::sin(first)*.061f,0),
+                    horizon+Vector3(std::cos(next)*.061f,std::sin(next)*.061f,0),
+                    Color(79,125,147),Surface::Emissive);
+                triangle(horizon,
+                    horizon+Vector3(std::cos(-first)*.061f,std::sin(-first)*.061f,0),
+                    horizon+Vector3(std::cos(-next)*.061f,std::sin(-next)*.061f,0),
+                    Color(126,91,61),Surface::Emissive);
+            }
+            quad(horizon+Vector3(-.060f,-.003f,-.001f),
+                 horizon+Vector3(.060f,-.003f,-.001f),
+                 horizon+Vector3(.060f,.003f,-.001f),
+                 horizon+Vector3(-.060f,.003f,-.001f),
+                 Color(218,207,168),Surface::Emissive);
+        }
+        for(int tick=0;tick<9;++tick) {
+            const float tickAngle=-2.35f+4.70f*static_cast<float>(tick)/8.0f;
+            const Vector3 radial(std::cos(tickAngle),std::sin(tickAngle),0);
+            const Vector3 tangent(-radial.Y,radial.X,0);
+            const float halfWidth=tick%4==0?.0045f:.0028f;
+            const Vector3 inner=bezel+radial*.052f-Vector3(0,0,.0105f);
+            const Vector3 outer=bezel+radial*.066f-Vector3(0,0,.0105f);
+            quad(inner-tangent*halfWidth,outer-tangent*halfWidth,
+                 outer+tangent*halfWidth,inner+tangent*halfWidth,
+                 Color(194,196,181),Surface::Emissive);
+        }
         const float angle=-1.03f+static_cast<float>(gauge)*.47f;
-        const Vector3 centre=bezel-Vector3(0,0,.010f);
+        const Vector3 centre=bezel-Vector3(0,0,.013f);
         const Vector3 along(std::cos(angle)*.058f,std::sin(angle)*.058f,0);
         const Vector3 across(-std::sin(angle)*.010f,std::cos(angle)*.010f,0);
         triangle(centre-across,centre+along,centre+across,
                  gauge==0?Color(210,91,66):Color(218,207,168),Surface::Emissive);
+        disc(centre-Vector3(0,0,.002f),.010f,8,
+             Color(158,160,148),Surface::Metal);
     }
     // Two recessed radio/navigation displays give the lower panel a readable centre
-    // stack instead of an undifferentiated row of coloured squares.
+    // stack instead of an undifferentiated row of coloured squares. Dark raised frames
+    // and three unequal luminous data rows keep the screens legible in the open cabin.
     box({-.255f,1.055f,1.276f},{-.025f,1.145f,1.296f},
         Color(56,126,105),Surface::Emissive);
     box({.025f,1.055f,1.276f},{.255f,1.145f,1.296f},
         Color(86,118,137),Surface::Emissive);
+    for(const float centreX:{-.14f,.14f}) {
+        quad({centreX-.130f,1.047f,1.273f},{centreX+.130f,1.047f,1.273f},
+             {centreX+.130f,1.153f,1.273f},{centreX-.130f,1.153f,1.273f},
+             Color(22,27,24),Surface::Cabin);
+        const Color screen=centreX<0?Color(48,116,96):Color(70,105,126);
+        quad({centreX-.108f,1.061f,1.270f},{centreX+.108f,1.061f,1.270f},
+             {centreX+.108f,1.137f,1.270f},{centreX-.108f,1.137f,1.270f},
+             screen,Surface::Emissive);
+        for(int row=0;row<3;++row) {
+            const float y=1.075f+row*.023f;
+            const float halfLength=.082f-row*.014f;
+            quad({centreX-halfLength,y-.002f,1.267f},
+                 {centreX+halfLength,y-.002f,1.267f},
+                 {centreX+halfLength,y+.002f,1.267f},
+                 {centreX-halfLength,y+.002f,1.267f},
+                 Color(172,206,180),Surface::Emissive);
+        }
+    }
     for(int column=0;column<6;++column) {
         const Color lamp=column%3==0?Color(194,91,57):
             (column%3==1?Color(89,157,105):Color(204,177,80));
@@ -792,6 +846,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<cowling<<'\n';MirrorRuntimeDiagnosticToPlatformLog(cowling);
     const std::string cockpit="island-simulator: helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals";
     std::cout<<cockpit<<'\n';MirrorRuntimeDiagnosticToPlatformLog(cockpit);
+    const std::string instruments="island-simulator: helicopter instruments use recessed ticked dials, one artificial horizon, needle hubs, and framed multi-line radio displays";
+    std::cout<<instruments<<'\n';MirrorRuntimeDiagnosticToPlatformLog(instruments);
     const std::string cabin="island-simulator: helicopter open cabin uses restrained indirect light, a tapered instrument binnacle, and twin radio displays";
     std::cout<<cabin<<'\n';MirrorRuntimeDiagnosticToPlatformLog(cabin);
     const std::string anatomy="island-simulator: helicopter realism pass adds a rounded chin and tail-root fairing, twelve-sided six-station tail boom, maintenance seams, engine intakes, shaped cushions, harnesses, centre pedestal, and overhead console";

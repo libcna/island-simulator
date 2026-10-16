@@ -1,5 +1,30 @@
 # Grounded helicopter
 
+## Layered readable flight instruments — 2026-10-16
+
+The renewed paired exterior/interior audit retained the recognisable airframe, rounded seating and
+open access, but selected the cockpit panel as the weakest close surface. Its four black discs had
+needles but no scale information, while the two radio displays remained plain coloured rectangles.
+Every dial now carries nine unequal radial ticks and a raised needle hub. One has a layered
+blue/brown artificial horizon and a separate horizon bar. Both radio/navigation screens now sit
+inside dark raised frames and carry three unequal luminous data rows, making the panel read as an
+aircraft instrument stack rather than placeholder shapes.
+
+The additions cost 142 triangles, raising the complete helicopter from 5,330 to 5,472 triangles in
+the same opaque/glass two draws. The existing generated atlas, placement, stationary/non-flying
+state, collision, supported floor and all four entry corridors remain unchanged.
+`IslandHelicopterLayoutTests`, `IslandCoreTests`, all 41 browser/capture harness tests and both
+native capture validators pass.
+
+Inspected same-camera native baseline `20261016T015706.383038Z-helicopter-inside` and accepted
+current-binary evidence `20261016T015957.630793Z-helicopter-inside` show the added scale and screen
+depth. The final interior passes at 1280x720 with 187 colour bins, 21.784 luminance deviation,
+77.4233 spatial contrast and an empty kernel delta. Exterior guard
+`20261016T020032.298965Z-helicopter` passes with 325 bins, 54.74 deviation, 232.21 contrast and an
+empty kernel delta. Focused Chrome/SwiftShader evidence
+`20261016T020214.653072Z-chrome-helicopter` passes both inspected views with 60 finite positive
+intervals each, GL error zero, live contexts and no new kernel GPU fault.
+
 ## Rounded rotor transmission — 2026-10-16
 
 The next same-camera exterior review retained the fuller canopy, open access, tapered blades and
