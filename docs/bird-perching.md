@@ -7,8 +7,10 @@ eight-triangle pointed body with planar wing sheets. At the former five-metre QA
 wreck mast partly obscured it and the animal read as a small origami triangle. The accepted near
 form keeps the same state machine and one dynamic batch, but uses a closed twelve-sided body loft,
 a multi-ring head, an ochre four-face beak and paired lateral eyes. Per-face fixed-sun colour on
-the body and head restores volume without a texture or additional draw. The maximum near budget is
-498 vertices per bird; the 24-agent batch remains bounded and the far LOD is unchanged.
+the body and head restores volume without a texture or additional draw. At that stage the maximum
+near budget was 498 vertices per bird. The later rounded/solid-surface pass documented in
+`tropical-birds.md` raises the current maximum to 846 while retaining the bounded 24-agent batch
+and unchanged far LOD.
 
 The detail camera now uses a close front-three-quarter view of the deterministically seeded wreck
 bird and frames the real spar without looking through the mast. Baseline

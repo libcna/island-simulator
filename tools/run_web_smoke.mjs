@@ -957,6 +957,7 @@ try {
               && /octopuses [1-4]\/4 visible \(near [1-4], far [0-4]\), 1 draw/.test(log)))
             && (!focusedBirdCheck || (log.includes("canopy flock includes hooked-beak long-tailed parrots and compact tropical fruit doves")
               && log.includes("four fruit doves alternate canopy perches with bounded dry-ground walking and foraging")
+              && log.includes("near birds use compact rounded heads, camera-facing six-facet eyes, fitted hooked beaks, solid swept wings, and split tail feathers")
               && log.includes(mode === "ground-doves"
                 ? "ground-dove QA camera frames one walking fruit dove on dry interior terrain"
                 : "bird QA camera frames one flying hooked-beak parrot")
@@ -1487,6 +1488,8 @@ try {
       "island-simulator: near birds use layered trailing flight-feather silhouettes")
     && result.output?.includes(
       "island-simulator: near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes")
+    && result.output?.includes(
+      "island-simulator: near birds use compact rounded heads, camera-facing six-facet eyes, fitted hooked beaks, solid swept wings, and split tail feathers")
     && /birds [1-9][0-9]*\/24 visible/.test(result.output ?? "")
     && result.output?.includes("island-simulator: smoke test rendered 4 frames")
     && !result.error;
@@ -2522,6 +2525,8 @@ try {
       "island-simulator: near birds use layered trailing flight-feather silhouettes")
     && birdResult.output?.includes(
       "island-simulator: near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes")
+    && birdResult.output?.includes(
+      "island-simulator: near birds use compact rounded heads, camera-facing six-facet eyes, fitted hooked beaks, solid swept wings, and split tail feathers")
     && /birds [1-9][0-9]*\/24 visible/.test(birdResult.output ?? "")
     && !birdResult.error;
 

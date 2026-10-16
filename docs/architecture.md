@@ -1059,10 +1059,11 @@ entered intermittent glide windows, banked turns, and terrain-derived minimum cl
 Observer distance selects full, quarter-rate, or one-thirtieth-rate simulation while accumulated
 time preserves average motion. `BirdRenderer` frustum/distance-culls individual agents, selects a
 closed near mesh or double-sided far silhouette, applies CPU wing and bank poses, and streams all
-visible triangles through one CNA `DynamicVertexBuffer` draw. The near mesh uses its complete
-preallocated 54-vertex budget: paired double-sided trailing-feather triangles extend the existing
-wing roots/tips and share the same flap pose, while the 12-vertex far silhouette is unchanged. The
-portable `BasicEffect` path has no custom shader or modern-only feature. Native OpenGL 3.3, actual
+visible triangles through one CNA `DynamicVertexBuffer` draw. The current near mesh uses
+sixteen-sided closed body/head lofts, a camera-facing fitted eye, a two-stage beak, closed swept
+wings and two closed tail feathers. It streams 822 vertices in flight or 846 with folded wings and
+feet; the 12-vertex far silhouette is unchanged. The portable `BasicEffect` path has no custom
+shader or modern-only feature. Native OpenGL 3.3, actual
 Chromium/WebGL 2, and KVM/gfxstream GLES 3 execute and visually match the dedicated bird capture.
 
 Eighteen deterministic butterflies occupy three sunny clearing and jungle-edge habitats.

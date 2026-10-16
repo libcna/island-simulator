@@ -790,6 +790,27 @@ transition; the accepted 1280x720 frame passes with 119 colour bins, 19.64 lumin
 intervals, GL error zero, a live context and no new kernel GPU fault. Native/Web guards pin the
 new surface marker.
 
+## Latest wildlife visual pass — rounded solid birds
+
+The next whole-island/detail audit selected the flying parrot as the weakest remaining close
+animal. Its oversized twelve-sided head, triangular eye and wedge beak still read as an origami
+figure, while coincident wing and tail sheets collapsed into long coloured lines at common viewing
+angles. Both body and head are now sixteen-sided closed lofts with a smaller blended head. A single
+camera-facing six-facet eye stays fitted to the visible cheek; a two-stage four-sided beak ends in
+a genuine downward hook. Each wing is a closed six-point swept volume and the long tropical tail
+uses two staggered closed feathers. The same surfaces fold for perching and fruit-dove ground
+foraging.
+
+The flying near inventory is 822 vertices / 274 triangles and the maximum feet-bearing folded
+variant is 846 / 282. The conservative all-24-near buffer is 20,304 vertices / 324,864 bytes;
+population, routes, behavior, animation, 12-vertex far tier and one draw are unchanged. Per-animal
+runtime checks pin both close inventories. Inspected native baseline
+`20261016T011403.533449Z-birds`, accepted flight `20261016T012736.422384Z-birds`, and folded
+`20261016T012812.489441Z-ground-doves` show the profile correction and pass with clean kernel
+deltas. Focused Chrome/SwiftShader `20261016T012926.788171Z-chrome-birds` passes both inspected
+views, 60 finite intervals per view, GL error zero, live contexts and an empty kernel delta.
+Native/Web/Android guards require the new profile marker.
+
 ## Latest aquatic visual pass — blunt convex fish heads
 
 The next current-binary animal contact sheet retained the fish as the weakest requested aquatic

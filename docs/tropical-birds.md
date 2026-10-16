@@ -1,5 +1,31 @@
 # Tropical parrots and fruit doves
 
+## Rounded close profile and solid flight surfaces (2026-10-16)
+
+The next whole-island audit selected the airborne parrot as the weakest close animal: its head was
+nearly as large as its torso, each eye was a dark triangular slash, the pale beak was one broad
+wedge, and edge-on wing/tail sheets reduced to long coloured lines. Both body and head lofts now
+use sixteen radial sides. The head is smaller and remains blended into the chest; only the
+camera-facing fitted six-facet eye is submitted, preventing the far eye from escaping the
+three-quarter silhouette. A two-stage four-sided beak transitions from the face through a rounded
+cere to a down-curved tip instead of terminating in one triangle.
+
+Each near wing is now a closed six-point swept volume with separate upper, lower and edge light,
+and the tail is two staggered closed feathers rather than one coincident sheet. The same geometry
+folds for perching and ground foraging. A flying near bird is 822 vertices / 274 triangles and the
+feet-bearing folded maximum is 846 / 282; the unchanged 12-vertex far silhouette remains. The
+conservative all-24-near buffer is 20,304 vertices or 324,864 bytes. Population, route/perch/ground
+state machines, CPU wing pose, culling, LOD threshold and one dynamic draw are unchanged.
+
+Inspected native baseline `20261016T011403.533449Z-birds` and accepted flying evidence
+`20261016T012736.422384Z-birds` show the smaller head, round fitted eye, curved hook and split solid
+flight surfaces. The final frame passes with 346 colour bins, 38.19 luminance deviation and 230.69
+spatial contrast. Folded-state evidence `20261016T012812.489441Z-ground-doves` passes with
+208 / 31.16 / 156.85. Both kernel deltas are empty. Focused Chrome/SwiftShader evidence
+`20261016T012926.788171Z-chrome-birds` passes both inspected views with 60 finite positive
+intervals each, GL error zero, live contexts and an empty kernel delta. Native, Web lifecycle and
+Android-runtime guards require the new profile diagnostic.
+
 ## Scope
 
 The 24-agent bird flock still consists of ten coastal, eight canopy and six high-route birds.

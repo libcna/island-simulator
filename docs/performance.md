@@ -1155,6 +1155,18 @@ reported `OPENGLES3` at a 1280 by 720 logical viewport, and produced an inspecte
 and lints. These are functional and visual checks; isolated native timing and physical-mobile
 animation cost remain open.
 
+### Solid close-bird profile follow-up
+
+The current close bird replaces the historical 54-vertex sheet silhouette and later 498-vertex
+loft with sixteen-sided closed body/head lofts, one camera-facing six-facet eye, a two-stage solid
+beak, two closed six-point wings and two closed tail feathers. It uses 822 vertices / 274 triangles
+in flight and 846 / 282 when folded feet are present. The deliberately conservative all-24-near
+buffer is therefore 20,304 vertices / 324,864 bytes, only 133,632 bytes above the previous
+498-per-agent allocation. Population, per-frame allocation count, 255 m near threshold, 12-vertex
+far tier and one dynamic draw remain unchanged. A per-animal runtime assertion pins both near
+inventories. Native flying/folded captures and the two-view Chrome/SwiftShader scope pass with
+clean graphics/kernel state; this is a bounded close-detail cost, not a hardware timing claim.
+
 ### Single-surface and CPU-faceted fish follow-up
 
 `FishRenderer` already sets `RasterizerState::CullNone`, so every thin fin and tail triangle is

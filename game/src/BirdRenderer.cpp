@@ -33,7 +33,7 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 255.0f;
-        constexpr int MaximumVerticesPerBird = 498;
+        constexpr int MaximumVerticesPerBird = 846;
         constexpr int MaximumVertexCount = static_cast<int>(BirdFlock::BirdCount)
             * MaximumVerticesPerBird;
         constexpr std::string_view NearBirdFeatherDiagnostic =
@@ -44,6 +44,8 @@ namespace island
             "island-simulator: near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes";
         constexpr std::string_view TropicalBirdDiagnostic =
             "island-simulator: canopy flock includes hooked-beak long-tailed parrots and compact tropical fruit doves";
+        constexpr std::string_view NearBirdProfileDiagnostic =
+            "island-simulator: near birds use compact rounded heads, camera-facing six-facet eyes, fitted hooked beaks, solid swept wings, and split tail feathers";
 
         struct BirdPalette
         {
@@ -114,6 +116,34 @@ namespace island
             AddTriangle(vertices, c, b, a, color);
         }
 
+        template<std::size_t Count>
+        void AppendClosedSurface(std::vector<VertexPositionColor>& vertices,
+                                 const std::array<Vector3, Count>& outline,
+                                 const Vector3& halfThickness,
+                                 const Color& upper, const Color& lower)
+        {
+            static_assert(Count>=3U);
+            std::array<Vector3, Count> top{}, bottom{};
+            for(std::size_t point=0;point<outline.size();++point) {
+                top[point]=outline[point]+halfThickness;
+                bottom[point]=outline[point]-halfThickness;
+            }
+            for(std::size_t point=1;point+1<outline.size();++point) {
+                AddTriangle(vertices,top[0],top[point],top[point+1],
+                    wildlife_render::FacetColor(top[0],top[point],top[point+1],upper,true));
+                AddTriangle(vertices,bottom[0],bottom[point+1],bottom[point],
+                    wildlife_render::FacetColor(bottom[0],bottom[point+1],bottom[point],lower,true));
+            }
+            const Color edge=wildlife_render::ScaleColor(upper,.78f);
+            for(std::size_t point=0;point<outline.size();++point) {
+                const std::size_t next=(point+1U)%outline.size();
+                AddTriangle(vertices,top[point],bottom[point],bottom[next],
+                    wildlife_render::FacetColor(top[point],bottom[point],bottom[next],edge,true));
+                AddTriangle(vertices,top[point],bottom[next],top[next],
+                    wildlife_render::FacetColor(top[point],bottom[next],top[next],edge,true));
+            }
+        }
+
         [[nodiscard]] Color Lit(const Color& base,const Vector3& normal)
         {
             const float light=.62f+.30f*std::max(0.0f,
@@ -141,7 +171,7 @@ namespace island
                             const Vector3& up,const Vector3& forward,const float scale,
                             const BirdPalette& palette)
         {
-            constexpr int Sides=12;
+            constexpr int Sides=16;
             const Vector3 tail=LocalPoint(centre,right,up,forward,0,0,-.49f,scale);
             const Vector3 neck=LocalPoint(centre,right,up,forward,0,.015f,.34f,scale);
             const auto ring=[&](float angle,float xRadius,float yRadius,float z) {
@@ -171,13 +201,14 @@ namespace island
         void AppendNearHead(std::vector<VertexPositionColor>& vertices,
                             const Vector3& centre,const Vector3& right,
                             const Vector3& up,const Vector3& forward,const float scale,
-                            const BirdPalette& palette, const BirdSpecies species)
+                            const BirdPalette& palette, const BirdSpecies species,
+                            const Vector3& cameraPosition)
         {
-            constexpr int Sides=12;
-            const float headScale = species == BirdSpecies::Parrot ? 1.10f
-                : (species == BirdSpecies::FruitDove ? .96f : 1.0f);
-            const Vector3 top=LocalPoint(centre,right,up,forward,0,.195f*headScale,.405f,scale);
-            const Vector3 bottom=LocalPoint(centre,right,up,forward,0,-.075f*headScale,.395f,scale);
+            constexpr int Sides=16;
+            const float headScale = species == BirdSpecies::Parrot ? .88f
+                : (species == BirdSpecies::FruitDove ? .82f : .90f);
+            const Vector3 top=LocalPoint(centre,right,up,forward,0,.180f*headScale,.405f,scale);
+            const Vector3 bottom=LocalPoint(centre,right,up,forward,0,-.072f*headScale,.395f,scale);
             const auto ring=[&](float angle,float xRadius,float zRadius,float y) {
                 return LocalPoint(centre,right,up,forward,std::cos(angle)*xRadius*headScale,
                     y*headScale,.405f+std::sin(angle)*zRadius*headScale,scale);
@@ -185,9 +216,9 @@ namespace island
             for(int side=0;side<Sides;++side) {
                 const float a0=6.28318530718f*static_cast<float>(side)/Sides;
                 const float a1=6.28318530718f*static_cast<float>(side+1)/Sides;
-                const Vector3 upper0=ring(a0,.105f,.12f,.125f),upper1=ring(a1,.105f,.12f,.125f);
-                const Vector3 middle0=ring(a0,.14f,.16f,.055f),middle1=ring(a1,.14f,.16f,.055f);
-                const Vector3 lower0=ring(a0,.105f,.12f,-.015f),lower1=ring(a1,.105f,.12f,-.015f);
+                const Vector3 upper0=ring(a0,.098f,.115f,.112f),upper1=ring(a1,.098f,.115f,.112f);
+                const Vector3 middle0=ring(a0,.125f,.145f,.040f),middle1=ring(a1,.125f,.145f,.040f);
+                const Vector3 lower0=ring(a0,.100f,.112f,-.025f),lower1=ring(a1,.100f,.112f,-.025f);
                 const float middleAngle=(a0+a1)*.5f;
                 const Vector3 normal=Vector3::Normalize(
                     right*std::cos(middleAngle)+forward*std::sin(middleAngle));
@@ -201,32 +232,59 @@ namespace island
             }
             const bool parrot = species == BirdSpecies::Parrot;
             const bool dove = species == BirdSpecies::FruitDove;
-            const float beakWidth = parrot ? .070f : (dove ? .034f : .052f);
-            const float beakBase = parrot ? .548f : (dove ? .525f : .535f);
-            const float beakReach = parrot ? .665f : (dove ? .625f : .69f);
+            const float beakWidth = parrot ? .046f : (dove ? .026f : .038f);
+            const float beakBase = parrot ? .526f : (dove ? .510f : .520f);
+            const float beakReach = parrot ? .616f : (dove ? .584f : .625f);
+            const float baseTop=parrot?.098f:.078f;
+            const float baseBottom=parrot?.025f:.026f;
+            const float midZ=beakBase+(beakReach-beakBase)*.58f;
+            const float midWidth=beakWidth*(parrot?.72f:.62f);
+            const std::array<Vector3,4> beakRoot{
+                LocalPoint(centre,right,up,forward,-beakWidth,.050f,beakBase,scale),
+                LocalPoint(centre,right,up,forward,0,baseTop,beakBase,scale),
+                LocalPoint(centre,right,up,forward,beakWidth,.050f,beakBase,scale),
+                LocalPoint(centre,right,up,forward,0,baseBottom,beakBase,scale)};
+            const std::array<Vector3,4> beakMiddle{
+                LocalPoint(centre,right,up,forward,-midWidth,parrot?.036f:.047f,midZ,scale),
+                LocalPoint(centre,right,up,forward,0,parrot?.078f:.064f,midZ,scale),
+                LocalPoint(centre,right,up,forward,midWidth,parrot?.036f:.047f,midZ,scale),
+                LocalPoint(centre,right,up,forward,0,parrot?.010f:.033f,midZ,scale)};
             const Vector3 beakTip=LocalPoint(centre,right,up,forward,0,
-                parrot ? .010f : .055f,beakReach,scale);
-            const Vector3 beakLeft=LocalPoint(centre,right,up,forward,-beakWidth,.058f,beakBase,scale);
-            const Vector3 beakRight=LocalPoint(centre,right,up,forward,beakWidth,.058f,beakBase,scale);
-            const Vector3 beakTop=LocalPoint(centre,right,up,forward,0,
-                parrot ? .125f : .094f,beakBase,scale);
-            const Vector3 beakBottom=LocalPoint(centre,right,up,forward,0,
-                parrot ? .018f : .022f,beakBase,scale);
-            AddTriangle(vertices,beakTip,beakLeft,beakTop,palette.beak);
-            AddTriangle(vertices,beakTip,beakTop,beakRight,palette.beak);
-            AddTriangle(vertices,beakTip,beakRight,beakBottom,palette.beak);
-            AddTriangle(vertices,beakTip,beakBottom,beakLeft,palette.beak);
-            for(const float side:{-1.0f,1.0f}) {
-                const Vector3 eyeTop=LocalPoint(centre,right,up,forward,side*.107f,.113f,.482f,scale);
-                const Vector3 eyeFront=LocalPoint(centre,right,up,forward,side*.109f,.091f,.508f,scale);
-                const Vector3 eyeBack=LocalPoint(centre,right,up,forward,side*.109f,.087f,.475f,scale);
-                AddDoubleSidedTriangle(vertices,eyeTop,eyeFront,eyeBack,palette.eye);
+                parrot?-.012f:.043f,beakReach,scale);
+            for(std::size_t face=0;face<beakRoot.size();++face) {
+                const std::size_t next=(face+1U)%beakRoot.size();
+                const auto addBeakTriangle=[&](const Vector3& a,const Vector3& b,
+                                               const Vector3& c) {
+                    AddTriangle(vertices,a,b,c,
+                        wildlife_render::FacetColor(a,b,c,palette.beak,true));
+                };
+                addBeakTriangle(beakRoot[face],beakMiddle[face],beakMiddle[next]);
+                addBeakTriangle(beakRoot[face],beakMiddle[next],beakRoot[next]);
+                addBeakTriangle(beakMiddle[face],beakTip,beakMiddle[next]);
             }
+            constexpr int EyeSides=6;
+            const float eyeSide=Vector3::Dot(cameraPosition-centre,right)>=0.0f?1.0f:-1.0f;
+            const float eyeX=eyeSide*.106f*headScale;
+            const Vector3 eyeCentre=LocalPoint(
+                centre,right,up,forward,eyeX,.078f*headScale,.469f,scale);
+            for(int segment=0;segment<EyeSides;++segment) {
+                const float a0=6.28318530718f*static_cast<float>(segment)/EyeSides;
+                const float a1=6.28318530718f*static_cast<float>(segment+1)/EyeSides;
+                const auto eyeEdge=[&](const float angle) {
+                    return LocalPoint(centre,right,up,forward,eyeX,
+                        .078f*headScale+std::sin(angle)*.013f,
+                        .469f+std::cos(angle)*.015f,scale);
+                };
+                if(eyeSide>0.0f)
+                    AddTriangle(vertices,eyeCentre,eyeEdge(a1),eyeEdge(a0),palette.eye);
+                else AddTriangle(vertices,eyeCentre,eyeEdge(a0),eyeEdge(a1),palette.eye);
+                }
         }
 
         void AppendNearBird(std::vector<VertexPositionColor>& vertices,
-                            const BirdState& bird)
+                            const BirdState& bird,const Vector3& cameraPosition)
         {
+            const std::size_t startingVertexCount=vertices.size();
             const BirdPalette& palette = PaletteForBird(bird);
             const Vector3 centre(bird.x, bird.y, bird.z);
             const Vector3 forward(std::cos(bird.headingRadians), 0.0f,
@@ -238,51 +296,58 @@ namespace island
             const Vector3 up = Vector3::Up * bankCosine - levelRight * bankSine;
             const float scale = bird.scale;
             AppendNearBody(vertices,centre,right,up,forward,scale,palette);
-            AppendNearHead(vertices,centre,right,up,forward,scale,palette,bird.species);
+            AppendNearHead(vertices,centre,right,up,forward,scale,palette,bird.species,
+                           cameraPosition);
 
             const float perch = std::clamp(bird.perchAmount, 0.0f, 1.0f);
             const bool groundDove = bird.behavior == BirdBehavior::GroundApproach
                 || bird.behavior == BirdBehavior::GroundForage
                 || bird.behavior == BirdBehavior::GroundDepart;
             const float wingLift = std::lerp(bird.wingPose * 0.38f, -0.025f, perch);
-            const float wingSpan = std::lerp(1.04f, 0.21f, perch);
-            const float wingRear = std::lerp(-0.06f, -0.29f, perch);
+            const float wingSpan = std::lerp(.96f, 0.21f, perch);
+            const float wingRear = std::lerp(-0.08f, -0.29f, perch);
             const Vector3 leftFront = LocalPoint(
                 centre, right, up, forward, -0.06f, 0.035f, 0.20f, scale);
             const Vector3 leftBack = LocalPoint(
                 centre, right, up, forward, -0.08f, 0.015f, -0.24f, scale);
-            const Vector3 leftTip = LocalPoint(
-                centre, right, up, forward, -wingSpan, wingLift, wingRear, scale);
             const Vector3 rightFront = LocalPoint(
                 centre, right, up, forward, 0.06f, 0.035f, 0.20f, scale);
             const Vector3 rightBack = LocalPoint(
                 centre, right, up, forward, 0.08f, 0.015f, -0.24f, scale);
-            const Vector3 rightTip = LocalPoint(
-                centre, right, up, forward, wingSpan, wingLift, wingRear, scale);
-            AddDoubleSidedTriangle(vertices, leftFront, leftTip, leftBack, palette.upperWing);
-            AddDoubleSidedTriangle(vertices, rightFront, rightBack, rightTip, palette.upperWing);
-            const Vector3 leftFeather = LocalPoint(
-                centre, right, up, forward, -std::lerp(0.54f, 0.15f, perch),
-                wingLift * 0.55f - 0.015f, std::lerp(-0.43f, -0.51f, perch), scale);
-            const Vector3 rightFeather = LocalPoint(
-                centre, right, up, forward, std::lerp(0.54f, 0.15f, perch),
-                wingLift * 0.55f - 0.015f, std::lerp(-0.43f, -0.51f, perch), scale);
-            AddDoubleSidedTriangle(
-                vertices, leftBack, leftTip, leftFeather, palette.lowerWing);
-            AddDoubleSidedTriangle(
-                vertices, rightBack, rightFeather, rightTip, palette.lowerWing);
+            for(const float side:{-1.0f,1.0f}) {
+                const Vector3 front=side<0.0f?leftFront:rightFront;
+                const Vector3 back=side<0.0f?leftBack:rightBack;
+                const Vector3 elbow=LocalPoint(centre,right,up,forward,side*.40f,
+                    wingLift*.30f+.035f,std::lerp(.055f,-.20f,perch),scale);
+                const Vector3 tip=LocalPoint(
+                    centre,right,up,forward,side*wingSpan,wingLift,wingRear,scale);
+                const Vector3 outerTrailing=LocalPoint(centre,right,up,forward,
+                    side*std::lerp(.62f,.17f,perch),wingLift*.62f-.018f,
+                    std::lerp(-.39f,-.48f,perch),scale);
+                const Vector3 innerTrailing=LocalPoint(centre,right,up,forward,
+                    side*std::lerp(.25f,.11f,perch),wingLift*.20f-.010f,
+                    std::lerp(-.34f,-.43f,perch),scale);
+                const std::array<Vector3,6> wingOutline{
+                    front,elbow,tip,outerTrailing,innerTrailing,back};
+                AppendClosedSurface(vertices,wingOutline,up*(.014f*scale),
+                                    palette.upperWing,palette.lowerWing);
+            }
 
-            const Vector3 tailRoot = LocalPoint(
-                centre, right, up, forward, 0.0f, 0.0f, -0.40f, scale);
             const float tailHalfWidth = bird.species == BirdSpecies::Parrot ? .16f
                 : (bird.species == BirdSpecies::FruitDove ? .29f : .34f);
             const float tailLength = bird.species == BirdSpecies::Parrot ? -1.08f
                 : (bird.species == BirdSpecies::FruitDove ? -.75f : -.83f);
-            const Vector3 tailLeft = LocalPoint(
-                centre, right, up, forward, -tailHalfWidth, 0.0f, tailLength, scale);
-            const Vector3 tailRight = LocalPoint(
-                centre, right, up, forward, tailHalfWidth, 0.0f, tailLength, scale);
-            AddDoubleSidedTriangle(vertices, tailRoot, tailLeft, tailRight, palette.tail);
+            const float featherRoot=bird.species==BirdSpecies::Parrot?.075f:tailHalfWidth*.42f;
+            for(const float side:{-1.0f,1.0f}) {
+                const float tipZ=tailLength-(side>0.0f&&bird.species==BirdSpecies::Parrot?.055f:0.0f);
+                const std::array<Vector3,4> feather{
+                    LocalPoint(centre,right,up,forward,side*.025f,0.0f,-.35f,scale),
+                    LocalPoint(centre,right,up,forward,side*featherRoot,-.006f,-.47f,scale),
+                    LocalPoint(centre,right,up,forward,side*tailHalfWidth,side*.012f,tipZ,scale),
+                    LocalPoint(centre,right,up,forward,side*.018f,side*.018f,tipZ+.10f,scale)};
+                AppendClosedSurface(vertices,feather,up*(.010f*scale),palette.tail,
+                    wildlife_render::ScaleColor(palette.tail,.84f));
+            }
 
             if (perch > 0.35f) {
                 for (const float side : {-1.0f, 1.0f}) {
@@ -300,6 +365,10 @@ namespace island
                     AddDoubleSidedTriangle(vertices, leg, foot, toe, palette.tail);
                     AddDoubleSidedTriangle(vertices, leg, rearToe, foot, palette.tail);
                 }
+            }
+            const std::size_t expected=perch>0.35f?846U:822U;
+            if(vertices.size()-startingVertexCount!=expected) {
+                throw std::runtime_error("Bird near mesh does not match its fixed vertex budget");
             }
         }
 
@@ -359,6 +428,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(NearBirdHeadDiagnostic);
         std::cout << TropicalBirdDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(TropicalBirdDiagnostic);
+        std::cout << NearBirdProfileDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(NearBirdProfileDiagnostic);
     }
 
     BirdRenderer::~BirdRenderer() = default;
@@ -382,7 +453,7 @@ namespace island
                 continue;
             }
             if (distanceSquared <= NearLodDistance * NearLodDistance) {
-                AppendNearBird(stagingVertices_, bird);
+                AppendNearBird(stagingVertices_, bird, cameraPosition);
                 ++visibleNearBirdCount_;
             } else {
                 AppendFarBird(stagingVertices_, bird);

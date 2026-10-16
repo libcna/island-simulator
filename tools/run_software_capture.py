@@ -1050,13 +1050,17 @@ def main():
                     raise RuntimeError("crab inspection subject is not visibly tied to its burrow")
                 if not re.search(r"crabs [1-9][0-9]*/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):
                     raise RuntimeError("crab capture did not submit a near detailed colony")
-            if args.viewpoint == "birds" and "near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes" not in diagnostics:
-                raise RuntimeError("current near-bird anatomy is missing; check for a stale executable")
+            if args.viewpoint == "birds":
+                if "near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes" not in diagnostics:
+                    raise RuntimeError("current near-bird anatomy is missing; check for a stale executable")
+                if "near birds use compact rounded heads, camera-facing six-facet eyes, fitted hooked beaks, solid swept wings, and split tail feathers" not in diagnostics:
+                    raise RuntimeError("current near-bird profile is missing; check for a stale executable")
             if args.viewpoint == "ground-doves":
                 for marker in (
                     "four fruit doves alternate canopy perches with bounded dry-ground walking and foraging",
                     "ground-dove QA camera frames one walking fruit dove on dry interior terrain",
-                    "near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes"):
+                    "near birds use closed lofted bodies, multi-ring heads, fitted beaks, and lateral eyes",
+                    "near birds use compact rounded heads, camera-facing six-facet eyes, fitted hooked beaks, solid swept wings, and split tail feathers"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"ground-dove integration diagnostic missing: {marker}")
                 if not re.search(r"birds [1-9][0-9]*/24 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):
