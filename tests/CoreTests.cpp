@@ -5795,6 +5795,9 @@ int main()
     };
     checkColonies(jungle);
     checkForestColonies(jungle);
+    Check(jungle.ForestGroundPlantCount() >= 780U
+        && jungle.ForestGroundPlantCount() <= 900U,
+        "default forest-floor recruitment has the reviewed local density budget");
     Check(jungle.ClearingBushCount()==12 && jungle.ClearingGroundPlantCount()==60,
         "forest recruitment preserves the existing default clearing accents");
     for (const auto seed:{0x12345U,0xa55aU}) {

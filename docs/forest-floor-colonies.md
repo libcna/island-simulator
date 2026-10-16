@@ -3,6 +3,25 @@
 Date: 2026-10-09. This is a deterministic placement pass using existing original
 plant meshes, not an additional asset, AI system, vegetation shader or GPU workaround.
 
+## 2026-10-16 bounded density follow-up
+
+A later whole-island environment audit retained the textured humus and deliberately open exposed
+soil, but found broad uniform gaps between inland trunks. Eligible canopy parents now have a 14%
+omission chance instead of 22%, and each ellipse offers four to ten rather than four to eight
+candidates. Every original terrain, drainage, route, clearing, landmark, trunk, shrub, understory
+and root-separation rejection remains in force. The default seed increases from 177 groups / 696
+accepted companions to **185 / 816**; the complete ground layer is **3,087** instances, below the
+unchanged 5,000-instance budget. `IslandCoreTests` also requires 780--900 accepted default-seed
+companions, while the three-seed generic budget and clearance audit remains intact.
+
+This adds no renderer, mesh family, texture, material, buffer or draw type. The fixed litter camera
+submits 200/3,087 ground plants in 39 draws versus the retained older reference's 193/2,945 in 38;
+the one extra scene submission is recorded rather than hidden behind the unchanged batch design.
+Inspected native captures `20261015T235018.093212Z-litter` and
+`20261015T235121.551613Z-jungle` preserve open walking room and show no continuous undergrowth.
+The companion near-litter twig change and portable validation are recorded in
+`fallen-leaf-contact.md`.
+
 ## Composition
 
 The original floor layer selects independent jittered 4.7 m sites. Only the two
@@ -10,9 +29,9 @@ clearing edges previously had related local groups. The new pass adds irregular
 small-plant colonies near some canopy trees, retaining the original island-wide
 placements and clearing accents. Grass density and all solid collisions are unchanged.
 
-Each eligible parent has a 22% deterministic omission chance. Its group centre sits
+Each eligible parent has a 14% deterministic omission chance. Its group centre sits
 3.2–7.2 parent-scale metres from the trunk. Independently rotated ellipses use
-2.5–3.8 m and 1.1–2.4 m semi-axes, with four to eight uniformly area-distributed candidate
+2.5–3.8 m and 1.1–2.4 m semi-axes, with four to ten uniformly area-distributed candidate
 sites. Hash channels derive from parent millimetre coordinates and the world seed,
 not vector ordering or a shared random stream. Accepted plants usually share one
 species, with an occasional contrasting member; short rosettes are predominant.
@@ -41,8 +60,8 @@ near/far triangle totals explicitly, not a claim that all plants are visible.
 - Added plants would total 374,700 triangles if all used near detail, or 37,200
   if all used far detail. Actual culling/LOD reduces submissions; these are budgets,
   not frame cost or hardware timing.
-- Shared jungle mesh storage is unchanged at 2,893,748 vertex bytes. No new mesh,
-  texture, material or batch type exists. Instance/placement and colony metadata
+- Shared jungle mesh storage is 3,419,260 vertex bytes after later shared-mesh visual work. This
+  recruitment change adds no mesh, texture, material or batch type. Instance/placement and colony metadata
   storage grow; initialization performs bounded candidate/root checks and is not free.
 - The fixed jungle view submits 173 -> 235 floor plants: near 35 -> 48, far
   138 -> 187. Jungle draw calls remain 35. Other submitted populations are unchanged.

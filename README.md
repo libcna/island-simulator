@@ -117,7 +117,7 @@ water tint and opacity increase with local depth instead of baking turquoise int
 An exact shore-following foam/wash ribbon uses advancing, fading crests and
 pixel-footprint-filtered porous foam instead of a continuous white stripe. The landscape contains
 322 procedural coconut palms in coastal groves, 270 broadleaf canopy trees, 1,770 ferns/large-leaf plants, 582 low
-bushes, 3,008 small forest-floor plants, and 16,809 mesh-grass clusters placed from a shared canopy-light and ground-cover field. It also composes 184
+bushes, 3,087 small forest-floor plants, and 16,809 mesh-grass clusters placed from a shared canopy-light and ground-cover field. It also composes 184
 irregular land rocks, 14 emergent near-shore reef outcrops, 11 mossy fallen logs with irregular
 near broken-end contours,
 33 pieces of sun-bleached beach driftwood, 33 curved fallen palm fronds with asymmetric leaflets,
@@ -293,7 +293,7 @@ Shrubs now use rooted woody shoots and smaller individual curved leaves, retaini
 all source leaves and outlines at far LOD. Use `--viewpoint bush` for the targeted camera;
 [shrub validation](docs/shrub-lod-continuity.md) records the increased geometry cost and
 remaining coverage/animation limitations.
-The floor layer includes 199 irregular canopy-associated groups with 866 smaller
+The floor layer includes 185 irregular canopy-associated groups with 816 smaller
 companion plants, while preserving paths and clearing accents. See
 [placement validation](docs/forest-floor-colonies.md) for bounds, cost and visual limitations.
 Jungle root origins now follow the actual rendered terrain triangles; see

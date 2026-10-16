@@ -315,6 +315,7 @@ try {
     "island-simulator: forest-floor colonies retain route footprints; groups=",
     "island-simulator: jungle root origins and culling bounds follow rendered terrain triangles",
     "island-simulator: fallen leaves conform to rendered triangles using the shared grass height texture",
+    "island-simulator: forest-floor litter includes two terrain-draped curved twigs in the shared near rosette mesh",
     "island-simulator: broadleaf paddle and lance laminae share cupped profiles and asymmetric margins across LOD",
     "island-simulator: pinnate understory shares rachis attachment knots and retained leaflet wind across LOD",
     "island-simulator: renderer WEBGL2",
@@ -588,7 +589,7 @@ try {
       + "[0-9]+/12 standing snags, "
       + "[1-9][0-9]*/1737 understory \\(near [1-9][0-9]*, far [0-9]+\\), "
       + "[1-9][0-9]*/569 bushes \\(near [1-9][0-9]*, far [0-9]+\\), "
-      + "[1-9][0-9]*/2945 ground plants \\(near [1-9][0-9]*, far [0-9]+\\)");
+      + "[1-9][0-9]*/3087 ground plants \\(near [1-9][0-9]*, far [0-9]+\\)");
   const waterStatePattern = new RegExp(
     "water view 0[.][1-9][0-9]*, 1 draw, player ripple 0[.][1-9][0-9]*, "
       + "phase [01](?:[.][0-9]+)?, splash 0[.][1-9][0-9]*, phase 0[.][0-9]+");

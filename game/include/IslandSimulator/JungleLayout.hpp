@@ -111,7 +111,7 @@ namespace island
         static constexpr float GroundPlantFootprintRadius = 1.4f;
         static constexpr int ClearingColonyCandidates = 12;
         static constexpr int ClearingPlantsPerColony = 6;
-        static constexpr int ForestPlantsPerColony = 8;
+        static constexpr int ForestPlantsPerColony = 10;
         static constexpr int StreamBankColonyCount = 20;
         static constexpr int StreamBankPlantsPerColony = 3;
         static constexpr int SeasonalWetlandCandidateCount = 240;

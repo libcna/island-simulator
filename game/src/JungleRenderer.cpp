@@ -1417,6 +1417,71 @@ void main()
                 geometry.indices.push_back(static_cast<std::uint16_t>(base+index));
         }
 
+        void AppendFallenGroundTwig(PlantGeometry& geometry, const int twig,
+                                    const Color& baseColor)
+        {
+            constexpr int rings = 4;
+            constexpr int sides = 6;
+            const float angle = twig == 0 ? 2.34f : 5.47f;
+            const float length = twig == 0 ? .58f : .46f;
+            const float offset = twig == 0 ? .12f : .20f;
+            const float bend = twig == 0 ? .075f : -.058f;
+            const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
+            const Vector3 across(-direction.Z, 0.0f, direction.X);
+            const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+            for (int ring = 0; ring < rings; ++ring) {
+                const float t = static_cast<float>(ring) / static_cast<float>(rings - 1);
+                const float radius = std::lerp(twig == 0 ? .021f : .018f, .010f, t);
+                const Vector3 centre = direction * (offset + length * t)
+                    + across * (bend * std::sin(t * std::numbers::pi_v<float>))
+                    + Vector3::Up * (.038f + .012f * std::sin(t * std::numbers::pi_v<float>));
+                for (int side = 0; side < sides; ++side) {
+                    const float radialAngle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(side) / static_cast<float>(sides);
+                    const Vector3 radial = across * std::cos(radialAngle)
+                        + Vector3::Up * std::sin(radialAngle);
+                    geometry.vertices.emplace_back(centre + radial * radius,
+                        ShadeColor(baseColor, .76f + .22f * std::max(0.0f, radial.Y)),
+                        Vector2(0, 0));
+                    geometry.leaves.resize(geometry.vertices.size());
+                    geometry.leaves.back().coordinates = Vector4(0, 0, 0, 2);
+                }
+            }
+            for (int ring = 0; ring + 1 < rings; ++ring) {
+                for (int side = 0; side < sides; ++side) {
+                    const int next = (side + 1) % sides;
+                    const auto lower = static_cast<std::uint16_t>(base + ring * sides + side);
+                    const auto lowerNext = static_cast<std::uint16_t>(base + ring * sides + next);
+                    const auto upper = static_cast<std::uint16_t>(lower + sides);
+                    const auto upperNext = static_cast<std::uint16_t>(lowerNext + sides);
+                    geometry.indices.insert(geometry.indices.end(),
+                        {lower, upper, lowerNext, lowerNext, upper, upperNext});
+                }
+            }
+            const auto startCentre = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(
+                direction * offset + Vector3::Up * .038f,
+                ShadeColor(baseColor, .66f), Vector2(0, 0));
+            geometry.leaves.resize(geometry.vertices.size());
+            geometry.leaves.back().coordinates = Vector4(0, 0, 0, 2);
+            const auto endCentre = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(
+                direction * (offset + length) + Vector3::Up * .038f,
+                ShadeColor(baseColor, 1.05f), Vector2(0, 0));
+            geometry.leaves.resize(geometry.vertices.size());
+            geometry.leaves.back().coordinates = Vector4(0, 0, 0, 2);
+            for (int side = 0; side < sides; ++side) {
+                const int next = (side + 1) % sides;
+                geometry.indices.insert(geometry.indices.end(), {
+                    startCentre,
+                    static_cast<std::uint16_t>(base + next),
+                    static_cast<std::uint16_t>(base + side),
+                    endCentre,
+                    static_cast<std::uint16_t>(base + (rings - 1) * sides + side),
+                    static_cast<std::uint16_t>(base + (rings - 1) * sides + next)});
+            }
+        }
+
         [[nodiscard]] PlantGeometry CreateGroundPlantGeometry(const int variant,
                                                               const bool farMesh)
         {
@@ -1489,6 +1554,8 @@ void main()
                         : Color(128, 87 + leaf * 7, 31, 255);
                     AppendFallenGroundLeaf(geometry, leaf, litterColor);
                 }
+                AppendFallenGroundTwig(geometry, 0, Color(92, 63, 34, 255));
+                AppendFallenGroundTwig(geometry, 1, Color(113, 77, 39, 255));
             }
             return geometry;
         }
@@ -1764,6 +1831,10 @@ void main()
                 "island-simulator: jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes";
             std::cout << litterDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(litterDiagnostic);
+            constexpr const char* twigDiagnostic =
+                "island-simulator: forest-floor litter includes two terrain-draped curved twigs in the shared near rosette mesh";
+            std::cout << twigDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(twigDiagnostic);
             std::cout << "island-simulator: jungle fixed-sun two-sided geometric facet lighting\n";
             constexpr const char* tintDiagnostic =
                 "island-simulator: jungle per-instance foliage tint reuses existing transforms";

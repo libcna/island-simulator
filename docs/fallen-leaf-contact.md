@@ -38,6 +38,26 @@ Native baseline `20261015T174806.814354Z-litter` and current-binary evidence
 passes at 196 colour bins, 17.95 luminance deviation, 43.95 spatial contrast and an
 empty kernel delta. `IslandRenderedTerrainSurfaceTests` and `IslandCoreTests` pass.
 
+## 2026-10-16 small fallen-twig follow-up
+
+The same near-only rosette now carries two short, curved fallen twigs alongside the five leaves.
+Each twig uses four taper rings with a six-sided cross-section, unequal length and bend, and a
+separate restrained brown tone. Both reuse dry-litter material tag 2, so every ring is motionless
+and terrain-draped by the existing shared height texture rather than intersecting one horizontal
+root plane. The established 1.4 m plant footprint still contains both shapes.
+
+The shared variant-zero near mesh grows by 52 vertices / 96 triangles, from 210/254 to 262/350;
+the 24/16 far mesh, vertex format, material, height texture, buffers and draw type are unchanged.
+Increased local recruitment is deliberately separate placement work and is described in
+`forest-floor-colonies.md`. Native `20261015T235018.093212Z-litter` passes at 195 colour bins,
+17.95 luminance deviation, 43.96 spatial contrast and an empty kernel delta; the inspected frame
+shows the slim twig at the foreground rosette without obscuring the ground texture. Native jungle
+guard `20261015T235121.551613Z-jungle` also passes and was inspected. Focused Chrome/SwiftShader
+`20261016T002147.822040Z-chrome-litter` passes the inspected litter and grass scenes with 60 finite
+intervals each, GL0, live contexts, zero close-target timeouts and an empty final kernel delta. Two
+earlier five-minute attempts timed out during the second scene and two diagnostic attempts were
+stopped manually; these four rejected runs are not used as evidence.
+
 ## Implementation and resource lifetime
 
 - Material tag 2 identifies only dry litter in the existing 52-byte jungle vertex
@@ -59,9 +79,10 @@ empty kernel delta. `IslandRenderedTerrainSurfaceTests` and `IslandCoreTests` pa
   where it is unused; fallback litter remains on the original flat root plane.
 - Cell bounds include the full terrain height range under the litter's 0.74 m
   scaled radius, its folded height and 0.1 mm packing/numerical allowance. Near/far
-  mesh bounds remain included. No extra draw, mesh attribute or geometry is added.
-  Jungle shared vertex payload remains 2,893,748 bytes; rosette near geometry stays
-  190 vertices / 236 triangles. Each tagged vertex adds three vertex texture fetches
+  mesh bounds remain included. No extra draw or mesh attribute is added.
+  With the later two-twig addition the jungle shared vertex payload is 3,419,260 bytes and
+  variant-zero rosette near geometry is 262 vertices / 350 triangles; its 24/16 far tier remains
+  unchanged. Each tagged vertex adds three vertex texture fetches
   and the shader branch; physical GPU performance remains unmeasured.
 
 ## Validation

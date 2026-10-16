@@ -699,8 +699,8 @@ transmission alongside folded side colour and root darkening. Native OpenGL 3.3 
 slower static `BasicEffect` path remains functional but omits bending and the fragment-lighting
 detail.
 
-The layered interior jungle adds 277 broadleaf trees (closed stands with a sparse scatter and 22 emergents, `docs/forest-stands.md`), 1,822 medium plants, 579 low bushes, and
-3,116 small forest-floor plants. Fourteen shrubs and 64 small plants form local clearing-edge
+The layered interior jungle currently adds 261 broadleaf trees, 1,737 medium plants, 569 low bushes,
+and 3,087 small forest-floor plants. Fourteen shrubs and 64 small plants form local clearing-edge
 colonies on top of the unchanged base populations. Each clearing tests twelve jittered angular
 sectors, leaves deliberate gaps and varies radial offset. Accepted shrubs receive four to six
 candidate companions, mostly one leaf family with occasional contrast, varied scale/yaw and
@@ -709,7 +709,7 @@ are 24 added shrubs and 144 floor plants. No extra mesh, material or draw batch 
 Startup reports the added all-near/all-far triangle budgets from the actual current meshes,
 not a claim that all are simultaneously visible. Existing per-instance culling/LOD still applies.
 
-Canopy-associated forest colonies add another 866 small plants in 199 irregular
+Canopy-associated forest colonies add another 816 small plants in 185 irregular
 elliptical groups. Each parent supplies independently hashed geometry and bounded
 candidate sites; smaller edge members and related species provide local variation.
 Their full footprints avoid routes/trunks, and the earlier clearing-accent bands

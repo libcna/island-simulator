@@ -212,6 +212,29 @@ try {
     pending.set(id, { resolve, reject });
     browserSocket.send(JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) }));
   });
+  let targetCloseTimeouts = 0;
+  const closeTargetBounded = async targetId => {
+    const result = await Promise.race([
+      call("Target.closeTarget", { targetId })
+        .then(() => ({ closed: true }))
+        .catch(error => ({ error })),
+      delay(3000).then(() => ({ timedOut: true })),
+    ]);
+    if (result.error) throw result.error;
+    if (result.timedOut) {
+      ++targetCloseTimeouts;
+      console.warn(`Target.closeTarget acknowledgement timed out for ${targetId}; Browser.close remains authoritative`);
+    }
+  };
+  const closeBrowserBounded = async () => {
+    const result = await Promise.race([
+      call("Browser.close").then(() => ({ closed: true })).catch(error => ({ error })),
+      delay(3000).then(() => ({ timedOut: true })),
+    ]);
+    if (result.error) throw result.error;
+    if (result.timedOut)
+      console.warn("Browser.close acknowledgement timed out; owned-process cleanup remains authoritative");
+  };
   const dispatchKeyPress = async (sessionId, key, code, virtualKeyCode,
     holdMilliseconds = 500, settleMilliseconds = 400) => {
     await call("Input.dispatchKeyEvent", {
@@ -1040,6 +1063,7 @@ try {
               && log.includes("wet sand adds filtered shore-normal drainage threads and a warm shallow-film response")))
             && log.includes("jungle root origins and culling bounds follow rendered terrain triangles")
             && log.includes("fallen leaves conform to rendered triangles using the shared grass height texture")
+            && log.includes("forest-floor litter includes two terrain-draped curved twigs in the shared near rosette mesh")
             && (mode !== "bush" || log.includes("bush QA target variant 0 at player-eye detail distance"))
             && (mode !== "ground-broadleaf" || log.includes("ground-broadleaf QA target variant 1 at player-eye detail distance"))
             && (mode !== "litter" || log.includes("ground-litter QA target variant 0 at player-eye detail distance"))
@@ -1139,7 +1163,11 @@ try {
             `${JSON.stringify({ mode, error: String(error), state: state?.result?.value, inspectionError }, null, 2)}\n`);
           throw error;
         } finally {
-          await call("Target.closeTarget", { targetId });
+          // Closing the final focused target can make Chrome tear down the renderer before
+          // acknowledging the CDP request. Browser.close immediately follows and owns that
+          // final target; intermediate targets still close explicitly to bound memory.
+          if (mode !== focusedViews[focusedViews.length - 1])
+            await closeTargetBounded(targetId);
         }
       }
     } finally {
@@ -1195,13 +1223,13 @@ try {
           ? "software WebGL shipwreck material and separated-time frames" : focusedGroundingCheck
             ? "software WebGL prop grounding only" : "software WebGL wildlife/foliage only",
         browser: version.Browser, browserPid: browserIdentity.outerPid,
-        browserNamespacePid: chrome.pid, browserRenderer, views,
+        browserNamespacePid: chrome.pid, browserRenderer, views, targetCloseTimeouts,
         shadedMonkeyPathObserved: views.some(view => view.monkeyShadeTransmission !== null),
         passed: views.length === focusedViews.length && views.every(view => view.passed),
         kernelSupervision: { evidence: artifactDirectory, stages: kernelChecks,
           acceptance: "see parent run.json; this report only qualifies browser assertions" } }, null, 2)}\n`);
     }
-    await call("Browser.close");
+    await closeBrowserBounded();
   } else {
   const { targetId: smokeTargetId } = await call("Target.createTarget", { url: "about:blank" });
   const { sessionId: smokeSessionId } = await call(
@@ -1313,7 +1341,7 @@ try {
     && result.output?.includes(
       "island-simulator: palm per-instance frond tint reuses existing transforms")
     && result.output?.includes("island-simulator: jungle 261 canopy trees, 1737 understory plants, 569 low bushes, hardware instancing")
-    && result.output?.includes("island-simulator: jungle ground layer 2975 small plants")
+    && result.output?.includes("island-simulator: jungle ground layer 3087 small plants")
     && result.output?.includes(
       "island-simulator: jungle fixed-sun two-sided geometric facet lighting")
     && result.output?.includes(
@@ -1392,6 +1420,8 @@ try {
       "jungle near ground plants include upright and split-leaf silhouettes")
     && result.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
+    && result.output?.includes(
+      "forest-floor litter includes two terrain-draped curved twigs in the shared near rosette mesh")
     && result.output?.includes("island-simulator: natural props 185 rocks, 14 reef outcrops, 314 submerged reef habitat instances, 11 fallen logs, 33 driftwood pieces, 35 fallen palm fronds, hardware instancing")
     && result.output?.includes(
       "island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement")
@@ -1838,8 +1868,10 @@ try {
     && groundResult.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && groundResult.output?.includes(
+      "forest-floor litter includes two terrain-draped curved twigs in the shared near rosette mesh")
+    && groundResult.output?.includes(
       "island-simulator: ground QA target variant 2 at player-eye detail distance")
-    && /[1-9][0-9]*\/2945 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /[1-9][0-9]*\/3087 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       groundResult.output ?? "")
     && groundResult.output?.includes("island-simulator: debug overlay active")
     && !groundResult.error;
@@ -1870,8 +1902,10 @@ try {
     && litterResult.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && litterResult.output?.includes(
+      "forest-floor litter includes two terrain-draped curved twigs in the shared near rosette mesh")
+    && litterResult.output?.includes(
       "island-simulator: ground-litter QA target variant 0 at player-eye detail distance")
-    && /[1-9][0-9]*\/2945 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /[1-9][0-9]*\/3087 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       litterResult.output ?? "")
     && litterResult.output?.includes("island-simulator: debug overlay active")
     && !litterResult.error;
@@ -1979,7 +2013,9 @@ try {
       "jungle near ground plants include upright and split-leaf silhouettes")
     && jungleResult.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
-    && /jungle [1-9][0-9]*\/261 canopy \(near [1-9][0-9]*, far [0-9]+\), [0-9]+\/12 standing snags, [1-9][0-9]*\/1737 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/569 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/2945 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && jungleResult.output?.includes(
+      "forest-floor litter includes two terrain-draped curved twigs in the shared near rosette mesh")
+    && /jungle [1-9][0-9]*\/261 canopy \(near [1-9][0-9]*, far [0-9]+\), [0-9]+\/12 standing snags, [1-9][0-9]*\/1737 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/569 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/3087 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;
 

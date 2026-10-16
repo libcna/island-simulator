@@ -166,6 +166,35 @@ spatial contrast and kernel `[]`. Focused Chrome/SwiftShader
 `20261015T224046.143766Z-chrome-goats` passes four distinct inspected motion frames, 60 finite
 intervals, GL0, a live context and kernel `[]`. Movement, population and species audio are unchanged.
 
+## Latest forest-floor composition pass — local recruitment and fallen twigs
+
+The next overview/jungle/litter matrix retained the detailed humus material and the intentionally
+open hill, but selected broad uniform gaps between inland trunks as the weakest remaining ground
+composition. Canopy-associated floor colonies now omit 14 rather than 22 percent of eligible
+parents and admit four to ten rather than four to eight candidates. All existing shore, slope,
+drainage, route, clearing, hut, trunk, shrub and understory rejection rules remain. The default
+world therefore has 185 local groups and 816 accepted companions, up from 177/696, while the
+complete shared floor population remains bounded at 3,087 below the existing 5,000-instance cap.
+
+The near rosette litter mesh also gains two short curved six-sided fallen twigs with unequal length,
+bend, taper and brown tone. They reuse dry-litter material tag 2, so every ring follows the exact
+rendered terrain through the existing shared height map and remains motionless; no texture,
+attribute, buffer, material or draw type is added. Variant-zero near geometry rises from 210/254
+vertices/triangles to 262/350 while its 24/16 far tier is unchanged. In the fixed litter view the
+extra visible instances change 193/2,945 plants in 38 submissions to 200/3,087 in 39; this is an
+honest one-submission scene result, not a claim that density is free.
+
+`IslandCoreTests`, `IslandRenderedTerrainSurfaceTests` and 103 browser/capture harness tests pass.
+Inspected native `20261015T235018.093212Z-litter` passes at 195 colour bins, 17.95 luminance
+deviation, 43.96 spatial contrast and kernel `[]`; `20261015T235121.551613Z-jungle` passes at
+282/46.22/213.01 and kernel `[]`. The fixed images preserve open walking ground, add a readable
+small twig at the close rosette and do not turn the forest into continuous undergrowth. Focused
+Chrome/SwiftShader `20261016T002147.822040Z-chrome-litter` passes both inspected litter and grass
+scenes with 60 finite intervals each, GL0, live contexts, zero close-target timeouts and kernel
+`[]`. Two earlier five-minute runs timed out during their second software-rendered scene and two
+diagnostic runs were stopped manually; none of those four rejected attempts is used as portable
+evidence.
+
 ## Latest forest-floor visual pass — pointed folded litter clusters
 
 The overview/jungle/litter review retained the exposed-soil material but selected the close dry

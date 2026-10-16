@@ -512,7 +512,7 @@ namespace island
                 return UnitRandom(Hash(keyX,keyZ,seed ^ (0x37a4c195U
                     +static_cast<std::uint32_t>(channel)*0x9e3779b9U)));
             };
-            if (random(0)<0.22f) continue;
+            if (random(0)<0.14f) continue;
             const float direction=random(1)*2*std::numbers::pi_v<float>;
             const float reach=(3.2f+4*random(2))*tree.scale;
             ForestFloorColony colony{treeIndex,groundPlants_.size(),0,

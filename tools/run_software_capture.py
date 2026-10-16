@@ -910,6 +910,8 @@ def main():
                 raise RuntimeError("Rendered jungle root-contact diagnostic missing")
             if "fallen leaves conform to rendered triangles using the shared grass height texture" not in diagnostics:
                 raise RuntimeError("Shared-height-map litter contact diagnostic missing")
+            if "forest-floor litter includes two terrain-draped curved twigs in the shared near rosette mesh" not in diagnostics:
+                raise RuntimeError("Current fallen-twig litter geometry missing")
             if "shrubs use supported shoots and curved individual leaves with shared LOD identities and complete leaf outlines" not in diagnostics:
                 raise RuntimeError("current shrub geometry is missing; check for a stale executable")
             if "shrubs use early radial spread, crooked shoots, independently rolled cupped leaves, and wider pigment variation" not in diagnostics:
