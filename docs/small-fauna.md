@@ -360,6 +360,28 @@ Earlier native captures are retained as rejected evidence: they exposed an overs
 silhouette, then a rear-quarter composition that hid the long abdomen, and finally a side view that
 collapsed the four wings into lines. The accepted elevated broadside uses the exact final binary.
 
+### Connected dragonfly anatomy pass — 2026-10-16
+
+A later small-fauna audit found that the bright blue abdomen still read as seven separated diamond
+beads, while the head/eyes were pointed, legs collapsed into cards and the four pale wings dominated
+like a toy aircraft. The thorax and head are now closed five/four-section rounded lofts. Seven
+touching six-sided tapered abdomen sections retain alternating pigment without gaps. Six legs use
+two solid tapered sections apiece, fitted green compound-eye discs replace the eye diamonds, and
+the independently animated veined wings use a quieter blue-grey membrane. Habitat, scale,
+hover/patrol/dart controller, banked local frame, distance policy and shared draw remain unchanged.
+
+One detailed animal uses exactly 1,296 vertices inside its 1,500-vertex slot. Conservative
+population capacity grows from 6,480 to 13,500 vertices, adding 112,320 bytes to the shared dynamic
+buffer. Accepted native evidence
+`build-consumer/software-captures/20261016T162240.356758Z-dragonflies` passes at 196 colour bins,
+18.83 luminance deviation, 42.93 spatial contrast and kernel `[]`. Core and all 102 capture/browser
+harness tests pass. Chrome/SwiftShader
+`build/browser-software/20261016T162423.729849Z-chrome-dragonflies` passes two distinct frames, 60
+finite intervals, GL0, a live context and kernel `[]`. WebAssembly and Android ARM64 assemble/lint
+pass without emulator/KVM; the APK is 24,693,379 bytes with SHA-256
+`373a2339e75a4b32d3c80fdb8bf6429e78adb33162ff2b8d5f15f524677cabe6` and contains a
+19,650,808-byte stripped `libmain.so`.
+
 ## Hermit crabs
 
 Ten deterministic hermit crabs occupy compact 3.8--4.7 m home ranges on sheltered sandy coast.

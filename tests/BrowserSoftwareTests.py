@@ -17,6 +17,28 @@ from gpu_incident_qualification import contained_command
 
 
 class BrowserSoftwareTests(unittest.TestCase):
+    def test_dragonfly_scope_requires_connected_anatomy(self):
+        anatomy = ("near dragonflies use connected tapered abdominal segments, rounded heads, "
+                   "fitted compound eyes, solid jointed legs, and subdued veined wings")
+        markers = "\n".join((
+            "nine stream and wetland dragonflies hover, patrol, and dart in the shared butterfly batch",
+            anatomy,
+            "dragonfly QA camera frames one visible wet-habitat insect broadside",
+            "dragonflies 1/9 visible in shared draw"))
+        def report():
+            return {"passed": True, "views": [{"mode": "dragonflies", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": "dragonfly.png",
+                "afterSimulationScreenshot": "dragonfly-after.png",
+                "intervals": [16.7] * 60,
+                "result": {"output": markers, "error": "", "exited": False}}]}
+        self.assertEqual(gate.validate_dragonfly_report(report()),
+                         ("dragonfly.png", "dragonfly-after.png"))
+        missing = report()
+        missing["views"][0]["result"]["output"] = markers.replace(anatomy + "\n", "")
+        with self.assertRaises(RuntimeError):
+            gate.validate_dragonfly_report(missing)
+
     def test_fly_scope_requires_separate_body_and_solid_legs(self):
         anatomy = ("near flies use separate rounded thoraxes, tapered abdomens, fitted red "
                    "compound eyes, jointed solid legs, antennae, and veined swept wings")

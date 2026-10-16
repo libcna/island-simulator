@@ -547,6 +547,7 @@ def validate_dragonfly_report(report):
         or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
         or len(set(frames))!=2
         or "nine stream and wetland dragonflies hover, patrol, and dart in the shared butterfly batch" not in log
+        or "near dragonflies use connected tapered abdominal segments, rounded heads, fitted compound eyes, solid jointed legs, and subdued veined wings" not in log
         or "dragonfly QA camera frames one visible wet-habitat insect broadside" not in log
         or not re.search(r"dragonflies [1-9]/9 visible in shared draw",log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):

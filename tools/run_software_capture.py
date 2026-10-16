@@ -1184,6 +1184,8 @@ def main():
             if args.viewpoint == "dragonflies":
                 if "nine stream and wetland dragonflies hover, patrol, and dart in the shared butterfly batch" not in diagnostics:
                     raise RuntimeError("current dragonfly renderer is missing; check for a stale executable")
+                if "near dragonflies use connected tapered abdominal segments, rounded heads, fitted compound eyes, solid jointed legs, and subdued veined wings" not in diagnostics:
+                    raise RuntimeError("current dragonfly anatomy is missing; check for a stale executable")
                 if "dragonfly QA camera frames one visible wet-habitat insect broadside" not in diagnostics:
                     raise RuntimeError("current dragonfly inspection composition is missing")
                 if not re.search(r"dragonflies [1-9]/9 visible in shared draw",diagnostics):

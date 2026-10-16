@@ -112,6 +112,28 @@ hard grass/bush wall at a tier boundary; WebGL remains live, GL error is zero, t
 error is 1.075 m and kernel monitoring is clean. This is representative motion evidence, not a
 mathematical all-view aliasing proof.
 
+## Latest dragonfly visual pass — connected abdomen and solid legs
+
+The next small-fauna audit selected the dragonfly. Its bright blue abdomen was seven separated
+diamonds, the head and eyes were pointed volumes, legs collapsed into lines, and four opaque pale
+wings dominated like a toy aircraft. The thorax and head are now closed five/four-section rounded
+lofts. Seven touching six-sided tapered abdomen sections preserve readable banding without gaps;
+six legs receive two solid tapered sections apiece. Large fitted green compound-eye discs and small
+highlights replace eye pyramids, while the same independently animated swept wings use a subdued
+blue-grey membrane and darker veins. Nine-agent wetland/stream habitat, hover/patrol/dart motion,
+banking, scale, culling and shared one-draw submission remain unchanged.
+
+One detailed dragonfly uses exactly 1,296 vertices inside its 1,500-vertex slot. Conservative
+capacity grows from 6,480 to 13,500 vertices, adding 112,320 bytes to the shared dynamic buffer.
+Inspected baseline `20261015T022433.392934Z-dragonflies` and accepted native
+`20261016T162240.356758Z-dragonflies` show the connected silhouette; accepted evidence passes at
+196 colour bins, 18.83 luminance deviation, 42.93 spatial contrast and kernel `[]`. Core and all
+102 capture/browser harness tests pass. Chrome/SwiftShader
+`20261016T162423.729849Z-chrome-dragonflies` passes two distinct frames, 60 finite intervals, GL0,
+a live context and kernel `[]`. WebAssembly and Android ARM64 assemble/lint pass; the APK is
+24,693,379 bytes with a 19,650,808-byte packaged library and SHA-256
+`373a2339e75a4b32d3c80fdb8bf6429e78adb33162ff2b8d5f15f524677cabe6`. No emulator/KVM was used.
+
 ## Latest canopy visual pass — botanical colour families and lobe variation
 
 The renewed overview/jungle/clearing-edge audit found current terrain, water and lighting coherent,

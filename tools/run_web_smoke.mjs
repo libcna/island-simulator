@@ -916,6 +916,7 @@ try {
               && log.includes("skink QA camera frames one striped basking lizard on open inland ground")
               && /skinks [1-8]\/8 visible in shared draw/.test(log)))
             && (!focusedDragonflyCheck || (log.includes("nine stream and wetland dragonflies hover, patrol, and dart in the shared butterfly batch")
+              && log.includes("near dragonflies use connected tapered abdominal segments, rounded heads, fitted compound eyes, solid jointed legs, and subdued veined wings")
               && log.includes("dragonfly QA camera frames one visible wet-habitat insect broadside")
               && /dragonflies [1-9]\/9 visible in shared draw/.test(log)))
             && (!focusedFrogCheck || (log.includes("ten stream and wetland frogs rest, hop, and retreat in the shared butterfly batch")

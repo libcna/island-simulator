@@ -37,7 +37,7 @@ namespace island
         constexpr int MaximumGeckoVertices = static_cast<int>(GeckoPopulation::Count) * 2300;
         constexpr int MaximumSkinkVertices = static_cast<int>(SkinkPopulation::Count) * 1700;
         constexpr int MaximumDragonflyVertices =
-            static_cast<int>(DragonflySwarm::Count) * 720;
+            static_cast<int>(DragonflySwarm::Count) * 1500;
         constexpr int MaximumFrogVertices = static_cast<int>(FrogPopulation::Count) * 1700;
         constexpr int MaximumRodentVertices = static_cast<int>(RodentPopulation::Count) * 1400;
         // A close fly uses fewer than 1,400 vertices across three closed body volumes,
@@ -74,6 +74,8 @@ namespace island
             "island-simulator: skinks use solid tapered leg, toe, and five-section tail volumes with surface-set highlighted eyes";
         constexpr std::string_view DragonflyDiagnostic=
             "island-simulator: nine stream and wetland dragonflies hover, patrol, and dart in the shared butterfly batch";
+        constexpr std::string_view DragonflyAnatomyDiagnostic=
+            "island-simulator: near dragonflies use connected tapered abdominal segments, rounded heads, fitted compound eyes, solid jointed legs, and subdued veined wings";
         constexpr std::string_view FrogDiagnostic =
             "island-simulator: ten stream and wetland frogs rest, hop, and retreat in the shared butterfly batch";
         constexpr std::string_view FrogAnatomyDiagnostic =
@@ -519,14 +521,14 @@ namespace island
                              const DragonflyState& fly)
         {
             const std::array<Color, 3> bodies = {{
-                Color(33, 116, 124, 255), Color(45, 89, 151, 255),
-                Color(62, 126, 69, 255)}};
+                Color(31, 96, 101, 255), Color(35, 73, 117, 255),
+                Color(46, 103, 61, 255)}};
             const Color bodyColor = bodies[fly.colorVariant % bodies.size()];
             const Color dark = Color::Lerp(bodyColor, Color(10, 17, 18, 255), .68f);
             const Color abdomenBand = Color::Lerp(bodyColor, Color(174, 178, 93, 255), .18f);
-            const Color wing(184, 202, 198, 255);
-            const Color wingVein(83, 111, 108, 255);
-            const Color eye(75, 117, 64, 255);
+            const Color wing(132, 153, 151, 255);
+            const Color wingVein(65, 86, 84, 255);
+            const Color eye(83, 111, 53, 255);
             const Color eyeGlint(185, 204, 151, 255);
             const float s = fly.scale;
             const Vector3 centre(fly.x, fly.y, fly.z);
@@ -538,15 +540,18 @@ namespace island
             const Vector3 right = levelRight * bankCos + Vector3::Up * bankSin;
             const Vector3 up = Vector3::Up * bankCos - levelRight * bankSin;
 
-            constexpr std::array<float, 4> ThoraxStations = {{-.060f, -.020f, .035f, .075f}};
-            constexpr std::array<float, 4> ThoraxWidths = {{.022f, .055f, .048f, .024f}};
-            constexpr std::array<float, 4> ThoraxHeights = {{.018f, .044f, .038f, .018f}};
+            constexpr std::array<float, 5> ThoraxStations = {{-.065f, -.035f, .010f, .050f, .080f}};
+            constexpr std::array<float, 5> ThoraxWidths = {{.022f, .050f, .057f, .046f, .020f}};
+            constexpr std::array<float, 5> ThoraxHeights = {{.018f, .040f, .047f, .037f, .017f}};
             AppendGeckoLoft(vertices, centre, right, up, forward, ThoraxStations,
                             ThoraxWidths, ThoraxHeights, s, bodyColor, dark, dark);
 
             const Vector3 head = centre + forward * (.098f * s) + up * (.006f * s);
-            AppendGeckoDiamond(vertices, head, right, up, forward,
-                               .052f * s, .039f * s, .036f * s, dark, dark);
+            constexpr std::array<float, 4> HeadStations = {{-.040f, -.010f, .028f, .052f}};
+            constexpr std::array<float, 4> HeadWidths = {{.026f, .052f, .050f, .024f}};
+            constexpr std::array<float, 4> HeadHeights = {{.022f, .040f, .038f, .019f}};
+            AppendGeckoLoft(vertices, head, right, up, forward, HeadStations,
+                            HeadWidths, HeadHeights, s, dark, dark, dark);
 
             // Seven visibly separated, steadily tapering abdominal segments give
             // the insect its characteristic long needle silhouette.
@@ -557,11 +562,11 @@ namespace island
                     + right * (std::sin(fly.wingPhase * .08f
                                         + static_cast<float>(segment) * .42f)
                                * .0025f * s);
-                const Vector3 middle = (root + end) * .5f;
                 const float radius = (.018f - .0017f * static_cast<float>(segment)) * s;
-                AppendGeckoDiamond(vertices, middle, right, up, forward,
-                                   radius, radius * .78f, length * .53f,
-                                   segment % 2 == 0 ? bodyColor : abdomenBand, dark);
+                const float tipRadius = std::max(.0045f,
+                    .0163f - .0017f * static_cast<float>(segment)) * s;
+                AppendGeckoTube(vertices, root, end, radius, tipRadius,
+                    segment % 2 == 0 ? bodyColor : abdomenBand, 6);
                 root = end;
             }
 
@@ -601,18 +606,29 @@ namespace island
                         - forward * ((.018f + leg * .018f) * s) - up * (.034f * s);
                     const Vector3 foot = knee + right * (side * .030f * s)
                         - forward * ((.020f + leg * .014f) * s) + up * (.007f * s);
-                    AppendGeckoSegment(vertices, hip, knee, .0030f * s, dark);
-                    AppendGeckoSegment(vertices, knee, foot, .0022f * s, dark);
+                    AppendGeckoTube(vertices, hip, knee, .0038f * s,
+                                    .0028f * s, dark, 5);
+                    AppendGeckoTube(vertices, knee, foot, .0028f * s,
+                                    .0016f * s, dark, 5);
                 }
             }
 
             for (const float side : {-1.0f, 1.0f}) {
                 const Vector3 eyeCentre = head + right * (side * .040f * s)
                     + forward * (.020f * s) + up * (.014f * s);
-                AppendGeckoDiamond(vertices, eyeCentre, right, up, forward,
-                                   .019f * s, .022f * s, .016f * s, eye, eye);
-                const Vector3 glint = eyeCentre + right * (side * .015f * s)
-                    + forward * (.013f * s) + up * (.012f * s);
+                for (int edge = 0; edge < 8; ++edge) {
+                    const float firstAngle = 6.28318530718f * static_cast<float>(edge) / 8.0f;
+                    const float secondAngle = 6.28318530718f * static_cast<float>(edge + 1) / 8.0f;
+                    const Vector3 first = eyeCentre
+                        + forward * (std::cos(firstAngle) * .022f * s)
+                        + up * (std::sin(firstAngle) * .025f * s);
+                    const Vector3 second = eyeCentre
+                        + forward * (std::cos(secondAngle) * .022f * s)
+                        + up * (std::sin(secondAngle) * .025f * s);
+                    AddDoubleSidedTriangle(vertices, eyeCentre, first, second, eye);
+                }
+                const Vector3 glint = eyeCentre + right * (side * .001f * s)
+                    + forward * (.010f * s) + up * (.013f * s);
                 AddDoubleSidedTriangle(vertices, glint + up * (.005f * s),
                     glint - forward * (.005f * s) - up * (.003f * s),
                     glint + forward * (.005f * s) - up * (.003f * s), eyeGlint);
@@ -1458,6 +1474,7 @@ namespace island
         std::cout << SkinkAnatomyDiagnostic << '\n';
         std::cout << SkinkSolidDiagnostic << '\n';
         std::cout << DragonflyDiagnostic << '\n';
+        std::cout << DragonflyAnatomyDiagnostic << '\n';
         std::cout << FrogDiagnostic << '\n';
         std::cout << FrogAnatomyDiagnostic << '\n';
         std::cout << RodentDiagnostic << '\n';
@@ -1480,6 +1497,7 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(SkinkAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(SkinkSolidDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(DragonflyDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(DragonflyAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(FrogDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(FrogAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(RodentDiagnostic);
