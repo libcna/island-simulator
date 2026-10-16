@@ -38,6 +38,7 @@
 #include "IslandSimulator/WorldIdentity.hpp"
 #include "IslandSimulator/HutLayout.hpp"
 #include "IslandSimulator/HelicopterLayout.hpp"
+#include "IslandSimulator/HelicopterSite.hpp"
 #include "IslandSimulator/CaveGroundPatch.hpp"
 #include "IslandSimulator/CampfireLayout.hpp"
 #include "IslandSimulator/ResidentMotion.hpp"
@@ -186,7 +187,8 @@ namespace
             if(!helicopter)throw std::runtime_error("No valid central helicopter site");
             collisionGrid.Reset(worldObstacles);
             std::vector<island::CircularObstacle> wildlifeObstacles(worldObstacles);
-            wildlifeObstacles.push_back({helicopter->x,helicopter->z,3.2f});
+            wildlifeObstacles.push_back({helicopter->x,helicopter->z,
+                island::HelicopterSite::ClearingRadius});
             wildlifeCollisionGrid.Reset(wildlifeObstacles);
             resident=std::make_unique<island::ResidentMotion>(terrain,wildlifeCollisionGrid.Obstacles());
             bear=std::make_unique<island::BearMotion>(terrain,wildlifeCollisionGrid.Obstacles());
@@ -1152,7 +1154,8 @@ namespace
                 && !world.wildlifeCollisionGrid.Obstacles().empty()
                 && world.wildlifeCollisionGrid.Obstacles().back().x==h.x
                 && world.wildlifeCollisionGrid.Obstacles().back().z==h.z
-                && world.wildlifeCollisionGrid.Obstacles().back().radius==3.2f;
+                && world.wildlifeCollisionGrid.Obstacles().back().radius
+                    ==island::HelicopterSite::ClearingRadius;
             const island::RenderedTerrainSurface surface(world.terrain);
             for(const auto& contact:h.skidContacts) validHelicopter=validHelicopter
                 && AllFinite(contact.x,contact.groundY,contact.z)
@@ -1416,6 +1419,8 @@ namespace
                    << ", \"yawRadians\": " << h.yawRadians
                    << ",\n    \"mainRotorRadiusMeters\": "
                    << island::HelicopterLayout::MainRotorRadius
+                   << ", \"wildlifeClearingRadiusMeters\": "
+                   << island::HelicopterSite::ClearingRadius
                    << ",\n    \"grounded\": true, \"canFly\": false,"
                    << " \"pilotEnterable\": true, \"rearCabinEnterable\": true,"
                    << "\n    \"skidContacts\": [";

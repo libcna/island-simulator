@@ -218,6 +218,23 @@ Chrome/SwiftShader `20261016T053707.895472Z-chrome-boars` supplies two distinct 
 60 finite intervals, GL0, a live context and kernel `[]`. Details are in
 `docs/boar-coat-material.md`.
 
+## Latest goat habitat pass — clear of the grounded helicopter
+
+The next eight-stage goat audit was initially obstructed by the helicopter cabin because the first
+goat's home sat only about 4.59 m from its centre, inside the authored 6.20 m clearing. Wildlife
+avoidance had used only the 3.20 m fuselage proxy. The shared wildlife obstacle now uses the full
+`HelicopterSite::ClearingRadius`; each controller retains its existing body-clearance margin, so
+goats and other land wildlife cannot graze below the open doors or stationary rotor disc. This is
+one larger static obstacle, not a new per-frame search.
+
+Native `20261016T054652.958008Z-goats` starts the audited goat about 10.16 m from the helicopter and
+shows all eight motion stages unobstructed on an open slope, passing at 251 colour bins, 56.87
+luminance deviation, 254.51 spatial contrast and kernel `[]`. The world report now exports the
+6.20 m wildlife clearing radius and rejects a goat inside it. Focused native habitat/herd/mesh/
+world/core/capture tests pass. Inspected Chrome/SwiftShader
+`20261016T055151.536764Z-chrome-goats` shows four distinct current-habitat frames and passes 60
+finite intervals, GL0, a live context and kernel `[]`. Details are in `docs/goats.md`.
+
 The current Firefox qualification exposed a real beach-start regression rather than a renderer
 failure: the relocated firewood collision sat 1.73 m ahead of the old `(0,-225)` start and rejected
 forward movement. The player now starts at `(4,-225)` inside the unchanged 17 m reserved beach

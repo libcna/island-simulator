@@ -674,6 +674,33 @@ Focused Chrome/SwiftShader `20261015T224046.143766Z-chrome-goats` passes four di
 motion frames, 60 finite intervals, GL error zero, a live context and an empty final kernel delta.
 Physical Android/AMD appearance and subjective call listening remain outside this focused pass.
 
+## Helicopter-clearing habitat exclusion — 2026-10-16
+
+A renewed eight-stage audit initially framed the nearest goat through the helicopter's open cabin.
+This was not merely a camera problem: its home at `(-54.8407, 48.9365)` was only about 4.59 m from
+the helicopter centre, inside the authored 6.20 m clearing. Wildlife avoidance used the 3.20 m
+fuselage proxy, which prevented contact with the airframe but still permitted grazing beneath the
+doors and rotor disc.
+
+The shared wildlife obstacle now reserves `HelicopterSite::ClearingRadius` rather than the smaller
+fuselage proxy. Goat placement and movement add their existing 1.25 m body clearance, so a complete
+animal remains at least 7.45 m from the centre. The same obstacle is supplied to the resident,
+bear, monkeys, boars, snakes, deer and spiders; their existing collision-aware controllers gain the
+same coherent clearing boundary without a new per-frame query. The standalone world report now
+uses and reports the same radius, and its goat validator rejects a population member moved into
+the clearing.
+
+Accepted native evidence `20261016T054652.958008Z-goats` starts the selected goat at
+`(-57.6012, 55.7556)`, about 10.16 m from the helicopter centre, and exposes all eight motion
+stages on an unobstructed open slope. It passes at 251 colour bins, 56.87 luminance deviation and
+254.51 spatial contrast with an empty kernel delta. Eight focused native groups passed before the
+world-report contract was tightened; the rebuilt world-report, habitat, herd and core groups pass
+again afterward. Focused Chrome/SwiftShader
+`build/browser-software/20261016T055151.536764Z-chrome-goats` shows four distinct inspected motion
+frames in the new habitat and passes 60 finite intervals, GL error zero, a live context and an
+empty kernel delta. This fixes habitat composition and audit visibility; it does not claim final
+all-angle anatomy or subjective call acceptance.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

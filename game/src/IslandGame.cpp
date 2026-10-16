@@ -6,6 +6,7 @@
 #include "IslandSimulator/FirstPersonInput.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
 #include "IslandSimulator/GpuDiagnostics.hpp"
+#include "IslandSimulator/HelicopterSite.hpp"
 #include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
@@ -310,7 +311,12 @@ namespace island
         worldCollisionGrid_.Reset(worldObstacles);
         playerMotion_.SetHelicopter(&*helicopterPlacement_);
         std::vector<CircularObstacle> wildlifeObstacles(worldObstacles);
-        wildlifeObstacles.push_back({helicopterPlacement_->x,helicopterPlacement_->z,3.2f});
+        // Keep complete animal bodies out of the authored rotor/clearing footprint,
+        // not merely outside the fuselage collision proxy. Goat habitat selection
+        // previously accepted a home under an open cabin door because 3.2 m only
+        // represented the airframe itself.
+        wildlifeObstacles.push_back({helicopterPlacement_->x,helicopterPlacement_->z,
+                                     HelicopterSite::ClearingRadius});
         resident_=std::make_unique<ResidentMotion>(terrain_,wildlifeObstacles);
         bear_=std::make_unique<BearMotion>(terrain_,wildlifeObstacles);
         monkeyTroop_.SetObstacles(wildlifeObstacles);

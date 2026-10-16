@@ -12,6 +12,9 @@ def validate(report):
     assert population["snapshot"] == "initial"
     goats = population["goats"]
     assert report["wildlife"]["goats"] == len(goats) == 6
+    helicopter = report["helicopter"]
+    clearing = helicopter["wildlifeClearingRadiusMeters"]
+    assert clearing > helicopter["mainRotorRadiusMeters"]
     positions = []
     for goat in goats:
         point = goat["position"]
@@ -19,6 +22,8 @@ def validate(report):
         assert point[1] >= 6 and abs(point[0]) <= 220 and abs(point[2]) <= 220
         assert math.isfinite(goat["headingRadians"])
         assert goat["scale"] in (0.75, 1.0)
+        assert math.hypot(point[0]-helicopter["x"], point[2]-helicopter["z"]) \
+            >= clearing + 1.25 - .001
         assert all(math.hypot(point[0]-p[0], point[2]-p[2]) >= 7.999 for p in positions)
         positions.append(point)
     assert sum(g["scale"] == .75 for g in goats) == 1
@@ -28,7 +33,7 @@ def validate(report):
 if __name__ == "__main__":
     report = json.loads(subprocess.run([sys.argv[1]], capture_output=True, text=True, check=True).stdout)
     validate(report)
-    for fault in ("count", "missing", "nonfinite", "overlap", "scale"):
+    for fault in ("count", "missing", "nonfinite", "overlap", "scale", "helicopter"):
         bad = copy.deepcopy(report)
         goats = bad["goatPopulation"]["goats"]
         if fault == "count":
@@ -40,7 +45,11 @@ if __name__ == "__main__":
         elif fault == "overlap":
             goats[1]["position"] = goats[0]["position"][:]
         else:
-            goats[0]["scale"] = 2
+            if fault == "scale":
+                goats[0]["scale"] = 2
+            else:
+                goats[0]["position"][0] = bad["helicopter"]["x"]
+                goats[0]["position"][2] = bad["helicopter"]["z"]
         try:
             validate(bad)
         except AssertionError:
