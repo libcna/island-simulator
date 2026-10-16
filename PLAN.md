@@ -319,6 +319,24 @@ Chrome/SwiftShader `20261016T080545.683671Z-chrome-spiders` passes four distinct
 the live-web scene, 60 finite intervals per view, GL0, live contexts and kernel `[]`. Details are
 in `docs/spiders.md`.
 
+## Latest shrub visual pass — deterministic paired-leaf gaps
+
+The current eye-height jungle audit accepted the crooked shoots, cupped/rolled leaves and pigment
+range but selected the repeated complete lateral tiers that made the nearest bush read as stacked
+horizontal rosettes. Every shoot now omits one deterministic lateral leaf at a differently rotated
+tier while always retaining its terminal crown. Near and far builders share the same predicate,
+so retained leaf identity, root, normal and wind phase remain exact across LOD.
+
+The variants retain 40/48/56 leaves instead of 45/54/63. Near geometry drops from
+915/1,098/1,281 vertices and 1,150/1,380/1,610 triangles to 830/996/1,162 and
+1,050/1,260/1,470; far geometry also decreases. Population, cells, buffers, texture, shader, wind,
+culling and draw counts do not increase. Five focused native groups and all 96 browser/capture
+tests pass. Inspected baseline `20261016T081540.234939Z-bush` and accepted
+`20261016T082546.886647Z-bush` show visible gaps and supporting shoots without a sparse crown; the
+accepted frame passes at 257 colour bins, 43.45 luminance deviation, 195.71 spatial contrast and
+kernel `[]`. Inspected Chrome/SwiftShader `20261016T082857.948662Z-chrome-bushes` passes 60 finite
+positive intervals, GL0, a live context and kernel `[]`. Details are in `docs/shrub-structure.md`.
+
 ## Latest terrain overview pass — second far-silhouette material fade
 
 The renewed current overview found that the previous 0.30 aerial endpoints still became repeated

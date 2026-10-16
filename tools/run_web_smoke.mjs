@@ -1445,6 +1445,8 @@ try {
     && result.output?.includes(
       "jungle near bushes with pointed leaf edge breakup")
     && result.output?.includes(
+      "shrub variants retain terminal crowns and deterministic paired-leaf gaps across LOD")
+    && result.output?.includes(
       "jungle near ground plants include upright and split-leaf silhouettes")
     && result.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
@@ -2041,6 +2043,8 @@ try {
       "island-simulator: jungle near canopy procedural bark fissures")
     && jungleResult.output?.includes(
       "jungle near bushes with pointed leaf edge breakup")
+    && jungleResult.output?.includes(
+      "shrub variants retain terminal crowns and deterministic paired-leaf gaps across LOD")
     && jungleResult.output?.includes(
       "jungle near ground plants include upright and split-leaf silhouettes")
     && jungleResult.output?.includes(

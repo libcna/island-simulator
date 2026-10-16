@@ -74,6 +74,18 @@ namespace island
             0.84f+0.075f*((leaf+shoot*2+variant)%4),BushShootWind(t)};
     }
 
+    bool BushLeafPresent(int variant, int shoot, int leaf)
+    {
+        (void)MakeBushShoot(variant,shoot);
+        if (leaf<0 || leaf>=BushLeavesPerShoot)
+            throw std::invalid_argument("Invalid shrub leaf");
+        if (leaf==BushLeavesPerShoot-1) return true;
+        // Preserve the terminal crown while leaving two or three deterministic gaps
+        // among paired lateral leaves. Near and far call the same predicate, so a
+        // moving LOD transition cannot grow or lose a retained leaf.
+        return (shoot*7+leaf*5+variant*3)%8!=0;
+    }
+
     BushPoint SampleBushLeaf(const BushLeaf& leaf, float t, float side)
     {
         CheckCoordinate(t);

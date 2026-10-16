@@ -140,10 +140,32 @@ and no emulator/KVM. The APK is 24,456,059 bytes with SHA-256
 is 19,413,488 bytes. Wind-deformed normals, repeated canopy crowns and physical-device appearance
 remain open.
 
+## Deterministic paired-leaf gaps — 2026-10-16
+
+The renewed eye-height audit accepted the crooked supports, cupped/rolled leaves and pigment range
+but selected the repeated paired tiers: every shoot still carried every lateral position and the
+target read as three continuous horizontal rosettes. Each shoot now omits one deterministic
+lateral leaf at a differently rotated tier while always retaining its terminal crown leaf. The
+same presence predicate builds near and far meshes, so retained leaf identity, root, normal and
+wind phase remain exact across LOD.
+
+The three variants retain 40/48/56 leaves instead of 45/54/63. Their near inventories fall from
+915/1,098/1,281 vertices and 1,150/1,380/1,610 triangles to 830/996/1,162 vertices and
+1,050/1,260/1,470 triangles. Far inventories similarly fall to 570/684/798 vertices and
+550/660/770 triangles. The 569 placements, cells, buffers, textures, shader, wind, culling and draw
+counts do not increase.
+
+Inspected native baseline `20261016T081540.234939Z-bush` and accepted
+`20261016T082546.886647Z-bush` show open gaps between the retained asymmetric tiers and more visible
+supporting shoots without making the shrub sparse. The accepted frame passes at 257 colour bins,
+43.45 luminance deviation and 195.71 spatial contrast with an empty kernel delta. Focused
+Chrome/SwiftShader `20261016T082857.948662Z-chrome-bushes` passes 60 finite positive intervals,
+`glError=0`, a live context and kernel `[]`. Five focused native groups and all 96 browser/capture
+harness tests pass.
+
 ## Remaining visual work
 
 The later outline-continuity pass gives far leaves the complete near outline and equal projected
-coverage, but no invisible moving LOD transition is claimed. Shoot/leaf arrangements remain
-procedural and visibly patterned; more layering may be needed without blocking paths. Rest-shape
-normals do not follow full wind deformation. Physical GPU cost, sustained phone performance and
-the unresolved AMDGPU failure remain separate qualification requirements.
+coverage, but no invisible moving LOD transition is claimed. Rest-shape normals do not follow full
+wind deformation. Physical GPU cost, sustained phone performance and the unresolved AMDGPU failure
+remain separate qualification requirements.

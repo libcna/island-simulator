@@ -15,11 +15,15 @@ void TestBushProfile()
     };
     int samples=0;
     float minimumRoll=1,maximumRoll=-1;
+    std::array<int,3> retainedLeaves{};
     for (int variant=0;variant<3;++variant) for (int shoot=0;shoot<BushShootCount(variant);++shoot) {
         const auto stem=MakeBushShoot(variant,shoot);
         require(SampleBushShoot(stem,0)==BushPoint{0,0,0} && BushShootWind(0)==0,
             "Shrub shoot root is not grounded and anchored");
         for (int leafIndex=0;leafIndex<BushLeavesPerShoot;++leafIndex) {
+            if (BushLeafPresent(variant,shoot,leafIndex)) ++retainedLeaves[variant];
+            require(leafIndex!=BushLeavesPerShoot-1 || BushLeafPresent(variant,shoot,leafIndex),
+                "Shrub terminal crown leaf was omitted");
             const auto leaf=MakeBushLeaf(variant,shoot,leafIndex);
             minimumRoll=std::min(minimumRoll,leaf.roll);
             maximumRoll=std::max(maximumRoll,leaf.roll);
@@ -91,7 +95,9 @@ void TestBushProfile()
     }
     require(minimumRoll<-0.18f && maximumRoll>0.18f,
         "Shrub leaves do not break the horizontal shelf silhouette in both directions");
-    for (int field=0;field<11;++field) {
+    require(retainedLeaves==std::array<int,3>{40,48,56},
+        "Shrub sparse leaf-gap inventory changed");
+    for (int field=0;field<12;++field) {
         auto leaf=MakeBushLeaf(0,0,0);
         bool rejected=false;
         try {
@@ -107,6 +113,7 @@ void TestBushProfile()
             case 8: leaf.rootWind=2; (void)BushLeafWind(leaf,0); break;
             case 9: leaf.roll=1; (void)SampleBushLeaf(leaf,0.5f,0); break;
             case 10: (void)BushLeafNormal(leaf,std::numeric_limits<float>::infinity(),0); break;
+            case 11: (void)BushLeafPresent(0,0,9); break;
             }
         } catch (const std::invalid_argument&) { rejected=true; }
         require(rejected,"Invalid shrub geometry accepted");

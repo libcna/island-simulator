@@ -26,6 +26,7 @@ namespace island
     [[nodiscard]] int BushShootCount(int variant);
     [[nodiscard]] BushShoot MakeBushShoot(int variant, int shoot);
     [[nodiscard]] BushPoint SampleBushShoot(const BushShoot& shoot, float t);
+    [[nodiscard]] bool BushLeafPresent(int variant, int shoot, int leaf);
     [[nodiscard]] BushLeaf MakeBushLeaf(int variant, int shoot, int leaf);
     [[nodiscard]] BushPoint SampleBushLeaf(const BushLeaf& leaf, float t, float side);
     [[nodiscard]] BushPoint BushLeafNormal(const BushLeaf& leaf, float t, float side);

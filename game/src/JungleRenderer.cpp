@@ -1329,6 +1329,7 @@ void main()
                 FinishWoodNormals(geometry,stemBase,firstIndex,outwardDirections,true);
 
                 for (int leafIndex=0;leafIndex<BushLeavesPerShoot;++leafIndex) {
+                    if (!BushLeafPresent(variant,shootIndex,leafIndex)) continue;
                     const auto leaf=MakeBushLeaf(variant,shootIndex,leafIndex);
                     const auto base=static_cast<std::uint16_t>(geometry.vertices.size());
                     for (const auto& coordinate:leafCoordinates) {
@@ -1719,6 +1720,10 @@ void main()
             "island-simulator: shrubs use early radial spread, crooked shoots, independently rolled cupped leaves, and wider pigment variation";
         std::cout << bushFormDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(bushFormDiagnostic);
+        constexpr const char* bushGapDiagnostic =
+            "island-simulator: shrub variants retain terminal crowns and deterministic paired-leaf gaps across LOD";
+        std::cout << bushGapDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(bushGapDiagnostic);
         constexpr const char* materialDiagnostic =
             "island-simulator: leaf daylight contrast and stable tip pigment; footprint-filtered leaf and bark detail";
         std::cout << materialDiagnostic << '\n';

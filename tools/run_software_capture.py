@@ -1236,8 +1236,11 @@ def main():
                     raise RuntimeError("current coconut-crab inspection composition is missing")
                 if not re.search(r"coconut crabs [1-6]/6 visible in shared draw",diagnostics):
                     raise RuntimeError("coconut-crab capture did not submit a terrestrial animal")
-            if args.viewpoint == "bush" and "bush QA target variant 0 at player-eye detail distance" not in diagnostics:
-                raise RuntimeError("bush camera did not select the intended shrub")
+            if args.viewpoint == "bush":
+                if "bush QA target variant 0 at player-eye detail distance" not in diagnostics:
+                    raise RuntimeError("bush camera did not select the intended shrub")
+                if "shrub variants retain terminal crowns and deterministic paired-leaf gaps across LOD" not in diagnostics:
+                    raise RuntimeError("bush capture lacks current asymmetric leaf gaps")
             if args.viewpoint == "sapling":
                 if "sapling QA target variant=" not in diagnostics:
                     raise RuntimeError("sapling camera did not select a juvenile canopy tree")
