@@ -2064,6 +2064,8 @@ try {
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && jungleResult.output?.includes(
       "forest-floor litter includes two terrain-draped curved twigs in the shared near rosette mesh")
+    && jungleResult.output?.includes(
+      "near standing snag limbs emerge through flared open branch collars")
     && /jungle [1-9][0-9]*\/261 canopy \(near [1-9][0-9]*, far [0-9]+\), [0-9]+\/12 standing snags, [1-9][0-9]*\/1737 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/569 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/3087 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;

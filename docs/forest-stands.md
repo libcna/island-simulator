@@ -1,5 +1,28 @@
 # Forest stands, emergent trees, saplings and standing deadwood
 
+## Flared deadwood branch collars — 2026-10-16
+
+A renewed vegetation/terrain/water comparison selected the close standing snags. Their roots,
+bleached bark, irregular fracture caps and habitat were already sound, but each large broken limb
+still began as a narrow tube intersecting the trunk at a hard angle. This made the silhouettes
+look assembled rather than grown and storm-broken.
+
+Each near-LOD limb now starts with a short open-ended tapered collar. Its first broad ring is buried
+inside the trunk, then narrows into the existing bent limb without an internal fracture cap. Only
+the actual broken end retains pale exposed wood. The two near variants grow from 729 vertices /
+1,170 triangles to 939 / 1,530 each; far variants remain exactly 62/84 and 93/126. All twelve
+placements, the shared instanced draws, material, collision footprint and culling distances remain
+unchanged. Even an all-near worst case adds only 4,320 triangles across the twelve existing trees.
+
+Inspected native baseline `20261016T130936.255742Z-snags` and final evidence
+`20261016T131725.835873Z-snags` show the main fork and lower stub widening continuously into the
+trunk. The final image passes at 205 colour bins, 41.87 luminance deviation and 191.41 spatial
+contrast with an empty kernel delta. Inspected Chrome/SwiftShader evidence
+`20261016T132035.150848Z-chrome-snags` passes 60 finite positive intervals, GL error zero, a live
+context and no new kernel GPU fault. WebAssembly rebuilt; Android ARM64 assemble/lint passed
+against the locked Sharp Runtime copy, producing a 24,671,067-byte APK with a 19,628,496-byte
+`libmain.so`. No emulator or KVM was used.
+
 2026-10-10, from the macro-geography analysis items 7 and 8: the canopy was an even 14.5 m
 jittered lattice with mild cluster noise, so from above the forest read as a park of separate
 trees of one height.

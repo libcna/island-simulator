@@ -361,6 +361,22 @@ intervals, GL0, a live context and kernel `[]`. The wider
 `20261016T041449.453724Z-chrome-vegetation` attempt exceeded its multi-scene software timeout and
 is explicitly rejected. Details are in `docs/canopy-epiphytes.md`.
 
+## Latest vegetation structure pass — flared deadwood branch collars
+
+The next overview/vegetation comparison selected the standing storm snags: their major limbs still
+began as narrow cylinders intersecting a broad trunk at hard angles. Every near-LOD limb now starts
+inside the trunk through a short open-ended tapered collar and continues into the existing bent
+section; only the real broken tip receives the pale fracture cap. Each near variant grows from
+729 vertices / 1,170 triangles to 939 / 1,530, while both far variants, all twelve placements,
+instancing, draws, collision and culling remain unchanged.
+
+Inspected baseline `20261016T130936.255742Z-snags` and final native evidence
+`20261016T131725.835873Z-snags` show the widened continuous junctions. The final frame passes at
+205 colour bins, 41.87 luminance deviation, 191.41 spatial contrast and kernel `[]`. Inspected
+Chrome/SwiftShader `20261016T132035.150848Z-chrome-snags` passes 60 finite positive intervals,
+GL0, a live context and kernel `[]`. WebAssembly rebuilt and Android ARM64 assemble/lint passed
+against the locked dependency copy without emulator/KVM. Details are in `docs/forest-stands.md`.
+
 ## Latest underwater visual pass — living staghorn base and coral surface
 
 The water/reef comparison accepted the surface optics but selected the foreground staghorn's

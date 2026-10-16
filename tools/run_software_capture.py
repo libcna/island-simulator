@@ -675,6 +675,9 @@ def main():
                     raise RuntimeError("current stream-bank stone composition is missing")
                 if "stream terrain uses a compact incised profile and slope-limited exposed bank strata" not in diagnostics:
                     raise RuntimeError("current physical stream-bank terrain is missing")
+            if args.viewpoint == "snags":
+                if "near standing snag limbs emerge through flared open branch collars" not in diagnostics:
+                    raise RuntimeError("current standing-snag branch collars are missing")
             if args.viewpoint in ("hut", "hut-material"):
                 for marker in ("hut raised veranda uses full-height outer posts, split rails, fascia, and three steps",
                                "hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports",

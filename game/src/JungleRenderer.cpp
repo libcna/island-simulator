@@ -661,7 +661,8 @@ void main()
                                        const Vector3& end, const Vector3& bow,
                                        const float startRadius, const float endRadius,
                                        const Color& bark, const bool farMesh,
-                                       const float phase, const bool jaggedTip)
+                                       const float phase, const bool jaggedTip,
+                                       const bool endCap = true)
         {
             const int rings = farMesh ? 4 : 7;
             const int sides = farMesh ? 6 : 10;
@@ -714,6 +715,10 @@ void main()
             }
             FinishWoodNormals(geometry, base, firstIndex, outwardDirections, false);
 
+            // Internal collar sections continue into a following branch loft. Capping
+            // them would expose a pale fracture disc through the connected surface.
+            if (!endCap) return;
+
             // A pale, uneven fracture plane keeps the silhouette recognisably storm-broken
             // instead of reading as a pole whose crown failed to render.
             const Color fracture(171, 157, 128, 255);
@@ -761,30 +766,50 @@ void main()
                         variant == 0 ? .14f : .24f),
                 variant == 0 ? .52f : .58f, variant == 0 ? .28f : .30f,
                 bark, farMesh, .13f + .31f * variant, true);
-            AppendStandingSnagSection(geometry,
+            const auto appendBranch = [&](const Vector3& start, const Vector3& end,
+                                          const Vector3& bow, const float startRadius,
+                                          const float endRadius, const float phase) {
+                if (farMesh) {
+                    AppendStandingSnagSection(geometry, start, end, bow,
+                        startRadius, endRadius, bark, true, phase, true);
+                    return;
+                }
+                // A storm-broken limb grows through a broad branch collar rather than
+                // beginning as a narrow tube pasted onto the trunk. Keep the first
+                // collar ring inside the trunk and overlap its open end with the limb.
+                const Vector3 direction = Vector3::Normalize(end - start);
+                const float length = Vector3::Distance(start, end);
+                const Vector3 collarEnd = start + direction * std::min(.56f, length * .24f);
+                AppendStandingSnagSection(geometry, start - direction * .08f, collarEnd,
+                    bow * .22f, startRadius * 1.42f, startRadius * 1.08f,
+                    ShadeColor(bark, .96f), false, phase - .031f, false, false);
+                AppendStandingSnagSection(geometry, collarEnd, end, bow,
+                    startRadius * 1.08f, endRadius, bark, false, phase, true);
+            };
+            appendBranch(
                 Vector3(.08f, variant == 0 ? 5.0f : 4.35f, -.06f),
                 Vector3(variant == 0 ? 2.05f : -1.75f,
                         variant == 0 ? 7.15f : 6.25f,
                         variant == 0 ? .72f : 1.15f),
                 Vector3(0.0f, .12f, variant == 0 ? .18f : -.16f),
-                .25f, .12f, bark, farMesh, .51f + .11f * variant, true);
+                .25f, .12f, .51f + .11f * variant);
             if (!farMesh || variant == 1) {
-                AppendStandingSnagSection(geometry,
+                appendBranch(
                     Vector3(.14f, variant == 0 ? 7.15f : 5.85f, -.10f),
                     Vector3(variant == 0 ? -1.23f : 1.34f,
                             variant == 0 ? 8.38f : 7.35f,
                             variant == 0 ? 1.32f : -.86f),
                     Vector3(variant == 0 ? -.10f : .14f, .08f, .08f),
-                    .20f, .10f, bark, farMesh, .73f + .09f * variant, true);
+                    .20f, .10f, .73f + .09f * variant);
             }
             if (!farMesh) {
-                AppendStandingSnagSection(geometry,
+                appendBranch(
                     Vector3(.04f, variant == 0 ? 3.25f : 3.55f, -.03f),
                     Vector3(variant == 0 ? -.72f : .82f,
                             variant == 0 ? 4.04f : 4.38f,
                             variant == 0 ? -.82f : .56f),
                     Vector3(.05f, .04f, variant == 0 ? -.08f : .09f),
-                    .16f, .078f, bark, false, .34f + .17f * variant, true);
+                    .16f, .078f, .34f + .17f * variant);
 
                 // Dead trunks still retain broad structural roots. Four low, unequal spurs
                 // break the planted-pole base silhouette and visibly transfer weight into soil.
@@ -1688,6 +1713,10 @@ void main()
             + " standing dead/broken trunks with fracture caps, branch stubs and two-tier LOD";
         std::cout << snagDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(snagDiagnostic);
+        constexpr const char* snagCollarDiagnostic =
+            "island-simulator: near standing snag limbs emerge through flared open branch collars";
+        std::cout << snagCollarDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(snagCollarDiagnostic);
         constexpr const char* understoryProfileDiagnostic =
             "island-simulator: understory leaf identities share asymmetric posture and curled profiles across LOD";
         std::cout << understoryProfileDiagnostic << '\n';
