@@ -235,6 +235,22 @@ world/core/capture tests pass. Inspected Chrome/SwiftShader
 `20261016T055151.536764Z-chrome-goats` shows four distinct current-habitat frames and passes 60
 finite intervals, GL0, a live context and kernel `[]`. Details are in `docs/goats.md`.
 
+## Latest helicopter visual pass — closed swept empennage
+
+The next exterior audit selected the tail surfaces: the otherwise rounded aircraft still used a
+two-sided unsealed vertical fin and one constant-chord rectangular horizontal slab. The fin is now
+a closed 13 cm-thick swept and tapered volume. Separate left/right horizontal stabilizers carry
+broad buried roots, swept leading edges, narrower tips, tapered trailing edges and closed 7.5 cm
+sections. This adds 20 triangles, taking the complete helicopter from 5,628 to 5,648 triangles in
+the unchanged opaque/glass two draws; collision, access, interior and stationary state are intact.
+
+Five focused native groups and 41 browser/capture tests pass. Inspected native exterior
+`20261016T064228.467900Z-helicopter` passes at 312 colour bins, 54.43 luminance deviation, 232.22
+spatial contrast and kernel `[]`; independent interior guard
+`20261016T064338.573674Z-helicopter-inside` also passes. Inspected Chrome/SwiftShader
+`20261016T064457.307779Z-chrome-helicopter` passes exterior and interior with 60 finite positive
+intervals each, GL0, live contexts and kernel `[]`. Details are in `docs/helicopter.md`.
+
 ## Latest goat visual pass — surface nostrils and fitted mouth crease
 
 The unobstructed close audit selected the otherwise finished-looking goat muzzle as the next weak

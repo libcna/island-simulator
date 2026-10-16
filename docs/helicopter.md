@@ -453,3 +453,26 @@ focused native groups and all 41 browser/capture harness tests pass. Focused Chr
 each with 60 finite positive intervals, GL error zero, a live context and an empty kernel delta.
 An earlier simultaneous native exterior attempt failed before rendering with a host resource
 limit and is explicitly rejected; the accepted evidence was run serially.
+
+## Closed swept empennage — 2026-10-16
+
+The next exterior review selected the tail surfaces rather than reopening the already rounded
+cockpit and detailed cabin. The vertical fin was only two unsealed quads, while the supposedly
+tapered horizontal stabilizer was one constant-chord rectangle spanning through the boom. They
+read as intersecting cards next to the twelve-sided tail shell.
+
+The fin is now a closed 13 cm-thick swept volume with a tapered crown and trailing edge. Two
+separate horizontal stabilizers replace the through-boom slab; each has a broad root, swept leading
+edge, narrower tip, tapered trailing edge and a closed 7.5 cm section. Their roots remain buried in
+the existing boom, so no bright gap is exposed. The change adds 20 triangles, taking the complete
+aircraft from 5,628 to 5,648 triangles in the unchanged opaque/glass two draws. Placement, collision,
+four access corridors, interior, rotor state and non-flying contract are unchanged.
+
+Five focused native groups and all 41 browser/capture harness tests pass. Inspected native exterior
+`20261016T064228.467900Z-helicopter` passes at 1280x720 with 312 colour bins, 54.43 luminance
+deviation, 232.22 spatial contrast and kernel `[]`; the side-by-side tail crop shows the formerly
+flat fin and constant-chord slab replaced by the swept closed silhouettes. Independent interior
+guard `20261016T064338.573674Z-helicopter-inside` passes at 183/21.05/64.31 and retains the panel,
+controls, seats and exits. Inspected Chrome 155/SwiftShader
+`build/browser-software/20261016T064457.307779Z-chrome-helicopter` passes exterior and interior,
+each with 60 finite positive intervals, GL error zero, a live context and kernel `[]`.

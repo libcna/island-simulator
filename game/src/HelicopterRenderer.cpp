@@ -649,26 +649,32 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         beam({-halfWidth,1.53f+.39f*interpolation,z},
              {halfWidth,1.53f+.39f*interpolation,z},.022f,oliveDark);
     }
-    // Vertical fin and horizontal stabilizer.
-    quad({-.06f,1.82f,-6.35f},{-.06f,3.18f,-6.72f},{-.06f,1.93f,-6.94f},
-         {-.06f,1.62f,-6.18f},oliveLight);
-    quad({.06f,1.62f,-6.18f},{.06f,1.93f,-6.94f},{.06f,3.18f,-6.72f},
-         {.06f,1.82f,-6.35f},olive);
-    // A thin tapered stabilizer replaces the old rectangular slab. The swept tips
-    // remain broad enough to read from the authored exterior camera.
-    const std::array<Vector3,4> stabilizer{{
-        {-1.22f,1.73f,-5.57f},{-1.22f,1.73f,-5.30f},
-        { 1.22f,1.73f,-5.30f},{ 1.22f,1.73f,-5.57f}}};
-    const Vector3 stabilizerLift(0,.075f,0);
-    quad(stabilizer[0],stabilizer[1],stabilizer[2],stabilizer[3],oliveDark);
-    quad(stabilizer[3]+stabilizerLift,stabilizer[2]+stabilizerLift,
-         stabilizer[1]+stabilizerLift,stabilizer[0]+stabilizerLift,oliveLight);
-    for(int side=0;side<4;++side) {
-        const int next=(side+1)%4;
-        quad(stabilizer[static_cast<std::size_t>(side)],
-             stabilizer[static_cast<std::size_t>(side)]+stabilizerLift,
-             stabilizer[static_cast<std::size_t>(next)]+stabilizerLift,
-             stabilizer[static_cast<std::size_t>(next)],olive);
+    // Closed swept empennage replaces the old two-sided fin and rectangular
+    // stabilizer slab. Thickness, taper and separate left/right roots make the
+    // tail read as manufactured lifting surfaces rather than intersecting cards.
+    const std::array<Vector3,4> finPort{{{-.065f,1.62f,-6.12f},{-.065f,3.18f,-6.62f},
+        {-.065f,3.08f,-6.87f},{-.065f,1.80f,-6.98f}}};
+    const std::array<Vector3,4> finStarboard{{{.065f,1.62f,-6.12f},{.065f,3.18f,-6.62f},
+        {.065f,3.08f,-6.87f},{.065f,1.80f,-6.98f}}};
+    quad(finPort[0],finPort[1],finPort[2],finPort[3],oliveLight);
+    quad(finStarboard[3],finStarboard[2],finStarboard[1],finStarboard[0],olive);
+    for(std::size_t edge=0;edge<finPort.size();++edge) {
+        const std::size_t next=(edge+1U)%finPort.size();
+        quad(finPort[edge],finStarboard[edge],finStarboard[next],finPort[next],
+             edge==2?oliveDark:olive);
+    }
+    for(const float side:{-1.0f,1.0f}) {
+        const std::array<Vector3,4> lower{{{side*.20f,1.70f,-5.22f},
+            {side*1.28f,1.70f,-5.38f},{side*1.08f,1.70f,-5.72f},
+            {side*.20f,1.70f,-5.63f}}};
+        const Vector3 lift(0,.075f,0);
+        quad(lower[0],lower[1],lower[2],lower[3],oliveDark);
+        quad(lower[3]+lift,lower[2]+lift,lower[1]+lift,lower[0]+lift,oliveLight);
+        for(std::size_t edge=0;edge<lower.size();++edge) {
+            const std::size_t next=(edge+1U)%lower.size();
+            quad(lower[edge],lower[edge]+lift,lower[next]+lift,lower[next],
+                 edge==1?oliveDark:olive);
+        }
     }
     // The anti-torque rotor turns about the lateral shaft, so its disc belongs in
     // the Y/Z plane. The former X/Y cross was effectively a front-facing propeller:
@@ -898,6 +904,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<bladeSection<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bladeSection);
     const std::string tailRotorShape="island-simulator: lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands";
     std::cout<<tailRotorShape<<'\n';MirrorRuntimeDiagnosticToPlatformLog(tailRotorShape);
+    const std::string empennage="island-simulator: helicopter empennage uses a closed swept vertical fin and separate tapered horizontal stabilizers";
+    std::cout<<empennage<<'\n';MirrorRuntimeDiagnosticToPlatformLog(empennage);
     const std::string entrySteps="island-simulator: helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs";
     std::cout<<entrySteps<<'\n';MirrorRuntimeDiagnosticToPlatformLog(entrySteps);
     const std::string seating="island-simulator: helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench";

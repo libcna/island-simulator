@@ -155,6 +155,7 @@ def validate_helicopter_report(report):
             or "parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep" not in log
             or "parked main rotor uses closed cambered airfoil sections with fine leading and trailing edges" not in log
             or "lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands" not in log
+            or "helicopter empennage uses a closed swept vertical fin and separate tapered horizontal stabilizers" not in log
             or "helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs" not in log
             or "helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench" not in log
             or "helicopter rotor mast uses concentric tubular shafts, a flattened round swashplate, and a rounded gearbox housing" not in log
