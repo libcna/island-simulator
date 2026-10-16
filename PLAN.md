@@ -235,6 +235,24 @@ world/core/capture tests pass. Inspected Chrome/SwiftShader
 `20261016T055151.536764Z-chrome-goats` shows four distinct current-habitat frames and passes 60
 finite intervals, GL0, a live context and kernel `[]`. Details are in `docs/goats.md`.
 
+## Latest helicopter visual pass — cambered main-rotor sections
+
+The refreshed exterior/interior audit accepted the cabin, glazing and rotor mechanism but selected
+the main blades' eye-level silhouette: their tapered planform still used uniformly thick rectangular
+sections and collapsed into nearly black bars against the sky. Every retained blade span now uses
+a closed four-point cambered section with a fine leading edge, maximum depth ahead of mid-chord and
+a fine slightly lowered trailing edge. It reuses the same six faces per span, leaving the complete
+aircraft at 5,628 triangles and two opaque/glass draws. Radius, droop, sweep, chord taper, yellow
+tips, stationary state, collision and four entry routes remain unchanged.
+
+Same-camera native baseline `20261016T060711.582268Z-helicopter` and accepted
+`20261016T061143.083663Z-helicopter` were inspected side by side; the accepted rotor is thinner and
+less bar-like while retaining its parked weight. It passes at 312 colour bins, 54.47 luminance
+deviation, 232.22 spatial contrast and kernel `[]`; the independent interior guard remains intact.
+Four focused native groups and 41 browser/capture tests pass. Inspected Chrome/SwiftShader
+`20261016T061744.329555Z-chrome-helicopter` passes exterior and interior with 60 finite intervals
+each, GL0, live contexts and kernel `[]`. Details are in `docs/helicopter.md`.
+
 The current Firefox qualification exposed a real beach-start regression rather than a renderer
 failure: the relocated firewood collision sat 1.73 m ahead of the old `(0,-225)` start and rejected
 forward movement. The player now starts at `(4,-225)` inside the unchanged 17 m reserved beach

@@ -697,6 +697,7 @@ def main():
                                "helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen",
                                "helicopter divided windscreen carries paired articulated parked wipers and restrained translucent sky glints",
                                "parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep",
+                               "parked main rotor uses closed cambered airfoil sections with fine leading and trailing edges",
                                "lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands",
                                "helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs",
                                "helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench",

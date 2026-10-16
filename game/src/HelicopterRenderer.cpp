@@ -777,19 +777,33 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
             const float innerHalf,const float outerHalf,const float innerFraction,
             const float outerFraction,const Color& upper,const Color& lower) {
             constexpr float halfDepth=.034f;
-            const Vector3 lift(0,halfDepth,0);
             const Vector3 inner=bladePoint(innerDistance,innerFraction);
             const Vector3 outer=bladePoint(outerDistance,outerFraction);
-            const std::array<Vector3,4> outline{{inner-perpendicular*innerHalf,
-                outer-perpendicular*outerHalf,outer+perpendicular*outerHalf,
-                inner+perpendicular*innerHalf}};
-            quad(outline[0]+lift,outline[1]+lift,outline[2]+lift,outline[3]+lift,upper);
-            quad(outline[3]-lift,outline[2]-lift,outline[1]-lift,outline[0]-lift,lower);
-            for(std::size_t edge=0;edge<outline.size();++edge) {
-                const std::size_t next=(edge+1U)%outline.size();
-                quad(outline[edge]-lift,outline[next]-lift,outline[next]+lift,
-                     outline[edge]+lift,edge==1U?Color(31,34,32):Color(43,47,43));
-            }
+            const Vector3 lift(0,halfDepth,0);
+            // A four-point cambered section replaces the old rectangular slab.
+            // Leading and trailing edges close to a line while the maximum depth
+            // sits ahead of mid-chord, so an eye-level broadside reads as a thin
+            // parked airfoil rather than a uniformly black bar.
+            const std::array<Vector3,4> innerSection{{
+                inner-perpendicular*innerHalf,
+                inner-perpendicular*(innerHalf*.18f)+lift,
+                inner+perpendicular*innerHalf-Vector3(0,.004f,0),
+                inner-perpendicular*(innerHalf*.18f)-lift}};
+            const std::array<Vector3,4> outerSection{{
+                outer-perpendicular*outerHalf,
+                outer-perpendicular*(outerHalf*.18f)+lift,
+                outer+perpendicular*outerHalf-Vector3(0,.004f,0),
+                outer-perpendicular*(outerHalf*.18f)-lift}};
+            quad(innerSection[0],outerSection[0],outerSection[1],innerSection[1],
+                 ScaleColor(upper,.94f));
+            quad(innerSection[1],outerSection[1],outerSection[2],innerSection[2],upper);
+            quad(innerSection[2],outerSection[2],outerSection[3],innerSection[3],lower);
+            quad(innerSection[3],outerSection[3],outerSection[0],innerSection[0],
+                 ScaleColor(lower,1.12f));
+            quad(innerSection[3],innerSection[2],innerSection[1],innerSection[0],
+                 Color(61,65,60));
+            quad(outerSection[0],outerSection[1],outerSection[2],outerSection[3],
+                 Color(67,70,63));
         };
         const float tipStart=HelicopterLayout::MainRotorRadius-.28f;
         const float tipFraction=(tipStart-.48f)/(HelicopterLayout::MainRotorRadius-.48f);
@@ -880,6 +894,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<glazingDetail<<'\n';MirrorRuntimeDiagnosticToPlatformLog(glazingDetail);
     const std::string bladeShape="island-simulator: parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep";
     std::cout<<bladeShape<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bladeShape);
+    const std::string bladeSection="island-simulator: parked main rotor uses closed cambered airfoil sections with fine leading and trailing edges";
+    std::cout<<bladeSection<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bladeSection);
     const std::string tailRotorShape="island-simulator: lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands";
     std::cout<<tailRotorShape<<'\n';MirrorRuntimeDiagnosticToPlatformLog(tailRotorShape);
     const std::string entrySteps="island-simulator: helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs";

@@ -841,6 +841,7 @@ try {
               && log.includes("helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen")
               && log.includes("helicopter divided windscreen carries paired articulated parked wipers and restrained translucent sky glints")
               && log.includes("parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep")
+              && log.includes("parked main rotor uses closed cambered airfoil sections with fine leading and trailing edges")
               && log.includes("lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands")
               && log.includes("helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs")
               && log.includes("helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench")

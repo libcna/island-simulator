@@ -427,3 +427,29 @@ contrast with an empty kernel delta. Native and Web gates pin the new step diagn
 Chrome/SwiftShader evidence `20261015T204303.400351Z-chrome-helicopter` passes exterior and
 interior with 60 finite intervals each, both inspected frames, GL error zero, live contexts and an
 empty final kernel delta. Android qualification remains grouped with integration.
+
+## Cambered main-rotor airfoil — 2026-10-16
+
+The current exterior/interior audit accepted the cabin, glazing, controls, doors, skids and rotor
+mechanism, but selected the main blades' eye-level section as the weakest remaining silhouette.
+Although their planform already tapered, swept and drooped, every section was a uniformly thick
+rectangular prism. Against the sky, the four parked blades therefore collapsed into long nearly
+black bars.
+
+Each existing span now uses a closed four-point airfoil section: a fine leading edge, maximum
+depth ahead of mid-chord, a fine slightly lowered trailing edge and a restrained lower crown.
+These sections are joined by the same six closed faces as the former box, so the complete aircraft
+remains exactly 5,628 triangles in the same opaque/glass two draws. Rotor radius, three-span
+droop, chord taper, swept centreline, yellow tips, stationary state, collision, site clearance and
+all four cabin entries are unchanged.
+
+Same-camera native baseline `20261016T060711.582268Z-helicopter` and accepted
+`20261016T061143.083663Z-helicopter` were inspected side by side. The accepted blade reads thinner
+and separates from the sky without losing its parked weight; it passes at 312 colour bins, 54.47
+luminance deviation and 232.22 spatial contrast with an empty kernel delta. Interior guard
+`20261016T060639.827868Z-helicopter-inside` retains the panel, controls, seats and open exits. Four
+focused native groups and all 41 browser/capture harness tests pass. Focused Chrome 155/SwiftShader
+`build/browser-software/20261016T061744.329555Z-chrome-helicopter` passes both inspected views,
+each with 60 finite positive intervals, GL error zero, a live context and an empty kernel delta.
+An earlier simultaneous native exterior attempt failed before rendering with a host resource
+limit and is explicitly rejected; the accepted evidence was run serially.
