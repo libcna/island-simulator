@@ -1093,6 +1093,8 @@ def main():
                     raise RuntimeError("current crab shell anatomy is missing; check for a stale executable")
                 if "near crab carapaces close around a shallow dark underside instead of ending at an open rim" not in diagnostics:
                     raise RuntimeError("current crab shell underside is missing; check for a stale executable")
+                if "near beach crabs use rounded claw palms and solid tapered forearms" not in diagnostics:
+                    raise RuntimeError("current crab claw anatomy is missing; check for a stale executable")
                 if "crab QA camera frames a debris-linked burrow and its foraging colony" not in diagnostics:
                     raise RuntimeError("current crab inspection composition is missing; check for a stale executable")
                 if "live beach crabs keep 0.72m centre separation while foraging" not in diagnostics:

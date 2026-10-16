@@ -36,13 +36,13 @@ namespace island
         constexpr float NearLodDistance = 38.0f;
         constexpr float TwoPi = 2.0f * std::numbers::pi_v<float>;
         constexpr int CarapaceSegments = 18;
-        constexpr int NearCrabVertexCount = 1392;
+        constexpr int NearCrabVertexCount = 1560;
         constexpr int FarCrabVertexCount = 12;
         constexpr int MaximumVerticesPerCrab = NearCrabVertexCount;
         constexpr int MaximumBurrowVertices = 1024;
         constexpr int MaximumHermitCrabVertices =
             static_cast<int>(HermitCrabGroup::Count) * 1024;
-        constexpr int CoconutCrabVertexCount = 2592;
+        constexpr int CoconutCrabVertexCount = 2616;
         constexpr int MaximumCoconutCrabVertices =
             static_cast<int>(CoconutCrabGroup::Count) * CoconutCrabVertexCount;
         constexpr int MaximumVertexCount = static_cast<int>(CrabColony::CrabCount)
@@ -60,6 +60,8 @@ namespace island
             "island-simulator: near crabs use low broad shells with retained lateral carapace corners";
         constexpr std::string_view CrabUndersideDiagnostic =
             "island-simulator: near crab carapaces close around a shallow dark underside instead of ending at an open rim";
+        constexpr std::string_view CrabClawDiagnostic =
+            "island-simulator: near beach crabs use rounded claw palms and solid tapered forearms";
         constexpr std::string_view CrabHabitatDiagnostic =
             "island-simulator: six debris-linked crab colonies share visible sand burrows";
         constexpr std::string_view CrabSpacingDiagnostic =
@@ -264,6 +266,35 @@ namespace island
             AddTriangle(vertices, bottom, back, rightPoint, sideColor);
             AddTriangle(vertices, bottom, left, back, sideColor);
             AddTriangle(vertices, bottom, front, left, sideColor);
+        }
+
+        void AppendRoundedCrabPalm(std::vector<VertexPositionColor>& vertices,
+                                   const Vector3& centre, const Vector3& right,
+                                   const Vector3& up, const Vector3& forward,
+                                   const float halfX, const float halfY,
+                                   const float halfZ, const Color& topColor,
+                                   const Color& sideColor)
+        {
+            constexpr int Segments = 8;
+            const Vector3 top = centre + up * halfY;
+            const Vector3 bottom = centre - up * halfY;
+            const auto ringPoint = [&](const float height, const int segment) {
+                const float angle = TwoPi * static_cast<float>(segment)
+                    / static_cast<float>(Segments);
+                return centre + right * (std::cos(angle) * halfX * .89f)
+                    + forward * (std::sin(angle) * halfZ * .89f)
+                    + up * (height * halfY);
+            };
+            for (int segment = 0; segment < Segments; ++segment) {
+                const int next = (segment + 1) % Segments;
+                const Vector3 upper = ringPoint(.45f, segment);
+                const Vector3 upperNext = ringPoint(.45f, next);
+                const Vector3 lower = ringPoint(-.45f, segment);
+                const Vector3 lowerNext = ringPoint(-.45f, next);
+                AddTriangle(vertices, top, upperNext, upper, topColor);
+                AddQuad(vertices, upper, upperNext, lowerNext, lower, sideColor);
+                AddTriangle(vertices, bottom, lower, lowerNext, sideColor);
+            }
         }
 
         void AppendRoundedCoconutPalm(std::vector<VertexPositionColor>& vertices,
@@ -623,8 +654,9 @@ namespace island
                     centre, right, up, forward, side * 0.24f, 0.11f, 0.16f, scale);
                 const Vector3 clawJoint = LocalPoint(
                     centre, right, up, forward, side * 0.40f, 0.13f, 0.28f, scale);
-                AppendCrossedSegment(vertices, clawRoot, clawJoint, 0.027f * scale,
-                                     palette.limb);
+                AppendTaperedLimbSegment(vertices, clawRoot, clawJoint,
+                                         0.032f * scale, 0.024f * scale,
+                                         palette.limb);
                 const Vector3 palm = LocalPoint(
                     centre, right, up, forward, side * 0.49f, 0.15f, 0.350f, scale);
                 if (useRoundedUnequalPalms) {
@@ -635,9 +667,10 @@ namespace island
                         (side > 0.0f ? .140f : .122f) * scale,
                         palette.claw, palette.shellSide);
                 } else {
-                    AppendOctahedron(vertices, palm, right, up, forward,
-                                     .105f * scale, .075f * scale, .110f * scale,
-                                     palette.claw, palette.shellSide);
+                    AppendRoundedCrabPalm(vertices, palm, right, up, forward,
+                                          .105f * scale, .075f * scale,
+                                          .110f * scale, palette.claw,
+                                          palette.shellSide);
                 }
                 const Vector3 outerTip = LocalPoint(
                     centre, right, up, forward, side * (0.46f + clawSpread),
@@ -899,6 +932,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(CrabAnatomyDiagnostic);
         std::cout << CrabUndersideDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CrabUndersideDiagnostic);
+        std::cout << CrabClawDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(CrabClawDiagnostic);
         std::cout << CrabHabitatDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CrabHabitatDiagnostic);
         std::cout << CrabSpacingDiagnostic << '\n';

@@ -284,6 +284,24 @@ deviation, 167.05 spatial contrast and kernel `[]`. Inspected Chrome/SwiftShader
 `20261016T073448.696330Z-chrome-bear` supplies two distinct frames and passes 60 finite positive
 intervals, GL0, a live context and kernel `[]`. Details are in `docs/bear.md`.
 
+## Latest beach-crab visual pass — rounded palms and solid forearms
+
+The current beach-colony audit accepted the low broad closed shell and planted three-segment legs
+but selected the front anatomy: angular octahedral claw palms hung from two crossing cards and read
+as small blocks on hairline arms. Both near claws now have closed eight-sided, two-ring rounded
+palms and solid tapered four-sided forearms. Existing separated prismatic fingers, eyes, shell,
+motion, habitat and one shared draw remain intact.
+
+The near tier rises by 168 vertices / 56 triangles from 1,392/464 to 1,560/520; the conservative
+all-thirty-near allocation is 748,800 bytes. Coconut crabs already had their larger rounded palms
+and gain only 24 shared forearm vertices, reaching 2,616. Four focused native groups and all 41
+browser/capture tests pass. Inspected native baseline `20261016T074248.576496Z-crabs` and accepted
+`20261016T074713.827371Z-crabs` show fuller readable claws; the accepted frame passes at 269 colour
+bins, 43.15 luminance deviation, 226.15 spatial contrast and kernel `[]`. Independent coconut
+guard `20261016T074817.989508Z-coconut-crabs` passes. Inspected Chrome/SwiftShader
+`20261016T074950.010484Z-chrome-crabs` supplies two distinct moving frames and passes 60 finite
+positive intervals, GL0, a live context and kernel `[]`. Details are in `docs/crab-form.md`.
+
 ## Latest terrain overview pass — second far-silhouette material fade
 
 The renewed current overview found that the previous 0.30 aerial endpoints still became repeated

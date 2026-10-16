@@ -1,5 +1,28 @@
 # Beach-crab form pass
 
+## Rounded claw palms and solid forearms (2026-10-16)
+
+The renewed beach-colony audit accepted the low broad closed carapace and three-segment walking
+legs but found that the front silhouette still ended in angular octahedral palms attached by two
+crossing cards. From ordinary player height those parts looked like small blocks and hairlines.
+Each near beach crab now uses a closed eight-sided, two-ring rounded palm for both claws and a
+solid tapered four-sided forearm. The separated prismatic pincer fingers, low shell, eyes, mouth,
+motion and habitat remain unchanged.
+
+This adds 168 vertices / 56 triangles per near beach crab, taking the tier from 1,392/464 to
+1,560/520. The conservative all-thirty-near allocation grows by 80,640 bytes to 748,800 bytes.
+Coconut crabs already used their more detailed rounded palms; only their shared solid forearms add
+24 vertices, taking them from 2,592 to 2,616. All beach and coconut agents still share the same
+single culled dynamic draw and add no texture, shader or simulation work.
+
+Inspected native baseline `20261016T074248.576496Z-crabs` and accepted
+`20261016T074713.827371Z-crabs` show fuller, more recognisable front claws; the accepted frame
+passes at 269 colour bins, 43.15 luminance deviation and 226.15 spatial contrast with an empty
+kernel delta. Independent coconut guard `20261016T074817.989508Z-coconut-crabs` also passes.
+Inspected Chrome/SwiftShader `20261016T074950.010484Z-chrome-crabs` supplies two distinct moving
+frames and passes 60 finite positive intervals, `glError=0`, a live context and kernel `[]`.
+Four focused native groups and all 41 browser/capture harness tests pass.
+
 ## Scope
 
 This 2026-10-12 pass addresses the explicit request to improve the visual form of the

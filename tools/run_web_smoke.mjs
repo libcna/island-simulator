@@ -879,6 +879,7 @@ try {
               && log.includes("near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs")
               && log.includes("near crabs use low broad shells with retained lateral carapace corners")
               && log.includes("near crab carapaces close around a shallow dark underside instead of ending at an open rim")
+              && log.includes("near beach crabs use rounded claw palms and solid tapered forearms")
               && log.includes("six debris-linked crab colonies share visible sand burrows")
               && log.includes("live beach crabs keep 0.72m centre separation while foraging")
               && log.includes("crab QA camera frames a debris-linked burrow and its foraging colony")

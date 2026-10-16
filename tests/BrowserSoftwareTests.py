@@ -511,6 +511,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         anatomy = "near crabs use low broad shells with retained lateral carapace corners"
         underside = ("near crab carapaces close around a shallow dark underside instead of "
                      "ending at an open rim")
+        claws = "near beach crabs use rounded claw palms and solid tapered forearms"
         habitat = "six debris-linked crab colonies share visible sand burrows"
         spacing = "live beach crabs keep 0.72m centre separation while foraging"
         camera = "crab QA camera frames a debris-linked burrow and its foraging colony"
@@ -520,7 +521,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                 "screenshot": "crabs.png", "afterSimulationScreenshot": "crabs-after.png",
                 "intervals": [16.7] * 60,
                 "result": {"output": marker + "\n" + silhouette + "\n" + surface + "\n" + anatomy
-                    + "\n" + underside + "\n" + habitat + "\n" + spacing + "\n" + camera
+                    + "\n" + underside + "\n" + claws + "\n" + habitat + "\n" + spacing + "\n" + camera
                     + "\ncrab QA subject 28 is 1.28294m from the burrow"
                     + "\ncrabs 5/30 visible (near 5, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_crab_report(report()), ("crabs.png", "crabs-after.png"))
@@ -535,6 +536,11 @@ class BrowserSoftwareTests(unittest.TestCase):
             lambda value: value["views"][0]["result"].update(output=marker + "\n" + silhouette
                 + "\n" + surface + "\n" + anatomy + "\n" + habitat + "\n" + spacing
                 + "\n" + camera + "\ncrab QA subject 28 is 1.28294m from the burrow"
+                + "\ncrabs 5/30 visible (near 5, far 0), 1 draw"),
+            lambda value: value["views"][0]["result"].update(output=marker + "\n" + silhouette
+                + "\n" + surface + "\n" + anatomy + "\n" + underside + "\n" + habitat
+                + "\n" + spacing + "\n" + camera
+                + "\ncrab QA subject 28 is 1.28294m from the burrow"
                 + "\ncrabs 5/30 visible (near 5, far 0), 1 draw"),
             lambda value: value["views"][0]["result"].update(output=marker + "\n" + silhouette
                 + "\ncrabs 0/30 visible (near 0, far 0), 0 draw"),
