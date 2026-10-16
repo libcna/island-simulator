@@ -16410,6 +16410,25 @@ Existing observation and qualification queue:
   SHA-256 `a529ed7281da08529785542ce6d8fe9a60edebf508517b7c86780a690e7bcaea`; stripped
   `libmain.so` is 19,701,832 bytes.
 
+### 2026-10-16 — Recessed monkey eyes and integrated brow
+
+- The renewed close audit found the remaining toy-like face cues: corneas and fixed-depth
+  catchlights floated in front of the socket, while separate supraorbital ellipsoids looked like
+  pasted-on bars. Corneas are now 5.5 mm deeper and 4 mm shallower, catchlights follow the actual
+  eye surface, and the continuous sampled face supplies the brow relief.
+- Removing the redundant brow pieces saves 132 close-face vertices and 200 triangles. The near
+  three-draw path, fourteen-bone skinning, seven agents, gait, climbing, attention and far LOD are
+  unchanged. The QA-only camera now exposes a useful close front-quarter view from the open side
+  of the route.
+- Native evidence `20261016T194447.265115Z-monkeys` passes and was inspected. The focused Chrome/
+  SwiftShader payload `20261016T195323.351936Z-chrome-monkeys` also records `passed: true`, 60
+  positive finite intervals, GL0, a live context and complete motion frames; its outer launcher
+  hit the 420-second limit immediately after writing the complete result, so no full launcher pass
+  is claimed. Core, monkey-gait and all 103 browser/capture harness tests pass.
+- Android ARM64 assemble/lint passes without emulator or KVM. The APK is 24,744,227 bytes with
+  SHA-256 `dff773f6cfdf78aada01ce42b388733e66b460caf95d465386247bb3928cf990`; stripped
+  `libmain.so` is 19,701,656 bytes.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.

@@ -141,8 +141,10 @@ try {
     Require(face::Rows[7].front > face::Rows[4].front, "muzzle projects beyond orbital plane");
     Require(face::Rows[7].front<.650f&&face::Rows[4].front<.630f,
         "monkey face regained a long rodent-like forward projection");
-    Require(face::EyeCentreZ>.620f&&face::EyeRadiusX>=.019f,
-        "close monkey corneas remain readable above the face surface");
+    Require(face::EyeCentreZ>=.619f&&face::EyeCentreZ<.621f
+            &&face::EyeRadiusX>=.017f&&face::EyeRadiusX<.019f
+            &&face::EyeRadiusY<=.0095f&&face::EyeRadiusZ<=.007f,
+        "close monkey eyes retain the compact recessed primate profile");
     Require(face::NoseRadii.x>=.023f&&face::NoseRadii.y>=.012f
             &&face::NoseCentre.z+face::NoseRadii.z>.665f,
         "fitted low-profile nose pad remains visible on the short muzzle");

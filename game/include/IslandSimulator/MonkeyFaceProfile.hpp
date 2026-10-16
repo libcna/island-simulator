@@ -21,8 +21,8 @@ namespace island::MonkeyFaceProfile
     inline constexpr Point EarRadii{.034f,.043f,.018f};
     inline constexpr Point InnerEarCentre{.146f,.855f,.467f};
     inline constexpr Point InnerEarRadii{.025f,.032f,.013f};
-    inline constexpr float EyeCentreX=.049f,EyeCentreY=.880f,EyeCentreZ=.625f;
-    inline constexpr float EyeRadiusX=.020f,EyeRadiusY=.012f,EyeRadiusZ=.013f;
+    inline constexpr float EyeCentreX=.046f,EyeCentreY=.880f,EyeCentreZ=.6195f;
+    inline constexpr float EyeRadiusX=.0175f,EyeRadiusY=.009f,EyeRadiusZ=.0065f;
     inline constexpr Point MuzzlePadCentre{.026f,.797f,.647f};
     inline constexpr Point MuzzlePadRadii{.039f,.030f,.015f};
     inline constexpr Point NoseCentre{0,.817f,.657f};
@@ -35,7 +35,7 @@ namespace island::MonkeyFaceProfile
     }
     inline float Orbit(float x,float y)
     {
-        return Bump(std::abs(x),EyeCentreX,.034f)*Bump(y,EyeCentreY,.038f);
+        return Bump(std::abs(x),EyeCentreX,.030f)*Bump(y,EyeCentreY,.034f);
     }
     inline float Relief(float x,float y)
     {
@@ -52,9 +52,9 @@ namespace island::MonkeyFaceProfile
     {
         t=std::clamp(t,-.92f,.92f);
         const float arc=std::sqrt(std::max(0.0f,1-t*t));
-        const float extent=upper ? (outer ? .016f : .007f)
-                                 : (outer ? .012f : .006f);
-        return {side*EyeCentreX+t*.025f,EyeCentreY+(upper ? extent : -extent)*arc,
+        const float extent=upper ? (outer ? .013f : .0058f)
+                                 : (outer ? .010f : .0048f);
+        return {side*EyeCentreX+t*.021f,EyeCentreY+(upper ? extent : -extent)*arc,
             .6190f+.0015f*(1-t*t)+(outer ? 0.0f : .0005f)};
     }
     inline Point Sample(std::size_t row, float across)

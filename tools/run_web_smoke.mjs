@@ -1178,8 +1178,9 @@ try {
             && log.includes("monkeys receive footprint-averaged canopy light through 14-bone skinning")
             && log.includes("monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes")
             && log.includes("monkey fur uses one hidden underside/rear UV seam instead of mirrored crown and dorsal folds")
-            && log.includes("near monkey faces use fitted sculpted supraorbital ridges and warmer modelled skin")
+            && log.includes("near monkey faces use integrated sculpted supraorbital relief and warmer modelled skin")
             && log.includes("near monkey faces use a fitted dark nose pad and raised readable corneas")
+            && log.includes("near monkey eyes use compact recessed corneas, fitted short lids, and bilateral inner catchlights")
             && log.includes("near monkeys use a compact forward-set cranium, reduced cheek ruffs, and fitted ears")
             && log.includes("monkey shoulder and hip mantles blend the trunk into all four animated limbs")
             // Curved leaf budgets are unchanged; flared trunks, rounded buttresses and six-sided branches.
@@ -1426,9 +1427,11 @@ try {
     && result.output?.includes(
       "island-simulator: near monkey faces use paired fur cheek ruffs around the skin mask")
     && result.output?.includes(
-      "island-simulator: near monkey faces use fitted sculpted supraorbital ridges and warmer modelled skin")
+      "island-simulator: near monkey faces use integrated sculpted supraorbital relief and warmer modelled skin")
     && result.output?.includes(
       "island-simulator: near monkey faces use a fitted dark nose pad and raised readable corneas")
+    && result.output?.includes(
+      "island-simulator: near monkey eyes use compact recessed corneas, fitted short lids, and bilateral inner catchlights")
     && result.output?.includes(
       "island-simulator: monkey face skin uses muted brown palettes and a recessed perimeter shade")
     && result.output?.includes(
@@ -2770,9 +2773,11 @@ try {
     && monkeyResult.output?.includes(
       "island-simulator: near monkey faces use paired fur cheek ruffs around the skin mask")
     && monkeyResult.output?.includes(
-      "island-simulator: near monkey faces use fitted sculpted supraorbital ridges and warmer modelled skin")
+      "island-simulator: near monkey faces use integrated sculpted supraorbital relief and warmer modelled skin")
     && monkeyResult.output?.includes(
       "island-simulator: near monkey faces use a fitted dark nose pad and raised readable corneas")
+    && monkeyResult.output?.includes(
+      "island-simulator: near monkey eyes use compact recessed corneas, fitted short lids, and bilateral inner catchlights")
     && monkeyResult.output?.includes(
       "island-simulator: monkey face skin uses muted brown palettes and a recessed perimeter shade")
     && monkeyResult.output?.includes(

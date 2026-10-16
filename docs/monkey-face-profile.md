@@ -1,5 +1,36 @@
 # Connected monkey face profile — native first pass
 
+## 2026-10-16 recessed eyes and integrated brow
+
+The next close animal audit found that the reduced corneas were still mounted too far in front of
+the socket surface. Their catchlights used a fixed depth farther forward again, and the two
+separate supraorbital ellipsoids read as pasted-on bars in the actual front-quarter frame. The
+accepted face moves each cornea 5.5 mm inward, reduces its depth from 10.5 to 6.5 mm and derives
+the catchlight depth from the cornea itself. The redundant brow ellipsoids are removed; the
+existing bilateral relief in the continuous twelve-row facial surface now supplies the brow.
+This removes 132 vertices and 200 triangles from the shared close face buffer without changing
+the three-draw near path, head bone, palettes, gait, climbing, attention, seven-agent population
+or far LOD.
+
+The deterministic monkey QA view now uses the open side of its route and presents a close
+front-quarter face instead of repeatedly hiding it behind the selected tree. This affects QA only,
+not the player camera or simulation. Native evidence
+`build-consumer/software-captures/20261016T194447.265115Z-monkeys` passes at 1280x720 with 125
+colour bins, 23.45 luminance deviation and 137.15 spatial contrast; the visible side of the face
+retains a seated cornea and has no detached brow bar. The stronger visual evidence is the inspected
+initial and four motion frames in
+`build/browser-software/20261016T195323.351936Z-chrome-monkeys`: the browser payload records
+`passed: true`, 60 positive finite intervals, GL error zero, a live context, the shaded-monkey
+path and no target-close timeout. The outer launcher reached its 420-second limit while cleaning
+up just after writing that complete result, so this is recorded as a passed WebGL payload with a
+launcher timeout, not an unqualified end-to-end launcher pass.
+
+`IslandMonkeyGroundGaitTests`, `IslandCoreTests` and all 103 browser/capture harness tests pass.
+Android ARM64 assemble/lint passes through the two-worker wrapper without emulator or KVM. The APK
+is 24,744,227 bytes with SHA-256
+`dff773f6cfdf78aada01ce42b388733e66b460caf95d465386247bb3928cf990`; stripped `libmain.so` is
+19,701,656 bytes. Physical-device appearance remains unqualified.
+
 ## 2026-10-16 compact forward-set cranium
 
 The renewed monkey/spider/goat comparison selected the monkey again. Its face details, fur,

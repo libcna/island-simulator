@@ -766,16 +766,8 @@ namespace island
                              Vector3(MonkeyFaceProfile::InnerEarRadii.x,
                                      MonkeyFaceProfile::InnerEarRadii.y,
                                      MonkeyFaceProfile::InnerEarRadii.z), Head, 5, 10);
-            // Shallow skin-coloured supraorbital ridges overlap the sampled brow plane.
-            // The embedded backs keep them continuous with the face instead of reading as
-            // separate dark eyebrow capsules in a front-quarter view.
-            for (float side : {-1.0f, 1.0f}) {
-                const std::size_t browStart = mesh.vertices.size();
-                AddEllipsoid(mesh, Vector3(side*.043f,.912f,.634f),
-                             Vector3(.034f,.0065f,.0055f), Head, 5, 10);
-                for (std::size_t vertex = browStart; vertex < mesh.vertices.size(); ++vertex)
-                    mesh.vertices[vertex].TextureCoordinate = Vector2(.5f, -.92f);
-            }
+            // Supraorbital relief is sampled directly into the continuous face surface;
+            // separate capsule-like brow pieces read as pasted-on bars at close range.
             // Two overlapping muzzle pads turn the broad skin patch into a shallow three-
             // dimensional primate muzzle. Their backs remain embedded in the profile and
             // their midtone tag separates the mouth region without a new draw call.
@@ -839,9 +831,12 @@ namespace island
                 // A tiny raised catchlight uses the same eye batch.  Its UV tag is
                 // brightened by the skinning shader, avoiding flat featureless black slits.
                 const std::size_t catchlightStart = mesh.vertices.size();
-                AddEllipsoid(mesh, Vector3(side * MonkeyFaceProfile::EyeCentreX - .004f,
-                                           MonkeyFaceProfile::EyeCentreY + .004f, .640f),
-                             Vector3(.0036f, .0030f, .0020f), Head, 3, 6);
+                AddEllipsoid(mesh,
+                             Vector3(side * (MonkeyFaceProfile::EyeCentreX - .003f),
+                                     MonkeyFaceProfile::EyeCentreY + .0025f,
+                                     MonkeyFaceProfile::EyeCentreZ
+                                         + MonkeyFaceProfile::EyeRadiusZ * .92f),
+                             Vector3(.0024f, .0022f, .0009f), Head, 3, 6);
                 for (std::size_t vertex = catchlightStart; vertex < mesh.vertices.size(); ++vertex)
                     mesh.vertices[vertex].TextureCoordinate = Vector2(-1.5f, -1.0f);
                 // One fitted nostril per side. The former second pair read as four holes
