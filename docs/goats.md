@@ -701,13 +701,35 @@ frames in the new habitat and passes 60 finite intervals, GL error zero, a live 
 empty kernel delta. This fixes habitat composition and audit visibility; it does not claim final
 all-angle anatomy or subjective call acceptance.
 
+## Surface nostrils and fitted mouth crease — 2026-10-16
+
+The next unobstructed close audit selected the muzzle rather than the already readable furred
+barrel, planted legs, horns or beard. The old head ended in one smooth dark nasal volume without
+nostril openings or a lip boundary. Detailed goats now add two shallow eight-sided oval nostril
+patches just above the existing nose cap and a short three-station lateral mouth crease on each
+side. The crease follows the changing lower-head radius instead of floating as a straight line;
+both features inherit the existing head grazing transform.
+
+The addition is near-LOD only and shares the existing solid-anatomy pass. Near/far geometry is
+7,848/4,260 vertices, so six all-near goats require 47,088 vertices beneath the unchanged 49,152
+upload guard. It adds no texture, buffer, draw, simulation or collision work. Seven focused native
+groups and all 41 browser/capture harness tests pass. Inspected native eight-stage evidence
+`20261016T063041.590394Z-goats` passes at 1280x720 with 253 colour bins, 56.87 luminance deviation,
+254.51 spatial contrast and an empty kernel delta. The close crop confirms that the nostrils stay
+inside the nasal plane and the mouth follows the lower muzzle without producing projecting beads.
+Focused Chrome/SwiftShader `20261016T063240.164159Z-chrome-goats` passes four distinct inspected
+motion frames, 60 finite positive intervals, GL error zero, a live context and kernel `[]`.
+Physical Android/AMD appearance, continuous all-angle review and subjective call listening remain
+outside this focused pass.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.
   Whole cloven-hoof contact, persistent stance behavior and the final body envelope
   still need validation with the actual model and live motion.
-- [~] Head/body/ears, horns/beard and cloven-hoof mesh plus the focused native appearance pass
-  above are implemented. Further muzzle/joint anatomy and all-angle visual acceptance remain.
+- [~] Head/body/ears, horns/beard, cloven-hoof mesh, surface nostrils and fitted mouth crease plus
+  the focused native/Web appearance passes above are implemented. Further joint anatomy and
+  continuous all-angle visual acceptance remain.
 - [~] Grazing/walking/rest/retreat CPU controller and bounded collision-aware movement
   implemented above. Browsing details, gait transitions and visual acceptance remain.
   The40m grouping radius is NOT a traversable-area guarantee; initial sites do not
@@ -715,8 +737,9 @@ all-angle anatomy or subjective call acceptance.
 - [~] Actual population/update/renderer integration, lighting/contact shadows and vertex
   capacity implemented above; CPU/performance budgets and portable runtime remain open.
 - [x] Live diagnostic counts and initial WorldReport coverage after runtime integration.
-- [~] Unobscured native appearance is current for the latest barrel/limb/coat and hock pass. Web/Android
-  captures still predate it, and continuous all-angle motion remains open.
+- [~] Unobscured native and Chrome/SwiftShader appearance is current through the latest
+  barrel/limb/coat, hock and muzzle passes. Physical Android and continuous all-angle motion remain
+  open.
 
 The AMD hardware stop latch remains unchanged. No Android emulator/KVM or dependency
 configuration was changed for this integration.

@@ -34,8 +34,9 @@ namespace {
 constexpr int Capacity=static_cast<int>(GoatHabitat::Count*GoatMesh::MaximumVertices);
 Vector3 Point(GoatPoint p){return {p.x,p.y,p.z};}
 // Coat artwork supplies local strand albedo; bare parts must not sample fur.
-const std::array<Color,7> Materials{Color(244,238,222),Color(145,116,92),
-    Color(108,91,66),Color(58,54,45),Color(18,16,13),Color(63,57,48),Color(166,122,53)};
+const std::array<Color,8> Materials{Color(244,238,222),Color(145,116,92),
+    Color(108,91,66),Color(58,54,45),Color(18,16,13),Color(63,57,48),Color(166,122,53),
+    Color(34,24,20)};
 // Feral herds are not six copies of one white animal.  The shared neutral fur
 // artwork supplies hair detail while these bounded vertex tints provide natural
 // cream, fawn, grey and sable individuals without another texture or draw.
@@ -63,6 +64,8 @@ GoatRenderer::GoatRenderer(GraphicsDevice& device,
     std::cout<<message<<'\n';MirrorRuntimeDiagnosticToPlatformLog(message);
     const char* anatomy="island-simulator: goats use separated haunch, waist and raised shoulder masses, six-station necks, and six deterministic natural coat tints";
     std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
+    const char* face="island-simulator: near goats use paired surface nostrils and fitted lateral mouth creases";
+    std::cout<<face<<'\n';MirrorRuntimeDiagnosticToPlatformLog(face);
     effect_->setVertexColorEnabledProperty(true);
     effect_->setLightingEnabledProperty(false);
     effect_->setTextureEnabledProperty(false);

@@ -813,7 +813,8 @@ try {
             && (!focusedGoatCheck || (goatMotionFrames.length === 4
               && /goats [1-6]\/6 visible, 2 draw;/.test(log)
               && log.includes("goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes")
-              && log.includes("goats use separated haunch, waist and raised shoulder masses, six-station necks, and six deterministic natural coat tints")))
+              && log.includes("goats use separated haunch, waist and raised shoulder masses, six-station necks, and six deterministic natural coat tints")
+              && log.includes("near goats use paired surface nostrils and fitted lateral mouth creases")))
             && (!focusedDeerCheck || (log.includes("four inland deer use long legs, pointed ears, spotted coats and one antlered silhouette")
               && log.includes("near deer use vertex-blended ellipsoid light, curved tapered necks, articulated hocks, fitted muzzles, and smooth antler beams, with continuous five-ring necks, separate nasal pads, and surface-fitted oval coat spots")
               && log.includes("deer use separated chest and haunch masses, muscle-profiled upper legs, and normal-driven dorsal-to-belly coat tone")

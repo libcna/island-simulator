@@ -25,7 +25,7 @@ int main() {
         check(!mesh.vertices.empty()&&mesh.vertices.size()%3==0&&mesh.vertices.size()<=GoatMesh::MaximumVertices,
             "goat mesh triangle budget invalid");
         if(detailed)nearCount=mesh.vertices.size();else farCount=mesh.vertices.size();
-        std::array<std::size_t,7> materials{};
+        std::array<std::size_t,8> materials{};
         std::array<std::size_t,2> innerEars{};
         for(const auto& vertex:mesh.vertices) {
             const auto p=vertex.position,n=vertex.normal;
@@ -80,6 +80,7 @@ int main() {
             &&materials[static_cast<std::size_t>(GoatMaterial::Nose)]>0,"goat anatomy component missing");
         check((materials[static_cast<std::size_t>(GoatMaterial::Eye)]>0)==detailed,"eye LOD mismatch");
         check((materials[static_cast<std::size_t>(GoatMaterial::Iris)]>0)==detailed,"iris LOD mismatch");
+        check((materials[static_cast<std::size_t>(GoatMaterial::Mouth)]>0)==detailed,"muzzle-detail LOD mismatch");
         check(innerEars[0]>0&&innerEars[0]==innerEars[1],"paired goat ear interiors missing or asymmetric");
         for(const auto& leg:pose.legs) {
             float surface=-1;

@@ -850,6 +850,7 @@ def validate_goat_report(report):
         or not re.search(r"goats [1-6]/6 visible, 2 draw;", log)
         or "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in log
         or "goats use separated haunch, waist and raised shoulder masses, six-station necks, and six deterministic natural coat tints" not in log
+        or "near goats use paired surface nostrils and fitted lateral mouth creases" not in log
         or "fallback:" in log or len(frames) != 4
         or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
         or len(set(frames)) != 4):

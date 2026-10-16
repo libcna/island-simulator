@@ -892,7 +892,8 @@ class BrowserSoftwareTests(unittest.TestCase):
                 "goatMotionFrames": [f"pose-{i}.png" for i in range(4)],
                 "result": {"output": "goats 3/6 visible, 2 draw;\n"
                     "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes\n"
-                    "goats use separated haunch, waist and raised shoulder masses, six-station necks, and six deterministic natural coat tints"}}]}
+                    "goats use separated haunch, waist and raised shoulder masses, six-station necks, and six deterministic natural coat tints\n"
+                    "near goats use paired surface nostrils and fitted lateral mouth creases"}}]}
         self.assertEqual(len(gate.validate_goat_report(report())), 4)
         for key, value in (("mode", "monkeys"), ("passed", False), ("glError", 1282),
                            ("contextLost", True), ("goatMotionFrames", []),
@@ -902,6 +903,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                 gate.validate_goat_report(bad)
         for old, new in (("3/6", "0/6"), ("2 draw", "1 draw"),
                          ("goat fur loaded", "missing"), ("9 mips", "1 mips"),
+                         ("near goats use paired surface nostrils", "missing muzzle detail"),
                          ("six-station necks", "four-station necks")):
             bad = report()
             bad["views"][0]["result"]["output"] = bad["views"][0]["result"]["output"].replace(old, new)

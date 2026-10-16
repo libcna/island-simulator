@@ -235,6 +235,22 @@ world/core/capture tests pass. Inspected Chrome/SwiftShader
 `20261016T055151.536764Z-chrome-goats` shows four distinct current-habitat frames and passes 60
 finite intervals, GL0, a live context and kernel `[]`. Details are in `docs/goats.md`.
 
+## Latest goat visual pass — surface nostrils and fitted mouth crease
+
+The unobstructed close audit selected the otherwise finished-looking goat muzzle as the next weak
+animal region: its textured tapered head still ended in one smooth dark nose without nostril
+openings or a readable lip boundary. Detailed goats now carry two shallow surface oval nostrils and
+a short three-station lateral mouth crease on each side. Both follow the actual nasal/lower-head
+surface and the existing grazing transform; the distant LOD remains calm.
+
+Near/far meshes contain 7,848/4,260 vertices. Six all-near animals use 47,088 vertices beneath the
+unchanged 49,152 upload guard and remain exactly two draws, with no new texture, buffer, simulation
+or collision work. Seven focused native groups and 41 browser/capture tests pass. Inspected native
+`20261016T063041.590394Z-goats` supplies eight distinct motion stages and passes at 253 colour bins,
+56.87 luminance deviation, 254.51 spatial contrast and kernel `[]`. Inspected Chrome/SwiftShader
+`20261016T063240.164159Z-chrome-goats` passes four distinct motion frames, 60 finite positive
+intervals, GL0, a live context and kernel `[]`. Details are in `docs/goats.md`.
+
 ## Latest helicopter visual pass — cambered main-rotor sections
 
 The refreshed exterior/interior audit accepted the cabin, glazing and rotor mechanism but selected

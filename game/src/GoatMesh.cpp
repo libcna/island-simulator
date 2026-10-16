@@ -156,6 +156,21 @@ struct Builder {
             Triangle(pupil[i],pupil[j],centre);
         }
     }
+    void FaceOval(float side,float y,float z,float radiusX,float radiusY) {
+        // A shallow, surface-following colour patch is preferable to a tiny black
+        // tube: the latter reads as a bead rather than a nostril at close range.
+        // The muzzle faces local +Z and Head attachment applies the grazing pitch.
+        constexpr int count=8;
+        const auto make=[&](float x,float py) {
+            return Vertex({x,py,z},{0,0,1},GoatMaterial::Mouth,.5f,.5f,Attachment::Head);
+        };
+        const auto centre=make(side*.022f,y);
+        for(int i=0;i<count;++i) {
+            const float a=Tau*i/count,b=Tau*(i+1)/count;
+            Triangle(centre,make(side*.022f+radiusX*std::cos(a),y+radiusY*std::sin(a)),
+                make(side*.022f+radiusX*std::cos(b),y+radiusY*std::sin(b)));
+        }
+    }
     void Ear(float side,bool detailed) {
         // Thin cupped pinna: a recessed forward face, furred back and closed rim.
         // Skin is part of the surface, never a coplanar overlay.
@@ -282,6 +297,17 @@ GoatMesh BuildGoatMesh(const GoatGroundPose& pose,float grazing,bool detailed) {
     b.part=GoatPart::Tail;b.Sweep(tail,detailed?8:5,GoatMaterial::Coat,Attachment::Body);
     const std::array<Ring,3> nose{{{.770f,.851f,.058f,.042f},{.782f,.851f,.063f,.044f},{.788f,.851f,.045f,.033f}}};
     b.part=GoatPart::Nose;b.Loft(nose,detailed?10:6,GoatMaterial::Nose,Attachment::Head);
+    if(detailed) {
+        b.part=GoatPart::MuzzleDetail;
+        for(float side:{-1.0f,1.0f}) {
+            // The cap sits at z=.788; a sub-millimetre lift prevents z fighting
+            // without turning either oval into a projecting button.
+            b.FaceOval(side,.864f,.7886f,.0085f,.0048f);
+            const std::array<Tube,3> mouth{{{{side*.0515f,.831f,.779f},.0032f},
+                {{side*.0590f,.821f,.748f},.0037f},{{side*.0550f,.839f,.704f},.0023f}}};
+            b.Sweep(mouth,5,GoatMaterial::Mouth,Attachment::Head);
+        }
+    }
     return std::move(b.mesh);
 }
 }
