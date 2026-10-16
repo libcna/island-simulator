@@ -70,3 +70,27 @@ profile, raised centre and visible tapered tail. The final 1280x720 frame passes
 bins, 26.66 luminance deviation, 164.60 spatial contrast and an empty kernel delta. Native and Web
 gates pin the new profile and exact geometry diagnostics so a stale executable cannot satisfy the
 focused view.
+
+## Continuous tail and rounded-eye pass (2026-10-16)
+
+A fresh current-binary audit found that the earlier volume pass had fixed the disc silhouette, but
+its five tail sections still ended at single points. In profile this exposed gaps and read as a row
+of detached arrowheads. The paired eyes also remained pointed pyramids, the spots were angular
+diamonds and the pale underside made the outer edge appear thicker than intended.
+
+Each tail section now joins matching horizontal and vertical start/end rings, producing one
+continuous crossed-volume taper from the posterior disc through the barb. Eyes use base and middle
+rings beneath a low cap, with separate inset pupils and fitted oblong spiracles. Six-facet circular
+dorsal spots replace the diamonds; the dark rim is reduced from the outer five percent to the outer
+2.5 percent, and a gentle feather drop thins the flexible wing edge. The central body loft gains
+four sections and now takes its lower ring directly from the live disc surface.
+
+The near tier grows from 846 to 1,086 vertices per animal, still below the explicit 1,100 capacity;
+the 18-vertex far tier, five-agent population, one draw, simulation, habitat, culling and motion are
+unchanged. Inspected same-camera native evidence is
+`20261016T120257.632994Z-stingrays` before and `20261016T120650.062187Z-stingrays` after. The final
+1280x720 frame passes at 98 colour bins, 27.33 luminance deviation and 166.33 spatial contrast.
+Chrome 155/SwiftShader `20261016T120846.720660Z-chrome-stingrays` passes 60 positive intervals,
+GL error zero, a live context and no new kernel GPU faults; the retained frame was inspected.
+Three native/harness groups pass. WebGL compiles, and Android ARM64 assemble/lint pass without an
+emulator or KVM change; the 24,668,667-byte APK contains only the 19,626,096-byte arm64 library.

@@ -1033,7 +1033,8 @@ def main():
                 for marker in (
                     "stingrays use broad undulating discs, raised eyes, dorsal spots, pale undersides, and long tapered tails in one draw",
                     "near stingrays use a curved diamond disc, raised central body, wedge nose, and restrained dark rim",
-                    "stingray near/far geometry 846/18 vertices with a crossed-volume tapered tail",
+                    "stingray near/far geometry 1086/18 vertices with a continuous crossed-volume tapered tail",
+                    "near stingrays add rounded eye mounds, circular dorsal spots, a feathered disc edge, and a continuous tail loft",
                     "stingrays 5 agents glide, forage, and settle over shallow sandy seabed",
                     "stingray QA camera follows one shallow-sand glide"):
                     if marker not in diagnostics:

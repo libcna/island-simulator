@@ -33,14 +33,16 @@ namespace island
     namespace
     {
         constexpr float NearDistance = 125.0f;
-        constexpr int MaximumVerticesPerRay = 900;
+        constexpr int MaximumVerticesPerRay = 1100;
         constexpr int MaximumVertices = static_cast<int>(StingrayGroup::Count)
             * MaximumVerticesPerRay;
         constexpr std::string_view StingrayProfileDiagnostic =
             "island-simulator: near stingrays use a curved diamond disc, raised central body, wedge nose, and restrained dark rim";
         constexpr std::string_view StingrayGeometryDiagnostic =
-            "island-simulator: stingray near/far geometry 846/18 vertices with a crossed-volume tapered tail";
-        static_assert(MaximumVerticesPerRay>=846);
+            "island-simulator: stingray near/far geometry 1086/18 vertices with a continuous crossed-volume tapered tail";
+        constexpr std::string_view StingrayAnatomyDiagnostic=
+            "island-simulator: near stingrays add rounded eye mounds, circular dorsal spots, a feathered disc edge, and a continuous tail loft";
+        static_assert(MaximumVerticesPerRay>=1086);
 
         struct Palette
         {
@@ -119,8 +121,9 @@ namespace island
             const float flap=wave*.19f*std::pow(lateral,1.05f);
             const float centralBody=std::pow(1.0f-lateral,1.55f)
                 *std::pow(longitudinal,.72f);
-            const float crown=shell*(.018f+.145f*centralBody);
-            return basis.Point(x,flap+crown,z);
+            const float crown=shell*(.010f+.145f*centralBody);
+            const float feather=-.030f*std::pow(lateral,2.7f)*longitudinal;
+            return basis.Point(x,flap+crown+feather,z);
         }
 
         [[nodiscard]] std::array<float,2> Outline(const int index,const float radius)
@@ -150,8 +153,8 @@ namespace island
             for(int index=0;index<DiscSegments;++index) {
                 const auto innerA=Outline(index,.57f);
                 const auto innerB=Outline((index+1)%DiscSegments,.57f);
-                const auto middleA=Outline(index,.95f);
-                const auto middleB=Outline((index+1)%DiscSegments,.95f);
+                const auto middleA=Outline(index,.975f);
+                const auto middleB=Outline((index+1)%DiscSegments,.975f);
                 const auto outerA=Outline(index,1.0f);
                 const auto outerB=Outline((index+1)%DiscSegments,1.0f);
                 const Vector3 innerPointA=DiscPoint(
@@ -179,8 +182,8 @@ namespace island
 
             // The disc supplies flexible wings; a separate shallow loft gives the head and
             // shoulder girdle enough volume to remain readable from swimming height.
-            constexpr int BodySegments=12;
-            const Vector3 bodyCrown=basis.Point(0,.285f,.055f);
+            constexpr int BodySegments=16;
+            const Vector3 bodyCrown=basis.Point(0,.295f,.075f);
             for(int index=0;index<BodySegments;++index) {
                 const float angleA=2.0f*std::numbers::pi_v<float>
                     *static_cast<float>(index)/static_cast<float>(BodySegments);
@@ -188,8 +191,11 @@ namespace island
                     *static_cast<float>(index+1)/static_cast<float>(BodySegments);
                 const auto bodyPoint=[&](const float angle,const bool upper) {
                     const float x=std::cos(angle)*(upper?.255f:.43f);
-                    const float z=.055f+std::sin(angle)*(upper?.41f:.61f);
-                    const float y=(upper?.205f:.105f)+.022f*std::sin(angle);
+                    const float z=.075f+std::sin(angle)*(upper?.41f:.61f);
+                    if(!upper)return DiscPoint(basis,x,z,ray.wingWave,1.0f)
+                        +basis.up*(.006f*basis.scale);
+                    const float y=.205f+.022f*std::sin(angle)
+                        +.015f*std::cos(angle)*std::cos(angle);
                     return basis.Point(x,y,z);
                 };
                 const Vector3 baseA=bodyPoint(angleA,false),baseB=bodyPoint(angleB,false);
@@ -202,40 +208,77 @@ namespace island
             for(const auto& spot:std::array<std::array<float,3>,6>{{
                     {{-.52f,.18f,.055f}},{{.52f,.18f,.055f}},{{-.69f,-.14f,.044f}},
                     {{.69f,-.14f,.044f}},{{-.27f,-.32f,.040f}},{{.27f,-.32f,.040f}}}}) {
-                const Vector3 centre=DiscPoint(basis,spot[0],spot[1],ray.wingWave,1.28f);
-                const Vector3 dx=basis.right*(spot[2]*basis.scale);
-                const Vector3 dz=basis.forward*(spot[2]*basis.scale);
-                DoubleTriangle(out,centre+dz,centre+dx,centre-dz,palette.spot);
-                DoubleTriangle(out,centre+dz,centre-dz,centre-dx,palette.spot);
+                const Vector3 centre=DiscPoint(basis,spot[0],spot[1],ray.wingWave,1.12f)
+                    +basis.up*(.004f*basis.scale);
+                constexpr int SpotSegments=6;
+                for(int segment=0;segment<SpotSegments;++segment) {
+                    const float angleA=2.0f*std::numbers::pi_v<float>*segment/SpotSegments;
+                    const float angleB=2.0f*std::numbers::pi_v<float>*(segment+1)/SpotSegments;
+                    const auto point=[&](float angle) {
+                        return centre+basis.right*(std::cos(angle)*spot[2]*basis.scale)
+                            +basis.forward*(std::sin(angle)*spot[2]*.72f*basis.scale);
+                    };
+                    Triangle(out,centre,point(angleA),point(angleB),palette.spot);
+                }
             }
 
             for(const float side:{-1.0f,1.0f}) {
-                const Vector3 eyeTop=basis.Point(side*.19f,.325f,.46f);
-                const Vector3 eyeFront=basis.Point(side*.19f,.255f,.525f);
-                const Vector3 eyeSide=basis.Point(side*.226f,.255f,.45f);
-                Triangle(out,eyeTop,eyeFront,eyeSide,palette.eye);
-                Triangle(out,eyeTop,eyeSide,basis.Point(side*.154f,.255f,.45f),palette.eye);
-                const Vector3 spiracleA=basis.Point(side*.22f,.215f,.30f);
-                DoubleTriangle(out,spiracleA,
-                    spiracleA+basis.right*(side*.065f*basis.scale),
-                    spiracleA-basis.forward*(.065f*basis.scale),palette.margin);
+                const Vector3 eyeTop=basis.Point(side*.19f,.332f,.46f);
+                constexpr int EyeSegments=6;
+                for(int segment=0;segment<EyeSegments;++segment) {
+                    const float angleA=2.0f*std::numbers::pi_v<float>*segment/EyeSegments;
+                    const float angleB=2.0f*std::numbers::pi_v<float>*(segment+1)/EyeSegments;
+                    const auto eyeRing=[&](float angle,bool middle) {
+                        const float xRadius=middle?.044f:.066f;
+                        const float zRadius=middle?.034f:.052f;
+                        return basis.Point(side*.19f+std::cos(angle)*xRadius,
+                                           middle?.310f:.268f,
+                                           .46f+std::sin(angle)*zRadius);
+                    };
+                    const Vector3 baseA=eyeRing(angleA,false),baseB=eyeRing(angleB,false);
+                    const Vector3 middleA=eyeRing(angleA,true),middleB=eyeRing(angleB,true);
+                    LitTriangle(out,baseA,middleA,middleB,palette.margin);
+                    LitTriangle(out,baseA,middleB,baseB,palette.margin);
+                    LitTriangle(out,middleA,eyeTop,middleB,palette.margin);
+                }
+                const Vector3 pupilCentre=basis.Point(side*.19f,.335f,.472f);
+                const Vector3 pupilRight=basis.right*(.020f*basis.scale);
+                const Vector3 pupilForward=basis.forward*(.014f*basis.scale);
+                Triangle(out,pupilCentre+pupilForward,pupilCentre+pupilRight,
+                         pupilCentre-pupilForward,palette.eye);
+                Triangle(out,pupilCentre+pupilForward,pupilCentre-pupilForward,
+                         pupilCentre-pupilRight,palette.eye);
+                const Vector3 spiracle=basis.Point(side*.22f,.222f,.285f);
+                const Vector3 slotSide=basis.right*(side*.055f*basis.scale);
+                const Vector3 slotFore=basis.forward*(.025f*basis.scale);
+                Triangle(out,spiracle-slotSide-slotFore,spiracle+slotSide-slotFore,
+                         spiracle+slotSide+slotFore,palette.margin);
+                Triangle(out,spiracle-slotSide-slotFore,spiracle+slotSide+slotFore,
+                         spiracle-slotSide+slotFore,palette.margin);
             }
 
-            Vector3 tailRoot=basis.Point(0,.02f,-.70f);
+            Vector3 tailRoot=basis.Point(0,.015f,-.61f);
             constexpr std::array<float,5> TailLengths{{.30f,.33f,.36f,.39f,.42f}};
-            float tailZ=-.70f;
+            float tailZ=-.61f;
             for(std::size_t index=0;index<TailLengths.size();++index) {
                 const float length=TailLengths[index];
                 const float nextZ=tailZ-length;
                 const float sway=std::sin(ray.wingWave*1.2f+static_cast<float>(index)*.65f)
                     *.025f*static_cast<float>(index);
                 const Vector3 next=basis.Point(sway,.01f,nextZ);
-                const float width=(.062f-static_cast<float>(index)*.009f)*basis.scale;
-                const Vector3 side=basis.right*width;
-                DoubleTriangle(out,tailRoot+side,tailRoot-side,next,palette.tail);
+                const float width=(.066f-static_cast<float>(index)*.009f)*basis.scale;
+                const float nextWidth=std::max(.014f,
+                    .066f-static_cast<float>(index+1)*.009f)*basis.scale;
+                const Vector3 side=basis.right*width,nextSide=basis.right*nextWidth;
+                DoubleTriangle(out,tailRoot+side,tailRoot-side,next+nextSide,palette.tail);
+                DoubleTriangle(out,tailRoot-side,next-nextSide,next+nextSide,palette.tail);
                 const Vector3 vertical=basis.up*(width*.72f);
-                DoubleTriangle(out,tailRoot+vertical,tailRoot-vertical,next,
-                               ScaleColor(palette.tail,.82f));
+                const Vector3 nextVertical=basis.up*(nextWidth*.72f);
+                const Color lower=ScaleColor(palette.tail,.82f);
+                DoubleTriangle(out,tailRoot+vertical,tailRoot-vertical,
+                               next+nextVertical,lower);
+                DoubleTriangle(out,tailRoot-vertical,next-nextVertical,
+                               next+nextVertical,lower);
                 tailRoot=next;tailZ=nextZ;
             }
             const Vector3 barb=basis.Point(.11f,.025f,-1.33f);
@@ -280,6 +323,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(StingrayProfileDiagnostic);
         std::cout<<StingrayGeometryDiagnostic<<'\n';
         MirrorRuntimeDiagnosticToPlatformLog(StingrayGeometryDiagnostic);
+        std::cout<<StingrayAnatomyDiagnostic<<'\n';
+        MirrorRuntimeDiagnosticToPlatformLog(StingrayAnatomyDiagnostic);
     }
 
     StingrayRenderer::~StingrayRenderer()=default;

@@ -134,6 +134,25 @@ speaker/headphone quality and physical Web/Android device audio remain open. Chr
 `20261016T115641.304967Z-chrome-bunker` passes all six bunker views with twelve positive frame
 intervals each, GL error zero, a live context and no new kernel GPU faults.
 
+## Latest aquatic visual pass — continuous stingray tail and rounded eyes
+
+The current coastal-animal audit rejected a stale Web screenshot, captured the current binary, and
+then selected two remaining defects on the already volumetric stingray: five tail sections met at
+single points and projected as detached arrowheads, while the paired eyes were pointed pyramids.
+The tail now carries matched horizontal and vertical widths across every joint. Two-ring low eye
+mounds, inset pupils, fitted spiracles and six-facet round spots replace the spikes and diamonds.
+The disc margin narrows to 2.5 percent, its edge feathers downward, and the sixteen-section central
+loft takes its lower ring from the animated disc rather than floating above it.
+
+The near/far inventory is now 1,086/18 vertices per animal inside a 1,100-vertex capacity. Five
+agents, one draw, far LOD, habitat, wing wave, banking and controller are unchanged. Inspected
+same-camera native evidence `20261016T120257.632994Z-stingrays` and accepted
+`20261016T120650.062187Z-stingrays` clearly show the continuous tail and lower eyes; the final frame
+passes at 98 colour bins, 27.33 luminance deviation and 166.33 spatial contrast. Three focused
+test groups pass. Chrome/SwiftShader `20261016T120846.720660Z-chrome-stingrays` supplies 60 positive
+intervals, GL error zero, a live context and no new kernel GPU fault. WebGL compilation and Android
+ARM64 assemble/lint pass; the 24,668,667-byte arm64-only APK was built without emulator/KVM use.
+
 ## Latest terrestrial-fauna material pass — local-space feral-goat markings
 
 The renewed eight-stage animal audit retained the goats' planted gait, horns, beard, muzzle detail

@@ -442,14 +442,16 @@ class BrowserSoftwareTests(unittest.TestCase):
                  "undersides, and long tapered tails in one draw")
         profile=("near stingrays use a curved diamond disc, raised central body, wedge nose, "
                  "and restrained dark rim")
-        geometry="stingray near/far geometry 846/18 vertices with a crossed-volume tapered tail"
+        geometry="stingray near/far geometry 1086/18 vertices with a continuous crossed-volume tapered tail"
+        refinement=("near stingrays add rounded eye mounds, circular dorsal spots, a feathered "
+                    "disc edge, and a continuous tail loft")
         population="stingrays 5 agents glide, forage, and settle over shallow sandy seabed"
         camera="stingray QA camera follows one shallow-sand glide"
         def report():
             return {"passed":True,"views":[{"mode":"stingrays","passed":True,
                 "glError":0,"contextLost":False,"renderer":"ANGLE SwiftShader",
                 "screenshot":"stingrays.png","intervals":[16.7]*60,
-                "result":{"output":anatomy+"\n"+profile+"\n"+geometry+"\n"+population+"\n"+camera
+                "result":{"output":anatomy+"\n"+profile+"\n"+geometry+"\n"+refinement+"\n"+population+"\n"+camera
                     +"\nstingrays 1/5 visible (near 1, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_stingray_report(report()),"stingrays.png")
         for mutate in (
