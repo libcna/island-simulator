@@ -764,6 +764,7 @@ def validate_crocodile_report(report):
         or "near crocodiles use raised eyes, nostrils, separate jaws, teeth, dorsal osteoderms, and wet mottled facet shading, with multi-section rounded snouts and lateral eyes" not in log
         or "crocodile armor uses low paired trunk scutes that merge into a diminishing articulated tail keel" not in log
         or "near crocodile torso, tail, skull, jaw, and limb roots use bounded reticulated facet pigment" not in log
+        or "near crocodiles use finer rounded torso, shoulder, skull, and nasal surfaces within the same draw" not in log
         or "crocodile QA camera frames an estuary animal broadside" not in log
         or not re.search(r"crocodiles [1-3]/3 visible \(near [1-3], far [0-3]\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):

@@ -1236,6 +1236,9 @@ def main():
                         raise RuntimeError(f"beetle integration diagnostic missing: {marker}")
                 if not re.search(r"beetles [1-9][0-9]*/15 visible in shared draw", diagnostics):
                     raise RuntimeError("beetle capture did not submit a close-range litter animal")
+            if args.viewpoint == "crocodiles":
+                if "near crocodiles use finer rounded torso, shoulder, skull, and nasal surfaces within the same draw" not in diagnostics:
+                    raise RuntimeError("current crocodile rounded surface pass is missing")
             if args.viewpoint == "hermit-crabs":
                 if "ten sheltered-beach hermit crabs pause, forage, and retreat in the shared crab batch" not in diagnostics:
                     raise RuntimeError("current hermit-crab renderer is missing; check for a stale executable")

@@ -36,7 +36,7 @@ namespace island
         constexpr float NearLodDistance = 86.0f;
         // Rounded multi-station jaws and the low articulated armor stay bounded but
         // need deterministic headroom beyond the former wedge-based 5,200 budget.
-        constexpr int MaximumVerticesPerCrocodile = 5900;
+        constexpr int MaximumVerticesPerCrocodile = 6500;
         constexpr int MaximumVertexCount = static_cast<int>(CrocodileGroup::CrocodileCount)
             * MaximumVerticesPerCrocodile;
         constexpr std::string_view FormDiagnostic =
@@ -47,6 +47,8 @@ namespace island
             "island-simulator: crocodile armor uses low paired trunk scutes that merge into a diminishing articulated tail keel";
         constexpr std::string_view SkinDiagnostic =
             "island-simulator: near crocodile torso, tail, skull, jaw, and limb roots use bounded reticulated facet pigment";
+        constexpr std::string_view SurfaceDiagnostic =
+            "island-simulator: near crocodiles use finer rounded torso, shoulder, skull, and nasal surfaces within the same draw";
 
         struct Palette
         {
@@ -211,9 +213,9 @@ namespace island
             const float scale=crocodile.scale;
             // Low barrel torso and heavy shoulder mass.
             AppendEllipsoid(vertices,Local(centre,axes,0,.34f,-.18f,scale),axes,scale,
-                            .68f,.37f,1.28f,palette.back,palette.belly,7,14,.12f,3);
+                            .68f,.37f,1.28f,palette.back,palette.belly,8,18,.12f,3);
             AppendEllipsoid(vertices,Local(centre,axes,0,.35f,.72f,scale),axes,scale,
-                            .63f,.32f,.72f,palette.back,palette.side,5,14,.10f,11);
+                            .63f,.32f,.72f,palette.back,palette.side,5,16,.10f,11);
 
             // The tapering tail bends visibly during swimming instead of reading as a rigid cone.
             Vector3 previous=Local(centre,axes,0,.27f,-1.18f,scale);
@@ -234,7 +236,7 @@ namespace island
             // Broad, shallow saltwater-crocodile skull and independently opening lower jaw.
             const Vector3 skull=Local(centre,axes,0,.39f,1.25f,scale);
             AppendEllipsoid(vertices,skull,axes,scale,.58f,.29f,.70f,
-                            palette.back,palette.jaw,5,14,.10f,17);
+                            palette.back,palette.jaw,6,18,.10f,17);
             // Four shallow elliptical stations replace the old rectangular upper
             // wedge. They keep the broad saltwater-crocodile proportions while
             // rounding the cheek-to-muzzle transition and tapering the nasal tip.
@@ -251,7 +253,7 @@ namespace island
                     .09f,20+static_cast<int>(section));
             }
             AppendEllipsoid(vertices,Local(centre,axes,0,.36f,2.43f,scale),axes,scale,
-                            .355f,.12f,.17f,palette.side,palette.jaw,4,12,.08f,23);
+                            .355f,.12f,.17f,palette.side,palette.jaw,4,16,.08f,23);
             const float gape=crocodile.jawOpen;
             const Axes jawAxes{axes.right,axes.up,axes.forward};
             const Vector3 lowerJawCentre=centre-axes.up*(gape*.18f*scale);
@@ -426,11 +428,12 @@ namespace island
         effect_->setFogEndProperty(260.0f);
         stagingVertices_.reserve(MaximumVertexCount);
         std::cout<<FormDiagnostic<<'\n'<<DetailDiagnostic<<'\n'<<ArmorDiagnostic<<'\n'
-                 <<SkinDiagnostic<<'\n';
+                 <<SkinDiagnostic<<'\n'<<SurfaceDiagnostic<<'\n';
         MirrorRuntimeDiagnosticToPlatformLog(FormDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(DetailDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ArmorDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(SkinDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(SurfaceDiagnostic);
     }
 
     CrocodileRenderer::~CrocodileRenderer()=default;

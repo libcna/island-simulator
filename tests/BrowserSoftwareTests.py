@@ -598,6 +598,8 @@ class BrowserSoftwareTests(unittest.TestCase):
                  "articulated tail keel")
         pigment = ("near crocodile torso, tail, skull, jaw, and limb roots use bounded "
                    "reticulated facet pigment")
+        rounded = ("near crocodiles use finer rounded torso, shoulder, skull, and nasal surfaces "
+                   "within the same draw")
         camera = "crocodile QA camera frames an estuary animal broadside"
         def report():
             return {"passed": True, "views": [{"mode": "crocodiles", "passed": True,
@@ -605,7 +607,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                 "screenshot": "crocodiles.png",
                 "afterSimulationScreenshot": "crocodiles-after.png",
                 "intervals": [16.7] * 60,
-                "result": {"output": silhouette + "\n" + surface + "\n" + armor + "\n" + pigment + "\n" + camera
+                "result": {"output": silhouette + "\n" + surface + "\n" + armor + "\n" + pigment + "\n" + rounded + "\n" + camera
                     + "\ncrocodiles 1/3 visible (near 1, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_crocodile_report(report()),
                          ("crocodiles.png", "crocodiles-after.png"))
@@ -623,6 +625,8 @@ class BrowserSoftwareTests(unittest.TestCase):
             lambda value: value["views"][0]["result"].update(output=silhouette + "\n" + surface
                 + "\n" + armor + "\n" + camera
                 + "\ncrocodiles 1/3 visible (near 1, far 0), 1 draw"),
+            lambda value: value["views"][0]["result"].update(output=report()["views"][0]["result"]["output"].replace(
+                rounded + "\n", "")),
             lambda value: value["views"][0]["result"].update(output=silhouette + "\n" + surface
                 + "\n" + armor + "\n" + pigment
                 + "\n" + camera + "\ncrocodiles 0/3 visible (near 0, far 0), 0 draw"),

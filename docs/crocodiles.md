@@ -14,6 +14,26 @@ lower jaw, mouth, teeth, embedded lateral eyes, pupils and nostrils, paired dors
 splayed articulated legs with toes. Land gait alternates the feet; swimming increases the tail
 wave and lowers the body toward the water. Beyond 86 m a reduced long-body silhouette is used.
 
+### Finer primary body surfaces — 2026-10-16
+
+The next ground-animal comparison retained the crocodile's silhouette, armor, pigment and motion,
+but its four largest curved masses remained visibly coarser than the boar and the newly repaired
+snake. The primary torso now uses eight by eighteen sections, the shoulder mass five by sixteen,
+the skull six by eighteen and the nasal cap four by sixteen. This adds exactly 660 vertices and
+220 triangles per visible near animal only. The three-agent population, far silhouette, simulation,
+86 m LOD, material path and one dynamic draw are unchanged. The per-animal checked staging ceiling
+increases from 5,900 to 6,500 vertices, or 1,800 additional preallocated slots across all three
+animals; the accepted current animal remains inside that bound.
+
+Inspected native evidence `20261016T135800.906229Z-crocodiles` passes at 317 colour bins, 39.43
+luminance deviation and 155.26 spatial contrast with an empty kernel delta. The broadside/front-
+quarter frame retains the readable eyes, jaws, teeth and low armor while reducing the largest
+angular steps across the flank, shoulder, skull and nose. WebAssembly rebuilt with the exact new
+diagnostic. A fresh Chrome/SwiftShader launch was unavailable because the contained runner could
+not create another process (`EAGAIN`), so no new Web runtime acceptance is claimed. Android ARM64
+assemble/lint passes against the locked dependency copy and produces a 24,671,835-byte APK with a
+19,629,264-byte `libmain.so`; no emulator or KVM was used.
+
 ### Reticulated facet pigment — 2026-10-16
 
 The renewed twelve-species matrix retained the crocodile's broad skull, lateral eyes, low trunk

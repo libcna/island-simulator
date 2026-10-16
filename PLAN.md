@@ -515,6 +515,20 @@ flat flank replaced by irregular surface patches; the accepted image passes at 3
 `20261016T071135.535809Z-chrome-crocodiles` passes two distinct motion frames, 60 finite positive
 intervals, GL0, a live context, one draw and kernel `[]`. Details are in `docs/crocodiles.md`.
 
+## Latest crocodile geometry pass — finer primary body surfaces
+
+The next ground-animal comparison retained the crocodile's readable form and movement but selected
+the coarse facets across its four largest curved masses. The primary torso, shoulder mass, skull
+and nasal cap now use finer bounded section grids. This adds exactly 660 vertices / 220 triangles
+per visible near animal, raises the checked shared capacity by 1,800 slots across all three agents,
+and leaves the population, far tier, habitat, animation, shader and one-draw submission unchanged.
+
+Inspected native evidence `20261016T135800.906229Z-crocodiles` passes at 317 colour bins, 39.43
+luminance deviation, 155.26 spatial contrast and kernel `[]`. WebAssembly and Android ARM64
+assemble/lint pass; the APK is 24,671,835 bytes with a 19,629,264-byte `libmain.so`. A fresh
+Chrome/SwiftShader runtime could not create another contained process (`EAGAIN`), so that attempt
+is recorded as unavailable rather than a Web visual pass. Details are in `docs/crocodiles.md`.
+
 ## Latest bear visual pass — fitted curved horn claws
 
 The renewed eight-angle bear audit accepted the heavy torso, directional coat and broad planted
