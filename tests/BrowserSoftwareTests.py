@@ -271,7 +271,7 @@ class BrowserSoftwareTests(unittest.TestCase):
     def test_butterfly_scope_requires_close_segmented_subject(self):
         habitat = "butterflies feed at three visible deterministic nectar-flower patches"
         anatomy = "near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins"
-        body = "near butterflies use three-ring tapered abdomens with palette-linked segmentation"
+        body = "near butterflies use four-ring rounded abdomens, six swept legs, and restrained wing-root spots"
         camera = "butterfly QA camera follows one live near animal at its nectar patch"
         visible = "butterflies 6/18 visible (near 6, far 0), 1 draw"
         def report():

@@ -1,5 +1,26 @@
 # Clearing butterflies
 
+## Rounded abdomen, legs and restrained wing markings — 2026-10-16
+
+The next close wildlife audit found that the existing near butterfly still read as a flat yellow
+and brown arrow from above. Its abdomen now continues through a fourth six-sided ring to a short
+rounded cap instead of ending in a long triangular point. Alternating restrained pigment separates
+the rear segments, and three swept pairs of lightweight planar legs provide an insect silhouette
+without adding a draw. The forewing gained an extra shoulder station for a rounder leading edge;
+the old root-to-centre triangular accent was replaced by a small local wing patch.
+
+Near geometry rises from 264 to exactly 384 vertices per animal. Even in the conservative case
+where all eighteen agents use the near tier, this adds only 2,160 vertices (34,560 bytes) to the
+existing shared dynamic buffer. Population, simulation, habitat, far mesh, culling, live wing fold
+and the single shared draw are unchanged. The accepted native frame
+`20261016T210847.695170Z-butterflies` passes at 230 colour bins, 31.69 luminance deviation and
+194.16 spatial contrast with an empty kernel delta. Focused Chrome/SwiftShader evidence
+`20261016T210956.200199Z-chrome-butterflies` passes a live 60-interval view with GL error zero and
+no context loss. Android arm64 assembly and lint pass without running an emulator; the debug APK is
+24,746,275 bytes (SHA-256
+`181d6c1e68c88030de23f75d86480252c13bf03e44d3ac1e79ad40cf61e9b977`) and its packaged
+`libmain.so` is 19,703,704 bytes. Physical Android appearance and performance remain unqualified.
+
 ## Segmented tapered body and live close audit — 2026-10-16
 
 The renewed small-animal audit retained the rounded patterned wings, but the near butterfly still

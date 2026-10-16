@@ -32,7 +32,7 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 25.0f;
-        constexpr int MaximumVerticesPerButterfly = 264;
+        constexpr int MaximumVerticesPerButterfly = 384;
         constexpr int MaximumFlowerVertices = 1800;
         constexpr int MaximumGeckoVertices = static_cast<int>(GeckoPopulation::Count) * 2300;
         constexpr int MaximumSkinkVertices = static_cast<int>(SkinkPopulation::Count) * 1700;
@@ -66,7 +66,7 @@ namespace island
         constexpr std::string_view ButterflyAnatomyDiagnostic =
             "island-simulator: near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins";
         constexpr std::string_view ButterflyBodyDiagnostic =
-            "island-simulator: near butterflies use three-ring tapered abdomens with palette-linked segmentation";
+            "island-simulator: near butterflies use four-ring rounded abdomens, six swept legs, and restrained wing-root spots";
         constexpr std::string_view ButterflyHabitatDiagnostic =
             "island-simulator: butterflies feed at three visible deterministic nectar-flower patches";
         constexpr std::string_view GeckoDiagnostic =
@@ -1586,10 +1586,11 @@ namespace island
 
             constexpr int BodySides=6;
             const Color abdomen = Color::Lerp(palette.body, palette.accent, .42f);
+            const Color abdomenTip = Color::Lerp(palette.body, palette.accent, .18f);
             const Vector3 bodyFront=LocalPoint(
                 centre,right,up,forward,0,.012f,.22f,scale);
             const Vector3 bodyRear=LocalPoint(
-                centre,right,up,forward,0,-.012f,-.39f,scale);
+                centre,right,up,forward,0,-.010f,-.382f,scale);
             const auto bodyRing=[&](float angle,float z,float radius) {
                 return LocalPoint(centre,right,up,forward,std::cos(angle)*radius,
                     std::sin(angle)*radius,z,scale);
@@ -1603,12 +1604,16 @@ namespace island
                 const Vector3 middle1=bodyRing(a1,-.05f,.060f);
                 const Vector3 rear0=bodyRing(a0,-.22f,.043f);
                 const Vector3 rear1=bodyRing(a1,-.22f,.043f);
+                const Vector3 tail0=bodyRing(a0,-.36f,.018f);
+                const Vector3 tail1=bodyRing(a1,-.36f,.018f);
                 AddTriangle(vertices,bodyFront,front0,front1,palette.body);
                 AddTriangle(vertices,front0,middle0,middle1,palette.body);
                 AddTriangle(vertices,front0,middle1,front1,palette.body);
                 AddTriangle(vertices,middle0,rear0,rear1,abdomen);
                 AddTriangle(vertices,middle0,rear1,middle1,abdomen);
-                AddTriangle(vertices,bodyRear,rear1,rear0,abdomen);
+                AddTriangle(vertices,rear0,tail0,tail1,abdomenTip);
+                AddTriangle(vertices,rear0,tail1,rear1,abdomenTip);
+                AddTriangle(vertices,bodyRear,tail1,tail0,palette.body);
             }
             const Vector3 headCentre=LocalPoint(
                 centre,right,up,forward,0,.012f,.255f,scale);
@@ -1637,6 +1642,22 @@ namespace island
                     palette.body);
             }
 
+            // Butterflies carry three pairs of slender legs under the thorax.  A broad,
+            // swept footprint remains readable from the close overhead audit without
+            // turning the appendages into expensive solid tubes.
+            constexpr std::array<float,3> LegRootsZ={.105f,-.015f,-.135f};
+            constexpr std::array<float,3> LegTipsZ={.19f,-.015f,-.23f};
+            constexpr std::array<float,3> LegSpans={.19f,.23f,.18f};
+            for(const float side:{-1.0f,1.0f}) {
+                for(std::size_t pair=0;pair<LegRootsZ.size();++pair) {
+                    const Vector3 root=LocalPoint(centre,right,up,forward,
+                        side*.028f,-.035f,LegRootsZ[pair],scale);
+                    const Vector3 foot=LocalPoint(centre,right,up,forward,
+                        side*LegSpans[pair],-.073f,LegTipsZ[pair],scale);
+                    AppendGeckoSegment(vertices,root,foot,.0075f*scale,palette.body);
+                }
+            }
+
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
                 const float side = static_cast<float>(sideIndex);
                 const auto wingPoint=[&](float span,float z,float extraLift=0.0f) {
@@ -1648,12 +1669,15 @@ namespace island
                 const Vector3 hindRoot = LocalPoint(
                     centre, right, up, forward, side * 0.035f, 0.0f, -0.13f, scale);
                 const Vector3 leadingTip=wingPoint(.40f,.31f);
-                const Vector3 foreTip=wingPoint(.64f,.18f);
+                const Vector3 foreShoulder=wingPoint(.53f,.265f);
+                const Vector3 foreTip=wingPoint(.65f,.16f);
                 const Vector3 outerTip=wingPoint(.68f,-.05f);
                 const Vector3 hindTip=wingPoint(.52f,-.33f);
                 const Vector3 rearTip=wingPoint(.28f,-.42f);
                 AddDoubleSidedTriangle(
-                    vertices,foreRoot,leadingTip,foreTip,palette.forewing);
+                    vertices,foreRoot,leadingTip,foreShoulder,palette.forewing);
+                AddDoubleSidedTriangle(
+                    vertices,foreRoot,foreShoulder,foreTip,palette.forewing);
                 AddDoubleSidedTriangle(
                     vertices,foreRoot,foreTip,outerTip,palette.forewing);
                 AddDoubleSidedTriangle(
@@ -1674,8 +1698,10 @@ namespace island
                     vertices,outerTip,hindTip,hindInner,palette.body);
                 AddDoubleSidedTriangle(
                     vertices,outerTip,hindInner,outerInner,palette.body);
-                const Vector3 accentTip=wingPoint(.43f,-.02f,.008f);
-                AddDoubleSidedTriangle(vertices,foreRoot,accentTip,hindRoot,
+                const Vector3 accentFront=wingPoint(.29f,.065f,.008f);
+                const Vector3 accentOuter=wingPoint(.43f,.015f,.008f);
+                const Vector3 accentRear=wingPoint(.34f,-.105f,.008f);
+                AddDoubleSidedTriangle(vertices,accentFront,accentOuter,accentRear,
                     palette.accent);
             }
             if (vertices.size() - startingVertexCount != MaximumVerticesPerButterfly) {

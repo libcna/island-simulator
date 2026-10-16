@@ -1168,7 +1168,7 @@ def main():
                     raise RuntimeError("fruit-bat capture did not submit a near detailed animal")
             if args.viewpoint == "butterflies" and "near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins" not in diagnostics:
                 raise RuntimeError("current near-butterfly anatomy is missing; check for a stale executable")
-            if args.viewpoint == "butterflies" and "near butterflies use three-ring tapered abdomens with palette-linked segmentation" not in diagnostics:
+            if args.viewpoint == "butterflies" and "near butterflies use four-ring rounded abdomens, six swept legs, and restrained wing-root spots" not in diagnostics:
                 raise RuntimeError("current near-butterfly body segmentation is missing; check for a stale executable")
             if args.viewpoint == "butterflies" and "butterfly QA camera follows one live near animal at its nectar patch" not in diagnostics:
                 raise RuntimeError("current close butterfly inspection composition is missing")

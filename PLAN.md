@@ -23,6 +23,26 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest visual-audit implementation — rounded butterfly body and legs
+
+The current close-animal audit selected the butterfly because its otherwise recognisable patterned
+wings still surrounded a pointed, arrow-like dark body. The near mesh now carries a fourth
+six-sided abdomen ring and a short rounded cap with restrained segment colour changes, three swept
+pairs of legs, a rounder two-stage forewing shoulder, and a small local wing marking in place of
+the long root-to-centre triangle. The result reads as an insect rather than a coloured paper dart
+in the live overhead inspection.
+
+Near inventory rises from 264 to exactly 384 vertices per animal, a conservative all-eighteen-near
+increase of 2,160 vertices / 34,560 bytes in the existing shared buffer. Population, habitat,
+simulation, far tier, culling and one dynamic draw are unchanged. Inspected native evidence
+`20261016T210847.695170Z-butterflies` passes at 230 colour bins, 31.69 luminance deviation and
+194.16 spatial contrast. Focused Chrome/SwiftShader evidence
+`20261016T210956.200199Z-chrome-butterflies` passes 60 finite positive intervals, GL error zero, a
+live context and kernel `[]`. Android arm64 assembly/lint pass without an emulator; the
+24,746,275-byte debug APK has SHA-256
+`181d6c1e68c88030de23f75d86480252c13bf03e44d3ac1e79ad40cf61e9b977`, with a
+19,703,704-byte packaged `libmain.so`. Physical Android runtime remains unqualified.
+
 ## Latest operator priorities — 2026-10-12
 
 Target-window constraint: aim to implement all still-open work inside approximately 100 productive
