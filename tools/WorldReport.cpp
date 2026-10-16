@@ -1451,6 +1451,7 @@ namespace
                << "    \"crabBurrows\": " << world.crabs.Burrows().size() << ",\n"
                << "    \"wildBoars\": " << world.boars.Boars().size() << ",\n"
                << "    \"groundSnakes\": " << world.snakes->Snakes().size() << ",\n"
+               << "    \"treeSnakes\": " << world.snakes->TreeSnakes().size() << ",\n"
                << "    \"goats\": " << world.goats->Goats().size() << ",\n"
                << "    \"groundSpiders\": " << world.spiders->Spiders().size() << ",\n"
                << "    \"canopyWebs\": " << world.spiderWebs.size() << ",\n"
@@ -1465,7 +1466,8 @@ namespace
                << "  },\n"
                << "  \"groundSnakePopulation\": {\n"
                << "    \"snapshot\": \"initial\",\n"
-               << "    \"treeHabitatImplemented\": false,\n"
+               << "    \"treeHabitatImplemented\": true,\n"
+               << "    \"treeSnakeCount\": " << world.snakes->TreeSnakes().size() << ",\n"
                << "    \"stationsPerSnake\": " << island::SnakeState::StationCount << ",\n"
                << "    \"spacingMeters\": " << island::SnakePopulation::Spacing << ",\n"
                << "    \"snakes\": [\n";
@@ -1480,6 +1482,22 @@ namespace
                 output << '[' << p.x << ',' << p.y << ',' << p.z << ']';
             }
             output << "]}" << (i+1<snakes.size()?",":"") << '\n';
+        }
+        output << "    ]\n  },\n  \"treeSnakePopulation\": {\n"
+               << "    \"snapshot\": \"initial\",\n"
+               << "    \"surface\": \"sampled-canopy-trunk-triangles\",\n"
+               << "    \"snakes\": [\n";
+        const auto treeSnakes=world.snakes->TreeSnakes();
+        for(std::size_t i=0;i<treeSnakes.size();++i) {
+            const auto& snake=treeSnakes[i];
+            output << "      {\"home\":[" << snake.homeX << ',' << snake.homeZ
+                   << "],\"headingRadians\":" << snake.heading << ",\"body\":[";
+            for(std::size_t j=0;j<snake.body.size();++j) {
+                const auto& p=snake.body[j];
+                if(j)output << ',';
+                output << '[' << p.x << ',' << p.y << ',' << p.z << ']';
+            }
+            output << "]}" << (i+1<treeSnakes.size()?",":"") << '\n';
         }
         output << "    ]\n  },\n  \"goatPopulation\": {\n    \"snapshot\": \"initial\",\n    \"goats\": [\n";
         const auto goats=world.goats->Goats();

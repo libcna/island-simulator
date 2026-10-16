@@ -63,6 +63,7 @@
       ["wetland", ["--viewpoint", "wetland", "--debug-overlay"]],
       ["campfire", ["--viewpoint", "campfire", "--debug-overlay"]],
       ["snake-head", ["--viewpoint", "snake-head"]],
+      ["tree-snakes", ["--viewpoint", "tree-snakes"]],
       ["interactive", []],
       ["input", ["--debug-overlay", "--input-diagnostics"]],
       ["grass-motion", ["--debug-overlay", "--input-diagnostics"]],

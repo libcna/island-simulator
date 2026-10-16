@@ -681,22 +681,24 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertEqual(environment["ISLAND_BROWSER_SUPERVISED"], "chrome")
         self.assertEqual(environment["ISLAND_WEB_SMOKE_SCOPE"], "snakes")
         source = (ROOT / "tools/run_web_smoke.mjs").read_text()
-        self.assertIn('focusedSnakeCheck ? ["snakes", "snake-head"]', source)
+        self.assertIn('focusedSnakeCheck ? ["snakes", "snake-head", "tree-snakes"]', source)
         self.assertIn('snakeMotionFrames.length === 4', source)
-        self.assertIn('snakes (?:[1-9]|[1-4][0-9]|50)', source)
-        for mode in ("snakes", "snake-head"):
+        self.assertIn('snakes (?:[1-9]|1[0-6])\\/56', source)
+        for mode in ("snakes", "snake-head", "tree-snakes"):
             self.assertIn(f'["{mode}", ["--viewpoint", "{mode}"]]',
                           (ROOT / "tools/web_smoke.html.in").read_text())
 
     def test_snake_report_rejects_frozen_missing_and_invalid_motion(self):
         log=('snakes use a readable dorsal saddle and active forked-tongue flicks\n'
              'near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils\n'
-             'snake-head QA isolates facial geometry while the companion body view retains habitat grass\n')+'\n'.join(
+             'snake-head QA isolates facial geometry while the companion body view retains habitat grass\n'
+             'tree-snake QA frames a live climber on the sampled trunk surface\n'
+             'six arboreal snakes cling and climb on sampled broadleaf trunk triangles\n')+'\n'.join(
             f"snake runtime sample frame={i*8} head={i*0.2},2,0 speed=0.5 visible=1" for i in range(1,5))
         def report(text):
             return {"passed":True,"views":[{"mode":mode,"result":{"output":text}}
-                                          for mode in ("snakes","snake-head")]}
-        self.assertEqual(len(gate.validate_snake_report(report(log))),2)
+                                          for mode in ("snakes","snake-head","tree-snakes")]}
+        self.assertEqual(len(gate.validate_snake_report(report(log))),3)
         for invalid in ("",log.replace("frame=16","frame=8"),log.replace("speed=0.5","speed=nan"),
                         log.replace("visible=1","visible=0"),log.replace("head=0.2,2,0","head=nan,2,0"),
                         '\n'.join(f"snake runtime sample frame={i*8} head=1,2,0 speed=0 visible=1" for i in range(1,5))):
@@ -711,6 +713,8 @@ class BrowserSoftwareTests(unittest.TestCase):
                 "near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils\n", "")))
         with self.assertRaises(RuntimeError):
             gate.validate_snake_report(report(log.replace("snake-head QA isolates facial geometry while the companion body view retains habitat grass\n", "")))
+        with self.assertRaises(RuntimeError):
+            gate.validate_snake_report(report(log.replace("six arboreal snakes cling and climb on sampled broadleaf trunk triangles\n", "")))
 
     def test_monkey_scope_retains_supervision_and_intermediate_visual_samples(self):
         self.assertIn("monkeys", gate.SCOPES)

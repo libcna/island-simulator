@@ -906,8 +906,8 @@ def validate_climb_report(report):
 
 def validate_snake_report(report):
     views=report.get("views", [])
-    if not report.get("passed") or [v.get("mode") for v in views]!=["snakes","snake-head"]:
-        raise RuntimeError("snake browser report lacks both successful views")
+    if not report.get("passed") or [v.get("mode") for v in views]!=["snakes","snake-head","tree-snakes"]:
+        raise RuntimeError("snake browser report lacks all three successful views")
     result=[]
     for view in views:
         log=view.get("result", {}).get("output", "")
@@ -917,7 +917,11 @@ def validate_snake_report(report):
             raise RuntimeError("snake browser report lacks the current head anatomy")
         if view["mode"] == "snake-head" and "snake-head QA isolates facial geometry while the companion body view retains habitat grass" not in log:
             raise RuntimeError("snake browser report lacks the isolated head view")
-        result.append({"mode":view["mode"], **validate_snake_runtime_samples(log)})
+        if view["mode"] == "tree-snakes" and ("tree-snake QA frames a live climber on the sampled trunk surface" not in log
+                or "six arboreal snakes cling and climb on sampled broadleaf trunk triangles" not in log):
+            raise RuntimeError("snake browser report lacks the live arboreal view")
+        result.append({"mode":view["mode"], **validate_snake_runtime_samples(
+            log,16 if view["mode"]=="tree-snakes" else 4)})
     return result
 
 

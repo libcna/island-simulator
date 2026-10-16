@@ -26,7 +26,7 @@ def profile_for_viewpoint(viewpoint: str) -> str:
     """Return only explicitly reviewed profiles; never infer an exception from failed pixels."""
     if viewpoint == "litter":
         return "shaded-detail"
-    if viewpoint in ("spiders-bright", "snakes", "snake-head", "ants", "cicadas", "beetles"):
+    if viewpoint in ("spiders-bright", "snakes", "snake-head", "tree-snakes", "ants", "cicadas", "beetles"):
         return "close-natural-detail"
     return "scene"
 

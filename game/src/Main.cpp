@@ -97,6 +97,7 @@ namespace
         case FixedViewpoint::SpiderWebDetail: return "spider-web";
         case FixedViewpoint::SnakeDetail: return "snakes";
         case FixedViewpoint::SnakeHeadDetail: return "snake-head";
+        case FixedViewpoint::TreeSnakeDetail: return "tree-snakes";
         case FixedViewpoint::ButterflyDetail: return "butterflies";
         case FixedViewpoint::GeckoDetail: return "geckos";
         case FixedViewpoint::SkinkDetail: return "skinks";
@@ -171,7 +172,7 @@ int main(const int argc, char* argv[])
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, snags, sapling, "
                              "east, headland, tide-pools, turtle-nest, cave, cave-inside, bunker, bunker-corridor, bunker-computers, bunker-reactor, bunker-service, bunker-end, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, wetland, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, fallen-palm, broken-palm, water, "
                              "wet-sand, current, distant, props, driftwood, reef, reef-habitat, fronds, birds, bats, bat-roost, fish, "
-                             "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, helicopter, helicopter-inside, crabs, hermit-crabs, coconut-crabs, crocodiles, boars, goats, spiders, spiders-bright, spider-web, snakes, snake-head, butterflies, geckos, skinks, dragonflies, frogs, mice, rats, flies, ants, cicadas, turtles, or traversal\n";
+                             "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, helicopter, helicopter-inside, crabs, hermit-crabs, coconut-crabs, crocodiles, boars, goats, spiders, spiders-bright, spider-web, snakes, snake-head, tree-snakes, butterflies, geckos, skinks, dragonflies, frogs, mice, rats, flies, ants, cicadas, turtles, or traversal\n";
                 return 2;
             }
             const std::string_view name(argv[index]);
@@ -317,6 +318,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::SnakeDetail;
             } else if (name == "snake-head") {
                 viewpoint = island::FixedViewpoint::SnakeHeadDetail;
+            } else if (name == "tree-snakes") {
+                viewpoint = island::FixedViewpoint::TreeSnakeDetail;
             } else if (name == "goats") {
                 viewpoint = island::FixedViewpoint::GoatDetail;
             } else if (name == "deer") {

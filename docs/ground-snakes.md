@@ -1,5 +1,40 @@
 # Ground snake implementation and visual evidence
 
+## Six live tree snakes on rendered trunk triangles — 2026-10-16
+
+The previously absent arboreal variant now consists of six non-hostile snakes on six mature,
+deterministically selected broadleaf trunks at least 32m apart. Every one of their 41 body stations
+starts from `SampleCanopyTrunkSurface`, the same twelve-sided triangle surface used to build the
+near canopy trunk, and is transformed by the host tree's actual position, yaw and scale. The
+centreline retains a radius offset outside bark rather than intersecting it. A slow bounded
+vertical route changes height and azimuth together; nearby observers increase the crawl rate but
+do not make the animal attack or leave its host. Distance tiers stop remote motion.
+
+The existing snake renderer now considers the 50 ground snakes and six tree snakes together,
+sorts both families into the same nearest-16 submission cap and retains one dynamic draw. A stable
+trunk-radial cross-section frame prevents the nearly vertical body from twisting at the horizontal
+frame singularity. Tree snakes use a greener dorsal/flank palette while retaining the current
+scale atlas, broad low head, raised eyes, fitted pupils and intermittent tongue. Ground-only
+contact shadows, grass interaction and positional encounters remain ground-only.
+
+The inspected current native detail `20261016T034349.371503Z-tree-snakes` clearly shows the head,
+eye, continuous climbing body and bark contact. It passes the bounded close-natural-detail gate at
+314 colour bins, 38.78 luminance deviation and 221.46 spatial contrast; four ordered body/motion
+frames, the one-draw diagnostic and clean kernel monitoring pass. Chrome/SwiftShader evidence
+`20261016T034519.314458Z-chrome-snakes` contains all three snake views with 60 positive intervals,
+GL error zero, live contexts and a clean final kernel delta. Four inspected tree motion frames move
+the head by 0.477m while preserving the trunk attachment. An earlier retained attempt reached all
+three passing runtime views but its post-validator rejected the valid combined visibility count of
+seven because the old ground-only ceiling was four. The corrected current rerun passes: the tree
+view uses the renderer's real nearest-16 cap while ground views retain the stricter four-visible
+audit bound.
+
+Focused CPU coverage requires six elevated, separated host homes, bounded continuous 41-station
+bodies, deterministic motion and measurable focused travel. WorldReport now states
+`treeHabitatImplemented: true`, exports the six bodies and reports separate ground/tree counts.
+Physical Android appearance remains open; the current ARM64 configure is independently blocked by
+the shared read-only `sharp-runtime` revision mismatch documented below.
+
 ## Broad low head, fitted pupils and moving close audit — 2026-10-16
 
 The renewed body/head audit found that the scale material and S-curve motion were readable, but the
@@ -29,8 +64,8 @@ Focused current-binary Chrome/SwiftShader evidence
 `20261016T025358.584777Z-chrome-snakes` passes both views with 60 finite positive intervals each,
 four inspected motion frames per view, GL error zero, live contexts and an empty final kernel delta.
 The body-view head moves at 1.15m/s and the anatomy-view head at 0.38m/s through all four samples.
-This closes the current ground-snake head/material audit; the retained tree-dwelling snake variant,
-ordinary player encounter review and physical Android-device appearance remain open. A fresh ARM64
+This closes the current ground-snake head/material audit; ordinary player encounter review and
+physical Android-device appearance remain open. A fresh ARM64
 assemble/lint attempt reached native configuration but was stopped before compilation because the
 shared read-only `sharp-runtime` checkout is at `f2aecfefeac171b331787e5cdc4849507363ef0e`, while
 this repository deliberately pins `7805c5dc695d8e84abd45168ab218793e10a4ad3`; neither dependency

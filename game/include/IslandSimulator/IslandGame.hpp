@@ -197,6 +197,7 @@ namespace island
         SpiderWebDetail,
         SnakeDetail,
         SnakeHeadDetail,
+        TreeSnakeDetail,
         ButterflyDetail,
         GeckoDetail,
         SkinkDetail,
@@ -511,7 +512,8 @@ namespace island
         bool snakeFirstDrawReturnReported_ = false;
         [[nodiscard]] bool UsesSnakeCaptureClock() const noexcept {
             return !capturePath_.empty() && (viewpoint_ == FixedViewpoint::SnakeDetail
-                || viewpoint_ == FixedViewpoint::SnakeHeadDetail);
+                || viewpoint_ == FixedViewpoint::SnakeHeadDetail
+                || viewpoint_ == FixedViewpoint::TreeSnakeDetail);
         }
         std::string benchmarkPath_;
         std::string startupReportPath_;

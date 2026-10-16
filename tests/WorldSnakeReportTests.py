@@ -10,7 +10,8 @@ def validate(report):
     assert report["valid"] is True
     population = report["groundSnakePopulation"]
     assert population["snapshot"] == "initial"
-    assert population["treeHabitatImplemented"] is False
+    assert population["treeHabitatImplemented"] is True
+    assert population["treeSnakeCount"] == report["wildlife"]["treeSnakes"] == 6
     assert report["wildlife"]["groundSnakes"] == len(population["snakes"]) == 50
     assert population["stationsPerSnake"] == 41
     assert population["spacingMeters"] == 0.055
@@ -29,6 +30,18 @@ def validate(report):
             # 0.1mm JSON rounding adds at most sqrt(2)*0.1mm to horizontal distance.
             assert abs(math.hypot(a[0] - b[0], a[2] - b[2]) - .055) < .0018
     assert len(set(homes)) == 50
+    tree_population = report["treeSnakePopulation"]
+    assert tree_population["snapshot"] == "initial"
+    assert tree_population["surface"] == "sampled-canopy-trunk-triangles"
+    assert len(tree_population["snakes"]) == 6
+    tree_homes=[]
+    for snake in tree_population["snakes"]:
+        home=snake["home"];body=snake["body"]
+        assert len(body)==41 and all(len(point)==3 and all(map(math.isfinite,point)) for point in body)
+        assert all(point[1]>1 for point in body)
+        assert all(math.hypot(point[0]-home[0],point[2]-home[1])<1.201 for point in body)
+        tree_homes.append(tuple(home))
+    assert len(set(tree_homes))==6
 
 
 if __name__ == "__main__":
@@ -45,7 +58,7 @@ if __name__ == "__main__":
         elif fault == "nonfinite":
             population["snakes"][0]["body"][0][1] = float("nan")
         elif fault == "tree-claim":
-            population["treeHabitatImplemented"] = True
+            population["treeHabitatImplemented"] = False
         else:
             population["snakes"][0]["body"][1][0] += 1
         try:

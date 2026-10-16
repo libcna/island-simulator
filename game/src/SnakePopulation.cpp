@@ -1,4 +1,5 @@
 #include "IslandSimulator/SnakePopulation.hpp"
+#include "IslandSimulator/CanopyProfile.hpp"
 #include "IslandSimulator/CaveSite.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include <algorithm>
@@ -196,6 +197,59 @@ namespace island
             // a permanently static prop during the first few seconds.
             clocks_[index] = std::fmod(12.0f+static_cast<float>(index)*5.9f,60.0f);
         }
+        if(jungle) {
+            // A deliberately small arboreal population occupies separated mature broadleaf
+            // trunks. Its body is sampled from the same triangle surface used by the canopy
+            // renderer instead of floating on a guessed cylinder.
+            for(std::size_t canopyIndex=0;canopyIndex<jungle->Canopy().size()
+                    && treeCount_<TreeCount;++canopyIndex) {
+                const auto& tree=jungle->Canopy()[canopyIndex];
+                if(tree.variant>=NaturalCanopyFormCount || tree.scale<.88f || tree.scale>1.30f)continue;
+                bool separated=true;
+                for(std::size_t previous=0;previous<treeCount_;++previous)
+                    separated=separated&&std::hypot(tree.x-treeHabitats_[previous].x,
+                        tree.z-treeHabitats_[previous].z)>=32.0f;
+                if(!separated)continue;
+                const auto rank=Mix(0x74726565U+static_cast<std::uint32_t>(canopyIndex));
+                auto& habitat=treeHabitats_[treeCount_];
+                habitat={tree.x,tree.y,tree.z,tree.yawRadians,tree.scale,
+                    3.5f+static_cast<float>(rank&255U)/255.0f*1.25f,
+                    static_cast<float>((rank>>8U)&1023U)/1023.0f*2.0f*std::numbers::pi_v<float>,
+                    tree.variant};
+                treeClocks_[treeCount_]=static_cast<float>(treeCount_)*.81f+.35f;
+                UpdateTreeSnake(treeCount_,treeClocks_[treeCount_]);
+                ++treeCount_;
+            }
+            if(treeCount_!=TreeCount)
+                throw std::runtime_error("No complete separated tree-snake habitat");
+        }
+    }
+
+    void SnakePopulation::UpdateTreeSnake(const std::size_t index,const float clock)
+    {
+        auto& state=treeStates_[index];
+        const auto& habitat=treeHabitats_[index];
+        state.homeX=habitat.x;state.homeZ=habitat.z;state.arboreal=true;
+        const float travel=std::sin(clock*.72f+static_cast<float>(index)*.63f);
+        for(std::size_t station=0;station<state.body.size();++station) {
+            const float path=travel-static_cast<float>(station)*.135f/habitat.scale;
+            const float height=habitat.baseHeight+path*.39f
+                +.08f*std::sin(path*1.7f+static_cast<float>(index));
+            const float angle=habitat.baseAngle+path*.18f
+                +.16f*std::sin(path*.9f+static_cast<float>(index)*.7f);
+            const auto contact=SampleCanopyTrunkSurface(habitat.variant,height,angle,false);
+            const float c=std::cos(habitat.yaw),s=std::sin(habitat.yaw);
+            const float nx=c*contact.normal[0]-s*contact.normal[2];
+            const float nz=s*contact.normal[0]+c*contact.normal[2];
+            const float offset=RadiusAt(station)+.004f;
+            state.body[station]={
+                habitat.x+habitat.scale*(c*contact.position[0]-s*contact.position[2])+nx*offset,
+                habitat.y+habitat.scale*contact.position[1]+contact.normal[1]*offset,
+                habitat.z+habitat.scale*(s*contact.position[0]+c*contact.position[2])+nz*offset};
+        }
+        const auto& head=state.body[0];const auto& neck=state.body[1];
+        state.heading=std::atan2(head.z-neck.z,head.x-neck.x);
+        state.phase=std::fmod(clock*3.0f,2.0f*std::numbers::pi_v<float>);
     }
 
     void SnakePopulation::Update(const float deltaSeconds, const float observerX,
@@ -350,6 +404,22 @@ namespace island
                 traveled += advance;
             }
             state.speed = traveled/dt;
+        }
+        for(std::size_t index=0;index<treeCount_;++index) {
+            auto& state=treeStates_[index];
+            const auto previous=state.body.front();
+            const float distance=observerValid ? std::hypot(std::hypot(previous.x-observerX,
+                previous.z-observerZ),previous.y-observerY) : 1000.0f;
+            state.tier=WildlifeActivationPolicy::Classify(distance,75.0f,135.0f);
+            state.speed=0;
+            if(state.tier==WildlifeSimulationTier::Dormant)continue;
+            const bool retreat=distance<5.0f;
+            state.behavior=retreat?SnakeBehavior::Retreat:SnakeBehavior::Explore;
+            treeClocks_[index]+=frameDt*(retreat?.52f:.22f);
+            UpdateTreeSnake(index,treeClocks_[index]);
+            const auto head=state.body.front();
+            state.speed=std::hypot(std::hypot(head.x-previous.x,head.z-previous.z),
+                head.y-previous.y)/frameDt;
         }
     }
 }

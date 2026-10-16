@@ -19,7 +19,9 @@ namespace island {
         ~SnakeRenderer();
         void Draw(const Microsoft::Xna::Framework::Matrix& view,
                   const Microsoft::Xna::Framework::Matrix& projection,
-                  const Microsoft::Xna::Framework::Vector3& camera, std::span<const SnakeState> snakes);
+                  const Microsoft::Xna::Framework::Vector3& camera,
+                  std::span<const SnakeState> snakes,
+                  std::span<const SnakeState> treeSnakes = {});
         [[nodiscard]] int VisibleCount() const noexcept { return visible_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return draws_; }
     private:

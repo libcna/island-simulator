@@ -91,6 +91,29 @@ int main(int argc,char** argv)
     obstacles.insert(obstacles.end(),props.Obstacles().begin(),props.Obstacles().end());
     island::SnakePopulation population(terrain,jungle,obstacles), repeated(terrain,jungle,obstacles);
     Check(population.Snakes().size()==50,"requested fifty-snake population missing");
+    Check(population.TreeSnakes().size()==island::SnakePopulation::TreeCount,
+        "requested separated tree-snake population missing");
+    for(std::size_t index=0;index<population.TreeSnakes().size();++index) {
+        const auto& snake=population.TreeSnakes()[index];
+        Check(snake.arboreal,"tree snake is not marked arboreal");
+        for(const auto& point:snake.body) {
+            Check(point.y>terrain.Height(point.x,point.z)+1.0f,
+                "tree snake fell onto ground habitat");
+            Check(std::hypot(point.x-snake.homeX,point.z-snake.homeZ)<1.2f,
+                "tree snake detached from its host trunk");
+        }
+        for(std::size_t station=1;station<snake.body.size();++station) {
+            const auto a=snake.body[station-1],b=snake.body[station];
+            const float distance=std::hypot(std::hypot(a.x-b.x,a.z-b.z),a.y-b.y);
+            if(distance<.025f||distance>.125f)
+                throw std::runtime_error("tree snake body segment outside continuity envelope: "
+                    +std::to_string(distance));
+        }
+        for(std::size_t previous=0;previous<index;++previous)
+            Check(std::hypot(snake.homeX-population.TreeSnakes()[previous].homeX,
+                    snake.homeZ-population.TreeSnakes()[previous].homeZ)>=32.0f,
+                "tree-snake host trunks are not separated");
+    }
     for(std::size_t index=0;index<population.Snakes().size();++index) {
         const auto& snake=population.Snakes()[index];
         Check(island::SnakePopulation::IsUnderstoryMargin(jungle,snake.homeX,snake.homeZ),
@@ -106,6 +129,15 @@ int main(int argc,char** argv)
         Check(std::isfinite(radius) && radius>=0.004f && radius<=island::SnakePopulation::MaximumRadius,
             "snake radius is nonfinite or outside tapered profile");
     }
+    island::SnakePopulation treeFocused(terrain,jungle,obstacles);
+    const auto treeStart=treeFocused.TreeSnakes().front().body.front();
+    for(int frame=0;frame<300;++frame) {
+        const auto head=treeFocused.TreeSnakes().front().body.front();
+        treeFocused.Update(1.0f/30.0f,head.x+8.0f,head.y,head.z);
+    }
+    const auto treeEnd=treeFocused.TreeSnakes().front().body.front();
+    Check(std::hypot(std::hypot(treeEnd.x-treeStart.x,treeEnd.z-treeStart.z),treeEnd.y-treeStart.y)>.03f,
+        "focused tree snake did not crawl on its host trunk");
     const island::RenderedTerrainSurface surface(terrain);
     std::array<bool,3> behaviors{};
     float totalTravel=0.0f;

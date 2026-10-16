@@ -231,12 +231,15 @@ def validate_game_logs(directory, lifecycle, viewpoint=None):
             raise RuntimeError("application did not confirm OPENGLES3 on SwiftShader")
         if "monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes" not in log:
             raise RuntimeError("application did not confirm the required monkey fur material")
-        if viewpoint in ("snakes", "snake-head"):
+        if viewpoint in ("snakes", "snake-head", "tree-snakes"):
             if "near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils" not in log:
                 raise RuntimeError("application did not confirm the current snake head anatomy")
-            validate_snake_runtime_samples(log)
+            validate_snake_runtime_samples(log,16 if viewpoint=="tree-snakes" else 4)
             if viewpoint == "snake-head" and "snake-head QA isolates facial geometry while the companion body view retains habitat grass" not in log:
                 raise RuntimeError("application did not confirm the isolated snake head view")
+            if viewpoint == "tree-snakes" and ("tree-snake QA frames a live climber on the sampled trunk surface" not in log
+                    or "six arboreal snakes cling and climb on sampled broadleaf trunk triangles" not in log):
+                raise RuntimeError("application did not confirm live tree-snake habitat")
         if viewpoint == "spiders":
             validate_spider_render_log(log)
             validate_spider_lighting(log)
@@ -414,7 +417,7 @@ def main():
     parser.add_argument("--sdk", type=Path, required=True)
     parser.add_argument("--boot", action="store_true", help="also boot the isolated emulator")
     parser.add_argument("--apk", type=Path, help="install/test this x86_64 APK after software renderer proof")
-    parser.add_argument("--viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"spiders", "goats", "hut", "hut-material", "boars", "snakes", "snake-head", "interactive", "monkey-climb"}),
+    parser.add_argument("--viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"spiders", "goats", "hut", "hut-material", "boars", "snakes", "snake-head", "tree-snakes", "interactive", "monkey-climb"}),
                         default="clearing-edge")
     parser.add_argument("--touch-selector", action="store_true")
     parser.add_argument("--lifecycle", action="store_true")

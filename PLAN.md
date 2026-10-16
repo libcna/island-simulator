@@ -68,9 +68,6 @@ remaining material work is:
 
 - continue whole-island visual critique, especially jungle-floor/canopy repetition and any
   moving-edge aliasing that is visible in ordinary first-person play;
-- implement the retained tree-dwelling snake variant; the 50 ground snakes now have bounded live
-  crawl, positional hissing and a current native/Web head-and-body visual pass, but arboreal snakes
-  are still absent;
 - complete subjective headphone/speaker listening and real audio-focus/lifecycle checks; the
   recorded traversal, material/lighting and wildlife/motion plus automated long-session sound
   passes are complete;
@@ -150,11 +147,33 @@ native current-binary evidence `20261016T025231.524706Z-snake-head` and
 `20261016T025834.966323Z-snakes` passes the explicit bounded close-natural-detail profile with four
 moving stages and empty kernel deltas. Focused Chrome/SwiftShader
 `20261016T025358.584777Z-chrome-snakes` passes both inspected views, four motion frames per view,
-60 finite positive intervals, GL error zero, live contexts and kernel `[]`. The retained arboreal
-snake variant and physical Android appearance remain open. A fresh ARM64 assemble/lint attempt is
+60 finite positive intervals, GL error zero, live contexts and kernel `[]`. The arboreal variant
+is closed by the following pass; physical Android appearance remains open. A fresh ARM64 assemble/lint attempt is
 currently blocked before source compilation by the shared read-only `sharp-runtime` checkout being
 at `f2aecfefeac171b331787e5cdc4849507363ef0e` instead of the deliberately pinned
 `7805c5dc695d8e84abd45168ab218793e10a4ad3`; the dependency checkout and lock remain untouched.
+
+## Latest arboreal-snake pass — six live trunk climbers
+
+The retained tree-dwelling variant is now implemented as six non-hostile snakes on separated mature
+broadleaf trunks. All 41 body stations originate on the actual near-trunk triangle surface and use
+the host placement, yaw and scale; a bounded vertical/azimuth route produces slow climbing with a
+faster nearby-observer response and dormant distance tier. The existing renderer merges the 50
+ground and six tree agents into the same nearest-16 selection and one dynamic draw. A stable
+trunk-radial section frame removes the vertical-tangent singularity, and a distinct restrained
+green palette reuses the qualified scale/head/eye material.
+
+The inspected native `20261016T034349.371503Z-tree-snakes` passes at 314 colour bins, 38.78
+luminance deviation and 221.46 spatial contrast with four ordered moving frames and clean kernel
+monitoring. Focused CPU coverage pins six elevated, 32m-separated host homes, continuous bodies and
+measurable live travel. WorldReport now truthfully exports `treeHabitatImplemented: true`, six tree
+bodies and separate wildlife counts. Inspected Chrome/SwiftShader
+`20261016T034519.314458Z-chrome-snakes` passes all three ground/head/tree views at 60 positive
+intervals, GL0, live contexts and kernel `[]`; four tree frames show 0.477m head travel. The old
+post-validator initially rejected the valid combined visible count of seven using its ground-only
+four-animal ceiling; the retained failed attempt remains, while the corrected current rerun passes
+with the tree view bounded by the renderer's nearest-16 cap. Physical Android appearance remains open behind the
+independent shared dependency revision mismatch above.
 
 ## Latest helicopter exterior pass — rounded rotor transmission
 

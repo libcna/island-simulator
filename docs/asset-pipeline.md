@@ -101,9 +101,9 @@ It records:
 - initial wildlife populations, including all thirty beach crabs and their six bounded colony
   regions, eighteen butterflies and their three terrain-validated clearing habitats, and five
   sea turtles with bounded near-shore cruise/forage/surface routes;
-- four ground snakes, with initial home/heading and all 41 ordered body stations per
-  snake in `groundSnakePopulation`; `treeHabitatImplemented: false` explicitly preserves
-  the unimplemented tree-habitat scope;
+- fifty ground snakes, with initial home/heading and all 41 ordered body stations per
+  snake in `groundSnakePopulation`; `treeHabitatImplemented: true` and the separate
+  six-body `treeSnakePopulation` record the sampled-canopy-trunk implementation;
 - a 64-bit fingerprint over sampled terrain and ordered generated world data.
 
 Ground snakes are constructed after the complete collision grid, including the hut,

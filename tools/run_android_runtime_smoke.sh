@@ -457,7 +457,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         && { [ "${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}" != "--viewpoint,monkey-climb" ] \
              || grep -q "monkey climb held summit presented after eight cycle stages" "$LOG_FILE"; } \
         && { case "${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}" in
-                 --viewpoint,snakes|--viewpoint,snake-head)
+                 --viewpoint,snakes|--viewpoint,snake-head|--viewpoint,tree-snakes)
                      grep -q "snake runtime sample frame=32 " "$LOG_FILE" ;;
                  --viewpoint,goats)
                      grep -Eq "goat render proof: goats [1-6]/6 visible, 2 draw;" "$LOG_FILE" ;;

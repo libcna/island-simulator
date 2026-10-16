@@ -111,7 +111,7 @@ def validate_bear_stages(text):
     return {"positions":positions,"displacement":displacement,"paw_motion":paw_motion}
 
 
-def validate_snake_runtime_samples(log):
+def validate_snake_runtime_samples(log, maximum_visible=4):
     """Validate sparse live-view motion, not continuous gait or visual quality."""
     rows = re.findall(r"snake runtime sample frame=(\d+) head=(\S+) speed=(\S+) visible=(\d+)", log)
     if len(rows) != 4 or log.count("snake runtime sample frame=") != 4 or [int(r[0]) for r in rows] != [8, 16, 24, 32]:
@@ -121,7 +121,7 @@ def validate_snake_runtime_samples(log):
         try:
             head = tuple(map(float, point.split(',')))
             valid = (len(head) == 3 and all(map(math.isfinite, head)) and math.isfinite(float(speed))
-                     and 0 <= float(speed) <= 1.151 and 1 <= int(visible) <= 4)
+                     and 0 <= float(speed) <= 1.151 and 1 <= int(visible) <= maximum_visible)
         except ValueError:
             valid = False
         if not valid:
@@ -160,6 +160,30 @@ def validate_snake_motion_stages(text):
         bodies.append(body)
     if max(math.dist(bodies[0][0], body[0]) for body in bodies[1:]) < .01:
         raise RuntimeError("snake motion sequence did not move")
+    return bodies
+
+
+def validate_tree_snake_motion_stages(text):
+    """Tree snakes follow a three-dimensional mesh surface, not fixed horizontal spacing."""
+    rows = re.findall(r"^island-simulator: snake motion stage=(\d+) updates=(\d+) time=(\S+) visible=(\d+) "
+                      r"speed=(\S+) phase=(\S+) body=(.*)$", text, re.M)
+    if len(rows) != 4 or text.count("snake motion stage=") != 4 or [int(row[0]) for row in rows] != list(range(4)):
+        raise RuntimeError("tree snake motion requires four ordered stages")
+    bodies=[]
+    for stage,updates,elapsed,visible,speed,phase,encoded in rows:
+        body=[tuple(map(float,point.split(','))) for point in encoded.rstrip(';').split(';')]
+        expected=(int(stage)+1)*8
+        if (int(updates)!=expected or not math.isclose(float(elapsed),expected*.1,abs_tol=1e-5)
+                or not 1<=int(visible)<=16 or not 0<=float(speed)<=1.151
+                or not math.isfinite(float(phase)) or len(body)!=41
+                or not all(len(point)==3 and all(map(math.isfinite,point)) for point in body)):
+            raise RuntimeError("invalid tree snake motion sample")
+        distances=[math.dist(a,b) for a,b in zip(body,body[1:])]
+        if min(distances)<.025 or max(distances)>.125:
+            raise RuntimeError("tree snake left its bounded continuous trunk coil")
+        bodies.append(body)
+    if max(math.dist(bodies[0][0],body[0]) for body in bodies[1:])<.01:
+        raise RuntimeError("tree snake motion sequence did not move")
     return bodies
 
 
@@ -561,7 +585,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "deer", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "geckos", "skinks", "dragonflies", "frogs", "mice", "rats", "flies", "ants", "cicadas", "beetles", "hermit-crabs", "coconut-crabs", "canopy", "monkey-tree", "monkey-climb", "ground-doves"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "deer", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "tree-snakes", "geckos", "skinks", "dragonflies", "frogs", "mice", "rats", "flies", "ants", "cicadas", "beetles", "hermit-crabs", "coconut-crabs", "canopy", "monkey-tree", "monkey-climb", "ground-doves"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -690,14 +714,19 @@ def main():
                     f"bunker QA camera {args.viewpoint}"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"bunker integration diagnostic missing: {marker}")
-            if args.viewpoint in ("snakes", "snake-head"):
+            if args.viewpoint in ("snakes", "snake-head", "tree-snakes"):
                 if "snakes use a readable dorsal saddle and active forked-tongue flicks" not in diagnostics:
                     raise RuntimeError("current snake anatomy material is missing")
                 if "near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils" not in diagnostics:
                     raise RuntimeError("current snake head anatomy is missing")
                 if args.viewpoint == "snake-head" and "snake-head QA isolates facial geometry while the companion body view retains habitat grass" not in diagnostics:
                     raise RuntimeError("snake-head capture did not isolate the facial geometry")
-                validate_snake_motion_stages(log)
+                if args.viewpoint == "tree-snakes" and "tree-snake QA frames a live climber on the sampled trunk surface" not in diagnostics:
+                    raise RuntimeError("tree-snake capture did not use the trunk detail camera")
+                if args.viewpoint == "tree-snakes" and "six arboreal snakes cling and climb on sampled broadleaf trunk triangles" not in diagnostics:
+                    raise RuntimeError("tree-snake habitat diagnostic missing")
+                (validate_tree_snake_motion_stages if args.viewpoint == "tree-snakes"
+                    else validate_snake_motion_stages)(log)
                 for stage in range(4):
                     if not Path(str(capture)+f".snake-stage-{stage}.ppm").is_file():
                         raise RuntimeError("missing snake motion stage image")
@@ -1257,8 +1286,8 @@ def main():
                 raise RuntimeError("current shaded canopy bark fill is missing; check for a stale executable")
             if "boars receive bilinear per-vertex canopy light in their existing batch" not in diagnostics:
                 raise RuntimeError("current boar lighting is missing; check for a stale executable")
-            if args.viewpoint in ("snakes","snake-head"):
-                if not re.search(r"snakes (?:[1-9]|[1-4][0-9]|50)/50 visible, 1 draw",diagnostics):
+            if args.viewpoint in ("snakes","snake-head","tree-snakes"):
+                if not re.search(r"snakes (?:[1-9]|1[0-6])/56 visible, 1 draw",diagnostics):
                     raise RuntimeError("snake capture did not submit the live population")
             if args.viewpoint == "goats" and not re.search(r"goats [1-6]/6 visible, 2 draw", diagnostics):
                 raise RuntimeError("goat capture did not submit the live population")

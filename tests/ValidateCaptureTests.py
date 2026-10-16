@@ -24,6 +24,7 @@ class CaptureValidatorTests(unittest.TestCase):
                 (["--viewpoint", "litter-other"], "scene"),
                 (["--viewpoint", "snake-head"], "close-natural-detail"),
                 (["--viewpoint", "snakes"], "close-natural-detail"),
+                (["--viewpoint", "tree-snakes"], "close-natural-detail"),
                 (["--viewpoint", "litter", "--overview"], "scene"),
                 (["--overview", "--viewpoint", "litter"], "shaded-detail"),
                 (["--viewpoint", "litter", "--viewpoint", "grass"], "scene")):
@@ -52,6 +53,7 @@ class CaptureValidatorTests(unittest.TestCase):
         self.assertEqual(profile_for_viewpoint("spiders-bright"), "close-natural-detail")
         self.assertEqual(profile_for_viewpoint("snake-head"), "close-natural-detail")
         self.assertEqual(profile_for_viewpoint("snakes"), "close-natural-detail")
+        self.assertEqual(profile_for_viewpoint("tree-snakes"), "close-natural-detail")
         for name in ("", "overview", "grass", "wet-sand", "litter-other", "interactive"):
             self.assertEqual(profile_for_viewpoint(name), "scene")
 

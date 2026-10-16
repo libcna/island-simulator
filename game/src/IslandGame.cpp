@@ -183,6 +183,7 @@ namespace island
             case FixedViewpoint::SpiderWebDetail: return "spider-web";
             case FixedViewpoint::SnakeDetail: return "snakes";
             case FixedViewpoint::SnakeHeadDetail: return "snake-head";
+            case FixedViewpoint::TreeSnakeDetail: return "tree-snakes";
             case FixedViewpoint::ButterflyDetail: return "butterflies";
             case FixedViewpoint::GeckoDetail: return "geckos";
             case FixedViewpoint::SkinkDetail: return "skinks";
@@ -1308,8 +1309,10 @@ namespace island
             const Vector3 direction=Vector3(h.x,h.floorY+(close?2.0f:1.5f),h.z)-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
-        } else if (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail) {
-            const auto& snake = snakes_->Snakes().front();
+        } else if (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail
+                || viewpoint_==FixedViewpoint::TreeSnakeDetail) {
+            const auto& snake = viewpoint_==FixedViewpoint::TreeSnakeDetail
+                ? snakes_->TreeSnakes().front() : snakes_->Snakes().front();
             const auto head = snake.body.front();
             Vector3 centre = Vector3::Zero;
             for (const auto& p : snake.body) centre += Vector3(p.x,p.y,p.z);
@@ -1317,6 +1320,13 @@ namespace island
             // Frame the entire body from above; the old oblique head-relative
             // camera crossed nearby broad leaves and lost the retreating head.
             cameraPosition_ = centre + Vector3(0.0f,2.0f,0.35f);
+            if(viewpoint_==FixedViewpoint::TreeSnakeDetail) {
+                Vector3 outward(head.x-snake.homeX,0,head.z-snake.homeZ);
+                if(outward.LengthSquared()<.001f)outward=Vector3::Forward;
+                outward.Normalize();
+                cameraPosition_=Vector3(head.x,head.y,head.z)+outward*1.8f+Vector3::Up*.10f;
+                std::cout<<"island-simulator: tree-snake QA frames a live climber on the sampled trunk surface\n";
+            }
             if(viewpoint_ == FixedViewpoint::SnakeHeadDetail) {
                 const Vector3 headPosition(head.x,head.y,head.z);
                 const auto neck=snake.body[1];
@@ -1326,7 +1336,9 @@ namespace island
                 std::cout << "island-simulator: snake-head QA isolates facial geometry while the companion body view retains habitat grass\n";
             }
             const Vector3 target = viewpoint_ == FixedViewpoint::SnakeHeadDetail
-                ? Vector3(head.x,head.y+.012f,head.z) : centre;
+                ? Vector3(head.x,head.y+.012f,head.z)
+                : viewpoint_==FixedViewpoint::TreeSnakeDetail
+                    ? Vector3(head.x,head.y,head.z)*.60f+centre*.40f : centre;
             const Vector3 direction = target-cameraPosition_;
             yaw_ = std::atan2(direction.X,direction.Z);
             pitch_ = std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
@@ -1883,7 +1895,8 @@ namespace island
         std::cout << "island-simulator: boars " << boarHerd_.Boars().size()
                   << " agents in moist non-channel interior habitat\n";
         std::cout << "island-simulator: snakes " << snakes_->Snakes().size()
-                  << " agents with separated dense-understory-margin homes\n";
+                  << " ground agents with separated dense-understory-margin homes; "
+                  << snakes_->TreeSnakes().size()<<" arboreal agents on sampled broadleaf trunks\n";
         monkeyRenderer_ = std::move(monkeyRenderer);
         residentRenderer_=std::move(residentRenderer);
         bearRenderer_=std::move(bearRenderer);
@@ -2213,7 +2226,8 @@ namespace island
         if(spiderCaptureClock)++spiderCaptureUpdates_;
         if(goatCaptureClock)++goatCaptureUpdates_;
         if (!snakeFirstDrawReturnReported_ && drawnFrames_ > 0U
-            && (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail)) {
+            && (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail
+                || viewpoint_==FixedViewpoint::TreeSnakeDetail)) {
             snakeFirstDrawReturnReported_ = true;
             MirrorRuntimeDiagnosticToPlatformLog("island-simulator: snake QA update resumed after first draw");
         }
@@ -2494,7 +2508,8 @@ namespace island
         }
         const auto snakeCentre = [this]() {
             Vector3 centre = Vector3::Zero;
-            const auto population = snakes_->Snakes();
+            const auto population = viewpoint_==FixedViewpoint::TreeSnakeDetail
+                ? snakes_->TreeSnakes() : snakes_->Snakes();
             if(viewpoint_==FixedViewpoint::SnakeHeadDetail) {
                 const auto& head=population.front().body.front();
                 return Vector3(head.x,head.y,head.z);
@@ -2516,7 +2531,8 @@ namespace island
         measureWildlife(2, [&] {
             snakes_->Update(deltaSeconds,snakeObserver.X,snakeObserver.Y,snakeObserver.Z);
         });
-        if (viewpoint_ == FixedViewpoint::SnakeDetail) {
+        if (viewpoint_ == FixedViewpoint::SnakeDetail
+                || viewpoint_==FixedViewpoint::TreeSnakeDetail) {
             // Follow translation only: preserve the viewing direction and live retreat behavior.
             // Software frames can span many simulation updates; otherwise the close subject exits.
             cameraPosition_ += snakeCentre()-previousSnakeCentre;
@@ -3762,7 +3778,8 @@ namespace island
                                                          .getTotalSecondsProperty());
         auto& device = getGraphicsDeviceProperty();
         BeginGpuDiagnosticFrame(drawnFrames_, drawnFrames_ < 2U
-            && (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail));
+            && (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail
+                || viewpoint_==FixedViewpoint::TreeSnakeDetail));
         if (drawnFrames_ == 1U) RecordRuntimeThreadInventory();
         if (!benchmarkPath_.empty() && !benchmarkReportPending_) {
             RecordBenchmarkFrame();
@@ -3868,7 +3885,8 @@ namespace island
         }
         {
             GpuDiagnosticScope gpuPass("snakes");
-            snakeRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,snakes_->Snakes());
+            snakeRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,
+                snakes_->Snakes(),snakes_->TreeSnakes());
         }
         {
             GpuDiagnosticScope gpuPass("goats");
@@ -4155,7 +4173,7 @@ namespace island
             overlayState.boarDraws = boarRenderer_->DrawCallCount();
             overlayState.boarShadows = contactShadowRenderer_->VisibleBoarShadowCount();
             overlayState.visibleSnakes = snakeRenderer_->VisibleCount();
-            overlayState.totalSnakes = static_cast<int>(snakes_->Snakes().size());
+            overlayState.totalSnakes = static_cast<int>(snakes_->Snakes().size()+snakes_->TreeSnakes().size());
             overlayState.snakeShadows = contactShadowRenderer_->VisibleSnakeShadowCount();
             overlayState.snakeDraws = snakeRenderer_->DrawCallCount();
             overlayState.totalCrabs = static_cast<int>(crabColony_.Crabs().size());
@@ -4465,7 +4483,8 @@ namespace island
                       << bearRenderer_->VisibleCount() << "/1 visible, "
                       << bearRenderer_->DrawCallCount() << " draws, "
                       << bearRenderer_->TriangleCount() << " body triangles; snakes "
-                      << snakeRenderer_->VisibleCount() << '/' << snakes_->Snakes().size()
+                      << snakeRenderer_->VisibleCount() << '/'
+                      << snakes_->Snakes().size()+snakes_->TreeSnakes().size()
                       << " visible, " << snakeRenderer_->DrawCallCount() << " draw, "
                       << contactShadowRenderer_->VisibleSnakeShadowCount() << " shadows; spiders "
                       << spiderRenderer_->VisibleCount() << '/' << spiders_->Spiders().size()
@@ -4733,9 +4752,11 @@ namespace island
             std::cout<<" triangles="<<bearRenderer_->TriangleCount()<<'/'
                 <<bearRenderer_->ShadowTriangleCount()<<'\n';
         }
-        if(!snakeCapture && (viewpoint_==FixedViewpoint::SnakeDetail || viewpoint_==FixedViewpoint::SnakeHeadDetail)
+        if(!snakeCapture && (viewpoint_==FixedViewpoint::SnakeDetail || viewpoint_==FixedViewpoint::SnakeHeadDetail
+                || viewpoint_==FixedViewpoint::TreeSnakeDetail)
             && drawnFrames_%8U==0 && drawnFrames_<=32U) {
-            const auto& subject=snakes_->Snakes().front();
+            const auto& subject=viewpoint_==FixedViewpoint::TreeSnakeDetail
+                ? snakes_->TreeSnakes().front() : snakes_->Snakes().front();
             const auto head=subject.body.front();
             std::ostringstream report;
             report << "island-simulator: snake runtime sample frame=" << drawnFrames_
@@ -4747,7 +4768,8 @@ namespace island
         if (snakeCapture && drawnFrames_%8U == 0 && drawnFrames_ <= 32U) {
             GpuDiagnosticScope gpuPass("capture-readback");
             CaptureFrame(capturePath_+".snake-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");
-            const auto& snake = snakes_->Snakes().front();
+            const auto& snake = viewpoint_==FixedViewpoint::TreeSnakeDetail
+                ? snakes_->TreeSnakes().front() : snakes_->Snakes().front();
             std::cout << "island-simulator: snake motion stage=" << drawnFrames_/8U-1U
                 << " updates=" << snakeCaptureUpdates_ << " time=" << timeSeconds
                 << " visible=" << snakeRenderer_->VisibleCount() << " speed=" << snake.speed

@@ -62,23 +62,28 @@ SnakeRenderer::SnakeRenderer(GraphicsDevice& device, const CanopyLightField& can
     std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
     const char* headAnatomy="island-simulator: near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils";
     std::cout<<headAnatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(headAnatomy);
+    const char* treeHabitat="island-simulator: six arboreal snakes cling and climb on sampled broadleaf trunk triangles";
+    std::cout<<treeHabitat<<'\n';MirrorRuntimeDiagnosticToPlatformLog(treeHabitat);
 }
 SnakeRenderer::~SnakeRenderer()=default;
 void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector3& camera,
-                         const std::span<const SnakeState> snakes)
+                         const std::span<const SnakeState> snakes,
+                         const std::span<const SnakeState> treeSnakes)
 {
     if(snakes.size()>SnakePopulation::Count)throw std::length_error("Snake population exceeds render capacity");
+    if(treeSnakes.size()>SnakePopulation::TreeCount)throw std::length_error("Tree snake population exceeds render capacity");
     vertices_.clear(); visible_=draws_=0;
     const BoundingFrustum frustum(view*projection);
     std::vector<std::pair<float,const SnakeState*>> candidates;
-    candidates.reserve(snakes.size());
-    for(const auto& snake:snakes) {
+    candidates.reserve(snakes.size()+treeSnakes.size());
+    const auto collect=[&](const std::span<const SnakeState> population) { for(const auto& snake:population) {
         const auto origin=Point(snake.body[0]);
         const float distance=Vector3::DistanceSquared(origin,camera);
         if (distance>70.0f*70.0f
             || !frustum.Intersects(BoundingSphere(origin,2.5f))) continue;
         candidates.emplace_back(distance,&snake);
-    }
+    }};
+    collect(snakes);collect(treeSnakes);
     std::sort(candidates.begin(),candidates.end(),[](const auto& a,const auto& b){return a.first<b.first;});
     if(candidates.size()>SnakeRenderer::MaximumVisibleCount)candidates.resize(SnakeRenderer::MaximumVisibleCount);
     for (const auto& candidate:candidates) {
@@ -99,14 +104,30 @@ void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vecto
             const auto before=Point(snake.body[j==0 ? 0 : j-1]);
             const auto after=Point(snake.body[std::min(j+1,snake.body.size()-1)]);
             const auto tangent=Vector3::Normalize(before-after);
-            const auto right=Vector3::Normalize(Vector3::Cross(Vector3::Up,tangent));
+            Vector3 right;
+            if(snake.arboreal) {
+                const Vector3 radial(centre.X-snake.homeX,0,centre.Z-snake.homeZ);
+                right=radial-tangent*Vector3::Dot(radial,tangent);
+                if(right.LengthSquared()<1e-6f)right=Vector3::Right;
+                right.Normalize();
+            } else {
+                const auto reference=std::abs(Vector3::Dot(tangent,Vector3::Up))<.92f
+                    ? Vector3::Up : Vector3::Right;
+                right=Vector3::Normalize(Vector3::Cross(reference,tangent));
+            }
             const auto up=Vector3::Normalize(Vector3::Cross(tangent,right));
             for (int k=0;k<=Sides;++k) {
                 const float angle=Tau*static_cast<float>(k)/Sides;
                 const auto normal=right*std::cos(angle)+up*std::sin(angle);
                 const float band=0.80f+0.20f*std::cos(static_cast<float>(j)*1.65f);
                 const float dorsalBand=.84f+.16f*std::cos(static_cast<float>(j)*1.65f);
-                const Color color=std::sin(angle)<-0.25f ? Color(177,165,105)
+                const Color color=snake.arboreal
+                    ? (std::sin(angle)<-0.25f ? Color(190,181,111)
+                        : std::sin(angle)>.32f
+                            ? Color(static_cast<int>(105*dorsalBand),static_cast<int>(151*dorsalBand),
+                                static_cast<int>(73*dorsalBand))
+                            : Color(static_cast<int>(79*band),static_cast<int>(127*band),static_cast<int>(58*band)))
+                    : std::sin(angle)<-0.25f ? Color(177,165,105)
                     : std::sin(angle)>.32f
                         ? Color(static_cast<int>(126*dorsalBand),static_cast<int>(139*dorsalBand),
                             static_cast<int>(61*dorsalBand))
@@ -125,7 +146,17 @@ void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vecto
             triangle(rings[j-1][a],rings[j][b],rings[j-1][b]);
         }
         const auto forward=Vector3::Normalize(Point(snake.body[0])-Point(snake.body[1]));
-        const auto right=Vector3::Normalize(Vector3::Cross(Vector3::Up,forward));
+        Vector3 right;
+        if(snake.arboreal) {
+            const Vector3 radial(origin.X-snake.homeX,0,origin.Z-snake.homeZ);
+            right=radial-forward*Vector3::Dot(radial,forward);
+            if(right.LengthSquared()<1e-6f)right=Vector3::Right;
+            right.Normalize();
+        } else {
+            const auto headReference=std::abs(Vector3::Dot(forward,Vector3::Up))<.92f
+                ? Vector3::Up : Vector3::Right;
+            right=Vector3::Normalize(Vector3::Cross(headReference,forward));
+        }
         const auto up=Vector3::Normalize(Vector3::Cross(forward,right));
         Ring muzzle=rings[0];
         for(std::size_t section=1;section<SnakeHeadSections.size();++section) {
@@ -138,7 +169,8 @@ void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vecto
                 const auto position=origin+forward*profile.forward
                     +right*(std::cos(angle)*profile.width)+up*(profile.centreY+std::sin(angle)*profile.height);
                 next[static_cast<std::size_t>(k)]=vertex(position,normal,
-                    std::sin(angle)<-0.25f ? Color(192,177,116) : Color(117,136,62),
+                    std::sin(angle)<-0.25f ? Color(192,177,116)
+                        : snake.arboreal ? Color(91,143,71) : Color(117,136,62),
                     Vector2(SnakeSkinU(static_cast<float>(k),Sides),
                         SnakeSkinV(-profile.forward,SnakePopulation::Spacing)));
             }

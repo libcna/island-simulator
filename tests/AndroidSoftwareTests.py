@@ -371,13 +371,15 @@ LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
         good = ('renderer="OPENGLES3" gl-renderer="Google SwiftShader"\n'
                 'monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes\n'
                 'near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils\n'
-                'snake-head QA isolates facial geometry while the companion body view retains habitat grass\n')
+                'snake-head QA isolates facial geometry while the companion body view retains habitat grass\n'
+                'tree-snake QA frames a live climber on the sampled trunk surface\n'
+                'six arboreal snakes cling and climb on sampled broadleaf trunk triangles\n')
         rows = [f"snake runtime sample frame={frame} head={i * .2},2,3 speed=1.15 visible=1\n"
                 for i, frame in enumerate((8, 16, 24, 32))]
         with tempfile.TemporaryDirectory(prefix="island-android-test-") as temporary:
             directory = Path(temporary)
             log = directory / "island-android-logcat.txt"
-            for view in ("snakes", "snake-head"):
+            for view in ("snakes", "snake-head", "tree-snakes"):
                 log.write_text(good + ''.join(rows))
                 gate.validate_game_logs(directory, False, view)
                 invalid = [[], rows[:3], rows[::-1], rows + rows[:1],
