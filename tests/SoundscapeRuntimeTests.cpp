@@ -1,6 +1,7 @@
 #include "IslandSimulator/Soundscape.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/CampfireLayout.hpp"
+#include "IslandSimulator/BunkerSite.hpp"
 #include <array>
 #include <chrono>
 #include <cstdlib>
@@ -83,6 +84,31 @@ void ExerciseCampfire(bool nearStartup) {
             }
         }
     }
+}
+void ExerciseBunkerHum() {
+    using namespace island;
+    constexpr float entranceY=12.0f;
+    Soundscape sound;
+    sound.SetBunkerSource(entranceY);
+    SoundscapeListenerState listener;
+    listener.x=BunkerSite::X;
+    listener.z=BunkerSite::Z-24.0f;
+    listener.y=entranceY-3.2f+1.72f;
+    Check(sound.Start(120,false,0,0,0,.5f,listener.x,listener.z,listener.y),
+        "Bunker dummy audio startup failed: "+sound.Error());
+    for(int tick=0;tick<120;++tick)
+        sound.Update(120,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},{});
+    auto debug=sound.DebugState();
+    Check(debug.bunkerHumPlaying&&debug.bunkerHumVolume>.15f,
+        "Bunker interior did not select an audible electrical hum");
+    Check(debug.playingSourceCount>=4&&debug.playingSourceCount<=6,
+        "Bunker hum exceeded the shared source budget");
+    listener.y=entranceY+12.0f;
+    for(int tick=0;tick<120;++tick)
+        sound.Update(120,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},{});
+    debug=sound.DebugState();
+    Check(!debug.bunkerHumPlaying&&debug.bunkerHumVolume<.01f,
+        "Bunker hum leaked onto the ridge above");
 }
 void ExerciseBearVoice() {
     using namespace island;
@@ -247,6 +273,7 @@ int main(int argc, char** argv) {
         Exercise(true);
         ExerciseCampfire(false);
         ExerciseCampfire(true);
+        ExerciseBunkerHum();
         ExerciseBearVoice();
         ExerciseGoatVoice();
         ExerciseFrogVoice();

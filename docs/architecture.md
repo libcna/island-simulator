@@ -1459,10 +1459,10 @@ state-transition chatter. Actual submerged camera depth adds a smooth 0.08--1.2 
 ambience and terrestrial calls fall no lower than 0.18 of their resolved gain, surf no lower than
 0.72, and the existing water loop rises no higher than 1.22 with at most -0.12 pitch offset. Invalid
 depth is surface-neutral, flight always supplies zero, and no PCM or source is added. All current procedural
-PCM payloads total 6,052,724 bytes (about 5.77 MiB) before backend bookkeeping, including the
+PCM payloads total 6,802,424 bytes (about 6.49 MiB) before backend bookkeeping, including the
 wildlife phrases described below. `Soundscape::Start` generates, converts, uploads, and releases
-one source at a time. It therefore does not retain all 6,052,724 PCM bytes and a second
-6,052,724-byte conversion copy simultaneously; the largest game-owned staging pair is the jungle
+one source at a time. It therefore does not retain all 6,802,424 PCM bytes and a second
+6,802,424-byte conversion copy simultaneously; the largest game-owned staging pair is the jungle
 bed at 2,557,800 bytes. Backend-owned decoded audio remains unchanged.
 
 Two genuinely different 1.5-second splash textures handle crossings between dry and shallow-water

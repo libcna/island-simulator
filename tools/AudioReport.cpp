@@ -163,7 +163,7 @@ namespace
     [[nodiscard]] std::vector<AudioClip> GenerateClips()
     {
         std::vector<AudioClip> clips;
-        clips.reserve(40U);
+        clips.reserve(41U);
         clips.push_back({"shoreline surf", "surf.wav", true, 220500U,
                          island::GenerateSurfLoop()});
         clips.push_back({"canopy breeze", "breeze.wav", true, 242550U,
@@ -174,6 +174,8 @@ namespace
                          island::GenerateStreamLoop()});
         clips.push_back({"wood fire crackling", "campfire.wav", true, 418950U,
                          island::GenerateCampfireLoop()});
+        clips.push_back({"bunker electrical hum", "bunker-hum.wav", true, 374850U,
+                         island::GenerateBunkerHumLoop()});
         clips.push_back({"player water movement", "water-movement.wav", true, 154350U,
                          island::GenerateWaterMovementLoop()});
         clips.push_back({"stronger wave A", "stronger-wave-a.wav", false, 88200U,

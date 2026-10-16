@@ -1060,6 +1060,8 @@ int main()
     const island::AmbientLoop repeatedJungleLoop = island::GenerateJungleLoop();
     const island::AmbientLoop streamLoop = island::GenerateStreamLoop();
     const island::AmbientLoop repeatedStreamLoop = island::GenerateStreamLoop();
+    const island::AmbientLoop bunkerHumLoop = island::GenerateBunkerHumLoop();
+    const island::AmbientLoop repeatedBunkerHumLoop = island::GenerateBunkerHumLoop();
     const island::AmbientLoop waveAccent = island::GenerateWaveAccent();
     const island::AmbientLoop waveAccentAlternate = island::GenerateWaveAccentAlternate();
     const island::AmbientLoop shipwreckCreak = island::GenerateShipwreckCreak();
@@ -1118,6 +1120,8 @@ int main()
           "daytime-jungle ambience has its intended twenty-nine-second portable format");
     Check(streamLoop.sampleRate == 22050 && streamLoop.samples.size() == 286650U,
           "stream ambience has its intended thirteen-second portable format");
+    Check(bunkerHumLoop.sampleRate==22050&&bunkerHumLoop.samples.size()==374850U,
+          "bunker electrical hum has its intended seventeen-second portable format");
     Check(waveAccent.sampleRate == 22050 && waveAccent.samples.size() == 88200U
               && waveAccentAlternate.sampleRate == 22050
               && waveAccentAlternate.samples.size() == 88200U,
@@ -1176,6 +1180,8 @@ int main()
           "procedural daytime-jungle generation is deterministic");
     Check(streamLoop.samples == repeatedStreamLoop.samples,
           "procedural stream generation is deterministic");
+    Check(bunkerHumLoop.samples==repeatedBunkerHumLoop.samples,
+          "procedural bunker electrical hum generation is deterministic");
     Check(waveAccent.samples != waveAccentAlternate.samples,
           "stronger-wave variants contain genuinely different source PCM");
     Check(shipwreckCreak.samples != shipwreckCreakAlternate.samples
@@ -1222,6 +1228,8 @@ int main()
           "daytime-jungle ambience is audible while retaining mixing headroom");
     Check(peakMagnitude(streamLoop) < 32767 && rootMeanSquare(streamLoop) > 700.0,
           "stream ambience is audible while retaining mixing headroom");
+    Check(peakMagnitude(bunkerHumLoop)<32767&&rootMeanSquare(bunkerHumLoop)>700.0,
+          "bunker electrical hum is audible while retaining mixing headroom");
     Check(peakMagnitude(waveAccent) < 32767 && rootMeanSquare(waveAccent) > 900.0,
           "stronger-wave accent is audible while retaining mixing headroom");
     Check(peakMagnitude(waveAccentAlternate) < 32767
@@ -1290,8 +1298,12 @@ int main()
     Check(std::abs(static_cast<int>(streamLoop.samples.front())
                    - static_cast<int>(streamLoop.samples.back())) < 8000,
           "stream loop has no large boundary discontinuity");
+    Check(std::abs(static_cast<int>(bunkerHumLoop.samples.front())
+                   -static_cast<int>(bunkerHumLoop.samples.back()))<8000,
+          "bunker electrical hum loop has no large boundary discontinuity");
     for (const island::AmbientLoop* loop : {
-             &surfLoop, &breezeLoop, &jungleLoop, &waterMovementLoop, &streamLoop}) {
+             &surfLoop, &breezeLoop, &jungleLoop, &waterMovementLoop, &streamLoop,
+             &bunkerHumLoop}) {
         Check(std::abs(island::AnalyzeAudioSignal(*loop).mean) <= 0.0001,
               "persistent ambience removes material DC before PCM quantization");
     }

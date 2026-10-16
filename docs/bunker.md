@@ -64,7 +64,7 @@ runtime traversal and touch-control review remain open.
 ## Remaining work
 
 The facility is intentionally compact and still visibly procedural at close range.
-Moving first-person artistic review, richer prop variation, localized audio, Android
+Moving first-person artistic review, richer prop variation, subjective audio listening, Android
 device runtime and real-GPU performance qualification remain future polish. They do not
 reopen the fixed entrance collision or the sealed-end terrain leak.
 
@@ -91,3 +91,26 @@ six inspected current views. Each supplies 12 finite positive intervals, GL erro
 context; the final frame shows the wheel, bolts and status panel, while the room views retain the
 computer, generator and service spaces. The kernel delta is empty. Physical Android/AMD runtime
 and moving first-person performance remain grouped with final qualification.
+
+## Local electrical ambience — 2026-10-16
+
+The underground footprint now has a dedicated original seventeen-second electrical/generator hum.
+It crossfades only when the listener follows the playable descending floor into the corridor or
+rooms; the vertical camera-to-floor check prevents the same world footprint from leaking onto the
+grassy ridge above. Deeper presence attenuates the outdoor surf, breeze and jungle beds to create a
+bounded enclosed transition without a reverberation engine.
+
+The hum reuses the existing fourth regional source, taking priority over the mutually exclusive
+campfire, stream and player-water loops. It therefore adds no simultaneous voice beyond the
+existing four persistent / six maximum source contract. Real CNA dummy-backend tests enter and
+leave the acoustic volume, query actual Playing state and volume, exercise the source budget and
+confirm that the ridge remains outside. The exact PCM is also covered by deterministic format,
+energy, headroom, DC and seam tests plus independent WAV export validation. Release and WebGL 2
+compilation, five focused native test groups, Android ARM64 `assembleDebug` and `lintDebug` pass
+with at most three build workers (the Android wrapper uses two). The APK is 24,664,315 bytes and
+contains only the 19,621,744-byte `arm64-v8a/libmain.so`. No emulator or KVM setting was touched.
+The current Chrome 155/SwiftShader evidence
+`build/browser-software/20261016T115641.304967Z-chrome-bunker` passes all six bunker views with
+twelve positive frame intervals each, a live context, GL error zero and an empty kernel delta.
+Subjective listening, browser/device audio lifecycle and physical output remain part of final
+audio qualification.

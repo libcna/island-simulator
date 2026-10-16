@@ -404,6 +404,29 @@ namespace island
         return Quantize(samples,.68f,true);
     }
 
+    AmbientLoop GenerateBunkerHumLoop()
+    {
+        constexpr int loopSeconds=17;
+        constexpr std::size_t count=AmbientSampleRate*loopSeconds;
+        const auto noise=Noise(0xb04ce217U,count);
+        const auto transformer=CircularSmooth(noise,720U);
+        const auto ventilation=CircularSmooth(noise,46U);
+        std::vector<float> samples(count);
+        for(std::size_t i=0;i<count;++i) {
+            const float seconds=static_cast<float>(i)/AmbientSampleRate;
+            const float phase=static_cast<float>(i)/count;
+            const float load=.90f+.065f*std::sin(TwoPi*(2.0f*phase+.17f))
+                +.025f*std::sin(TwoPi*(7.0f*phase+.61f));
+            const float mains=.42f*std::sin(TwoPi*50.0f*seconds)
+                +.19f*std::sin(TwoPi*100.0f*seconds+.23f)
+                +.075f*std::sin(TwoPi*150.0f*seconds+.57f);
+            const float fan=.10f*std::sin(TwoPi*23.0f*seconds
+                +.12f*std::sin(TwoPi*3.0f*phase));
+            samples[i]=load*(mains+fan)+transformer[i]*.31f+ventilation[i]*.075f;
+        }
+        return Quantize(samples,.62f,true);
+    }
+
     AmbientLoop GenerateWaveAccent()
     {
         constexpr std::size_t frameCount = static_cast<std::size_t>(AmbientSampleRate * 4);

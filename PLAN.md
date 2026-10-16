@@ -112,6 +112,28 @@ hard grass/bush wall at a tier boundary; WebGL remains live, GL error is zero, t
 error is 1.075 m and kernel monitoring is clean. This is representative motion evidence, not a
 mathematical all-view aliasing proof.
 
+## Latest bunker atmosphere pass — bounded underground electrical hum
+
+The next whole-island sound/interior audit found that the powered bunker remained acoustically an
+outdoor island space. It now has an original deterministic seventeen-second transformer,
+ventilation and low generator bed. The listener zone follows the actual corridor/room footprint
+and expected walking-camera height along the descending floor, so it activates inside but not on
+the vegetated ridge directly above. Presence crossfades to 0.20 maximum hum gain while reducing
+the outdoor surf, breeze and jungle beds to enclosed residual levels.
+
+No simultaneous source was added: bunker hum has priority in the same fourth voice already shared
+by campfire, stream and player-water movement, preserving four persistent and six maximum playing
+sources. Release consumer compilation uses the locked dependency revisions and at most three
+workers. `IslandCoreTests`, `IslandBunkerLayoutTests`, `IslandSoundscapeRuntimeTests`,
+`IslandAudioReport` and `IslandAudioPreviewExport` pass. The 41-source report now includes the
+374,850-sample PCM and 6,802,424-byte total preview payload. These tests establish deterministic
+signal and real-backend lifecycle behavior. The current WebGL 2 package compiles, and Android
+ARM64 `assembleDebug` plus `lintDebug` pass against the locked Sharp Runtime copy; the APK is
+24,664,315 bytes and contains only `arm64-v8a`. No emulator/KVM setting was touched. Subjective
+speaker/headphone quality and physical Web/Android device audio remain open. Chrome 155/SwiftShader
+`20261016T115641.304967Z-chrome-bunker` passes all six bunker views with twelve positive frame
+intervals each, GL error zero, a live context and no new kernel GPU faults.
+
 ## Latest terrestrial-fauna material pass — local-space feral-goat markings
 
 The renewed eight-stage animal audit retained the goats' planted gait, horns, beard, muzzle detail
@@ -2495,7 +2517,7 @@ falls from about 3,545 to 1,300 zero crossings/second and goat breath A from abo
 their RMS remains 0.0826 and 0.0810 respectively. New core guards prevent either breath from
 regressing into high-frequency hiss.
 
-The 40-clip audio report remains valid at exactly 6,052,724 PCM bytes. Core, audio-report and real-CNA
+The 41-clip audio report remains valid at exactly 6,802,424 PCM bytes. Core, audio-report and real-CNA
 soundscape runtime tests pass. Contained SDL disk-backend playback/mute evidence passes for boars at
 `build-consumer/software-boar-audio/20261014T115811.660531Z` and goats at
 `build-consumer/software-goat-audio/20261014T115921.600671Z`, with no new kernel GPU faults. Native,
@@ -2628,13 +2650,13 @@ as acceptance evidence. Android runtime appearance remains unqualified without a
 
 ## Previous sound-audit implementation — grounded bear airway voice and loop recovery
 
-The full 40-clip procedural audio report remained valid, but its objective spectrum proxy exposed
+The full procedural audio report remained valid, but its objective spectrum proxy exposed
 the weakest animal voice: bear breath variants crossed zero roughly 7,634--7,678 times per second,
 reading much closer to a hiss than the low airway/chest sound of a large mammal. The accepted
 synthesis keeps the six clips, durations, peaks, positional ranges, scheduler and shared-source
 budget unchanged, but moves energy from raw noise into two filtered airway bands plus the existing
 low chest harmonics. Final breath variants measure 3,049--3,120 crossings/s, snuffles
-2,791--2,848/s and huffs 819--843/s; all 40 clips remain valid at the exact 6,052,724-byte PCM
+2,791--2,848/s and huffs 819--843/s; all 41 clips remain valid at the exact 6,802,424-byte PCM
 budget. Bear motion/audio tests now bound this hiss regression explicitly.
 
 The same runtime audit exposed a separate resilience gap relevant to the operator's earlier total
@@ -10642,7 +10664,7 @@ improves the requested experience rather than adding quests, combat, survival, o
   Two deterministic 1.8s loaded-timber variants now play only within 34m of the grounded wreck,
   only with audible surf and at irregular 17--41s repeat intervals. They share the stronger-wave
   transient instance, add no loop or seventh source, do not queue missed out-of-range events, and
-  stop on mute. The 40-clip report/export passes at 6,052,724 PCM bytes; native real-CNA dummy and
+  stop on mute. The 41-clip report/export passes at 6,802,424 PCM bytes; native real-CNA dummy and
   SDL disk-device runs prove playback, mute/range suppression and the six-source ceiling. Actual
   listening/naturalness plus Web and Android runtime playback remain open.
 - [ ] Tune camera motion, movement acceleration, slope response, swimming, shoreline transitions,

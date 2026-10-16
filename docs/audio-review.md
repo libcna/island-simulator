@@ -47,7 +47,7 @@ The JSON records every source's:
 - stable PCM fingerprint and source identity;
 - per-clip and overall validation state.
 
-The gate requires all 40 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
+The gate requires all 41 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
 audible energy and mix headroom, avoid material DC bias, and stay finite. A looping source's seam
 must be both absolutely bounded and no worse than 125 percent of its largest ordinary internal
 step, and its normalized absolute mean must remain at or below 0.0001 after PCM quantization. The
@@ -72,13 +72,14 @@ build/island-audio-report \
   --wav-directory /tmp/island-audio-preview
 ```
 
-The directory contains six loop beds and thirty-four one-shots as standard little-endian, mono,
-22.05 kHz PCM16 WAV files. Their PCM payload totals 6,052,724 bytes plus WAV headers. Delete the directory after review;
+The directory contains seven loop beds and thirty-four one-shots as standard little-endian, mono,
+22.05 kHz PCM16 WAV files. Their PCM payload totals 6,802,424 bytes plus WAV headers. Delete the directory after review;
 the sources are reproducible from code.
 
 Listen first to each source alone:
 
-1. Loop `surf.wav`, `breeze.wav`, `jungle.wav`, `stream.wav`, and `water-movement.wav` for at least two minutes
+1. Loop `surf.wav`, `breeze.wav`, `jungle.wav`, `stream.wav`, `campfire.wav`,
+   `bunker-hum.wav`, and `water-movement.wav` for at least two minutes
    each. Listen specifically for the boundary, tonal whistles, obvious short repetition, harsh
    high-frequency noise, and low-frequency pressure.
 2. Compare both stronger-wave and water-transition variants at matched playback volume. They should
@@ -113,7 +114,7 @@ Two original deterministic 1.8-second mono clips model low loaded-timber strain 
 resonances, inharmonic partials and filtered fibre texture. Variant A/B peak at 0.63998/0.60999,
 RMS is 0.23128/0.21377, normalized mean is 0.00051/-0.00019, endpoints are exact silence, and
 fingerprints are `26ec888679d25c9e` / `a51318948291aa33`. The complete report and independent
-WAV export now pass for 40 distinct clips and 6,052,724 PCM bytes. These measurements prove
+WAV export now pass for 41 distinct clips and 6,802,424 PCM bytes. These measurements prove
 bounded non-silent data, not that the synthesis sounds like real wreck timber.
 
 `ShipwreckCreakScheduler` requires audible surf and a listener within 34m of the immutable wreck

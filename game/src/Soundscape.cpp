@@ -1,4 +1,5 @@
 #include "IslandSimulator/Soundscape.hpp"
+#include "IslandSimulator/BunkerSite.hpp"
 #include "IslandSimulator/CampfireLayout.hpp"
 #include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
@@ -40,6 +41,8 @@ namespace island
             "island-simulator: surf and breeze gains follow bounded coastal wind exposure";
         constexpr std::string_view StreamSoundDiagnostic =
             "island-simulator: positional stream loop follows the nearest shared-route point";
+        constexpr std::string_view BunkerHumDiagnostic=
+            "island-simulator: bunker electrical hum shares the regional stream, campfire, and water voice";
         constexpr std::string_view FootstepEnabledDiagnostic =
             "island-simulator: distance-scheduled sand and soil footsteps enabled";
         constexpr std::string_view FootstepPlaybackDiagnostic =
@@ -157,6 +160,12 @@ namespace island
         }
     }
 
+    void Soundscape::SetBunkerSource(const float entranceGroundY) noexcept
+    {
+        hasBunkerSource_=std::isfinite(entranceGroundY);
+        if(hasBunkerSource_)bunkerEntranceGroundY_=entranceGroundY;
+    }
+
     SoundscapeDebugState Soundscape::DebugState() const noexcept
     {
         SoundscapeDebugState state;
@@ -168,7 +177,8 @@ namespace island
         if (available_) {
             // Query actual playback: an owned instance does not prove an audible/live track.
             for (const auto* instance : {surfInstance_.get(), breezeInstance_.get(),
-                    jungleInstance_.get(), streamInstance_.get(), campfireInstance_.get(), waterMovementInstance_.get(),
+                    jungleInstance_.get(), streamInstance_.get(), campfireInstance_.get(),
+                    bunkerHumInstance_.get(),waterMovementInstance_.get(),
                     waveInstance_.get(), waterTransitionInstance_.get(), footstepInstance_.get(),
                     wildlifeInstance_.get()}) {
                 try {
@@ -183,6 +193,10 @@ namespace island
             state.campfirePlaying=available_&&campfirePlaybackActive_&&campfireInstance_
                 &&campfireInstance_->getStateProperty()==SoundState::Playing;
             if(available_&&campfireInstance_)state.campfireVolume=campfireInstance_->getVolumeProperty();
+            state.bunkerHumPlaying=available_&&bunkerHumPlaybackActive_&&bunkerHumInstance_
+                &&bunkerHumInstance_->getStateProperty()==SoundState::Playing;
+            if(available_&&bunkerHumInstance_)
+                state.bunkerHumVolume=bunkerHumInstance_->getVolumeProperty();
         } catch(const std::exception&) {}
         return state;
     }
@@ -202,7 +216,8 @@ namespace island
                            const float waterDepth, const float horizontalSpeed,
                            const float oceanCurrentStrength,
                            const float coastalWindExposure,
-                           const float playerX, const float playerZ) noexcept
+                           const float playerX, const float playerZ,
+                           const float playerY) noexcept
     {
         if (startAttempted_) {
             return available_;
@@ -213,6 +228,9 @@ namespace island
         campfirePresence_=CampfireSite::SoundPresence(playerX,CampfireLayout::GroundY()+PlayerMotion::EyeHeight,
             playerZ,CampfireLayout::GroundY());
         campfireVolume_=campfirePresence_*.26f;
+        bunkerPresence_=hasBunkerSource_
+            ?BunkerSite::SoundPresence(playerX,playerY,playerZ,bunkerEntranceGroundY_):0.0f;
+        bunkerHumVolume_=bunkerPresence_*.20f;
         const float seasonalWetland=IslandEnvironmentField::SeasonalWetlandPotential(
             playerX,playerZ,signedShoreDistance);
         model_.Reset(signedShoreDistance, swimming, coastalWindExposure,
@@ -249,6 +267,11 @@ namespace island
             campfireEffect_->setNameProperty("Procedural wood fire crackling");
             campfireInstance_=std::make_unique<SoundEffectInstance>(campfireEffect_->CreateInstance());
             campfireInstance_->setIsLoopedProperty(true);
+            bunkerHumEffect_=CreateLoopedSoundEffect(GenerateBunkerHumLoop());
+            bunkerHumEffect_->setNameProperty("Procedural underground electrical hum");
+            bunkerHumInstance_=std::make_unique<SoundEffectInstance>(
+                bunkerHumEffect_->CreateInstance());
+            bunkerHumInstance_->setIsLoopedProperty(true);
 
             waveEffect_ = CreateOneShotSoundEffect(GenerateWaveAccent());
             waveEffect_->setNameProperty("Procedural stronger wave");
@@ -352,10 +375,14 @@ namespace island
             surfInstance_->Play();
             breezeInstance_->Play();
             jungleInstance_->Play();
-            campfirePlaybackActive_=!swimming&&campfirePresence_>.015f;
-            streamPlaybackActive_ = !campfirePlaybackActive_&&StreamSoundField::ShouldUseStreamPlayback(
+            bunkerHumPlaybackActive_=!swimming&&bunkerPresence_>.015f;
+            campfirePlaybackActive_=!bunkerHumPlaybackActive_&&!swimming&&campfirePresence_>.015f;
+            streamPlaybackActive_ = !bunkerHumPlaybackActive_&&!campfirePlaybackActive_
+                &&StreamSoundField::ShouldUseStreamPlayback(
                 swimming, streamSound_.presence, false);
-            if(campfirePlaybackActive_) {
+            if(bunkerHumPlaybackActive_) {
+                bunkerHumInstance_->Play();
+            } else if(campfirePlaybackActive_) {
                 AudioListener listener;
                 listener.setPositionProperty(Vector3(playerX,CampfireLayout::GroundY()+PlayerMotion::EyeHeight,playerZ));
                 PositionCampfire(*campfireInstance_,listener);
@@ -371,7 +398,9 @@ namespace island
             if (surfInstance_->getStateProperty() != SoundState::Playing
                 || breezeInstance_->getStateProperty() != SoundState::Playing
                 || jungleInstance_->getStateProperty() != SoundState::Playing
-                || (campfirePlaybackActive_?campfireInstance_->getStateProperty()!=SoundState::Playing:streamPlaybackActive_
+                || (bunkerHumPlaybackActive_
+                    ?bunkerHumInstance_->getStateProperty()!=SoundState::Playing
+                    :campfirePlaybackActive_?campfireInstance_->getStateProperty()!=SoundState::Playing:streamPlaybackActive_
                     ? streamInstance_->getStateProperty() != SoundState::Playing
                     : waterMovementInstance_->getStateProperty() != SoundState::Playing)) {
                 throw std::runtime_error("CNA did not transition all looping tracks to Playing");
@@ -405,6 +434,7 @@ namespace island
             std::cout << "island-simulator: subtle daytime-jungle layer enabled\n";
             std::cout << StreamSoundDiagnostic << '\n';
             std::cout<<"island-simulator: positional campfire crackling shares the stream/player-water voice; four persistent tracks\n";
+            std::cout<<BunkerHumDiagnostic<<'\n';
             std::cout << "island-simulator: player water-movement layer enabled\n";
             std::cout << "island-simulator: water-transition accents enabled\n";
             std::cout << "island-simulator: two water-transition variants enabled\n";
@@ -435,6 +465,7 @@ namespace island
             MirrorRuntimeDiagnosticToPlatformLog(AmbientVariationDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(CoastalWindMixDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(StreamSoundDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(BunkerHumDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(FootstepEnabledDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(ShipwreckCreakEnabledDiagnostic);
 #endif
@@ -449,6 +480,7 @@ namespace island
             streamEffect_.reset();
             streamPlaybackActive_ = false;
             campfireInstance_.reset();campfireEffect_.reset();campfirePlaybackActive_=false;
+            bunkerHumInstance_.reset();bunkerHumEffect_.reset();bunkerHumPlaybackActive_=false;
             waterMovementInstance_.reset();
             waterTransitionInstance_.reset();
             footstepInstance_.reset();
@@ -584,6 +616,10 @@ namespace island
         streamSound_ = StreamSoundField::Sample(listenerState.x, listenerState.z);
         campfirePresence_=CampfireSite::SoundPresence(listenerState.x,listenerState.y,listenerState.z,CampfireLayout::GroundY());
         campfireVolume_+=(campfirePresence_*.26f-campfireVolume_)*(1-std::exp(-safeDelta*4));
+        bunkerPresence_=hasBunkerSource_?BunkerSite::SoundPresence(
+            listenerState.x,listenerState.y,listenerState.z,bunkerEntranceGroundY_):0.0f;
+        bunkerHumVolume_+=(bunkerPresence_*.20f-bunkerHumVolume_)
+            *(1.0f-std::exp(-safeDelta*3.2f));
         const float seasonalWetland=IslandEnvironmentField::SeasonalWetlandPotential(
             listenerState.x,listenerState.z,signedShoreDistance);
         (void)model_.Update(signedShoreDistance, swimming, safeDelta,
@@ -598,8 +634,12 @@ namespace island
             std::cout<<diagnostic<<'\n'<<std::flush;
             MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         }
-        const bool wantsCampfirePlayback=!swimming&&campfirePresence_>(campfirePlaybackActive_?.005f:.015f);
-        const bool wantsStreamPlayback = !wantsCampfirePlayback&&StreamSoundField::ShouldUseStreamPlayback(
+        const bool wantsBunkerPlayback=!swimming
+            &&bunkerPresence_>(bunkerHumPlaybackActive_?.005f:.015f);
+        const bool wantsCampfirePlayback=!wantsBunkerPlayback&&!swimming
+            &&campfirePresence_>(campfirePlaybackActive_?.005f:.015f);
+        const bool wantsStreamPlayback = !wantsBunkerPlayback&&!wantsCampfirePlayback
+            &&StreamSoundField::ShouldUseStreamPlayback(
             swimming, streamSound_.presence, streamPlaybackActive_);
         AudioListener listener;
         listener.setPositionProperty(Vector3(
@@ -623,10 +663,14 @@ namespace island
                 return;
             }
         }
-        if (available_ && (wantsStreamPlayback != streamPlaybackActive_||wantsCampfirePlayback!=campfirePlaybackActive_)) {
+        if (available_ && (wantsBunkerPlayback!=bunkerHumPlaybackActive_
+            ||wantsStreamPlayback != streamPlaybackActive_
+            ||wantsCampfirePlayback!=campfirePlaybackActive_)) {
             try {
-                streamInstance_->Stop();campfireInstance_->Stop();waterMovementInstance_->Stop();
-                if(wantsCampfirePlayback)campfireInstance_->Play();
+                streamInstance_->Stop();campfireInstance_->Stop();bunkerHumInstance_->Stop();
+                waterMovementInstance_->Stop();
+                if(wantsBunkerPlayback)bunkerHumInstance_->Play();
+                else if(wantsCampfirePlayback)campfireInstance_->Play();
                 else if (wantsStreamPlayback) {
                     streamInstance_->Play();
                 } else {
@@ -634,6 +678,7 @@ namespace island
                 }
                 streamPlaybackActive_ = wantsStreamPlayback;
                 campfirePlaybackActive_=wantsCampfirePlayback;
+                bunkerHumPlaybackActive_=wantsBunkerPlayback;
             } catch (const std::exception& exception) {
                 DisableAfterRuntimeFailure(exception.what());
                 return;
@@ -643,7 +688,8 @@ namespace island
             // A device/backend can stop a loop without changing the logical region. Previously
             // the cached active flags then prevented any restart until the player crossed another
             // stream/fire/water boundary, leaving that layer silent indefinitely.
-            SoundEffectInstance* desiredLoop = wantsCampfirePlayback ? campfireInstance_.get()
+            SoundEffectInstance* desiredLoop = wantsBunkerPlayback?bunkerHumInstance_.get()
+                :wantsCampfirePlayback ? campfireInstance_.get()
                 : wantsStreamPlayback ? streamInstance_.get() : waterMovementInstance_.get();
             try {
                 if (desiredLoop && desiredLoop->getStateProperty() != SoundState::Playing) {
@@ -1176,21 +1222,25 @@ namespace island
     void Soundscape::ApplyVolumes() noexcept
     {
         if (!available_ || !surfInstance_ || !breezeInstance_ || !jungleInstance_
-            || !streamInstance_ || !campfireInstance_ || !waterMovementInstance_) {
+            || !streamInstance_ || !campfireInstance_ || !bunkerHumInstance_
+            || !waterMovementInstance_) {
             return;
         }
         try {
             const float gain = muted_ ? 0.0f : 1.0f;
+            const float enclosureAir=std::lerp(1.0f,.20f,bunkerPresence_);
+            const float enclosureSurf=std::lerp(1.0f,.08f,bunkerPresence_);
             surfInstance_->setVolumeProperty(model_.Mix().surfVolume
-                *underwaterAudio_.surfGain*gain);
+                *underwaterAudio_.surfGain*enclosureSurf*gain);
             breezeInstance_->setVolumeProperty(model_.Mix().breezeVolume
-                *underwaterAudio_.airGain*gain);
+                *underwaterAudio_.airGain*enclosureAir*gain);
             jungleInstance_->setVolumeProperty(model_.Mix().jungleVolume
-                *underwaterAudio_.airGain*gain);
+                *underwaterAudio_.airGain*enclosureAir*gain);
             streamInstance_->setVolumeProperty(model_.Mix().streamVolume
-                *underwaterAudio_.airGain*gain);
+                *underwaterAudio_.airGain*enclosureAir*gain);
             campfireInstance_->setVolumeProperty(campfireVolume_
                 *underwaterAudio_.airGain*gain);
+            bunkerHumInstance_->setVolumeProperty(bunkerHumVolume_*gain);
             const float underwaterBed=.025f*underwaterAudio_.immersion;
             waterMovementInstance_->setVolumeProperty(std::min(1.0f,
                 (waterMovementModel_.Mix().volume+underwaterBed)
@@ -1213,6 +1263,7 @@ namespace island
         streamEffect_.reset();
         streamPlaybackActive_ = false;
         campfireInstance_.reset();campfireEffect_.reset();campfirePlaybackActive_=false;
+        bunkerHumInstance_.reset();bunkerHumEffect_.reset();bunkerHumPlaybackActive_=false;
         waterMovementInstance_.reset();
         waterTransitionInstance_.reset();
         footstepInstance_.reset();

@@ -57,6 +57,9 @@ namespace island
     /** @brief Original nineteen-second ember hiss, wood crackles and sparse pops. */
     [[nodiscard]] AmbientLoop GenerateCampfireLoop();
 
+    /** @brief Original seamless seventeen-second underground electrical-generator hum. */
+    [[nodiscard]] AmbientLoop GenerateBunkerHumLoop();
+
     /** @brief Generates one four-second stronger-wave wash for sparse shoreline accents. */
     [[nodiscard]] AmbientLoop GenerateWaveAccent();
 

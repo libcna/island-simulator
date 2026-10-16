@@ -1971,6 +1971,7 @@ namespace island
         soundscape_ = std::make_unique<Soundscape>();
         const ShipwreckPlacement& shipwreck = shipwreckLayout_.Ship();
         soundscape_->SetShipwreckSource(shipwreck.x, shipwreck.y + 0.35f, shipwreck.z);
+        soundscape_->SetBunkerSource(bunkerLayout_.EntranceGroundY());
         if (userSettings_.audioMuted) soundscape_->SetMuted(true);
         if (!smokeTest_ && !soundscapeNeedsGesture_) {
             TryStartSoundscape();
@@ -2195,7 +2196,7 @@ namespace island
         (void)soundscape_->Start(
             shoreDistance, swimming, waterDepth, horizontalSpeed,
             playerMotion_.OceanCurrentStrength(terrain_), windExposure,
-            position.x, position.z);
+            position.x, position.z,position.y);
         soundscapeNeedsGesture_ = false;
     }
 

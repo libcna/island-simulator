@@ -58,6 +58,15 @@ int main() {
     const auto coveredRoof=bunker.World(0,bunker.FloorRelative(20)+4.5f,20);
     Check(!bunker.HidesTerrain(coveredRoof.x,coveredRoof.y,coveredRoof.z),
           "bunker excavation removes valid ridge cover above the roof");
+    const auto deepListener=bunker.World(0,bunker.FloorRelative(24)
+        +island::PlayerMotion::EyeHeight,24);
+    Check(island::BunkerSite::SoundPresence(deepListener.x,deepListener.y,deepListener.z,
+              bunker.EntranceGroundY())>.99f,
+          "deep bunker room does not activate its acoustic zone");
+    Check(island::BunkerSite::SoundPresence(deepListener.x,
+              terrain.Height(deepListener.x,deepListener.z)+island::PlayerMotion::EyeHeight,
+              deepListener.z,bunker.EntranceGroundY())==0.0f,
+          "bunker acoustic zone leaks onto the ridge above");
 
     // Exercise the real controller, not only abstract segment collision: approach from
     // ordinary terrain, cross the threshold, descend well below grade, then return out.

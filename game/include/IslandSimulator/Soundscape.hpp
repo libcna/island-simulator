@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <limits>
 #include <span>
 #include <string>
 
@@ -40,6 +41,8 @@ namespace island
         int sourceBudget = 6;
         bool campfirePlaying = false;
         float campfireVolume=0;
+        bool bunkerHumPlaying=false;
+        float bunkerHumVolume=0;
         UnderwaterAudioMix underwaterAudio;
     };
 
@@ -62,7 +65,8 @@ namespace island
         bool Start(float signedShoreDistance, bool swimming, float waterDepth,
                    float horizontalSpeed, float oceanCurrentStrength,
                    float coastalWindExposure=.5f,
-                   float playerX=0.0f, float playerZ=0.0f) noexcept;
+                   float playerX=0.0f, float playerZ=0.0f,
+                   float playerY=std::numeric_limits<float>::quiet_NaN()) noexcept;
 
         /** @brief Advances location-driven crossfades for active playback. */
         void Update(float signedShoreDistance, bool swimming, float waterDepth,
@@ -86,6 +90,9 @@ namespace island
 
         /** @brief Supplies the immutable grounded-wreck emitter position. */
         void SetShipwreckSource(float x, float y, float z) noexcept;
+
+        /** @brief Supplies the sampled portal elevation for underground acoustic zoning. */
+        void SetBunkerSource(float entranceGroundY) noexcept;
 
         /** @brief Toggles user-requested silence without destroying the active loops. */
         void ToggleMuted() noexcept;
@@ -186,6 +193,11 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> campfireInstance_;
         bool campfirePlaybackActive_ = false;
         float campfirePresence_=0,campfireVolume_=0;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> bunkerHumEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> bunkerHumInstance_;
+        bool bunkerHumPlaybackActive_=false;
+        float bunkerPresence_=0,bunkerHumVolume_=0,bunkerEntranceGroundY_=0;
+        bool hasBunkerSource_=false;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waveEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waveAlternateEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> waveInstance_;
