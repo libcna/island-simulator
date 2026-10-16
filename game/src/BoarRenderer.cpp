@@ -108,7 +108,7 @@ namespace island
                 vertices.emplace_back(pc, CanopyColor(pc, lit), WhiteUv);
             }
             void Ellipsoid(const Vector3& centre, const Vector3& radius, const Color& color,
-                           const int sides, const int rings)
+                           const int sides, const int rings, const bool fur=false)
             {
                 const auto point = [&](const int latitude, const int longitude) {
                     const float a = static_cast<float>(latitude) * Pi / static_cast<float>(rings);
@@ -117,7 +117,10 @@ namespace island
                                        std::sin(a) * std::sin(b));
                     return SmoothVertex(centre + Vector3(radius.X * unit.X, radius.Y * unit.Y,
                                                           radius.Z * unit.Z),
-                                        Vector3(unit.X / radius.X, unit.Y / radius.Y, unit.Z / radius.Z), color);
+                                        Vector3(unit.X / radius.X, unit.Y / radius.Y, unit.Z / radius.Z),
+                                        color,fur?Vector2(MonkeyFurUv::Along(
+                                            static_cast<float>(latitude)/static_cast<float>(rings)),
+                                            MonkeyFurUv::Around(b)):WhiteUv);
                 };
                 for (int row = 0; row < rings; ++row) {
                     for (int side = 0; side < sides; ++side) {
@@ -202,11 +205,23 @@ namespace island
             const float bob = grounded.bodyBob;
             const float dip = boar.rootingPose * 0.15f;
             const std::array<Color,3> furTints{Color(245,239,229),Color(211,217,222),Color(255,240,218)};
-            mesh.Body(furTints[boar.colorVariant%furTints.size()], dip, bob, boar.scale < 0.8f, sides);
+            const auto fur=furTints[boar.colorVariant%furTints.size()];
+            mesh.Body(fur, dip, bob, boar.scale < 0.8f, sides);
             mesh.Ellipsoid(Vector3(0, 0.42f - dip + bob, BoarMuzzleZ(1.047f)), Vector3(0.114f, 0.09f, 0.0175f),
                            Color(120, 86, 68), near ? 12 : 6, 4);
             for (int side : {-1, 1}) {
                 const float x = static_cast<float>(side);
+                if (near) {
+                    // Blend each articulated limb into a broad shoulder or haunch. The
+                    // previous narrow tubes began abruptly under the barrel and made the
+                    // animal read as a model on four sticks at close range. These low,
+                    // overlapping furred masses remain inside the body envelope at their
+                    // upper edge and expose only the natural outer muscle silhouette.
+                    mesh.Ellipsoid(Vector3(x*.145f,.555f+bob,.31f),
+                                   Vector3(.205f,.205f,.215f),fur,8,4,true);
+                    mesh.Ellipsoid(Vector3(x*.140f,.545f+bob,-.43f),
+                                   Vector3(.185f,.195f,.205f),fur,8,4,true);
+                }
                 for (int leg = 0; leg < 2; ++leg) {
                     const auto& pose = grounded.legs[(side < 0 ? 0 : 2) + leg];
                     const Vector3 root(pose.root.x, pose.root.y, pose.root.z);
@@ -216,10 +231,10 @@ namespace island
                     // body-rooted muscle into the articulated knee; a single thin
                     // cylinder made the limbs look attached after the fact.
                     const Vector3 muscle=root+(knee-root)*.42f;
-                    mesh.Limb(root,muscle,.135f,.095f,
-                              furTints[boar.colorVariant%furTints.size()],near?8:5,true);
+                    mesh.Limb(root,muscle,leg==0?.148f:.142f,.095f,
+                              fur,near?8:5,true);
                     mesh.Limb(muscle,knee,.095f,.057f,
-                              furTints[boar.colorVariant%furTints.size()],near?8:5,true);
+                              fur,near?8:5,true);
                     if (near) {
                         // A continuous cannon taper replaces the old detached spherical
                         // knee cap. The small radius swell keeps the joint readable while
@@ -314,11 +329,11 @@ namespace island
                     boar.colorVariant%2U?1:-1);
                 const auto point=[](BoarJoint p){return Vector3(p.x,p.y,p.z);};
                 mesh.Limb(point(tail[0]),point(tail[1]),.027f,.022f,
-                    furTints[boar.colorVariant%furTints.size()],6,true);
+                    fur,6,true);
                 mesh.Limb(point(tail[1]),point(tail[2]),.022f,.016f,
-                    furTints[boar.colorVariant%furTints.size()],6,true);
+                    fur,6,true);
                 mesh.Limb(point(tail[2]),point(tail[3]),.016f,.012f,
-                    furTints[boar.colorVariant%furTints.size()],6,true);
+                    fur,6,true);
                 mesh.Limb(point(tail[3]),point(tail[4]),.012f,.008f,dark,6,true);
             }
         }
@@ -372,6 +387,10 @@ namespace island
             "island-simulator: near boars use broad tapered upper legs with compact split hooves";
         std::cout << anatomyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(anatomyDiagnostic);
+        constexpr const char* limbBlendDiagnostic =
+            "island-simulator: near boar limbs blend into overlapping furred shoulder and haunch masses";
+        std::cout << limbBlendDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(limbBlendDiagnostic);
         constexpr const char* lowerLegDiagnostic =
             "island-simulator: near boar lower legs use a continuous knee-to-cannon taper without spherical joint caps";
         std::cout << lowerLegDiagnostic << '\n';

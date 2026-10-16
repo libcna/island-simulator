@@ -312,3 +312,28 @@ pass. Same-camera baseline `20261015T192040.416969Z-boars` and accepted current-
 with 258 colour bins, 32.55 luminance deviation, 139.14 spatial contrast and an empty kernel delta.
 Portable gates require the new anatomy diagnostic; consolidated Chrome/Android qualification
 remains separate from this native visual pass.
+
+## Limb-to-body silhouette integration — 2026-10-16
+
+A fresh eight-stage close audit `20261016T052850.593996Z-boars` found that the qualified coat,
+face, tusks and planted motion were readable, but every upper leg began as a narrow tube below the
+barrel. The resulting empty notches around the limb roots made the otherwise heavy animal look as
+though its body had been placed on four sticks. A first candidate with superficial muscle volumes
+was rejected because it produced four circular fur patches on the flanks.
+
+The accepted construction buries a low textured ellipsoid inside the body at each shoulder and
+haunch. Only its lower and outer muscle silhouette remains exposed around the existing articulated
+root, while the upper leg begins slightly broader and retains its original knee, cannon, split
+hoof, fixed bone lengths and terrain-fitted sole. The four eight-by-four surfaces add 768 vertices
+and 256 triangles per near animal in the existing fur draw. Far geometry, population, behavior,
+texture allocation, dynamic-buffer ceiling and the two-draw fur/solid split are unchanged.
+
+Native accepted evidence `20261016T053258.730189Z-boars` covers all eight deterministic motion
+stages and passes at 258 colour bins, 32.54 luminance deviation and 139.14 spatial contrast with an
+empty kernel delta. Seven focused native test groups and all 41 browser/capture harness tests pass.
+Focused Chrome 155/SwiftShader WebGL 2 evidence
+`build/browser-software/20261016T053707.895472Z-chrome-boars` provides two distinct inspected
+frames and passes 60 finite positive intervals, GL error zero, a live context and an empty kernel
+delta. The later frame is naturally partly screened by foliage; the initial frame is the accepted
+portable anatomy view. Physical Android appearance and subjective boar-call listening remain part
+of consolidated qualification rather than this geometry pass.

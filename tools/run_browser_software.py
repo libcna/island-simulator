@@ -266,6 +266,7 @@ def validate_boar_report(report):
         or len(set(frames)) != 2
         or "boar QA camera frames and follows non-hostile inland wildlife" not in log
         or "near boars use broad tapered upper legs with compact split hooves" not in log
+        or "near boar limbs blend into overlapping furred shoulder and haunch masses" not in log
         or "near boar lower legs use a continuous knee-to-cannon taper without spherical joint caps" not in log
         or "boars use a lifted shoulder mantle and broad sealed nasal disc" not in log
         or "near boars retain warm shoulder, cheek, nose, and eye contrast in canopy shade" not in log

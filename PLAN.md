@@ -199,6 +199,25 @@ guard remains visually intact. Five focused native test groups pass. Focused Chr
 GL0, a live context and kernel `[]`; its beach camera is runtime portability evidence rather than
 the aerial appearance proof. Details are in `docs/whole-island-material-pass.md`.
 
+## Latest boar visual pass — integrated shoulders and haunches
+
+The next eight-stage animal audit selected the abrupt narrow upper-leg roots as the weakest boar
+cue: empty notches under the barrel made the heavy animal look supported by four sticks. A first
+candidate with surface-mounted muscle volumes was inspected and rejected because it created four
+circular flank patches. The accepted near form buries one textured low muscle volume at each
+shoulder and haunch, exposing only its lower/outer silhouette around a slightly broader existing
+upper leg. Knees, cannon bones, split hooves, fixed limb lengths and fitted ground contacts remain
+unchanged.
+
+The four eight-by-four surfaces add 768 vertices and 256 triangles per near animal inside the
+existing fur draw and bounded dynamic allocation. Far geometry, six-agent behavior, texture memory
+and the two-draw material split stay fixed. Native `20261016T053258.730189Z-boars` covers eight
+motion stages and passes at 258 colour bins, 32.54 luminance deviation, 139.14 spatial contrast and
+kernel `[]`. Seven focused native test groups and 41 browser/capture tests pass. Inspected focused
+Chrome/SwiftShader `20261016T053707.895472Z-chrome-boars` supplies two distinct frames and passes
+60 finite intervals, GL0, a live context and kernel `[]`. Details are in
+`docs/boar-coat-material.md`.
+
 The current Firefox qualification exposed a real beach-start regression rather than a renderer
 failure: the relocated firewood collision sat 1.73 m ahead of the old `(0,-225)` start and rejected
 forward movement. The player now starts at `(4,-225)` inside the unchanged 17 m reserved beach

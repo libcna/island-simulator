@@ -1330,6 +1330,8 @@ def main():
                 raise RuntimeError("current boar pose is missing; check for a stale executable")
             if args.viewpoint=="boars" and "near boars use broad tapered upper legs with compact split hooves" not in diagnostics:
                 raise RuntimeError("current boar limb anatomy is missing; check for a stale executable")
+            if args.viewpoint=="boars" and "near boar limbs blend into overlapping furred shoulder and haunch masses" not in diagnostics:
+                raise RuntimeError("current boar shoulder/haunch integration is missing; check for a stale executable")
             if args.viewpoint=="boars" and "near boar lower legs use a continuous knee-to-cannon taper without spherical joint caps" not in diagnostics:
                 raise RuntimeError("current boar lower-leg anatomy is missing; check for a stale executable")
             if args.viewpoint=="boars" and "boars use a lifted shoulder mantle and broad sealed nasal disc" not in diagnostics:
