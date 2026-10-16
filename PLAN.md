@@ -2054,6 +2054,27 @@ emulator/KVM (24,191,747-byte APK, SHA-256
 `6d2ab4119a61b3b623337b82c9a02d6d8cf0bda0910bfa48364a3c78abde5fc1`, 19,149,176-byte stripped
 `libmain.so`); physical-device appearance remains unqualified.
 
+## Latest visual-audit implementation — fruit-bat anatomy and visible roosts
+
+The next comparison selected the nearby roosting fruit bat, which still read as an angular cluster
+of bipyramids, triangular eyes/ears, flat fingers/toes and unbounded membrane cards. The near form
+now uses rounded CPU-lit body, head, muzzle and fitted nose volumes, closed ears, fitted highlighted
+eyes, closed membrane edges, five solid wing/arm rays per side, solid lower legs and articulated
+gripping toes. The exact near form is 2,268 vertices inside a 2,300-vertex slot; six agents retain
+their existing buffer, one draw, animation, LOD and 4/2 daytime activity split.
+
+The audit also proved that the old 70%-nominal-height roosts were buried inside opaque crown cores.
+All six deterministic anchors now hang at 56% below the lower leaf mass on the same real inland host
+trees, and the review camera approaches from the host crown's real outward direction. Exact-final
+inspected native evidence is `20261016T171323.746653Z-bats` (flight: 301 bins, 27.19 deviation,
+101.38 contrast) and `20261016T171358.644484Z-bat-roost` (inverted: 127 bins, 31.54 deviation,
+184.11 contrast). Core tests and all 102 capture/browser harness tests pass. Cross-platform evidence
+from `build/browser-software/20261016T172154.275601Z-chrome-bats` passes both views with 60 finite
+positive intervals each, GL0, live contexts and clean kernel monitoring. ARM64 assemble/lint passes
+without emulator/KVM (24,711,875-byte APK, SHA-256
+`3faa95fa613eee2b153819d65f65888241a2267f3e965b1ddfa106f9d620cf77`, 19,669,304-byte stripped
+`libmain.so`). Remaining limits are in `docs/fruit-bats.md`.
+
 ## Latest visual-audit implementation — connected cicada anatomy
 
 The next close-animal comparison selected the trunk cicada, whose disconnected diamond abdomen,

@@ -1098,12 +1098,15 @@ namespace island
         } else if (viewpoint_ == FixedViewpoint::FruitBatRoostDetail
                    && fruitBatColony_.Bats().size() > 2U) {
             const FruitBatState& bat = fruitBatColony_.Bats()[2U];
-            Vector3 outward(bat.x, 0.0f, bat.z);
-            if (outward.LengthSquared() < .001f) outward = Vector3::Forward;
-            outward.Normalize();
-            const Vector3 side(-outward.Z, 0.0f, outward.X);
+            const Vector3 roostForward(std::cos(bat.headingRadians),0.0f,
+                                       std::sin(bat.headingRadians));
+            // A roost is offset from its host trunk roughly opposite its authored
+            // heading. Approach from that real crown-outward direction rather than
+            // from the island centre, which can put the camera behind the trunk.
+            const Vector3 outward=-roostForward;
+            const Vector3 side(-outward.Z,0.0f,outward.X);
             cameraPosition_ = Vector3(bat.x, bat.y, bat.z)
-                + outward * 1.18f + side * .78f - Vector3::Up * 1.72f;
+                + outward*1.42f+side*.38f-Vector3::Up*1.64f;
             const Vector3 toBat = Vector3(bat.x, bat.y - .04f, bat.z) - cameraPosition_;
             yaw_ = std::atan2(toBat.X, toBat.Z);
             pitch_ = std::atan2(toBat.Y, std::hypot(toBat.X, toBat.Z));

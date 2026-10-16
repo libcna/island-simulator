@@ -39,7 +39,10 @@ namespace island
             const float crownHeight = CanopyNominalHeight(tree.variant) * tree.scale;
             roosts_.push_back({
                 tree.x + std::cos(tree.yawRadians + .7f) * .55f * tree.scale,
-                tree.y + crownHeight * .70f,
+                // Hang beneath the lower crown rather than inside its opaque leaf cores.
+                // The previous 70% nominal-height point hid both animals and their branch
+                // contact from any plausible ground view.
+                tree.y + crownHeight * .56f,
                 tree.z + std::sin(tree.yawRadians + .7f) * .55f * tree.scale,
                 tree.yawRadians + std::numbers::pi_v<float>});
         }

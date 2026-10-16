@@ -1147,6 +1147,7 @@ def main():
             if args.viewpoint in ("bats", "bat-roost"):
                 for marker in (
                     "fruit bats use furred bodies, pointed ears, muzzles, eyes, fingered membranes, and hanging claws in one draw",
+                    "near fruit bats use rounded faceted body lofts, a fitted nose and eyes, closed ears, solid wing fingers, wrapped membranes, and tapered gripping toes",
                     "fruit bats 6 agents use six inland canopy roosts with four hanging and two bounded daytime flights"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"fruit-bat integration diagnostic missing: {marker}")
