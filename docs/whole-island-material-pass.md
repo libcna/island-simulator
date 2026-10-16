@@ -90,3 +90,24 @@ spatial contrast with an empty kernel delta. The mathematically unchanged near-f
 60 finite positive intervals with GL error zero, a live context and an empty kernel delta. Its
 beach-facing camera is portable-runtime evidence, not a substitute for the native aerial visual
 comparison.
+
+## Second far-silhouette material fade — 2026-10-16
+
+The next current-binary overview still found the residual 0.30 endpoints too conspicuous after
+the camera moved beyond ordinary island traversal range: individual dark classifications again
+became the first read on the two hill silhouettes. The accepted follow-up preserves the entire
+existing response through 315 m. Only from 315 to 460 m does one shared multiplier ease from 1.0
+to 0.55, giving humus, moss and ridge outcrops a final strength of 0.165. This is a second-stage
+silhouette treatment, not another change to first-person material or the authored patch shapes.
+
+The shared value reuses distance already evaluated by the shader and adds no noise, texture,
+varying, uniform, geometry, buffer or draw. Four focused native groups pass. Same-camera native
+baseline `20261016T065149.916753Z-overview` and accepted
+`20261016T065425.752766Z-overview` were inspected side by side. The accepted 1280x720 frame keeps
+the ridges and open habitats but further subordinates the most distant spots; it passes at 362
+colour bins, 37.98 luminance deviation, 205.72 spatial contrast and kernel `[]`. Ground-level
+guard `20261016T065518.914110Z-jungle` retains the established soil, grass and tree contact at
+279/46.22/213.01. Focused Chrome 155/SwiftShader
+`build/browser-software/20261016T065727.171770Z-chrome-distant` executes the current shader for
+60 finite positive intervals with GL error zero, a live context and kernel `[]`; its beach camera
+is portability evidence rather than the native aerial comparison.

@@ -79,7 +79,7 @@ namespace island
         constexpr std::string_view AerialGroundScaleDiagnostic =
             "island-simulator: inland terrain retains an eight-metre footprint-filtered material scale in aerial views";
         constexpr std::string_view AerialMaterialContrastDiagnostic =
-            "island-simulator: aerial humus, moss, and ridge-outcrop classifications retain substrate while softening long-range patch contrast";
+            "island-simulator: aerial humus, moss, and ridge-outcrop classifications retain substrate with a second far-silhouette contrast fade";
         constexpr std::string_view SlopeLightDiagnostic =
             "island-simulator: terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices";
         constexpr std::string_view StreamBankDiagnostic =
@@ -514,7 +514,9 @@ void main()
     // Preserve the qualified mid-scale field from aerial views, but reduce only its
     // darkest classification amplitude after individual patches become landscape
     // masses. The underlying brown forest substrate never fades back to legacy green.
-    float aerialPatchStrength=mix(1.0,0.30,smoothstep(165.0,315.0,distanceToCamera));
+    float farSilhouetteCalm=mix(1.0,0.55,smoothstep(315.0,460.0,distanceToCamera));
+    float aerialPatchStrength=mix(1.0,0.30,smoothstep(165.0,315.0,distanceToCamera))
+        * farSilhouetteCalm;
     color = mix(color, vec3(0.205, 0.151, 0.091) * vGroundLight,
                 leafHumus * 0.54 * aerialPatchStrength);
     color = mix(color, vec3(0.185, 0.265, 0.115) * vGroundLight,
@@ -750,7 +752,7 @@ void main()
     litRidgeRock += vec3(0.038, 0.054, 0.058) * coastalCliff
         * (0.62 + ridgeSkyFill * 0.38);
     float aerialOutcropStrength=mix(0.98,0.30,
-        smoothstep(165.0,315.0,distanceToCamera));
+        smoothstep(165.0,315.0,distanceToCamera)) * farSilhouetteCalm;
     color = mix(color, litRidgeRock, rockCoverage * aerialOutcropStrength);
 
     // One shared environment field darkens the carved drainage and its irregular damp banks.

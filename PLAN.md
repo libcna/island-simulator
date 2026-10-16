@@ -235,6 +235,24 @@ world/core/capture tests pass. Inspected Chrome/SwiftShader
 `20261016T055151.536764Z-chrome-goats` shows four distinct current-habitat frames and passes 60
 finite intervals, GL0, a live context and kernel `[]`. Details are in `docs/goats.md`.
 
+## Latest terrain overview pass — second far-silhouette material fade
+
+The renewed current overview found that the previous 0.30 aerial endpoints still became repeated
+dark spots once the camera moved beyond ordinary traversal range. The established response remains
+bit-for-bit unchanged through 315 m. From 315 to 460 m only, one shared multiplier eases from 1.0
+to 0.55, taking the final humus/moss and ridge-outcrop strength to 0.165 while retaining the warm
+substrate and authored shapes. It reuses existing distance and adds no sample, texture, shader
+input, geometry, buffer or draw.
+
+Four focused native groups pass. Inspected same-camera baseline
+`20261016T065149.916753Z-overview` and accepted `20261016T065425.752766Z-overview` show the darkest
+far patches receding behind the ridge silhouette; the accepted frame passes at 362 colour bins,
+37.98 luminance deviation, 205.72 spatial contrast and kernel `[]`. Ground-level guard
+`20261016T065518.914110Z-jungle` retains the established close material. Inspected
+Chrome/SwiftShader `20261016T065727.171770Z-chrome-distant` runs the current shader for 60 finite
+positive intervals with GL0, a live context and kernel `[]`. Details are in
+`docs/whole-island-material-pass.md`.
+
 ## Latest helicopter visual pass — closed swept empennage
 
 The next exterior audit selected the tail surfaces: the otherwise rounded aircraft still used a
