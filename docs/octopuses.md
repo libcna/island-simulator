@@ -72,3 +72,27 @@ pin both the new inventory and eye diagnostic. Focused Chrome/SwiftShader eviden
 `20261015T203024.741359Z-chrome-octopuses` passes 60 finite intervals, inspected current and
 after-simulation frames, GL error zero, a live context and an empty final kernel delta. Android
 qualification remains grouped with later integration.
+
+## Inset ocular hood and pinched-arm pass (2026-10-16)
+
+The next underwater-animal comparison still selected the octopus. Its ocular bulbs were smaller
+than the original buttons but their centres sat ahead of the actual head ellipsoid, so they still
+read as short eye stalks. The rear mantle also retained too much frontal width and all eight arm
+ends stopped at a visible constant-width ribbon edge.
+
+The eye sockets are now fitted against the evaluated head envelope: most of each low hood is
+buried in the head and only the small iris, horizontal pupil and catchlight project. The mantle is
+narrower, slightly taller and longer behind the head. Arm roots become marginally broader, live
+curl increases toward the distal half, and the final cross-section pinches from 18 mm to 6 mm
+instead of ending as a flat band. These are coordinate-only changes: the exact 3,186/24 near/far
+vertex inventory, 3,300-per-animal guard, four agents, one draw, controller, habitat, LOD and
+runtime work are unchanged.
+
+Inspected native evidence `20261016T133437.053754Z-octopuses` passes at 143 colour bins, 32.81
+luminance deviation and 184.14 spatial contrast with an empty kernel delta. The hooded eyes remain
+legible without separating from the head and all eight arms taper to fine live tips. Inspected
+Chrome/SwiftShader evidence `20261016T133746.472675Z-chrome-octopuses` supplies two time-separated
+frames and passes 60 finite positive intervals, GL error zero, a live context and no new kernel GPU
+fault. WebAssembly rebuilt; Android ARM64 assemble/lint passed against the locked Sharp Runtime
+copy, producing a 24,671,259-byte APK with a 19,628,688-byte `libmain.so`. No emulator or KVM was
+used. The animal remains deliberately procedural rather than photorealistic.

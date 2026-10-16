@@ -1050,6 +1050,7 @@ def main():
                     "near octopuses use a rear-swept mantle, smooth analytic skin light, and thicker tapered arms",
                     "octopus near/far geometry 3186/24 vertices in one bounded batch",
                     "near octopuses use raised ocular bulbs, horizontal pupils, and fitted eye highlights",
+                    "near octopuses use a narrow rear mantle, hooded inset eyes, and pinched arm tips",
                     "octopuses 4 agents den, crawl, forage, and swim in reef and rocky shallows",
                     "octopus QA camera frames one exposed reef forager and all eight arms"):
                     if marker not in diagnostics: raise RuntimeError(f"octopus integration diagnostic missing: {marker}")

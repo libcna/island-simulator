@@ -476,13 +476,15 @@ class BrowserSoftwareTests(unittest.TestCase):
         geometry = "octopus near/far geometry 3186/24 vertices in one bounded batch"
         eyes = ("near octopuses use raised ocular bulbs, horizontal pupils, and fitted "
                 "eye highlights")
+        anatomy = ("near octopuses use a narrow rear mantle, hooded inset eyes, and "
+                   "pinched arm tips")
         population = "octopuses 4 agents den, crawl, forage, and swim in reef and rocky shallows"
         camera = "octopus QA camera frames one exposed reef forager and all eight arms"
         def report():
             return {"passed": True, "views": [{"mode": "octopuses", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "screenshot": "octopuses.png", "intervals": [16.7] * 60,
-                "result": {"output": marker + "\n" + profile + "\n" + geometry + "\n" + eyes + "\n"
+                "result": {"output": marker + "\n" + profile + "\n" + geometry + "\n" + eyes + "\n" + anatomy + "\n"
                     + population + "\n" + camera
                     + "\noctopuses 1/4 visible (near 1, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_octopus_report(report()), "octopuses.png")
@@ -493,7 +495,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             lambda value: value["views"][0].update(intervals=[16.7] * 59),
             lambda value: value["views"][0]["result"].update(output=population),
             lambda value: value["views"][0]["result"].update(output=marker + "\n" + profile
-                + "\n" + geometry + "\n" + population + "\n" + camera
+                + "\n" + geometry + "\n" + eyes + "\n" + population + "\n" + camera
                 + "\noctopuses 0/4 visible (near 0, far 0), 0 draw"),
         ):
             invalid = report(); mutate(invalid)

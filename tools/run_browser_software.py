@@ -417,6 +417,7 @@ def validate_octopus_report(report):
         or "near octopuses use a rear-swept mantle, smooth analytic skin light, and thicker tapered arms" not in log
         or "octopus near/far geometry 3186/24 vertices in one bounded batch" not in log
         or "near octopuses use raised ocular bulbs, horizontal pupils, and fitted eye highlights" not in log
+        or "near octopuses use a narrow rear mantle, hooded inset eyes, and pinched arm tips" not in log
         or "octopuses 4 agents den, crawl, forage, and swim in reef and rocky shallows" not in log
         or "octopus QA camera frames one exposed reef forager and all eight arms" not in log
         or not re.search(r"octopuses [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw",log)

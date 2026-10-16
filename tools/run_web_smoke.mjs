@@ -967,6 +967,7 @@ try {
               && log.includes("near octopuses use a rear-swept mantle, smooth analytic skin light, and thicker tapered arms")
               && log.includes("octopus near/far geometry 3186/24 vertices in one bounded batch")
               && log.includes("near octopuses use raised ocular bulbs, horizontal pupils, and fitted eye highlights")
+              && log.includes("near octopuses use a narrow rear mantle, hooded inset eyes, and pinched arm tips")
               && log.includes("octopuses 4 agents den, crawl, forage, and swim in reef and rocky shallows")
               && log.includes("octopus QA camera frames one exposed reef forager and all eight arms")
               && /octopuses [1-4]\/4 visible \(near [1-4], far [0-4]\), 1 draw/.test(log)))

@@ -1357,6 +1357,22 @@ evidence `20261015T203024.741359Z-chrome-octopuses` passes 60 finite intervals, 
 and after-simulation frames, GL error zero, a live context and an empty final kernel delta. Android
 qualification remains grouped with integration.
 
+## Latest aquatic visual pass — inset octopus eyes and pinched arm tips
+
+The renewed underwater comparison again selected the octopus: its raised eye volumes still sat
+ahead of the actual head envelope and read as short stalks, while every arm ended in a flat 18 mm
+band. Both low ocular hoods are now fitted mostly inside the head surface with only compact iris,
+pupil and highlight relief. A narrower, longer rear mantle improves the cephalopod silhouette;
+broader roots taper continuously to 6 mm tips with stronger distal curl. The exact 3,186/24
+near/far vertex inventory, four agents, one draw, simulation, habitat and LOD are unchanged.
+
+Inspected native evidence `20261016T133437.053754Z-octopuses` passes at 143 colour bins, 32.81
+luminance deviation, 184.14 spatial contrast and kernel `[]`. Inspected Chrome/SwiftShader
+`20261016T133746.472675Z-chrome-octopuses` supplies two time-separated frames and passes 60 finite
+positive intervals, GL0, a live context and kernel `[]`. WebAssembly rebuilt and Android ARM64
+assemble/lint passed against the locked dependency copy without emulator/KVM. Details are in
+`docs/octopuses.md`.
+
 ## Latest aquatic visual pass — stingray volume and silhouette
 
 The coastal-animal audit compared stingrays, octopuses and coconut crabs and selected the stingray
