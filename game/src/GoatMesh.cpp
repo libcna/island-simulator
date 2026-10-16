@@ -40,7 +40,7 @@ struct Builder {
             // taper. Angular ring coordinates squeeze a full fur window into every
             // shrinking ring. Author before body bob so the coat cannot swim.
             u=(p.z+.62f)/1.22f;
-            v=std::clamp((p.y-.50f)/.64f,0.0f,1.0f);
+            v=std::clamp((p.y-.48f)/.70f,0.0f,1.0f);
         }
         if(attachment==Attachment::Head) {
             const float c=std::cos(pitch),s=std::sin(pitch);
@@ -219,16 +219,17 @@ GoatMesh BuildGoatMesh(const GoatGroundPose& pose,float grazing,bool detailed) {
     Builder b{{},pose.bodyBob,grazing*.85f,grazing*.18f};
     b.mesh.vertices.reserve(GoatMesh::MaximumVertices);
     const int sides=detailed?12:6;
+    const int bodySides=detailed?16:8;
     // Closely spaced terminal rings retain closed ends without pulling the rump
     // and brisket into the old two sharp cones. The broad middle rings supply a
     // recognisable barrel, shoulder and hindquarter rather than one uniform tube.
     const std::array<Ring,13> body{{
-        {-.62f,.82f,.025f,.06f},{-.57f,.82f,.12f,.17f},{-.49f,.82f,.22f,.245f},
-        {-.40f,.82f,.268f,.278f},{-.25f,.81f,.272f,.282f},{-.08f,.79f,.247f,.258f},
-        {.10f,.80f,.252f,.265f},{.24f,.83f,.272f,.282f},{.36f,.84f,.282f,.288f},
-        {.46f,.83f,.242f,.252f},{.52f,.82f,.175f,.205f},{.57f,.81f,.08f,.12f},
-        {.60f,.81f,.025f,.055f}}};
-    b.Loft(body,sides,GoatMaterial::Coat,Attachment::Body);
+        {-.62f,.84f,.025f,.055f},{-.57f,.84f,.12f,.16f},{-.49f,.84f,.22f,.235f},
+        {-.40f,.85f,.272f,.27f},{-.25f,.84f,.276f,.27f},{-.08f,.83f,.247f,.235f},
+        {.10f,.84f,.254f,.245f},{.24f,.86f,.278f,.275f},{.36f,.87f,.286f,.288f},
+        {.46f,.86f,.242f,.245f},{.52f,.84f,.175f,.195f},{.57f,.83f,.08f,.11f},
+        {.60f,.82f,.025f,.05f}}};
+    b.Loft(body,bodySides,GoatMaterial::Coat,Attachment::Body);
     b.part=GoatPart::Neck;
     // Six closely spaced stations carry the raised shoulder into the head.  The old
     // four-circle sweep changed radius and direction too abruptly and exposed a
@@ -257,14 +258,14 @@ GoatMesh BuildGoatMesh(const GoatGroundPose& pose,float grazing,bool detailed) {
         // The planted target remains authoritative, but the visible lower limb should not
         // collapse into one straight pipe. A small rearward hock/carpal offset produces the
         // characteristic broken goat-leg profile without changing either fixed bone length.
-        lower.z+=front?-.024f:-.052f;
+        lower.z+=front?-.040f:-.072f;
         // Bury a generous shoulder/haunch root inside the barrel, then taper
         // through a separate upper-limb station. Joint and hoof locations remain
         // the authored planted-foot chain; only the visible flesh silhouette grows.
-        const std::array<Tube,7> limb{{{Add(leg.root,{0,.14f,0}),front?.105f:.125f},
-            {leg.root,front?.095f:.115f},{upper,front?.075f:.090f},
-            {upperLower,front?.060f:.072f},{leg.knee,front?.045f:.050f},
-            {lower,front?.038f:.045f},{leg.hoof,.028f}}};
+        const std::array<Tube,7> limb{{{Add(leg.root,{0,.14f,0}),front?.120f:.145f},
+            {leg.root,front?.110f:.135f},{upper,front?.088f:.108f},
+            {upperLower,front?.072f:.088f},{leg.knee,front?.055f:.064f},
+            {lower,front?.043f:.052f},{leg.hoof,.031f}}};
         b.Sweep(limb,detailed?8:5,GoatMaterial::Coat,Attachment::Leg);
         b.part=GoatPart::Hoof;
         b.hoofPivot=Add(leg.hoof,{0,-GoatLegPose::HoofHeight,GoatLegPose::SoleForward});

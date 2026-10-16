@@ -66,7 +66,7 @@ int main() {
             if(vertex.part==GoatPart::Body) {
                 check(std::abs(vertex.u-(vertex.position.z+.62f)/1.22f)<1e-5f,
                     "goat body coat stretches according to ring index rather than physical length");
-                check(std::abs(vertex.v-(vertex.position.y-pose.bodyBob-.50f)/.64f)<1e-5f,
+                check(std::abs(vertex.v-(vertex.position.y-pose.bodyBob-.48f)/.70f)<1e-5f,
                     "goat body coat squeezes around taper or swims with body bob");
                 check(std::abs(uv[0]-(.06f+.88f*(1-vertex.u)))<1e-6f
                     &&std::abs(uv[1]-(.06f+.88f*vertex.v))<1e-6f,
@@ -110,7 +110,7 @@ int main() {
                 if(std::abs(dot(offset,axis))<1e-5f&&radius<.15f)
                     largestRadius=std::max(largestRadius,radius);
             }
-            check(std::abs(largestRadius-(legIndex%2==1?.075f:.090f))<1e-5f,
+            check(std::abs(largestRadius-(legIndex%2==1?.088f:.108f))<1e-5f,
                 "goat upper limb volume missing or inconsistent between LODs");
         }
         for(std::size_t i=0;i<mesh.vertices.size();i+=3) {

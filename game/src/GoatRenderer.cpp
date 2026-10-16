@@ -112,6 +112,8 @@ GoatRenderer::GoatRenderer(GraphicsDevice& device,
     std::cout<<face<<'\n';MirrorRuntimeDiagnosticToPlatformLog(face);
     const char* markings="island-simulator: goat coats add local-space dorsal, flank, face-blaze, and lower-leg tonal markings";
     std::cout<<markings<<'\n';MirrorRuntimeDiagnosticToPlatformLog(markings);
+    const char* silhouette="island-simulator: near goats use sixteen-sided barrels and articulated hock silhouettes";
+    std::cout<<silhouette<<'\n';MirrorRuntimeDiagnosticToPlatformLog(silhouette);
     effect_->setVertexColorEnabledProperty(true);
     effect_->setLightingEnabledProperty(false);
     effect_->setTextureEnabledProperty(false);

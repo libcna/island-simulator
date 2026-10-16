@@ -23,6 +23,27 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest visual-audit implementation — rounded goat barrel and joint masses
+
+The refreshed overview and bear/boar/goat comparison selected the goat as the weakest ordinary
+large-animal silhouette. Its detailed barrel now uses sixteen radial sections instead of twelve,
+with eight rather than six in the far tier. Revised longitudinal rings lift the waist underside,
+retain distinct rounded haunch and shoulder masses and slope the topline into the neck. The coat's
+physical-height projection expands to 0.70 m so the taller outline does not clamp or swim.
+
+Existing planted leg targets, support normals and split hooves are unchanged. Larger upper-limb,
+knee and hock rings plus a stronger bounded intermediate offset make the articulated chain read as
+an animal leg rather than a straight rod. Near/far inventories become exactly 8,160/4,416 vertices;
+six all-near animals use 48,960 vertices below the unchanged 49,152 batch capacity, still in two
+draws. Goat mesh/herd/habitat/world-report/core and all 103 browser/capture harness tests pass.
+Inspected native evidence `20261016T212235.703369Z-goats` passes at 259 colour bins, 57.26
+luminance deviation and 254.51 spatial contrast. Focused Chrome/SwiftShader
+`20261016T212516.752936Z-chrome-goats` passes four distinct motion frames, 60 finite positive
+intervals, GL error zero, a live context and kernel `[]`. Android arm64 assembly/lint pass without
+an emulator; the 24,746,515-byte APK has SHA-256
+`d3e4bbd34d3e83a51f77a7799aff5e08eb626ba19e88b7b906400727221076e9` and contains a
+19,703,944-byte `libmain.so`. Physical Android runtime remains unqualified.
+
 ## Latest visual-audit implementation — rounded butterfly body and legs
 
 The current close-animal audit selected the butterfly because its otherwise recognisable patterned

@@ -1381,7 +1381,8 @@ def main():
                     "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes",
                     "goats use separated haunch, waist and raised shoulder masses, six-station necks, and six deterministic natural coat tints",
                     "near goats use paired surface nostrils and fitted lateral mouth creases",
-                    "goat coats add local-space dorsal, flank, face-blaze, and lower-leg tonal markings"):
+                    "goat coats add local-space dorsal, flank, face-blaze, and lower-leg tonal markings",
+                    "near goats use sixteen-sided barrels and articulated hock silhouettes"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"current goat material/anatomy diagnostic missing: {marker}")
             if "boar bristle loaded Content/wildlife/boar-bristle.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:

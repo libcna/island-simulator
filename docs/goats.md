@@ -769,3 +769,29 @@ baseline `20261016T103705.952734Z-goats` and accepted
 poses and passes 60 finite positive intervals, GL error zero, a live context and kernel `[]`.
 Physical Android/AMD appearance, continuous all-angle gait and subjective call listening remain
 outside this bounded material pass.
+
+## Rounded barrel and stronger limb masses — 2026-10-16
+
+A fresh bear/boar/goat comparison selected the goat as the weakest large terrestrial silhouette.
+The body was technically curved but still resolved as a pale rectangular pelt at the ordinary QA
+distance, while the long legs read as uniform rods. The detailed barrel now uses sixteen radial
+sections instead of twelve (the far tier uses eight instead of six). Its longitudinal profile
+raises and narrows the belly through the waist, keeps separate rounded hindquarter and shoulder
+masses, and slopes the topline into the neck. The body texture's physical-height window expands
+from 0.64 m to 0.70 m so the existing hair detail follows the taller shoulder without clamping or
+swimming.
+
+The same planted leg chains retain their authored roots, knees, hooves and terrain support normals.
+Only visible flesh changes: upper thigh/shoulder rings are fuller, knees and hocks have a clearer
+mass break, and the intermediate hock/carpal offset is stronger. Split-hoof geometry and ground
+contact are unchanged. Near/far meshes now contain exactly 8,160/4,416 vertices; six all-near
+animals use 48,960 vertices beneath the unchanged 49,152 batch capacity and remain two draws.
+
+Goat mesh, herd, habitat, world-report and core tests pass, as do all 103 browser/capture harness
+tests. Inspected native evidence `20261016T212235.703369Z-goats` passes at 259 colour bins, 57.26
+luminance deviation and 254.51 spatial contrast with an empty kernel delta. Focused
+Chrome/SwiftShader evidence `20261016T212516.752936Z-chrome-goats` passes four distinct movement
+frames, 60 finite positive intervals, GL error zero, a live context and kernel `[]`. Android arm64
+assembly/lint pass without an emulator; the 24,746,515-byte debug APK has SHA-256
+`d3e4bbd34d3e83a51f77a7799aff5e08eb626ba19e88b7b906400727221076e9` and contains a
+19,703,944-byte `libmain.so`. Physical Android appearance and subjective audio remain unqualified.

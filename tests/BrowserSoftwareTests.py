@@ -1117,7 +1117,8 @@ class BrowserSoftwareTests(unittest.TestCase):
                     "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes\n"
                     "goats use separated haunch, waist and raised shoulder masses, six-station necks, and six deterministic natural coat tints\n"
                     "near goats use paired surface nostrils and fitted lateral mouth creases\n"
-                    "goat coats add local-space dorsal, flank, face-blaze, and lower-leg tonal markings"}}]}
+                    "goat coats add local-space dorsal, flank, face-blaze, and lower-leg tonal markings\n"
+                    "near goats use sixteen-sided barrels and articulated hock silhouettes"}}]}
         self.assertEqual(len(gate.validate_goat_report(report())), 4)
         for key, value in (("mode", "monkeys"), ("passed", False), ("glError", 1282),
                            ("contextLost", True), ("goatMotionFrames", []),
@@ -1129,6 +1130,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                          ("goat fur loaded", "missing"), ("9 mips", "1 mips"),
                          ("near goats use paired surface nostrils", "missing muzzle detail"),
                          ("goat coats add local-space dorsal", "missing coat markings"),
+                         ("sixteen-sided barrels", "twelve-sided barrels"),
                          ("six-station necks", "four-station necks")):
             bad = report()
             bad["views"][0]["result"]["output"] = bad["views"][0]["result"]["output"].replace(old, new)
