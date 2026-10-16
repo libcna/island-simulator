@@ -704,6 +704,23 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest ground-snake visual pass — continuous neck and compact eyes
+
+The current ground-animal comparison selected the snake ahead of the crocodile and boar. Its scale
+material and S-curve remained readable, but the first body segment pinched sharply behind a round
+head and the eye hemispheres projected too far from the temple. The first five radii now make a
+continuous short neck, the four-section temple/cheek profile is lower, and smaller amber eyes sit
+closer to the surface while retaining fitted vertical pupils. All 50 ground snakes, six tree
+snakes, 41 stations, one nearest-16 dynamic draw, habitat, crawl and hiss behavior remain.
+
+Inspected native evidence `20261016T134759.756786Z-snake-head` passes at 171 colour bins, 28.53
+luminance deviation and 142.23 spatial contrast; body evidence
+`20261016T134809.437224Z-snakes` passes at 114/14.39/26.80. Both retain four moving samples and
+kernel `[]`. WebAssembly rebuilt, but the fresh Chrome/SwiftShader runtime is not claimed: its
+first attempt exceeded the 180-second three-view software allowance after a live GL0 first view,
+and the immediate repeat failed process creation with `EAGAIN`. Android ARM64 assemble/lint passes
+against the locked dependency copy without emulator/KVM. Details are in `docs/ground-snakes.md`.
+
 ## Latest ground-snake visual pass — broad low head and fitted pupils
 
 The current body/head audit selected the nearly conical round face as the weakest ground-snake

@@ -938,6 +938,8 @@ def validate_snake_report(report):
             raise RuntimeError("snake browser report lacks the current anatomy material")
         if "near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils" not in log:
             raise RuntimeError("snake browser report lacks the current head anatomy")
+        if "near snakes use a flattened wedge head, inset compact eyes, and a continuous full neck" not in log:
+            raise RuntimeError("snake browser report lacks the current neck and eye anatomy")
         if view["mode"] == "snake-head" and "snake-head QA isolates facial geometry while the companion body view retains habitat grass" not in log:
             raise RuntimeError("snake browser report lacks the isolated head view")
         if view["mode"] == "tree-snakes" and ("tree-snake QA frames a live climber on the sampled trunk surface" not in log

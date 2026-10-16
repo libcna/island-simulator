@@ -1043,6 +1043,7 @@ try {
             && (!focusedSnakeCheck || (snakeMotionFrames.length === 4
               && log.includes("snakes use a readable dorsal saddle and active forked-tongue flicks")
               && log.includes("near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils")
+              && log.includes("near snakes use a flattened wedge head, inset compact eyes, and a continuous full neck")
               && (mode !== "snake-head" || log.includes("snake-head QA isolates facial geometry while the companion body view retains habitat grass"))
               && (mode !== "tree-snakes" || (log.includes("tree-snake QA frames a live climber on the sampled trunk surface")
                 && log.includes("six arboreal snakes cling and climb on sampled broadleaf trunk triangles")))

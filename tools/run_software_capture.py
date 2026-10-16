@@ -733,6 +733,8 @@ def main():
                     raise RuntimeError("current snake anatomy material is missing")
                 if "near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils" not in diagnostics:
                     raise RuntimeError("current snake head anatomy is missing")
+                if "near snakes use a flattened wedge head, inset compact eyes, and a continuous full neck" not in diagnostics:
+                    raise RuntimeError("current snake neck and eye anatomy is missing")
                 if args.viewpoint == "snake-head" and "snake-head QA isolates facial geometry while the companion body view retains habitat grass" not in diagnostics:
                     raise RuntimeError("snake-head capture did not isolate the facial geometry")
                 if args.viewpoint == "tree-snakes" and "tree-snake QA frames a live climber on the sampled trunk surface" not in diagnostics:

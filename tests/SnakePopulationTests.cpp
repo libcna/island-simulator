@@ -76,6 +76,11 @@ int main(int argc,char** argv)
     Check(island::SnakeHeadSections.front().width==island::SnakePopulation::RadiusAt(0)
         && island::SnakeNoseForward<=island::SnakePopulation::MaximumRadius,
         "snake head does not join body or nose exceeds clearance");
+    Check(island::SnakePopulation::RadiusAt(1)>=0.034f
+        && island::SnakePopulation::RadiusAt(2)>island::SnakePopulation::RadiusAt(1)
+        && island::SnakePopulation::RadiusAt(3)>island::SnakePopulation::RadiusAt(2)
+        && island::SnakePopulation::RadiusAt(4)>island::SnakePopulation::RadiusAt(3),
+        "snake neck pinches abruptly behind the head");
     Check(island::SnakeHeadSections[1].width>island::SnakeHeadSections.front().width
         && island::SnakeHeadSections[2].width>island::SnakeHeadSections.back().width
         && island::SnakeHeadSections[1].height<island::SnakeHeadSections.front().height,

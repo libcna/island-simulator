@@ -762,6 +762,7 @@ class BrowserSoftwareTests(unittest.TestCase):
     def test_snake_report_rejects_frozen_missing_and_invalid_motion(self):
         log=('snakes use a readable dorsal saddle and active forked-tongue flicks\n'
              'near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils\n'
+             'near snakes use a flattened wedge head, inset compact eyes, and a continuous full neck\n'
              'snake-head QA isolates facial geometry while the companion body view retains habitat grass\n'
              'tree-snake QA frames a live climber on the sampled trunk surface\n'
              'six arboreal snakes cling and climb on sampled broadleaf trunk triangles\n')+'\n'.join(
@@ -782,6 +783,9 @@ class BrowserSoftwareTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             gate.validate_snake_report(report(log.replace(
                 "near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils\n", "")))
+        with self.assertRaises(RuntimeError):
+            gate.validate_snake_report(report(log.replace(
+                "near snakes use a flattened wedge head, inset compact eyes, and a continuous full neck\n", "")))
         with self.assertRaises(RuntimeError):
             gate.validate_snake_report(report(log.replace("snake-head QA isolates facial geometry while the companion body view retains habitat grass\n", "")))
         with self.assertRaises(RuntimeError):

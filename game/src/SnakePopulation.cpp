@@ -27,12 +27,18 @@ namespace island
         // Compute them once instead of thousands of sin/pow calls per animal tick.
         static const auto radii = [] {
             std::array<float, SnakeState::StationCount> result{};
-            result[0] = 0.043f;
+            // A short full neck removes the pinched first-body segment that made the
+            // close head look detached. The remaining authored taper is unchanged.
+            result[0] = 0.040f;
             for (std::size_t i = 1; i < result.size(); ++i) {
                 const float t = static_cast<float>(i) / static_cast<float>(result.size()-1);
                 result[i] = 0.004f + 0.044f * std::pow(std::max(0.0f,
                     std::sin(std::numbers::pi_v<float> * t)), 0.45f);
             }
+            result[1] = 0.035f;
+            result[2] = 0.039f;
+            result[3] = 0.042f;
+            result[4] = 0.044f;
             return result;
         }();
         return radii[std::min(station, radii.size()-1)];

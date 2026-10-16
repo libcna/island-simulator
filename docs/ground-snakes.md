@@ -1,5 +1,29 @@
 # Ground snake implementation and visual evidence
 
+## Continuous neck and compact eye pass — 2026-10-16
+
+The renewed ground-animal comparison selected the snake ahead of the crocodile and boar. The
+qualified scale material and moving S-curve were clear, but the close head still read as a round
+separate bead: the first body station collapsed abruptly behind it and the two eye hemispheres
+projected too far from the temple.
+
+The first five authored radii now form a short continuous neck before joining the existing body
+taper. The same four-section head is lower through the temple and cheek, while smaller amber eyes
+sit closer to the surface and retain their fitted vertical pupils. The original 50 ground snakes,
+six tree snakes, 41 stations, sixteen-sided rings, nearest-16 cap, single dynamic draw, scale atlas,
+crawl, habitat and hiss scheduling are unchanged. A focused CPU assertion prevents the neck
+stations from returning to the old immediate pinch.
+
+Inspected native evidence `20261016T134759.756786Z-snake-head` passes at 171 colour bins, 28.53
+luminance deviation and 142.23 spatial contrast; the companion full-body view
+`20261016T134809.437224Z-snakes` passes at 114/14.39/26.80. Both retain four moving samples and an
+empty kernel delta. WebAssembly rebuilt with the new exact diagnostic. The first
+Chrome/SwiftShader attempt reached a live GL0 first view but did not finish all three views inside
+its 180-second software limit, and an immediate repeat could not create a process (`EAGAIN`), so
+that run is deliberately not claimed as portable runtime evidence. Android ARM64 assemble/lint
+passes against the locked Sharp Runtime copy and produces a 24,671,563-byte APK containing a
+19,628,992-byte `libmain.so`; no emulator or KVM was used.
+
 ## Six live tree snakes on rendered trunk triangles — 2026-10-16
 
 The previously absent arboreal variant now consists of six non-hostile snakes on six mature,

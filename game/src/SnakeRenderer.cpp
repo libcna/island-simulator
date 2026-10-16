@@ -62,6 +62,8 @@ SnakeRenderer::SnakeRenderer(GraphicsDevice& device, const CanopyLightField& can
     std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
     const char* headAnatomy="island-simulator: near snakes use a broad low temple, tapered blunt muzzle, raised amber eyes, and fitted vertical pupils";
     std::cout<<headAnatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(headAnatomy);
+    const char* neckAnatomy="island-simulator: near snakes use a flattened wedge head, inset compact eyes, and a continuous full neck";
+    std::cout<<neckAnatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(neckAnatomy);
     const char* treeHabitat="island-simulator: six arboreal snakes cling and climb on sampled broadleaf trunk triangles";
     std::cout<<treeHabitat<<'\n';MirrorRuntimeDiagnosticToPlatformLog(treeHabitat);
 }

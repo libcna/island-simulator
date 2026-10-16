@@ -15,11 +15,11 @@ namespace island {
     // tapered cheek make a low snake head rather than continuing the body as a cone;
     // every section remains inside the population's 50 mm clearance envelope.
     inline constexpr std::array<SnakeHeadSection,4> SnakeHeadSections{{
-        {0.0f,0.043f,0.043f,0.0f}, {0.012f,0.0478f,0.029f,0.005f},
-        {0.030f,0.039f,0.024f,0.002f}, {0.044f,0.021f,0.014f,-0.001f}}};
-    inline constexpr float SnakeNoseForward=0.050f;
-    inline constexpr float SnakeEyeForward=0.018f;
-    inline constexpr float SnakeEyeSide=0.038f;
-    inline constexpr float SnakeEyeHeight=0.011f;
-    inline constexpr float SnakeEyeRadius=0.006f;
+        {0.0f,0.040f,0.036f,0.0f}, {0.011f,0.0472f,0.0225f,0.0055f},
+        {0.029f,0.0400f,0.0195f,0.0025f}, {0.043f,0.024f,0.0125f,-0.0005f}}};
+    inline constexpr float SnakeNoseForward=0.049f;
+    inline constexpr float SnakeEyeForward=0.017f;
+    inline constexpr float SnakeEyeSide=0.036f;
+    inline constexpr float SnakeEyeHeight=0.0085f;
+    inline constexpr float SnakeEyeRadius=0.0048f;
 }
