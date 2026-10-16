@@ -651,6 +651,24 @@ Four focused native groups and 41 browser/capture tests pass. Inspected Chrome/S
 `20261016T061744.329555Z-chrome-helicopter` passes exterior and interior with 60 finite intervals
 each, GL0, live contexts and kernel `[]`. Details are in `docs/helicopter.md`.
 
+## Latest helicopter visual pass — compact rounded nose closure
+
+The next current exterior audit selected the last windscreen closure: one relatively large
+elliptical ring still converged directly into a point and exposed a faceted nose despite the
+analytic surface lighting. Two compact terminal rings now continue the longitudinal loft into a
+short cap. The shell has seventeen total stations and eleven forward-bubble stations; the final
+fan begins at 55 mm rather than 180 mm half-width. The change adds 128 triangles, taking the
+complete helicopter from 5,520 to 5,648 triangles in the same two draws. Access, collision,
+interior, rotors and the grounded non-flying contract remain unchanged.
+
+Inspected baseline `20261016T123800.505978Z-helicopter` and accepted native evidence
+`20261016T124121.192704Z-helicopter` show the smoother closure; the latter passes at 320 colour
+bins, 54.41 luminance deviation, 232.16 spatial contrast and kernel `[]`. Inspected
+Chrome/SwiftShader `20261016T124527.481204Z-chrome-helicopter` passes exterior and interior with
+60 positive intervals each, GL0, live contexts and kernel `[]`. WebAssembly rebuilt and Android
+ARM64 assemble/lint passed against the locked dependency copy without emulator/KVM. Details are
+in `docs/helicopter.md`.
+
 The current Firefox qualification exposed a real beach-start regression rather than a renderer
 failure: the relocated firewood collision sat 1.73 m ahead of the old `(0,-225)` start and rejected
 forward movement. The player now starts at `(4,-225)` inside the unchanged 17 m reserved beach

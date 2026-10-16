@@ -73,7 +73,7 @@ class BrowserSoftwareTests(unittest.TestCase):
 
     def test_helicopter_scope_requires_closed_rotor_blades_in_both_views(self):
         markers = "\n".join((
-            "helicopter uses a smoothly tapered thirty-two-sided cockpit canopy, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane",
+            "helicopter uses a smoothly tapered thirty-two-sided seventeen-station cockpit canopy, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane",
             "helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges",
             "helicopter rotor head adds four blade grips, pitch links, a mast cap, and muted yellow tip bands",
             "helicopter raised tapered engine cowling feeds two rear exhaust outlets behind the rotor mast",
@@ -84,7 +84,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             "helicopter open cabin uses restrained indirect light, a tapered instrument binnacle, and twin radio displays",
             "helicopter realism pass adds a rounded chin and tail-root fairing, twelve-sided six-station tail boom, maintenance seams, engine intakes, shaped cushions, harnesses, centre pedestal, and overhead console",
             "helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry",
-            "helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen",
+            "helicopter cockpit uses a fuller eleven-station forward bubble, two compact nose rings, and a progressively wrapped lower windscreen",
             "helicopter divided windscreen carries paired articulated parked wipers and restrained translucent sky glints",
             "parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep",
             "parked main rotor uses closed cambered airfoil sections with fine leading and trailing edges",

@@ -140,7 +140,7 @@ def validate_helicopter_report(report):
             or not all(isinstance(value, (int, float)) and not isinstance(value, bool)
                        and math.isfinite(value) and value > 0 for value in intervals)
             or not isinstance(frame, str) or not frame.endswith(".png")
-            or "helicopter uses a smoothly tapered thirty-two-sided cockpit canopy, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane" not in log
+            or "helicopter uses a smoothly tapered thirty-two-sided seventeen-station cockpit canopy, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane" not in log
             or "helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges" not in log
             or "helicopter rotor head adds four blade grips, pitch links, a mast cap, and muted yellow tip bands" not in log
             or "helicopter raised tapered engine cowling feeds two rear exhaust outlets behind the rotor mast" not in log
@@ -151,7 +151,7 @@ def validate_helicopter_report(report):
             or "helicopter open cabin uses restrained indirect light, a tapered instrument binnacle, and twin radio displays" not in log
             or "helicopter realism pass adds a rounded chin and tail-root fairing, twelve-sided six-station tail boom, maintenance seams, engine intakes, shaped cushions, harnesses, centre pedestal, and overhead console" not in log
             or "helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry" not in log
-            or "helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen" not in log
+            or "helicopter cockpit uses a fuller eleven-station forward bubble, two compact nose rings, and a progressively wrapped lower windscreen" not in log
             or "helicopter divided windscreen carries paired articulated parked wipers and restrained translucent sky glints" not in log
             or "parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep" not in log
             or "parked main rotor uses closed cambered airfoil sections with fine leading and trailing edges" not in log

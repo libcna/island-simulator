@@ -1,5 +1,29 @@
 # Grounded helicopter
 
+## Compact rounded nose closure — 2026-10-16
+
+The current exterior audit retained the recognisable proportions, open cabin, detailed controls,
+glazing, rotors and landing gear, but the final windscreen section still closed from one relatively
+large elliptical ring directly into a point. That last fan made the otherwise smoothly lit nose
+look angular from the normal front-quarter walking view.
+
+Two compact elliptical rings now continue the longitudinal loft before a shorter terminal cap.
+The shell therefore uses seventeen total fuselage stations and eleven forward-bubble stations;
+the final fan begins at only 55 mm half-width instead of 180 mm. Analytic station normals and the
+progressively wrapped glass boundary continue across both rings. The change adds 128 triangles,
+taking the complete model from 5,520 to 5,648 triangles in the same opaque/glass two draws.
+Doors, floor, collision, four entry corridors, controls, rotors and the grounded non-flying state
+are unchanged.
+
+Inspected same-camera native baseline `20261016T123800.505978Z-helicopter` and accepted evidence
+`20261016T124121.192704Z-helicopter` show a rounder, shorter closure beneath the divided
+windscreen. The accepted frame passes at 320 colour bins, 54.41 luminance deviation and 232.16
+spatial contrast with an empty kernel delta. Inspected Chrome/SwiftShader evidence
+`20261016T124527.481204Z-chrome-helicopter` passes exterior and interior views with 60 finite
+positive intervals each, GL error zero, live contexts and no new kernel GPU fault. WebAssembly
+rebuilt; Android ARM64 assemble/lint passed against the locked Sharp Runtime copy, producing a
+24,669,739-byte APK with a 19,627,168-byte `libmain.so`. No emulator or KVM was used.
+
 ## Separated entry-step braces — 2026-10-16
 
 The refreshed paired audit retained the rounded airframe, glazing, parked rotor mechanisms and

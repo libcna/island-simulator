@@ -38,7 +38,7 @@ constexpr int FuselageSides=32;
 enum class Surface : std::uint8_t { Paint,Metal,Upholstery,Rubber,Cabin,Glass,Emissive };
 struct Texel{std::uint8_t r,g,b,a;};
 struct FuselageStation{float z,centreY,radiusX,radiusY;};
-constexpr std::array<FuselageStation,15> Fuselage{{
+constexpr std::array<FuselageStation,17> Fuselage{{
     {-2.10f,1.35f,.68f,.64f},{-1.78f,1.38f,.94f,.82f},
     {-.30f,1.43f,1.07f,.98f},{.18f,1.44f,1.08f,.99f},
     {.62f,1.45f,1.075f,.985f},{1.02f,1.45f,1.05f,.97f},
@@ -46,7 +46,8 @@ constexpr std::array<FuselageStation,15> Fuselage{{
     {1.86f,1.37f,.90f,.86f},{2.08f,1.34f,.83f,.80f},
     {2.30f,1.30f,.73f,.72f},{2.48f,1.26f,.61f,.63f},
     {2.64f,1.23f,.48f,.52f},{2.76f,1.20f,.34f,.40f},
-    {2.86f,1.18f,.18f,.27f}}};
+    {2.86f,1.18f,.18f,.27f},{2.91f,1.16f,.11f,.19f},
+    {2.95f,1.145f,.055f,.105f}}};
 
 bool OpenDoorBand(const float z) {
     return (z>=.18f&&z<=1.48f)||(z>=-1.70f&&z<=-.30f);
@@ -354,13 +355,14 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
                        color,surface);
         }
     }
-    // Seal the pointed nose. Without this small fan the rear-cabin sightline could
-    // expose a bright terrain pinhole through the final fuselage ring.
+    // Seal the short rounded nose. Two small terminal rings now reduce the final fan
+    // to a compact cap instead of letting a large ring converge visibly into one
+    // angular point. The rear-cabin sightline remains sealed.
     const auto fuselagePoint=[](const FuselageStation& station,const float angle) {
         return Vector3(std::cos(angle)*station.radiusX,
             station.centreY+std::sin(angle)*station.radiusY,station.z);
     };
-    const Vector3 noseTip(0,1.17f,2.96f);
+    const Vector3 noseTip(0,1.14f,2.975f);
     for(int slice=0;slice<FuselageSides;++slice) {
         const float a=tau*slice/FuselageSides;
         const float b=tau*((slice+1)%FuselageSides)/FuselageSides;
@@ -872,7 +874,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     const std::string message="island-simulator: grounded helicopter original procedural shell, open pilot/rear doors, interior and stationary rotors; triangles="
         +std::to_string(triangles_);
     std::cout<<message<<'\n';MirrorRuntimeDiagnosticToPlatformLog(message);
-    const std::string detail="island-simulator: helicopter uses a smoothly tapered thirty-two-sided cockpit canopy, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane";
+    const std::string detail="island-simulator: helicopter uses a smoothly tapered thirty-two-sided seventeen-station cockpit canopy, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane";
     std::cout<<detail<<'\n';MirrorRuntimeDiagnosticToPlatformLog(detail);
     const std::string material="island-simulator: helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber";
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
@@ -894,7 +896,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
     const std::string smoothSurfaces="island-simulator: helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry";
     std::cout<<smoothSurfaces<<'\n';MirrorRuntimeDiagnosticToPlatformLog(smoothSurfaces);
-    const std::string bubble="island-simulator: helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen";
+    const std::string bubble="island-simulator: helicopter cockpit uses a fuller eleven-station forward bubble, two compact nose rings, and a progressively wrapped lower windscreen";
     std::cout<<bubble<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bubble);
     const std::string glazingDetail="island-simulator: helicopter divided windscreen carries paired articulated parked wipers and restrained translucent sky glints";
     std::cout<<glazingDetail<<'\n';MirrorRuntimeDiagnosticToPlatformLog(glazingDetail);
