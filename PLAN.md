@@ -16429,6 +16429,23 @@ Existing observation and qualification queue:
   SHA-256 `dff773f6cfdf78aada01ce42b388733e66b460caf95d465386247bb3928cf990`; stripped
   `libmain.so` is 19,701,656 bytes.
 
+### 2026-10-16 — Rounded helicopter doorway shoulders
+
+- Replaced the three square beams surrounding each open doorway with tubular vertical jambs and a
+  shallow oval roof shoulder embedded into the curved cabin shell. This removes the broadside
+  rectangular-cage cue while retaining four visibly open outward-hinged doors.
+- A denser first prototype correctly failed the unchanged 6,000-triangle constructor budget. The
+  accepted version is 5,824 triangles, only 176 above the previous aircraft, and retains the
+  existing opaque/glass two draws. Placement, collision, floor support, four entry paths,
+  controls and grounded non-flight behaviour are unchanged.
+- Inspected native evidence `20261016T201751.091130Z-helicopter` and
+  `20261016T201816.155928Z-helicopter-inside` passes. Focused Chrome/SwiftShader evidence
+  `20261016T202005.707077Z-chrome-helicopter` passes both views, 60 intervals each, GL0, live
+  contexts and clean kernel monitoring. Layout, core and all 103 harness tests pass.
+- Android ARM64 assemble/lint passes without emulator or KVM. The APK is 24,744,547 bytes with
+  SHA-256 `c2f2b9a2974dbb74ee00884c14c560c4d7161f370dce215ca11fdf91e241d8e5`; stripped
+  `libmain.so` is 19,701,976 bytes.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.

@@ -146,6 +146,7 @@ def validate_helicopter_report(report):
             or "helicopter raised tapered engine cowling feeds two rear exhaust outlets behind the rotor mast" not in log
             or "helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber" not in log
             or "helicopter carries four outward-open framed door panels with glazing and handles" not in log
+            or "helicopter doorway shell uses rounded jambs and low-profile oval roof shoulders around all four open entries" not in log
             or "helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals" not in log
             or "helicopter instruments use recessed ticked dials, one artificial horizon, needle hubs, and framed multi-line radio displays" not in log
             or "helicopter open cabin uses restrained indirect light, a tapered instrument binnacle, and twin radio displays" not in log

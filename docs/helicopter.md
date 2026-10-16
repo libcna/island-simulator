@@ -1,5 +1,33 @@
 # Grounded helicopter
 
+## Rounded doorway shoulders — 2026-10-16
+
+The latest exterior comparison retained the rounded nose, detailed cockpit, open doors and
+recognisable utility-helicopter proportions, but the three square beams around every doorway still
+formed a conspicuous rectangular cage in broadside view. Each of the eight vertical jambs is now
+an eight-sided tube and each opening has a shallow low-profile oval roof shoulder embedded into
+the curved fuselage. The four doors remain visibly hinged outward; no new surface crosses an entry
+corridor.
+
+The first denser shoulder prototype correctly tripped the existing 6,000-triangle constructor
+budget and was rejected before any GPU buffer was created. The accepted three-ring/twelve-sided
+shoulders replace 144 triangles of square framing with 320 triangles of rounded framing, a net
+increase of only 176: the complete helicopter is 5,824 triangles and still uses the existing
+opaque/glass two draws. Placement, generated material atlas, collision, floor support, four entry
+routes, interior controls and the deliberately grounded non-flying state are unchanged.
+
+Inspected native exterior evidence `20261016T201751.091130Z-helicopter` passes at 318 colour bins,
+54.45 luminance deviation and 232.32 spatial contrast. Interior evidence
+`20261016T201816.155928Z-helicopter-inside` passes at 184/20.94/65.58 and retains the open cockpit,
+controls and exit sightlines. Focused Chrome/SwiftShader evidence
+`20261016T202005.707077Z-chrome-helicopter` passes both inspected views with 60 finite positive
+intervals each, GL error zero, live contexts, two draws and no new kernel GPU fault.
+`IslandHelicopterLayoutTests`, `IslandCoreTests` and all 103 browser/capture harness tests pass.
+Android ARM64 assemble/lint passes through the two-worker wrapper without emulator or KVM; the
+APK is 24,744,547 bytes with SHA-256
+`c2f2b9a2974dbb74ee00884c14c560c4d7161f370dce215ca11fdf91e241d8e5`, and stripped `libmain.so`
+is 19,701,976 bytes. Physical-device appearance remains unqualified.
+
 ## Compact rounded nose closure — 2026-10-16
 
 The current exterior audit retained the recognisable proportions, open cabin, detailed controls,

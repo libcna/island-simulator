@@ -423,9 +423,16 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
             tube({stepInnerX,.055f,z},{stepOuterX,.055f,z},.020f,
                  metal,Surface::Metal);
         }
-        beam({side*.93f,.45f,door.first},{side*.93f,2.17f,door.first},.075f,oliveLight);
-        beam({side*.93f,.45f,door.second},{side*.93f,2.17f,door.second},.075f,oliveLight);
-        beam({side*.93f,2.15f,door.first},{side*.93f,2.15f,door.second},.075f,oliveLight);
+        // Rounded jambs and a shallow oval roof shoulder continue the curved
+        // fuselage around each genuinely open doorway. The former three square
+        // beams formed a conspicuous rectangular cage in the broadside view.
+        tube({side*.93f,.45f,door.first},{side*.93f,2.13f,door.first},.047f,
+             oliveLight);
+        tube({side*.93f,.45f,door.second},{side*.93f,2.13f,door.second},.047f,
+             oliveLight);
+        ellipsoid({side*.93f,2.13f,(door.first+door.second)*.5f},
+                  {.105f,.075f,(door.second-door.first)*.5f+.045f},3,12,
+                  oliveLight);
     }
 
     // Four visibly open doors explain the otherwise skeletal side openings. Pilot
@@ -880,6 +887,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
     const std::string doors="island-simulator: helicopter carries four outward-open framed door panels with glazing and handles";
     std::cout<<doors<<'\n';MirrorRuntimeDiagnosticToPlatformLog(doors);
+    const std::string doorwayShell="island-simulator: helicopter doorway shell uses rounded jambs and low-profile oval roof shoulders around all four open entries";
+    std::cout<<doorwayShell<<'\n';MirrorRuntimeDiagnosticToPlatformLog(doorwayShell);
     const std::string rotor="island-simulator: helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges";
     std::cout<<rotor<<'\n';MirrorRuntimeDiagnosticToPlatformLog(rotor);
     const std::string rotorDetail="island-simulator: helicopter rotor head adds four blade grips, pitch links, a mast cap, and muted yellow tip bands";
