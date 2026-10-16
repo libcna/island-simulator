@@ -766,6 +766,16 @@ namespace island
                              Vector3(MonkeyFaceProfile::InnerEarRadii.x,
                                      MonkeyFaceProfile::InnerEarRadii.y,
                                      MonkeyFaceProfile::InnerEarRadii.z), Head, 5, 10);
+            // Shallow skin-coloured supraorbital ridges overlap the sampled brow plane.
+            // The embedded backs keep them continuous with the face instead of reading as
+            // separate dark eyebrow capsules in a front-quarter view.
+            for (float side : {-1.0f, 1.0f}) {
+                const std::size_t browStart = mesh.vertices.size();
+                AddEllipsoid(mesh, Vector3(side*.043f,.912f,.634f),
+                             Vector3(.034f,.0065f,.0055f), Head, 5, 10);
+                for (std::size_t vertex = browStart; vertex < mesh.vertices.size(); ++vertex)
+                    mesh.vertices[vertex].TextureCoordinate = Vector2(.5f, -.92f);
+            }
             // Two overlapping muzzle pads turn the broad skin patch into a shallow three-
             // dimensional primate muzzle. Their backs remain embedded in the profile and
             // their midtone tag separates the mouth region without a new draw call.
@@ -955,10 +965,10 @@ namespace island
             Vector3(0.29f, 0.21f, 0.16f),
             Vector3(0.50f, 0.35f, 0.22f)};
         const std::array<Vector3, 4> FaceColors = {
-            Vector3(0.49f, 0.39f, 0.32f),
-            Vector3(0.54f, 0.42f, 0.34f),
-            Vector3(0.45f, 0.37f, 0.32f),
-            Vector3(0.57f, 0.44f, 0.35f)};
+            Vector3(0.54f, 0.41f, 0.33f),
+            Vector3(0.59f, 0.44f, 0.35f),
+            Vector3(0.50f, 0.39f, 0.33f),
+            Vector3(0.62f, 0.46f, 0.36f)};
         const Vector3 FurSpecularColor(0.04f, 0.04f, 0.035f);
         const Vector3 EyeSpecularColor(0.42f, 0.37f, 0.28f);
         constexpr float FurSpecularPower = 8.0f;

@@ -205,6 +205,25 @@ Chrome/SwiftShader evidence `20261016T093607.963542Z-chrome-shark` retains the g
 distinct moving frames and passes 60 finite positive intervals, GL error zero, a live context and
 kernel `[]`. Details are in `docs/shark-form.md`.
 
+## Latest monkey facial pass — shallow supraorbital relief
+
+The next close monkey audit retained the fur, quadrupedal silhouette, compact hooked tail and
+fitted eyes/nose, but selected the uniform upper facial plane: in profile it still read as a flat
+skin shield. Two early fur-coloured brow candidates were inspected and rejected because their
+separate dark ellipsoids looked like attached bars. The accepted treatment instead embeds two
+small skin-coloured supraorbital ridges into the existing face mesh and raises the four muted skin
+palettes slightly toward warm brown. The 5.5 mm relief is visible through fixed-sun shading without
+covering the corneas or becoming a painted eyebrow.
+
+The shared close face buffer gains 132 vertices and 200 triangles. Seven agents, three body
+silhouettes, the fourteen-bone rig, fur texture, face/eye draw count, gait, climbing and far tier
+remain unchanged. Inspected native evidence `20261016T095251.470992Z-monkeys` passes at 216 colour
+bins, 42.41 luminance deviation and 211.42 spatial contrast with an empty kernel delta. Five
+relevant native groups and all 97 browser/capture harness tests pass. Inspected
+Chrome/SwiftShader evidence `20261016T095519.559722Z-chrome-monkeys` retains the face across the
+initial, four intermediate and final live poses with 60 finite positive intervals, GL error zero,
+a live context and kernel `[]`. Details are in `docs/monkey-face-profile.md`.
+
 ## Latest vegetation microhabitat pass — canopy trunk epiphytes
 
 The next vegetation audit accepted the connected crowns, bark and traversable forest floor but

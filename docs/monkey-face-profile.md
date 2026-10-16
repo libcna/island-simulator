@@ -1,5 +1,26 @@
 # Connected monkey face profile — native first pass
 
+## 2026-10-16 shallow supraorbital relief and warmer skin
+
+The current close capture retained the compact primate face, fitted eyes, nostrils and mouth, but
+the upper facial surface still formed one uninterrupted flat shield in profile. Two experimental
+fur-coloured brow volumes were built and inspected, then rejected: even after one reduction they
+read as separate dark eyebrow capsules. The accepted version moves the detail into the shared face
+buffer as two shallow skin-coloured supraorbital ridges. Their backs are embedded in the sampled
+brow plane, their maximum projection is only 5.5 mm, and the four muted face palettes are raised
+slightly toward warm brown. The result adds lighting relief above the corneas without covering the
+eyes or separating from the skin.
+
+The two five-ring, ten-segment ridges add 132 vertices and 200 triangles to the shared close face
+buffer. They use the existing head bone, face material and draw; all seven agents, three body
+silhouettes, fourteen-bone palette, fur texture, eye draw, far tier, gait, climbing and attention
+remain unchanged. Inspected native evidence `20261016T095251.470992Z-monkeys` passes at 1280x720
+with 216 colour bins, 42.41 luminance deviation, 211.42 spatial contrast and an empty kernel delta.
+Five relevant native groups and all 97 browser/capture harness tests pass. Inspected focused
+Chrome/SwiftShader evidence `20261016T095519.559722Z-chrome-monkeys` retains the face across the
+initial, four intermediate and final live poses and passes 60 finite positive intervals, GL error
+zero, a live context and kernel `[]`.
+
 ## 2026-10-15 narrower mask and stronger facial planes
 
 The post-goat animal audit still found the monkey weakest at close range: its locomotion and

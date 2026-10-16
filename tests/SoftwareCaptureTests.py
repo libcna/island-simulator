@@ -412,6 +412,7 @@ class SoftwareCaptureTests(unittest.TestCase):
                  "monkey fur uses one hidden underside/rear UV seam instead of mirrored crown and dorsal folds\n"
                  "near monkey tails keep a compact muscular hook and thirty-six raised fur clumps\n"
                  "near monkey faces use paired fur cheek ruffs around the skin mask\n"
+                 "near monkey faces use fitted sculpted supraorbital ridges and warmer modelled skin\n"
                  "near monkey faces use a fitted dark nose pad and raised readable corneas\n"
                  "monkey face skin uses muted brown palettes and a recessed perimeter shade\n"
                  "near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail\n"

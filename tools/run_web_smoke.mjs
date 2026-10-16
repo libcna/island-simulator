@@ -1163,6 +1163,7 @@ try {
             && log.includes("monkeys receive footprint-averaged canopy light through 14-bone skinning")
             && log.includes("monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes")
             && log.includes("monkey fur uses one hidden underside/rear UV seam instead of mirrored crown and dorsal folds")
+            && log.includes("near monkey faces use fitted sculpted supraorbital ridges and warmer modelled skin")
             && log.includes("near monkey faces use a fitted dark nose pad and raised readable corneas")
             && log.includes("monkey shoulder and hip mantles blend the trunk into all four animated limbs")
             // Curved leaf budgets are unchanged; flared trunks, rounded buttresses and six-sided branches.
@@ -1408,6 +1409,8 @@ try {
       "island-simulator: near monkey tails keep a compact muscular hook and thirty-six raised fur clumps")
     && result.output?.includes(
       "island-simulator: near monkey faces use paired fur cheek ruffs around the skin mask")
+    && result.output?.includes(
+      "island-simulator: near monkey faces use fitted sculpted supraorbital ridges and warmer modelled skin")
     && result.output?.includes(
       "island-simulator: near monkey faces use a fitted dark nose pad and raised readable corneas")
     && result.output?.includes(
@@ -2740,6 +2743,8 @@ try {
       "island-simulator: near monkey tails keep a compact muscular hook and thirty-six raised fur clumps")
     && monkeyResult.output?.includes(
       "island-simulator: near monkey faces use paired fur cheek ruffs around the skin mask")
+    && monkeyResult.output?.includes(
+      "island-simulator: near monkey faces use fitted sculpted supraorbital ridges and warmer modelled skin")
     && monkeyResult.output?.includes(
       "island-simulator: near monkey faces use a fitted dark nose pad and raised readable corneas")
     && monkeyResult.output?.includes(

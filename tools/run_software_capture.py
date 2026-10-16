@@ -388,6 +388,8 @@ def validate_monkey_capture_log(diagnostics, require_tree_grips=False):
         raise RuntimeError("monkey capture did not retain the current furry tail anatomy")
     if "near monkey faces use paired fur cheek ruffs around the skin mask" not in diagnostics:
         raise RuntimeError("monkey capture did not retain the fur-framed face")
+    if "near monkey faces use fitted sculpted supraorbital ridges and warmer modelled skin" not in diagnostics:
+        raise RuntimeError("monkey capture did not retain the fitted brow treatment")
     if "near monkey faces use a fitted dark nose pad and raised readable corneas" not in diagnostics:
         raise RuntimeError("monkey capture did not retain the current facial features")
     if "monkey face skin uses muted brown palettes and a recessed perimeter shade" not in diagnostics:
