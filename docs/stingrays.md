@@ -1,5 +1,28 @@
 # Stingrays
 
+## Continuous dorsal skin under the body (2026-10-16)
+
+The current aquatic contact sheet exposed one remaining artificial mark: the pale centre fan was
+mostly buried by the raised head/body loft, but one flex-dependent triangle protruded beside it as
+a large sharp arrow-shaped patch. The centre fan now uses the surrounding dorsal pigment; the
+raised loft alone supplies the restrained crown highlight. Eyes, spiracles and the six intentional
+dorsal spots remain distinct.
+
+This is a pigment-only edit. Near/far geometry remains exactly 1,086/18 vertices per animal, within
+the unchanged 1,100-vertex capacity; five agents, one dynamic draw, wing wave, bank, habitat,
+simulation and LOD are unchanged. Inspected before/after native evidence
+`20261016T204550.380930Z-stingrays` and `20261016T205311.599832Z-stingrays` confirms that the
+exposed wedge is gone. The final 1280x720 frame passes at 99 colour bins, 27.38 luminance deviation
+and 166.46 spatial contrast.
+
+Focused Chrome/SwiftShader evidence `20261016T205607.853279Z-chrome-stingrays` passes its inspected
+frame with 60 finite positive intervals, GL error zero, a live context, one draw and no new kernel
+GPU fault. `IslandStingrayGroupTests`, `IslandCoreTests` and all 103 browser/capture harness tests
+pass. Android ARM64 assemble/lint passes through the two-worker wrapper without emulator or KVM;
+the APK is 24,745,267 bytes with SHA-256
+`7aa25966a91260c10e4a76e6d1596db6a3c92054c3e614d8cec80a9977f68bb9`, and stripped `libmain.so`
+is 19,702,696 bytes. Physical-device appearance remains unqualified.
+
 ## Population and habitat
 
 Five deterministic, peaceful stingrays live over shallow sandy seabed. Their homes are selected

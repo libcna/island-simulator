@@ -557,13 +557,15 @@ class BrowserSoftwareTests(unittest.TestCase):
         geometry="stingray near/far geometry 1086/18 vertices with a continuous crossed-volume tapered tail"
         refinement=("near stingrays add rounded eye mounds, circular dorsal spots, a feathered "
                     "disc edge, and a continuous tail loft")
+        skin=("stingray dorsal disc keeps one continuous skin tone beneath the raised body "
+              "without exposed highlight wedges")
         population="stingrays 5 agents glide, forage, and settle over shallow sandy seabed"
         camera="stingray QA camera follows one shallow-sand glide"
         def report():
             return {"passed":True,"views":[{"mode":"stingrays","passed":True,
                 "glError":0,"contextLost":False,"renderer":"ANGLE SwiftShader",
                 "screenshot":"stingrays.png","intervals":[16.7]*60,
-                "result":{"output":anatomy+"\n"+profile+"\n"+geometry+"\n"+refinement+"\n"+population+"\n"+camera
+                "result":{"output":anatomy+"\n"+profile+"\n"+geometry+"\n"+refinement+"\n"+skin+"\n"+population+"\n"+camera
                     +"\nstingrays 1/5 visible (near 1, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_stingray_report(report()),"stingrays.png")
         for mutate in (
@@ -575,6 +577,8 @@ class BrowserSoftwareTests(unittest.TestCase):
             lambda value:value["views"][0]["result"].update(
                 output=anatomy+"\n"+profile+"\n"+geometry+"\n"+population+"\n"+camera
                     +"\nstingrays 0/5 visible (near 0, far 0), 0 draw"),
+            lambda value:value["views"][0]["result"].update(
+                output=report()["views"][0]["result"]["output"].replace(skin+"\n","")),
         ):
             invalid=report();mutate(invalid)
             with self.assertRaises(RuntimeError):gate.validate_stingray_report(invalid)

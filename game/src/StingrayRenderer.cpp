@@ -42,6 +42,8 @@ namespace island
             "island-simulator: stingray near/far geometry 1086/18 vertices with a continuous crossed-volume tapered tail";
         constexpr std::string_view StingrayAnatomyDiagnostic=
             "island-simulator: near stingrays add rounded eye mounds, circular dorsal spots, a feathered disc edge, and a continuous tail loft";
+        constexpr std::string_view StingraySkinDiagnostic=
+            "island-simulator: stingray dorsal disc keeps one continuous skin tone beneath the raised body without exposed highlight wedges";
         static_assert(MaximumVerticesPerRay>=1086);
 
         struct Palette
@@ -169,7 +171,10 @@ namespace island
                     basis,outerA[0],outerA[1],ray.wingWave,1.0f);
                 const Vector3 outerPointB=DiscPoint(
                     basis,outerB[0],outerB[1],ray.wingWave,1.0f);
-                LitTriangle(out,dorsalCentre,innerPointA,innerPointB,palette.highlight);
+                // Keep the buried centre fan in the dorsal tone. A pale fan left one
+                // exposed triangular wedge beside the raised body whenever the wing
+                // flexed, reading as a painted arrow rather than skin shading.
+                LitTriangle(out,dorsalCentre,innerPointA,innerPointB,palette.dorsal);
                 LitTriangle(out,innerPointA,middlePointA,middlePointB,palette.dorsal);
                 LitTriangle(out,innerPointA,middlePointB,innerPointB,palette.dorsal);
                 LitTriangle(out,middlePointA,outerPointA,outerPointB,palette.margin);
@@ -325,6 +330,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(StingrayGeometryDiagnostic);
         std::cout<<StingrayAnatomyDiagnostic<<'\n';
         MirrorRuntimeDiagnosticToPlatformLog(StingrayAnatomyDiagnostic);
+        std::cout<<StingraySkinDiagnostic<<'\n';
+        MirrorRuntimeDiagnosticToPlatformLog(StingraySkinDiagnostic);
     }
 
     StingrayRenderer::~StingrayRenderer()=default;

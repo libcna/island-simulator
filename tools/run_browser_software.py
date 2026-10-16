@@ -396,6 +396,7 @@ def validate_stingray_report(report):
         or "near stingrays use a curved diamond disc, raised central body, wedge nose, and restrained dark rim" not in log
         or "stingray near/far geometry 1086/18 vertices with a continuous crossed-volume tapered tail" not in log
         or "near stingrays add rounded eye mounds, circular dorsal spots, a feathered disc edge, and a continuous tail loft" not in log
+        or "stingray dorsal disc keeps one continuous skin tone beneath the raised body without exposed highlight wedges" not in log
         or "stingrays 5 agents glide, forage, and settle over shallow sandy seabed" not in log
         or "stingray QA camera follows one shallow-sand glide" not in log
         or not re.search(r"stingrays [1-5]/5 visible \(near [1-5], far [0-5]\), 1 draw",log)

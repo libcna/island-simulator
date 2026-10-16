@@ -16462,6 +16462,21 @@ Existing observation and qualification queue:
   SHA-256 `8ad627081d00340177abb1c242c12bbd22baa6b87d32b269f379c573850de6e2`; stripped
   `libmain.so` is 19,702,440 bytes.
 
+### 2026-10-16 — Continuous stingray dorsal skin
+
+- Removed the unintended pale centre-fan triangle that protruded from beneath the raised ray body
+  during wing flex and looked like a painted arrow. The centre fan now matches the surrounding
+  dorsal skin; the lofted body remains the sole crown highlight, while eyes, spiracles and six
+  intentional spots stay readable.
+- This is pigment-only: near/far geometry remains 1,086/18 vertices, five agents, one dynamic draw,
+  and unchanged habitat, wing motion, banking, simulation and LOD.
+- Inspected native evidence `20261016T205311.599832Z-stingrays` and focused Chrome/SwiftShader
+  `20261016T205607.853279Z-chrome-stingrays` pass; WebGL records 60 intervals, GL0, a live context
+  and clean kernel monitoring. Stingray, core and all 103 harness tests pass.
+- Android ARM64 assemble/lint passes without emulator or KVM. The APK is 24,745,267 bytes with
+  SHA-256 `7aa25966a91260c10e4a76e6d1596db6a3c92054c3e614d8cec80a9977f68bb9`; stripped
+  `libmain.so` is 19,702,696 bytes.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.
