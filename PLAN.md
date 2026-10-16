@@ -181,6 +181,24 @@ spatial contrast with kernel `[]`. Core, capture and 41 browser/capture harness 
 Chrome/SwiftShader `20261016T051153.378744Z-chrome-shark` passes two distinct frames, 60 finite
 positive intervals, GL0, a live context and kernel `[]`. Details are in `docs/shark-form.md`.
 
+## Latest terrain overview pass — restrained aerial classifications
+
+The next whole-island overview selected the repeated dark humus/moss and ridge-outcrop spots on
+the two inland hills as the weakest large-scale composition cue. The existing distance responses
+remain exactly full strength through 165 m and retain their 315 m endpoint, so ordinary walking
+material is unchanged. Only their far amplitudes are reduced: humus/moss from 0.56 to 0.30 and
+ridge outcrops from 0.52 to 0.30. The authored fields, warm substrate and fixed-sun relief remain;
+no texture, sample, shader input, geometry, buffer or draw is added.
+
+Same-camera native baseline `20261016T051641.187734Z-overview` and accepted
+`20261016T052228.524060Z-overview` were inspected side by side. The accepted frame retains both
+ridges and open habitats while reducing camouflage-like long-range spotting, and passes at 358
+colour bins, 37.98 luminance deviation, 205.71 spatial contrast and kernel `[]`. The near jungle
+guard remains visually intact. Five focused native test groups pass. Focused Chrome/SwiftShader
+`20261016T052635.393542Z-chrome-distant` executes the current shader for 60 finite intervals with
+GL0, a live context and kernel `[]`; its beach camera is runtime portability evidence rather than
+the aerial appearance proof. Details are in `docs/whole-island-material-pass.md`.
+
 The current Firefox qualification exposed a real beach-start regression rather than a renderer
 failure: the relocated firewood collision sat 1.73 m ahead of the old `(0,-225)` start and rejected
 forward movement. The player now starts at `(4,-225)` inside the unchanged 17 m reserved beach

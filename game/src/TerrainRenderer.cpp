@@ -514,7 +514,7 @@ void main()
     // Preserve the qualified mid-scale field from aerial views, but reduce only its
     // darkest classification amplitude after individual patches become landscape
     // masses. The underlying brown forest substrate never fades back to legacy green.
-    float aerialPatchStrength=mix(1.0,0.56,smoothstep(165.0,315.0,distanceToCamera));
+    float aerialPatchStrength=mix(1.0,0.30,smoothstep(165.0,315.0,distanceToCamera));
     color = mix(color, vec3(0.205, 0.151, 0.091) * vGroundLight,
                 leafHumus * 0.54 * aerialPatchStrength);
     color = mix(color, vec3(0.185, 0.265, 0.115) * vGroundLight,
@@ -749,7 +749,7 @@ void main()
         * (0.72 + smoothstep(0.24, 0.62, slopeRadians) * 0.28);
     litRidgeRock += vec3(0.038, 0.054, 0.058) * coastalCliff
         * (0.62 + ridgeSkyFill * 0.38);
-    float aerialOutcropStrength=mix(0.98,0.52,
+    float aerialOutcropStrength=mix(0.98,0.30,
         smoothstep(165.0,315.0,distanceToCamera));
     color = mix(color, litRidgeRock, rockCoverage * aerialOutcropStrength);
 

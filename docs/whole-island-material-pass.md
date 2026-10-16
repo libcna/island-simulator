@@ -66,3 +66,27 @@ passes with 358 colour bins, 38.13 luminance deviation, 206.11 spatial contrast 
 delta. Close guard `20261015T190410.829356Z-jungle` retains the established 275 bins, 46.22
 deviation and 213.02 contrast with an empty kernel delta. Refreshed Web and physical-Android
 appearance remain part of consolidated qualification.
+
+## Aerial material-classification refinement — 2026-10-16
+
+A fresh current-binary overview found that the previous bounded endpoints still allowed the
+darkest humus/moss patches and ridge-rock classifications to read as repeated camouflage spots
+across the two inland hills. The near field and the transition distances remain unchanged: both
+responses are exactly full strength through 165 m and reach their reduced value at 315 m. Only
+the far endpoints change, from 0.56 to 0.30 for humus/moss and from 0.52 to 0.30 for ridge
+outcrops. This keeps the authored material shapes and warm substrate while letting fixed-sun
+slope relief, tree masses and the broad terrain silhouette carry more of the aerial composition.
+There is still no new shader input, noise sample, texture access, geometry, buffer or draw.
+
+Native baseline `20261016T051641.187734Z-overview` and accepted
+`20261016T052228.524060Z-overview` were inspected at the same 1280x720 camera. The accepted frame
+retains the beach boundary, both inland ridges and the open-slope habitats while reducing the
+long-range dark spotting; it passes at 358 colour bins, 37.98 luminance deviation and 205.71
+spatial contrast with an empty kernel delta. The mathematically unchanged near-field guard
+`20261016T052023.335869Z-jungle` passes at 286 / 46.22 / 212.96. `IslandCoreTests`,
+`IslandRenderedTerrainTests`, `IslandTerrainMaterialTests`, `IslandCaptureValidatorTests` and
+`IslandSoftwareCapturePreflightTests` pass. Focused Chrome 155/SwiftShader WebGL 2 evidence
+`build/browser-software/20261016T052635.393542Z-chrome-distant` executes the current shader for
+60 finite positive intervals with GL error zero, a live context and an empty kernel delta. Its
+beach-facing camera is portable-runtime evidence, not a substitute for the native aerial visual
+comparison.
