@@ -16334,6 +16334,21 @@ Existing observation and qualification queue:
   SHA-256 `7d22b5c5f046d95c786f9ba2b96e1507aaed60325ebaedb0003ac0552c0b0bf8`; stripped
   `libmain.so` is 19,675,784 bytes.
 
+### 2026-10-16 — Rounded tropical ground-beetle audit
+
+- Replaced the flat eight-sided stone-like close beetle with closed twelve-sided paired elytra,
+  six fitted striae, a connected pronotum/head/scutellum assembly, smaller compound eyes, solid
+  clubbed antennae, mandibles and six three-segment legs with knee volumes. The exact QA camera now
+  shows the whole animal from an uncluttered side.
+- The exact 3,102-vertex model stays in the established fifteen-agent small-fauna buffer and shared
+  draw. Population, behaviour, terrain contact, culling and simulation tiers are unchanged.
+  Native evidence `20261016T175539.726687Z-beetles` and Chrome/SwiftShader evidence
+  `20261016T175824.161565Z-chrome-beetles` were inspected and pass image, GL0, live-context and
+  kernel gates; core and all 102 browser/capture harness tests pass.
+- ARM64 Android assemble/lint passes without an emulator or KVM. The APK is 24,726,467 bytes with
+  SHA-256 `7fda69cc5c227efbff6e5438047a9b6a4aad971b41ddc4bb669bf996bc759ac9`; stripped
+  `libmain.so` is 19,683,896 bytes.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.

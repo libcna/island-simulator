@@ -691,7 +691,7 @@ def validate_beetle_report(report):
         or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
         or len(set(frames))!=2
         or "fifteen tropical ground beetles rest, forage, and hide in three inland leaf-litter colonies" not in log
-        or "close beetles use domed paired elytra, a centre seam, pronotum, head, antennae, eyes, and six articulated legs" not in log
+        or "close beetles use rounded striated elytra, a fitted pronotum and head, compound eyes, clubbed antennae, mandibles, and six solid three-segment legs" not in log
         or "beetle QA camera frames one foraging animal in inland leaf litter" not in log
         or not re.search(r"beetles [1-9][0-9]*/15 visible in shared draw",log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):

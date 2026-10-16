@@ -1649,8 +1649,8 @@ namespace island
                                   std::sin(beetle.headingRadians));
             const Vector3 side(-forward.Z, 0.0f, forward.X);
             cameraPosition_ = Vector3(beetle.x, beetle.y + .095f, beetle.z)
-                + forward * .31f + side * .25f;
-            const Vector3 direction = Vector3(beetle.x, beetle.y + .070f, beetle.z)
+                + forward * .310f - side * .250f;
+            const Vector3 direction = Vector3(beetle.x, beetle.y + .068f, beetle.z)
                 - cameraPosition_;
             yaw_ = std::atan2(direction.X, direction.Z);
             pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));

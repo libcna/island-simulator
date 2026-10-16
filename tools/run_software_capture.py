@@ -1242,7 +1242,7 @@ def main():
             if args.viewpoint == "beetles":
                 for marker in (
                     "fifteen tropical ground beetles rest, forage, and hide in three inland leaf-litter colonies",
-                    "close beetles use domed paired elytra, a centre seam, pronotum, head, antennae, eyes, and six articulated legs",
+                    "close beetles use rounded striated elytra, a fitted pronotum and head, compound eyes, clubbed antennae, mandibles, and six solid three-segment legs",
                     "beetle QA camera frames one foraging animal in inland leaf litter"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"beetle integration diagnostic missing: {marker}")

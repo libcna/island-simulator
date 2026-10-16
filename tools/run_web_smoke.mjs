@@ -942,7 +942,7 @@ try {
               && log.includes("cicada QA camera frames one trunk-resting animal broadside")
               && /cicadas [1-9][0-9]*\/12 visible in shared draw/.test(log)))
             && (!focusedBeetleCheck || (log.includes("fifteen tropical ground beetles rest, forage, and hide in three inland leaf-litter colonies")
-              && log.includes("close beetles use domed paired elytra, a centre seam, pronotum, head, antennae, eyes, and six articulated legs")
+              && log.includes("close beetles use rounded striated elytra, a fitted pronotum and head, compound eyes, clubbed antennae, mandibles, and six solid three-segment legs")
               && log.includes("beetle QA camera frames one foraging animal in inland leaf litter")
               && /beetles [1-9][0-9]*\/15 visible in shared draw/.test(log)))
             && (!focusedCrocodileCheck || (log.includes("crocodiles use long low armored bodies, broad skulls, muscular tails, and planted splayed limbs")

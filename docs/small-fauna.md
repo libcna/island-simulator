@@ -33,6 +33,27 @@ non-display range pass 71/71 tests. ARM64 assemble/lint passes without emulator/
 `e36638a22d44b849015d57e5e73f7cbfc900c4d95faffd5aaa0a3ddc19dbcf02` and packages a
 19,484,952-byte `libmain.so`. Physical-device appearance remains final acceptance work.
 
+### Rounded close anatomy audit (2026-10-16)
+
+The current exact capture showed that the nominal close form still read as two flat blue stones:
+eight-sided wing cases ended in hard planes, the six legs were crossed cards, the eyes were large
+diamonds and the antennae had no volume. The revised insect uses separate closed twelve-sided
+six-station elytra, a twelve-sided fitted pronotum and head, a central scutellum and three low
+longitudinal striae on each wing case. Six solid three-segment legs now include fitted knee volumes;
+the face adds smaller rounded compound eyes, solid two-section clubbed antennae and paired tapered
+mandibles. The QA camera moved to the uncluttered side and frames the complete legs and antennae.
+
+One visible beetle has an exact runtime-checked 3,102-vertex budget. All fifteen remain in the
+existing shared small-fauna dynamic buffer and one draw, with unchanged population, simulation,
+habitat, behaviour, culling and materials. Accepted native llvmpipe/pixman evidence
+`20261016T175539.726687Z-beetles` passes at 1280x720 with 268 colour bins, 51.37 luminance
+deviation, 217.22 spatial contrast and a clean kernel delta. Focused Chrome/SwiftShader evidence
+`20261016T175824.161565Z-chrome-beetles` passes 60 finite positive intervals, two inspected motion
+frames, GL error zero, a live context and no new kernel fault. ARM64 Android assemble/lint passes
+without an emulator or KVM; the APK is 24,726,467 bytes with SHA-256
+`7fda69cc5c227efbff6e5438047a9b6a4aad971b41ddc4bb669bf996bc759ac9`, and stripped
+`libmain.so` is 19,683,896 bytes.
+
 ## Cicadas
 
 Twelve harmless deterministic cicadas use real non-mangrove broadleaf hosts selected from the
