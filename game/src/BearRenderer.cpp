@@ -99,18 +99,27 @@ public:
         }
     }
     void LimbLoft(Vector3 root,Vector3 joint,Vector3 ankle,bool front,Material material,int segments) {
-        // Keep one continuous surface through shoulder/haunch, knee and wrist. The
-        // previous tube + spherical-joint + tube assembly produced a conspicuous
-        // bead at every knee even though the authoritative IK chain was continuous.
+        // Keep one continuous surface through shoulder/haunch, knee and wrist.  A
+        // polyline through the exact IK joint still made a mechanically sharp elbow
+        // in profile, so round only the rendered centreline around that authoritative
+        // point.  The root and ankle remain exact and the curve stays inside the two
+        // solved bone segments; motion/contact therefore remain owned by BearMotion.
         constexpr std::array<float,9> fractions{0.0f,.10f,.25f,.42f,.55f,.68f,.82f,.94f,1.0f};
-        const std::array<float,9> frontRadii{.225f,.220f,.202f,.177f,.155f,.146f,.136f,.124f,.116f};
-        const std::array<float,9> rearRadii{.252f,.246f,.225f,.194f,.170f,.158f,.144f,.128f,.118f};
+        const std::array<float,9> frontRadii{.235f,.232f,.216f,.190f,.166f,.151f,.137f,.124f,.116f};
+        const std::array<float,9> rearRadii{.268f,.264f,.244f,.210f,.181f,.162f,.145f,.129f,.118f};
         const auto& radii=front?frontRadii:rearRadii;
         std::array<Vector3,fractions.size()> centres{};
+        const Vector3 approach=joint+(root-joint)*.24f;
+        const Vector3 departure=joint+(ankle-joint)*.24f;
+        const auto roundedJoint=[&](float t) {
+            const float one=1.0f-t;
+            return approach*(one*one)+joint*(2.0f*one*t)+departure*(t*t);
+        };
         for(std::size_t ring=0;ring<fractions.size();++ring) {
             const float t=fractions[ring];
-            centres[ring]=t<=.55f?root+(joint-root)*(t/.55f)
-                :joint+(ankle-joint)*((t-.55f)/.45f);
+            if(t<.42f)centres[ring]=root+(approach-root)*(t/.42f);
+            else if(t>.68f)centres[ring]=departure+(ankle-departure)*((t-.68f)/.32f);
+            else centres[ring]=roundedJoint((t-.42f)/.26f);
         }
         for(std::size_t ring=0;ring+1<fractions.size();++ring) {
             const auto ringFrame=[&](std::size_t index,float angle) {
@@ -364,7 +373,7 @@ BearRenderer::BearRenderer(GraphicsDevice& device,const CanopyLightField& canopy
     std::cout<<faceDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(faceDiagnostic);
     const char* furDiagnostic="island-simulator: near bear uses twenty-two body-envelope fur wedges without another draw";
     std::cout<<furDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(furDiagnostic);
-    const char* limbDiagnostic="island-simulator: bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws";
+    const char* limbDiagnostic="island-simulator: bear legs use rounded shoulder-to-wrist lofts and five-clawed broad paws";
     std::cout<<limbDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(limbDiagnostic);
     const char* clawDiagnostic="island-simulator: near bear paws use short two-segment horn claws with buried roots and downward tips";
     std::cout<<clawDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(clawDiagnostic);

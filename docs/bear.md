@@ -16,6 +16,30 @@ the skull and muzzle, separates larger rounded ears and adds fitted brow volumes
 triangles; the cheaper far tier omits face/claw detail. Body and one 18-triangle terrain shadow
 remain two bounded draws.
 
+## Rounded weight-bearing limbs — 2026-10-16
+
+A renewed helicopter/large-animal comparison selected the bear's legs as the weakest close
+silhouette. Although each leg was already one continuous loft, its centreline still changed
+direction at the exact two-bone IK joint. In profile this made the elbow and hock look like hard
+right-angle bends, especially while a planted paw was behind the shoulder.
+
+The rendered centreline now rounds a short interval around each authoritative IK joint with a
+quadratic Bezier segment. Its root and ankle remain the exact solved points and the curve stays
+inside the two original bone segments, so terrain contact, planted-paw locking, reach validation
+and gait timing are unchanged. Slightly fuller proximal profiles make the forelimbs grow out of
+the shoulder and the hind limbs out of the haunch instead of beginning as narrow tubes. The loft
+still has nine rings, so this adds no vertices, triangles, draw calls, textures or simulation cost.
+
+Inspected final native evidence `20261016T123535.945836Z-bear` covers eight changing poses and passes
+at 205 colour bins, 35.53 luminance deviation and 167.38 spatial contrast with an empty kernel
+delta. The limbs retain grounded paws while the elbow/hock silhouettes turn continuously instead
+of forming the previous mechanical corners. The focused Chrome/SwiftShader run
+`20261016T123220.683393Z-chrome-bear` supplies two distinct inspected poses and passes 60 finite
+positive intervals, `glError=0`, a live context and an empty kernel delta. WebAssembly rebuilt;
+Android ARM64 assemble/lint passed against the locked Sharp Runtime copy, producing a single-ABI
+24,669,675-byte APK with a 19,627,104-byte `libmain.so`. No emulator or KVM was used. Physical-
+device performance and subjective audio remain open.
+
 ## Fitted curved claws — 2026-10-16
 
 The renewed eight-angle audit accepted the heavy torso, directional coat and broad paws but found

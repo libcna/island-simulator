@@ -215,7 +215,7 @@ def validate_bear_report(report):
         or "bear fur loaded Content/wildlife/bear-fur.png; 128x128, 8 mips, 87380 RGBA8 bytes" not in log
         or "near bear uses twenty-two body-envelope fur wedges without another draw" not in log
         or "near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes" not in log
-        or "bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws" not in log
+        or "bear legs use rounded shoulder-to-wrist lofts and five-clawed broad paws" not in log
         or "near bear paws use short two-segment horn claws with buried roots and downward tips" not in log
         or "bear torso uses a continuous rump-to-neck loft without overlapping body shells" not in log
         or "near bear uses a broader rounded skull, fitted brow volumes, larger rounded ears, and a short wide muzzle" not in log

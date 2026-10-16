@@ -514,6 +514,22 @@ deviation, 167.05 spatial contrast and kernel `[]`. Inspected Chrome/SwiftShader
 `20261016T073448.696330Z-chrome-bear` supplies two distinct frames and passes 60 finite positive
 intervals, GL0, a live context and kernel `[]`. Details are in `docs/bear.md`.
 
+## Latest bear visual pass — rounded weight-bearing limbs
+
+The next current-binary comparison selected the bear's remaining mechanically sharp elbow and
+hock profiles. The nine-ring limb loft now rounds a short interval around every authoritative IK
+joint with a quadratic Bezier centreline and uses slightly fuller proximal muscle radii. Exact
+root/ankle points, terrain contact, planted-foot locking, reach limits, gait and every runtime
+budget remain unchanged; the pass adds no geometry, texture, draw or simulation work.
+
+The deterministic 600-second motion regression remains unchanged at 219.719 m travelled and a
+0.16559 m maximum update. Inspected final eight-stage native evidence
+`20261016T123535.945836Z-bear` passes at 205 colour bins, 35.53 luminance deviation, 167.38
+spatial contrast and kernel `[]`. Inspected Chrome/SwiftShader
+`20261016T123220.683393Z-chrome-bear` passes two distinct poses, 60 finite positive intervals,
+GL0, a live context and kernel `[]`. WebAssembly rebuilt; Android ARM64 assemble/lint passed
+against the locked dependency copy without emulator/KVM. Details are in `docs/bear.md`.
+
 ## Latest beach-crab visual pass — rounded palms and solid forearms
 
 The current beach-colony audit accepted the low broad closed shell and planted three-segment legs

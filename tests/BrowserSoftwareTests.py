@@ -879,7 +879,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn("bear", gate.SCOPES)
         source = (ROOT / "tools/run_web_smoke.mjs").read_text()
         self.assertIn('focusedBearCheck ? ["bear"]', source)
-        self.assertIn('bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws',
+        self.assertIn('bear legs use rounded shoulder-to-wrist lofts and five-clawed broad paws',
                       source)
         self.assertIn('near bear paws use short two-segment horn claws with buried roots and downward tips',
                       source)
@@ -891,7 +891,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                "bear fur loaded Content/wildlife/bear-fur.png; 128x128, 8 mips, 87380 RGBA8 bytes\n"
                "near bear uses twenty-two body-envelope fur wedges without another draw\n"
                "near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes\n"
-               "bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws\n"
+               "bear legs use rounded shoulder-to-wrist lofts and five-clawed broad paws\n"
                "near bear paws use short two-segment horn claws with buried roots and downward tips\n"
                "bear torso uses a continuous rump-to-neck loft without overlapping body shells\n"
                "near bear uses a broader rounded skull, fitted brow volumes, larger rounded ears, and a short wide muzzle\n"
