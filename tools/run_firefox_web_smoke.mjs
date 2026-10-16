@@ -338,6 +338,7 @@ try {
     "island-simulator: boars use connected limb poses, stance contact and body-rooted bristles",
     "island-simulator: monkeys receive footprint-averaged canopy light through 14-bone skinning",
     "island-simulator: selected near canopy variants include hanging leafy lianas",
+    "island-simulator: selected near canopy trunks carry elevated epiphyte rosettes",
     "island-simulator: palm per-instance frond tint reuses existing transforms",
     "island-simulator: selected palm near crowns include sparse hanging dry fronds",
     "island-simulator: palm far crowns retain twelve arched ribbons and two narrow emerging spears",

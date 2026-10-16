@@ -357,7 +357,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: curved canopy blades retain source identities within original triangle budgets" \
             "$LOG_FILE" \
-        && grep -q "canopy mesh variant=0 near-vertices=4818 near-triangles=4640 far-vertices=1071 far-triangles=1120" \
+        && grep -q "canopy mesh variant=0 near-vertices=4874 near-triangles=4688 far-vertices=1071 far-triangles=1120" \
             "$LOG_FILE" \
         && grep -q "island-simulator: eight structural crown forms share eight LOD lobe anchors and supported trunk bends" \
             "$LOG_FILE" \
@@ -385,6 +385,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         && grep -q "island-simulator: monkeys receive footprint-averaged canopy light through 14-bone skinning" \
             "$LOG_FILE" \
         && grep -q "island-simulator: selected near canopy variants include hanging leafy lianas" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: selected near canopy trunks carry elevated epiphyte rosettes" \
             "$LOG_FILE" \
         && grep -q "island-simulator: palm per-instance frond tint reuses existing transforms" \
             "$LOG_FILE" \

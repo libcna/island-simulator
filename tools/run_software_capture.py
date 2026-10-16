@@ -914,7 +914,9 @@ def main():
                 raise RuntimeError("current canopy leaf posture is missing; check for a stale executable")
             if "curved canopy blades retain source identities within original triangle budgets" not in diagnostics:
                 raise RuntimeError("current canopy leaf outline is missing; check for a stale executable")
-            if "canopy mesh variant=0 near-vertices=4818 near-triangles=4640 far-vertices=1071 far-triangles=1120" not in diagnostics:
+            if "selected near canopy trunks carry elevated epiphyte rosettes" not in diagnostics:
+                raise RuntimeError("current canopy epiphyte detail is missing; check for a stale executable")
+            if "canopy mesh variant=0 near-vertices=4874 near-triangles=4688 far-vertices=1071 far-triangles=1120" not in diagnostics:
                 raise RuntimeError("current far canopy support branches are missing; check for a stale executable")
             if "eight structural crown forms share eight LOD lobe anchors and supported trunk bends" not in diagnostics:
                 raise RuntimeError("current canopy structure is missing; check for a stale executable")

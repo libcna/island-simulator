@@ -1150,7 +1150,7 @@ try {
             && log.includes("near monkey faces use a fitted dark nose pad and raised readable corneas")
             && log.includes("monkey shoulder and hip mantles blend the trunk into all four animated limbs")
             // Curved leaf budgets are unchanged; flared trunks, rounded buttresses and six-sided branches.
-            && /canopy mesh variant=0 near-vertices=4818 near-triangles=4640 far-vertices=1071 far-triangles=1120/.test(log)
+            && /canopy mesh variant=0 near-vertices=4874 near-triangles=4688 far-vertices=1071 far-triangles=1120/.test(log)
             && (mode !== "boars" || /boars [1-6]\/6 visible, 2 draw/.test(log))
             && (mode !== "monkeys" || /monkeys [1-7]\/7 visible/.test(log))
             && !/(?:stock-effect|material) fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high/i.test(log);
@@ -1424,6 +1424,8 @@ try {
       "island-simulator: jungle near canopy uses irregular trunks and bent support branches")
     && result.output?.includes(
       "island-simulator: selected near canopy variants include hanging leafy lianas")
+    && result.output?.includes(
+      "island-simulator: selected near canopy trunks carry elevated epiphyte rosettes")
     && result.output?.includes(
       "island-simulator: jungle near canopy irregular buttress roots ground trunk bases")
     && result.output?.includes(
@@ -2019,6 +2021,8 @@ try {
       "island-simulator: jungle near canopy uses irregular trunks and bent support branches")
     && jungleResult.output?.includes(
       "island-simulator: selected near canopy variants include hanging leafy lianas")
+    && jungleResult.output?.includes(
+      "island-simulator: selected near canopy trunks carry elevated epiphyte rosettes")
     && jungleResult.output?.includes(
       "island-simulator: jungle near canopy irregular buttress roots ground trunk bases")
     && jungleResult.output?.includes(

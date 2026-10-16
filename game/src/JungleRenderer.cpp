@@ -88,6 +88,8 @@ namespace island
             "island-simulator: jungle near canopy uses irregular layered lower-crown edges";
         constexpr const char* CanopyBranchDiagnostic =
             "island-simulator: jungle near canopy uses irregular trunks and bent support branches";
+        constexpr const char* CanopyEpiphyteDiagnostic =
+            "island-simulator: selected near canopy trunks carry elevated epiphyte rosettes";
 
         struct LeafSurface
         {
@@ -1008,6 +1010,30 @@ void main()
                 0.49f, 0.14f, 0.30f, ShadeColor(leafColor, 0.91f), windPhase, 0.065f);
         }
 
+        void AppendCanopyEpiphyte(PlantGeometry& geometry, const int variant)
+        {
+            const float attachmentAngle = .63f + static_cast<float>(variant) * .79f;
+            const Vector3 radial(std::cos(attachmentAngle), 0.0f,
+                                 std::sin(attachmentAngle));
+            const Vector3 anchor = radial * (.30f + .018f * static_cast<float>(variant))
+                + Vector3::Up * (3.05f + .19f * static_cast<float>(variant % 3));
+            const Color leafBase(50 + variant * 2, 126 + variant * 2, 59, 255);
+            constexpr int LeafCount = 8;
+            for (int leaf = 0; leaf < LeafCount; ++leaf) {
+                const float fraction = static_cast<float>(leaf) / LeafCount;
+                const float angle = attachmentAngle + fraction * 2.0f
+                    * std::numbers::pi_v<float> + (leaf % 2 == 0 ? -.09f : .07f);
+                const float length = .55f + .08f * static_cast<float>((leaf + variant) % 3);
+                const float pitch = .22f + .10f * static_cast<float>(leaf % 3);
+                AppendCanopyBlade(geometry, anchor + radial * .018f, angle,
+                    length, .115f + .012f * static_cast<float>(leaf % 2), .055f,
+                    ShadeColor(leafBase, .86f + .055f * static_cast<float>(leaf % 4)),
+                    std::fmod(.17f * static_cast<float>(variant)
+                              + fraction * .31f, 1.0f), .055f, pitch,
+                    leaf % 2 == 0 ? .10f : -.08f);
+            }
+        }
+
         [[nodiscard]] PlantGeometry CreateCanopyGeometry(const int variant, const bool farMesh)
         {
             PlantGeometry geometry;
@@ -1019,6 +1045,8 @@ void main()
                 AppendCanopyButtresses(geometry, variant);
             }
             AppendCanopyTrunk(geometry, variant, farMesh);
+            if (!farMesh && (variant == 0 || variant == 4 || variant == 6))
+                AppendCanopyEpiphyte(geometry, variant);
 
             constexpr int clusterCount = 8;
             const std::array<Color, CanopyFormCount> foliageColors{
@@ -1822,6 +1850,8 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(CanopyBranchDiagnostic);
             std::cout << CanopyLianaDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(CanopyLianaDiagnostic);
+            std::cout << CanopyEpiphyteDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(CanopyEpiphyteDiagnostic);
             std::cout << "island-simulator: jungle near canopy irregular buttress roots ground trunk bases\n";
             std::cout << "island-simulator: jungle near canopy procedural bark fissures\n";
             std::cout << "island-simulator: jungle near bushes with pointed leaf edge breakup\n";

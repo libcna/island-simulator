@@ -112,6 +112,25 @@ hard grass/bush wall at a tier boundary; WebGL remains live, GL error is zero, t
 error is 1.075 m and kernel monitoring is clean. This is representative motion evidence, not a
 mathematical all-view aliasing proof.
 
+## Latest vegetation microhabitat pass — canopy trunk epiphytes
+
+The next vegetation audit accepted the connected crowns, bark and traversable forest floor but
+selected the uniform empty interval between buttress roots and crowns as the weakest remaining
+near-tree repetition. Three of eight ordinary canopy forms now carry one elevated bird's-nest
+epiphyte rosette made from eight independently pitched, rolled and length-varied pointed leaves.
+The mangrove form and every far LOD remain unchanged.
+
+Each affected near mesh gains 56 vertices and 48 triangles in the existing instanced canopy draw;
+there is no new population object, collision, texture, material, buffer, shader input or draw.
+Variant zero now reports 4,874 vertices/4,688 triangles near and the unchanged 1,071/1,120 far.
+Native jungle evidence `20261016T041115.046293Z-jungle` passes at 275 colour bins, 46.22 luminance
+deviation and 213.01 spatial contrast; targeted canopy evidence
+`20261016T041218.426519Z-canopy` passes at 375/32.91/146.72. Both have empty kernel deltas. Focused
+Chrome/SwiftShader `20261016T042604.764619Z-chrome-canopy-light` passes at 60 finite positive
+intervals, GL0, a live context and kernel `[]`. The wider
+`20261016T041449.453724Z-chrome-vegetation` attempt exceeded its multi-scene software timeout and
+is explicitly rejected. Details are in `docs/canopy-epiphytes.md`.
+
 The current Firefox qualification exposed a real beach-start regression rather than a renderer
 failure: the relocated firewood collision sat 1.73 m ahead of the old `(0,-225)` start and rejected
 forward movement. The player now starts at `(4,-225)` inside the unchanged 17 m reserved beach
