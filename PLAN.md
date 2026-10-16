@@ -2054,6 +2054,26 @@ emulator/KVM (24,191,747-byte APK, SHA-256
 `6d2ab4119a61b3b623337b82c9a02d6d8cf0bda0910bfa48364a3c78abde5fc1`, 19,149,176-byte stripped
 `libmain.so`); physical-device appearance remains unqualified.
 
+## Latest visual-audit implementation — ground fruit-dove anatomy
+
+The continuing animal audit selected the planted tropical fruit dove: its folded wings still read
+as broad flat plates, its feet as green triangles, its head as a coarse polygon and its tail as an
+overlong wedge. Ground-state fruit doves now use plump species-specific body radii, two rounded
+folded-wing volumes, a shorter narrower tail, a twelve-sided six-band head, a restrained fitted eye
+ring and solid tapered lower legs with three individually tapered toes per foot. The richest state
+is 1,602 vertices; population, behavior, terrain contact, culling, LOD, animation and one dynamic
+draw remain unchanged.
+
+Exact-final native evidence is
+`build-consumer/software-captures/20261016T163528.881908Z-ground-doves` (225 colour bins, 31.25
+luminance deviation, 156.86 spatial contrast; inspected). Core tests and all 102 capture/browser
+harness tests pass. Chrome/SwiftShader evidence
+`build/browser-software/20261016T163955.588807Z-chrome-birds` passes both bird views with 60
+finite positive intervals each, GL0, live contexts and clean kernel monitoring. ARM64 assemble/lint
+passes without emulator/KVM (24,699,603-byte APK, SHA-256
+`450941c845574b3dd408386a1ef916a89e77d37427addc89a9dd0805952352d4`, 19,657,032-byte stripped
+`libmain.so`). Details and remaining limits are in `docs/tropical-birds.md`.
+
 ## Latest visual-audit implementation — layered juvenile broadleaf
 
 The next forest-floor audit found that ground-plant variant 1 still read as a flat ring of smooth

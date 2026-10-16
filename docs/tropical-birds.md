@@ -1,5 +1,34 @@
 # Tropical parrots and fruit doves
 
+## Ground-dove close-anatomy audit (2026-10-16)
+
+The continuing animal audit found that the planted fruit dove still read as a flat green wedge:
+its folded wings were broad closed plates, its feet were two double-sided triangles, the head had
+a coarse pointed outline, and its split tail was too long for the otherwise compact body. The
+ground state now substitutes two low rounded folded-wing volumes that follow the breast and back.
+Its lofted body is fuller through the shoulder and belly, while the tail is shorter and narrower.
+The head uses a twelve-sided, six-band ellipsoid with a fitted restrained orbital ring and pupil
+instead of the prior coarse shared head shell.
+
+Each planted foot now has a solid tapered lower leg and three individually tapered toes in a warm
+bare-skin colour. Flight, ground approach/forage/depart animation, terrain contact, population,
+placement, culling, LOD and the single dynamic bird draw remain unchanged. Generic birds remain at
+822 vertices in flight and 846 with feet; the richest ground-dove state is 1,602 vertices. The
+conservative all-near buffer therefore grows from 20,304 to 38,448 vertices, still submitted only
+for visible near birds and still in one existing draw.
+
+The inspected exact-final native evidence is
+`build-consumer/software-captures/20261016T163528.881908Z-ground-doves` (225 colour bins, 31.25
+luminance deviation, 156.86 spatial contrast). It visibly shows the rounded folded wing, shorter
+tail, planted toes and smaller fitted eye instead of the previous plate-and-triangle silhouette.
+Focused Chrome/SwiftShader evidence
+`build/browser-software/20261016T163955.588807Z-chrome-birds` passes the flying parrot and ground
+dove views with 60 finite positive intervals each, GL error zero, live contexts and clean kernel
+monitoring; both matching frames were inspected. ARM64 assemble/lint passes without emulator/KVM
+(24,699,603-byte APK, SHA-256
+`450941c845574b3dd408386a1ef916a89e77d37427addc89a9dd0805952352d4`, 19,657,032-byte stripped
+`libmain.so`). Physical-device appearance remains unqualified.
+
 ## Rounded close profile and solid flight surfaces (2026-10-16)
 
 The next whole-island audit selected the airborne parrot as the weakest close animal: its head was
