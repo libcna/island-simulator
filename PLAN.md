@@ -23,6 +23,27 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest terrain visual-audit implementation — distance-stable coastal cliff strata
+
+The overview/headland/east comparison selected the low coastal cliff because its existing close
+bedding and joints correctly filtered away at distance, leaving the full seven-metre face as one
+grey curtain. The coastal-only material branch now retains gently warped metre-scale strata,
+restrained warmer mineral beds and irregular vertical drainage streaks. A low-amplitude final
+modulation survives the far outcrop blend; a stronger intermediate was inspected and rejected as
+artificially striped.
+
+The change adds one low-frequency value-noise sample and bounded sine/blend arithmetic only on
+steep rocky fragments. Geometry, collision, terrain cells, textures and draw count are unchanged.
+Terrain-material, rendered-terrain, core and all 103 browser/capture harness tests pass. Inspected
+native baseline `20261016T213030.275073Z-headland` and accepted
+`20261016T213833.545701Z-headland` preserve the beach/talus composition; the accepted frame passes
+at 429 colour bins, 44.23 luminance deviation and 232.21 spatial contrast. Focused
+Chrome/SwiftShader `20261016T214114.151756Z-chrome-cliffs` passes east and headland at 60 finite
+positive intervals each, GL error zero, live contexts and kernel `[]`. Android arm64 assembly/lint
+pass without an emulator; the 24,747,667-byte APK has SHA-256
+`f1298cc2e8f7096714284fb8cf1d067c0cf9b369f84e00bd62326b64a7502495` and contains a
+19,705,096-byte `libmain.so`. Physical Android runtime remains unqualified.
+
 ## Latest visual-audit implementation — rounded goat barrel and joint masses
 
 The refreshed overview and bear/boar/goat comparison selected the goat as the weakest ordinary

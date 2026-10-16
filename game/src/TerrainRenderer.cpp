@@ -93,7 +93,7 @@ namespace island
         constexpr std::string_view RidgeOutcropDiagnostic =
             "island-simulator: inland ridge outcrops follow measured steepness with broken medium-scale exposure";
         constexpr std::string_view CoastalCliffFillDiagnostic =
-            "island-simulator: low coastal cliffs retain salt-worn mineral colour and cool open-sky fill";
+            "island-simulator: low coastal cliffs retain salt-worn mineral colour, distance-stable macro strata, drainage streaks, and cool open-sky fill";
 
         const VertexDeclaration& TerrainDeclaration()
         {
@@ -675,6 +675,7 @@ void main()
         * (1.0 - smoothstep(9.0, 17.0, vWorld.y));
     ridgeRock = max(ridgeRock, coastField.x * smoothstep(-0.25, 0.35, vWorld.y));
     float rockCoverage = ridgeRock;
+    float cliffMacroModulation = 0.0;
     vec3 weatheredRock = vec3(0.36, 0.33, 0.27);
     if (ridgeRock > 0.0) {
         // Height-field x/z noise stretches into muddy vertical curtains on a steep face.
@@ -703,6 +704,23 @@ void main()
                                 clamp(0.52 + projectedMacro * 0.76
                                     + projectedMottle * 0.34, 0.0, 1.0));
         weatheredRock = mix(weatheredRock, saltWornRock, coastalCliff * 0.62);
+        // The close bedding and grain deliberately filter away with footprint size. Keep a
+        // much broader, low-contrast geological rhythm for the whole-headland view so the
+        // seven-metre face does not collapse into one flat grey curtain at distance.
+        float macroStrata = sin(vWorld.y * 1.08 + projectedMacro * 0.68
+            + sin(faceAcross * 0.085) * 0.34);
+        float drainageField = valueNoise(vec2(faceAcross * 0.092, vWorld.y * 0.052)
+            + vec2(-14.6, 7.3));
+        float drainageStreak = smoothstep(0.18, 0.70,
+            drainageField + projectedMottle * 0.20);
+        float warmBed = smoothstep(0.30, 0.82,
+            macroStrata + projectedMacro * 0.26);
+        weatheredRock = mix(weatheredRock, vec3(0.470, 0.392, 0.292),
+            coastalCliff * warmBed * 0.27);
+        weatheredRock *= 1.0 + coastalCliff
+            * (macroStrata * 0.135 - drainageStreak * 0.155);
+        cliffMacroModulation = coastalCliff
+            * (macroStrata * 0.075 - drainageStreak * 0.080);
         weatheredRock *= 1.0 + projectedMottle * 0.25;
         float beddingPhase = vWorld.y * 1.72 + projectedMacro * 0.58
             + sin(faceAcross * 0.11 + projectedMottle * 1.4) * 0.30;
@@ -754,6 +772,7 @@ void main()
     float aerialOutcropStrength=mix(0.98,0.30,
         smoothstep(165.0,315.0,distanceToCamera)) * farSilhouetteCalm;
     color = mix(color, litRidgeRock, rockCoverage * aerialOutcropStrength);
+    color *= 1.0 + rockCoverage * cliffMacroModulation;
 
     // One shared environment field darkens the carved drainage and its irregular damp banks.
     // Existing broad/medium fields break the straight surveyed valley without moving water

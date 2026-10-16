@@ -1073,7 +1073,7 @@ try {
               && log.includes("steep terrain rock macrocolour follows the cliff face instead of top-down curtains")
               && log.includes("inland ridge rock starts on sustained slopes and retains cool sky fill in fixed-sun shade")
               && log.includes("inland ridge outcrops follow measured steepness with broken medium-scale exposure")
-              && log.includes("low coastal cliffs retain salt-worn mineral colour and cool open-sky fill")))
+              && log.includes("low coastal cliffs retain salt-worn mineral colour, distance-stable macro strata, drainage streaks, and cool open-sky fill")))
             && (!focusedSkyCheck || (log.includes("sky cumulus use layered billow silhouettes with blue-grey undersides and sunlit crowns")
               && log.includes("sky cumulus use compact normalized breakup instead of horizon-spanning ribbons")))
             && (!focusedCanopyLightCheck || (log.includes("canopy shade adds bounded world-anchored low-frequency sun patches")

@@ -911,7 +911,7 @@ def main():
                 raise RuntimeError("current ridge exposure and sky fill are missing; check for a stale executable")
             if "inland ridge outcrops follow measured steepness with broken medium-scale exposure" not in diagnostics:
                 raise RuntimeError("current ridge outcrop breakup is missing; check for a stale executable")
-            if "low coastal cliffs retain salt-worn mineral colour and cool open-sky fill" not in diagnostics:
+            if "low coastal cliffs retain salt-worn mineral colour, distance-stable macro strata, drainage streaks, and cool open-sky fill" not in diagnostics:
                 raise RuntimeError("current coastal cliff fill is missing; check for a stale executable")
             if "canopy per-tree frustum boxes contain both LODs and wind" not in diagnostics:
                 raise RuntimeError("current canopy visibility path is missing; check for a stale executable")
