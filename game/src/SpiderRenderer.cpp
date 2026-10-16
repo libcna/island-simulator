@@ -31,8 +31,8 @@ namespace island {
 namespace {
 constexpr int Capacity=static_cast<int>(SpiderRenderer::MaximumVisibleCount*SpiderMesh::MaximumVertices);
 Vector3 Point(SpiderPoint p){return {p.x,p.y,p.z};}
-const std::array<Color,5> Materials{Color(220,211,195),Color(255,247,223),
-    Color(12,10,8),Color(126,111,84),Color(87,71,51)};
+const std::array<Color,6> Materials{Color(220,211,195),Color(255,247,223),
+    Color(12,10,8),Color(126,111,84),Color(87,71,51),Color(184,151,103)};
 }
 SpiderRenderer::SpiderRenderer(GraphicsDevice& device,const CanopyLightField& canopy)
     :device_(device),canopy_(canopy),effect_(std::make_unique<BasicEffect>(device)),
@@ -49,6 +49,8 @@ SpiderRenderer::SpiderRenderer(GraphicsDevice& device,const CanopyLightField& ca
     std::cout<<message<<std::endl;MirrorRuntimeDiagnosticToPlatformLog(message);
     const char* eyeMessage="island-simulator: near spiders use tiered fitted eyes with upper-forward catchlights";
     std::cout<<eyeMessage<<std::endl;MirrorRuntimeDiagnosticToPlatformLog(eyeMessage);
+    const char* abdomenMessage="island-simulator: near spider abdomens use a tapered muted dorsal lance in the existing setae draw";
+    std::cout<<abdomenMessage<<std::endl;MirrorRuntimeDiagnosticToPlatformLog(abdomenMessage);
     effect_->setVertexColorEnabledProperty(true);effect_->setLightingEnabledProperty(false);
     effect_->setTextureEnabledProperty(false);effect_->setFogEnabledProperty(true);
     effect_->setFogColorProperty(Vector3(environment::FogColorRed,environment::FogColorGreen,environment::FogColorBlue));

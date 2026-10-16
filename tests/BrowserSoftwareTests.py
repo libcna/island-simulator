@@ -950,6 +950,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                 "result": {"output": "spider render proof: spiders 1/200 visible, 2 draw; contact-shadows=1\n"
                     "spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes\n"
                     "near spiders use tiered fitted eyes with upper-forward catchlights\n"
+                    "near spider abdomens use a tapered muted dorsal lance in the existing setae draw\n"
                     "spider lighting ground-transmission=0 body-transmission=0 body-tint=0.46,0.53,0.62\n"}},
                 {"mode":"spider-web","passed":True,"glError":0,"contextLost":False,
                  "renderer":"ANGLE SwiftShader","screenshot":"web.png",
@@ -964,6 +965,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(RuntimeError): gate.validate_spider_report(bad)
         for old, new in (("1/200", "0/200"), ("2 draw", "1 draw"), ("contact-shadows=1", "contact-shadows=0"),
                          ("setae loaded", "missing"), ("tiered fitted eyes", "uniform eyes"),
+                         ("tapered muted dorsal lance", "plain abdomen"),
                          ("body-tint=0.46", "body-tint=0.25"),
                          ("spider lighting", "absent")):
             bad=report(); result=bad["views"][0]["result"]

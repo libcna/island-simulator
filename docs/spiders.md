@@ -4,6 +4,27 @@ Status: **200 ground spiders and six branch-attached canopy webs are integrated 
 Ground-spider continuous naturalness and further anatomy polish remain open; the live web batch
 has passed inspected native llvmpipe and Chrome/SwiftShader WebGL2 runs.
 
+## Tapered dorsal abdomen lance — 2026-10-16
+
+The renewed close audit found that the fitted eyes, textured setae and articulated gait remained
+readable, but the large abdomen still collapsed into one almost uniform brown sphere. The existing
+near-body vertices now select a muted warm dorsal material through a width that narrows toward both
+ends of the abdomen. It remains inside the existing setae-textured body draw; no vertex, texture,
+buffer, simulation, shadow or draw call was added, and the far mesh is unchanged.
+
+The current pre-change `spiders-bright` evidence `20261016T075636.847579Z-spiders-bright` was
+inspected but rejected: its 39 quantized colour bins missed the dedicated close-natural minimum of
+40. No threshold was lowered. Accepted native evidence `20261016T080245.750749Z-spiders-bright`
+uses the same camera and passes at 42 bins, 10.48 luminance deviation and 16.64 spatial contrast.
+All eight moving stages retain the tapered pattern, one grounded animal, two material draws and
+one contact shadow with an empty kernel delta.
+
+Inspected Chrome/SwiftShader `20261016T080545.683671Z-chrome-spiders` passes both the four-pose
+ground-spider scene and the independent live-web scene: each runs 60 finite positive intervals,
+reports `glError=0`, retains a live context and ends with kernel `[]`. Seven focused Spider CTest
+groups and all 119 software/browser/Android harness unit tests pass. This is portable software
+evidence, not physical Android or AMD performance qualification.
+
 ## Tiered eye cluster and front-quarter audit — 2026-10-14
 
 The near mesh replaces eight equal-size black eye beads with a tiered cluster: four small anterior

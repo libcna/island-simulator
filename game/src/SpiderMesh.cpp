@@ -72,6 +72,11 @@ struct Builder {
             auto m=material;
             if(material==SpiderMaterial::Eye&&unit.y>.15f&&unit.z>.45f)
                 m=SpiderMaterial::EyeHighlight;
+            else if(hairs&&part==SpiderPart::Abdomen&&material==SpiderMaterial::Cuticle
+                &&unit.y>.24f&&std::abs(unit.x)<.16f+.20f*(1.0f-std::abs(unit.z)))
+                // A muted, tapered dorsal lance breaks the otherwise spherical brown
+                // abdomen without adding a decal, vertex or separate material draw.
+                m=SpiderMaterial::DorsalLance;
             else if(material==SpiderMaterial::Cuticle&&unit.y>.45f&&std::abs(unit.x)<.40f)
                 m=SpiderMaterial::Marking;
             return SpiderVertex{Add(centre,{unit.x*radii.x,unit.y*radii.y,unit.z*radii.z}),

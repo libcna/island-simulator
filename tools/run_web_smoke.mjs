@@ -808,7 +808,8 @@ try {
             && (!focusedSpiderCheck || (mode === "spiders" ? (spiderMotionFrames.length === 4
               && /spider render proof: spiders (?:[1-9]|[1-9][0-9]|1[0-9]{2}|200)\/200 visible, 2 draw; contact-shadows=(?:[1-9]|[1-9][0-9]|1[0-9]{2}|200)(?:\s|$)/.test(log)
               && log.includes("spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes")
-              && log.includes("near spiders use tiered fitted eyes with upper-forward catchlights"))
+              && log.includes("near spiders use tiered fitted eyes with upper-forward catchlights")
+              && log.includes("near spider abdomens use a tapered muted dorsal lance in the existing setae draw"))
               : /spider-web render proof: webs [1-6]\/6 visible, strands [1-9][0-9]*, 1 draw/.test(log)))
             && (!focusedGoatCheck || (goatMotionFrames.length === 4
               && /goats [1-6]\/6 visible, 2 draw;/.test(log)

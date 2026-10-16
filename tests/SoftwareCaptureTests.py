@@ -205,13 +205,15 @@ class SoftwareCaptureTests(unittest.TestCase):
     def test_spider_render_requires_grounding(self):
         good = ("island-simulator: spider render proof: spiders 1/200 visible, 2 draw; contact-shadows=1\n"
                 "spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes\n"
-                "near spiders use tiered fitted eyes with upper-forward catchlights\n")
+                "near spiders use tiered fitted eyes with upper-forward catchlights\n"
+                "near spider abdomens use a tapered muted dorsal lance in the existing setae draw\n")
         validate_spider_render_log(good)
         for bad in ("", good.replace("1/200", "0/200"), good.replace("1/200", "201/200"),
                     good.replace("2 draw", "0 draw"), good.replace("contact-shadows=1", "contact-shadows=0"),
                     good.replace("contact-shadows=1", "contact-shadows=201"),
                     good.replace(" contact-shadows=1", ""), good.replace("spider setae loaded", "missing"),
-                    good.replace("tiered fitted eyes", "uniform eyes")):
+                    good.replace("tiered fitted eyes", "uniform eyes"),
+                    good.replace("tapered muted dorsal lance", "plain abdomen")):
             with self.assertRaises(RuntimeError):
                 validate_spider_render_log(bad)
 

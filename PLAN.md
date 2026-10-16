@@ -302,6 +302,23 @@ guard `20261016T074817.989508Z-coconut-crabs` passes. Inspected Chrome/SwiftShad
 `20261016T074950.010484Z-chrome-crabs` supplies two distinct moving frames and passes 60 finite
 positive intervals, GL0, a live context and kernel `[]`. Details are in `docs/crab-form.md`.
 
+## Latest ground-spider visual pass — tapered dorsal abdomen lance
+
+The current close audit accepted the fitted tiered eyes, generated setae and articulated crawl but
+selected the abdomen: it still read as one nearly uniform brown sphere. Existing near-body
+vertices now select a muted warm dorsal material through a band that narrows toward both ends.
+The far mesh, exact geometry, 200-agent tiered simulation, nearest-24 upload cap, texture, contact
+shadow and existing two material draws remain unchanged.
+
+The inspected pre-change `20261016T075636.847579Z-spiders-bright` result was rejected at 39 colour
+bins against the dedicated minimum of 40; no validation threshold was lowered. Accepted native
+`20261016T080245.750749Z-spiders-bright` passes at 42 bins, 10.48 luminance deviation, 16.64
+spatial contrast and kernel `[]`, with the pattern stable across all eight moving stages. Seven
+focused Spider groups and all 119 cross-platform harness unit tests pass. Inspected
+Chrome/SwiftShader `20261016T080545.683671Z-chrome-spiders` passes four distinct ground poses plus
+the live-web scene, 60 finite intervals per view, GL0, live contexts and kernel `[]`. Details are
+in `docs/spiders.md`.
+
 ## Latest terrain overview pass — second far-silhouette material fade
 
 The renewed current overview found that the previous 0.30 aerial endpoints still became repeated

@@ -34,7 +34,7 @@ int main() {
         }
         (detailed?nearCount:farCount)=mesh.vertices.size();
         std::array<std::size_t,6> parts{};
-        std::array<std::size_t,5> materials{};
+        std::array<std::size_t,6> materials{};
         for(const auto& v:mesh.vertices) {
             const auto p=v.position;
             Check(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z),"nonfinite vertex");
@@ -85,6 +85,8 @@ int main() {
         Check((parts[4]>0)==detailed&&(parts[5]>0)==detailed,"eye/hair LOD wrong");
         Check((materials[static_cast<std::size_t>(SpiderMaterial::EyeHighlight)]>0)==detailed,
             "eye highlight LOD wrong");
+        Check((materials[static_cast<std::size_t>(SpiderMaterial::DorsalLance)]>0)==detailed,
+            "dorsal lance LOD wrong");
     }
     Check(nearCount>farCount,"far LOD not reduced");
     Check(farCount==1632,"far mesh budget changed");

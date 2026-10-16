@@ -249,6 +249,8 @@ def validate_spider_render_log(text):
         raise RuntimeError("spider capture lacks the setae albedo")
     if "near spiders use tiered fitted eyes with upper-forward catchlights" not in text:
         raise RuntimeError("spider capture lacks the current fitted eye cluster")
+    if "near spider abdomens use a tapered muted dorsal lance in the existing setae draw" not in text:
+        raise RuntimeError("spider capture lacks the current dorsal abdomen pattern")
 
 
 def validate_spider_web_render_log(text):
