@@ -112,6 +112,28 @@ hard grass/bush wall at a tier boundary; WebGL remains live, GL error is zero, t
 error is 1.075 m and kernel monitoring is clean. This is representative motion evidence, not a
 mathematical all-view aliasing proof.
 
+## Latest fly visual pass — recognisable three-part insect anatomy
+
+The small-fauna comparison selected the fly after the frog repair. The old close model was one
+dark faceted bar with red diamond eyes, straight card legs and triangular propeller-like wings.
+It now has distinct closed rounded thorax, tapered abdomen and head volumes; fitted continuous red
+compound-eye discs with small highlights; six two-section solid legs; two antennae; and a pair of
+four-corner swept wings with two visible veins apiece. Hover/orbit/dart motion, 4.5 cm ordinary
+scale, four six-agent swarms, distance tiers and the existing shared draw are unchanged.
+
+A detailed fly uses exactly 1,236 vertices inside its 1,400-vertex slot. Conservative capacity for
+all twenty-four grows from 8,640 to 33,600 vertices, adding 399,360 bytes to the shared dynamic
+buffer. Inspected baseline `20261015T091929.300514Z-flies` and accepted native
+`20261016T152816.055599Z-flies` show the silhouette replacement; accepted evidence passes at 260
+colour bins, 33.97 luminance deviation, 156.68 spatial contrast and kernel `[]`. Core and all 46
+browser/capture harness tests pass. The first browser attempt
+`20261016T153115.451695Z-chrome-flies` produced a valid first frame and clean live context but was
+rejected after exceeding the five-minute SwiftShader evidence limit. The accepted rerun
+`20261016T153654.913845Z-chrome-flies` uses the same package and passes two distinct frames, 60
+finite intervals, GL0, a live context and kernel `[]` under the longer evidence limit. WebAssembly
+and Android ARM64 assemble/lint pass; the APK is 24,691,331 bytes with a 19,648,760-byte packaged
+library and SHA-256 `2bd7791898fe3154ba6df0851e9da7f05d66b401c0fe690b26e712848c674c2f`. No emulator/KVM was used.
+
 ## Latest frog visual pass — folded legs, webbed feet and readable face
 
 The next close-animal audit selected the frog. Its broad body already read as an amphibian, but

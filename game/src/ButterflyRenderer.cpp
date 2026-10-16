@@ -40,9 +40,9 @@ namespace island
             static_cast<int>(DragonflySwarm::Count) * 720;
         constexpr int MaximumFrogVertices = static_cast<int>(FrogPopulation::Count) * 1700;
         constexpr int MaximumRodentVertices = static_cast<int>(RodentPopulation::Count) * 1400;
-        // A close fly uses 348 vertices: 192 body, 24 head, 12 wings,
-        // 48 eyes and 72 legs. Keep a small per-agent margin for later detail edits.
-        constexpr int MaximumFlyVertices = static_cast<int>(FlySwarms::Count) * 360;
+        // A close fly uses fewer than 1,400 vertices across three closed body volumes,
+        // fitted eyes, swept wings and six articulated solid legs.
+        constexpr int MaximumFlyVertices = static_cast<int>(FlySwarms::Count) * 1400;
         constexpr int MaximumAntVertices = static_cast<int>(AntTrails::Count) * 360;
         // A close cicada uses at most 684 vertices including the broad lofted head,
         // segmented abdomen, wing veins and all six two-section legs.
@@ -85,7 +85,7 @@ namespace island
         constexpr std::string_view FlyDiagnostic =
             "island-simulator: four close-range fly swarms use twenty-four hover, orbit, and dart agents in the shared small-fauna batch";
         constexpr std::string_view FlyAnatomyDiagnostic =
-            "island-simulator: near flies use compact dark thoraxes, tapered abdomens, highlighted eyes, six legs, and two beating pale wings";
+            "island-simulator: near flies use separate rounded thoraxes, tapered abdomens, fitted red compound eyes, jointed solid legs, antennae, and veined swept wings";
         constexpr std::string_view AntDiagnostic =
             "island-simulator: four close-range ant trails use sixty-four soil and trunk-climbing agents in the shared small-fauna batch";
         constexpr std::string_view AntAnatomyDiagnostic =
@@ -774,40 +774,89 @@ namespace island
             const std::array<Color, 3> bodies = {{Color(38, 35, 30), Color(52, 45, 34),
                                                   Color(29, 31, 29)}};
             const Color body = bodies[fly.colorVariant % bodies.size()];
-            const Color eye(78, 32, 25), wing(158, 170, 165), leg(31, 28, 24);
+            const Color bodyFlank = Color::Lerp(body, Color(13, 15, 13), .34f);
+            const Color abdomen = Color::Lerp(body, Color(72, 76, 55), .24f);
+            const Color underside = Color::Lerp(body, Color(87, 78, 61), .18f);
+            const Color eye(126, 42, 31), eyeGlint(221, 174, 111);
+            const Color wing(166, 178, 171), vein(76, 82, 76), leg(31, 28, 24);
             const Vector3 centre(fly.x, fly.y, fly.z);
-            constexpr std::array<float, 4> Stations = {{-.15f, -.04f, .12f, .23f}};
-            constexpr std::array<float, 4> Widths = {{.035f, .085f, .080f, .025f}};
-            constexpr std::array<float, 4> Heights = {{.035f, .075f, .070f, .025f}};
-            AppendGeckoLoft(vertices, centre, right, up, forward, Stations, Widths,
-                            Heights, scale, body, body, body);
-            const Vector3 head = centre + forward * (.235f * scale)
-                + up * (.012f * scale);
-            AppendGeckoDiamond(vertices, head, right, up, forward,
-                .075f * scale, .070f * scale, .060f * scale, body, body);
+            const Vector3 thorax = centre + forward * (.035f * scale);
+            constexpr std::array<float, 5> ThoraxStations = {{-.12f, -.07f, .01f, .09f, .14f}};
+            constexpr std::array<float, 5> ThoraxWidths = {{.045f, .088f, .105f, .094f, .047f}};
+            constexpr std::array<float, 5> ThoraxHeights = {{.040f, .077f, .093f, .082f, .041f}};
+            AppendGeckoLoft(vertices, thorax, right, up, forward, ThoraxStations,
+                            ThoraxWidths, ThoraxHeights, scale, body, bodyFlank, underside);
+
+            const Vector3 abdomenCentre = centre - forward * (.165f * scale)
+                - up * (.008f * scale);
+            constexpr std::array<float, 5> AbdomenStations = {{-.18f, -.11f, .0f, .11f, .17f}};
+            constexpr std::array<float, 5> AbdomenWidths = {{.025f, .060f, .080f, .068f, .035f}};
+            constexpr std::array<float, 5> AbdomenHeights = {{.022f, .052f, .067f, .058f, .029f}};
+            AppendGeckoLoft(vertices, abdomenCentre, right, up, forward, AbdomenStations,
+                            AbdomenWidths, AbdomenHeights, scale, abdomen, bodyFlank, underside);
+
+            const Vector3 head = centre + forward * (.205f * scale)
+                + up * (.004f * scale);
+            constexpr std::array<float, 4> HeadStations = {{-.060f, -.015f, .045f, .085f}};
+            constexpr std::array<float, 4> HeadWidths = {{.043f, .076f, .073f, .035f}};
+            constexpr std::array<float, 4> HeadHeights = {{.038f, .067f, .064f, .031f}};
+            AppendGeckoLoft(vertices, head, right, up, forward, HeadStations,
+                            HeadWidths, HeadHeights, scale, body, bodyFlank, underside);
             const float beat = std::sin(fly.wingPhase);
             for (const float side : {-1.0f, 1.0f}) {
                 const Vector3 root = centre - forward * (.015f * scale)
-                    + right * (side * .055f * scale) + up * (.055f * scale);
-                const Vector3 tip = root + right * (side * .23f * scale)
-                    - forward * (.19f * scale) + up * (beat * .10f * scale);
-                const Vector3 leading = root + forward * (.08f * scale)
-                    + right * (side * .035f * scale);
-                const Vector3 trailing = root - forward * (.12f * scale)
-                    + right * (side * .02f * scale);
-                AddDoubleSidedTriangle(vertices, leading, tip, trailing, wing);
-                const Vector3 eyeCentre = head + forward * (.025f * scale)
-                    + right * (side * .058f * scale) + up * (.010f * scale);
-                AppendGeckoDiamond(vertices, eyeCentre, right, up, forward,
-                    .026f * scale, .032f * scale, .022f * scale, eye, eye);
+                    + right * (side * .065f * scale) + up * (.068f * scale);
+                const Vector3 leading = root + forward * (.060f * scale)
+                    + right * (side * .040f * scale);
+                const Vector3 tip = root + right * (side * .245f * scale)
+                    - forward * (.155f * scale) + up * (beat * .085f * scale);
+                const Vector3 rear = root + right * (side * .145f * scale)
+                    - forward * (.235f * scale) + up * (beat * .055f * scale);
+                const Vector3 trailing = root - forward * (.105f * scale)
+                    + right * (side * .030f * scale);
+                AddDoubleSidedTriangle(vertices, leading, tip, rear, wing);
+                AddDoubleSidedTriangle(vertices, leading, rear, trailing, wing);
+                AppendGeckoSegment(vertices, root, tip, .0035f * scale, vein);
+                AppendGeckoSegment(vertices, root, rear, .0028f * scale, vein);
+
+                const Vector3 eyeCentre = head + forward * (.030f * scale)
+                    + right * (side * .072f * scale) + up * (.008f * scale);
+                for (int edge = 0; edge < 8; ++edge) {
+                    const float firstAngle = 6.28318530718f * static_cast<float>(edge) / 8.0f;
+                    const float secondAngle = 6.28318530718f * static_cast<float>(edge + 1) / 8.0f;
+                    const Vector3 first = eyeCentre
+                        + forward * (std::cos(firstAngle) * .037f * scale)
+                        + up * (std::sin(firstAngle) * .044f * scale);
+                    const Vector3 second = eyeCentre
+                        + forward * (std::cos(secondAngle) * .037f * scale)
+                        + up * (std::sin(secondAngle) * .044f * scale);
+                    AddDoubleSidedTriangle(vertices, eyeCentre, first, second, eye);
+                }
+                const Vector3 highlight = eyeCentre + forward * (.015f * scale)
+                    + up * (.020f * scale) + right * (side * .001f * scale);
+                AddDoubleSidedTriangle(vertices, highlight + up * (.006f * scale),
+                    highlight - forward * (.005f * scale) - up * (.004f * scale),
+                    highlight + forward * (.005f * scale) - up * (.004f * scale), eyeGlint);
                 for (int legIndex = 0; legIndex < 3; ++legIndex) {
                     const Vector3 hip = centre + forward * ((.09f - legIndex * .08f) * scale)
                         + right * (side * .05f * scale) - up * (.035f * scale);
-                    const Vector3 foot = hip + right * (side * (.10f + .025f * legIndex) * scale)
+                    const Vector3 knee = hip + right * (side * (.070f + .018f * legIndex) * scale)
+                        + forward * ((.055f - .052f * legIndex) * scale)
+                        - up * (.055f * scale);
+                    const Vector3 foot = knee + right * (side * (.075f + .020f * legIndex) * scale)
                         - forward * ((.02f + .04f * legIndex) * scale)
-                        - up * (.09f * scale);
-                    AppendGeckoSegment(vertices, hip, foot, .009f * scale, leg);
+                        - up * (.035f * scale);
+                    AppendGeckoTube(vertices, hip, knee, .009f * scale,
+                                    .006f * scale, leg, 5);
+                    AppendGeckoTube(vertices, knee, foot, .006f * scale,
+                                    .003f * scale, leg, 5);
                 }
+
+                const Vector3 antennaRoot = head + forward * (.078f * scale)
+                    + right * (side * .023f * scale) + up * (.018f * scale);
+                const Vector3 antennaTip = antennaRoot + forward * (.070f * scale)
+                    + right * (side * .028f * scale) + up * (.018f * scale);
+                AppendGeckoSegment(vertices, antennaRoot, antennaTip, .003f * scale, leg);
             }
         }
 

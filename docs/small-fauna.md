@@ -116,6 +116,29 @@ emulator/KVM. The APK is 24,454,987 bytes with SHA-256
 `b5c481c91cbd55a512fbd516c730f5432dc04ca13c55afa8e537c744b7f18f0a`; its stripped
 `libmain.so` is 19,412,416 bytes. Physical-device appearance remains final acceptance work.
 
+### Three-part close fly pass — 2026-10-16
+
+A renewed small-fauna comparison found that the old close fly still read as a dark faceted bar
+with red diamond spikes, card legs and triangular propeller wings. The replacement uses distinct
+closed rounded thorax, tapered abdomen and head volumes. Continuous fitted red compound-eye discs
+replace the diamonds, with small highlights instead of radial colour wedges. Six legs have upper
+and lower solid tapered sections, while two antennae and four-corner swept wings with two veins
+complete the close silhouette. Swarm placement, 4.5 cm ordinary scale, hover/orbit/dart simulation,
+distance policy and the shared one-draw path remain unchanged.
+
+One detailed fly uses exactly 1,236 vertices inside its 1,400-vertex slot. Conservative population
+capacity grows from 8,640 to 33,600 vertices, adding 399,360 bytes to the shared dynamic buffer.
+Accepted native evidence `build-consumer/software-captures/20261016T152816.055599Z-flies` passes
+at 260 colour bins, 33.97 luminance deviation, 156.68 spatial contrast and kernel `[]`. Core and
+all 46 browser/capture harness tests pass. The first five-minute browser attempt
+`build/browser-software/20261016T153115.451695Z-chrome-flies` retained a valid first frame and
+clean live context but was rejected on the evidence timeout. The same Web package passes under the
+longer evidence limit at `build/browser-software/20261016T153654.913845Z-chrome-flies`: two distinct
+frames, 60 finite intervals, GL0, live context and kernel `[]`. WebAssembly and Android ARM64
+assemble/lint pass without emulator/KVM; the APK is 24,691,331 bytes with SHA-256
+`2bd7791898fe3154ba6df0851e9da7f05d66b401c0fe690b26e712848c674c2f` and contains a
+19,648,760-byte stripped `libmain.so`.
+
 ## Mice and rats
 
 One deterministic rodent simulation supplies twelve field mice and eight larger rats without a

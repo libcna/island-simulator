@@ -621,7 +621,7 @@ def validate_fly_report(report):
         or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
         or len(set(frames))!=2
         or "four close-range fly swarms use twenty-four hover, orbit, and dart agents in the shared small-fauna batch" not in log
-        or "near flies use compact dark thoraxes, tapered abdomens, highlighted eyes, six legs, and two beating pale wings" not in log
+        or "near flies use separate rounded thoraxes, tapered abdomens, fitted red compound eyes, jointed solid legs, antennae, and veined swept wings" not in log
         or "fly QA camera frames one close insect within its inland swarm" not in log
         or not re.search(r"flies [1-9][0-9]*/24 visible in shared draw",log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):

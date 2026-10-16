@@ -17,6 +17,26 @@ from gpu_incident_qualification import contained_command
 
 
 class BrowserSoftwareTests(unittest.TestCase):
+    def test_fly_scope_requires_separate_body_and_solid_legs(self):
+        anatomy = ("near flies use separate rounded thoraxes, tapered abdomens, fitted red "
+                   "compound eyes, jointed solid legs, antennae, and veined swept wings")
+        markers = "\n".join((
+            "four close-range fly swarms use twenty-four hover, orbit, and dart agents in the shared small-fauna batch",
+            anatomy,
+            "fly QA camera frames one close insect within its inland swarm",
+            "flies 1/24 visible in shared draw"))
+        def report():
+            return {"passed": True, "views": [{"mode": "flies", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": "fly.png", "afterSimulationScreenshot": "fly-after.png",
+                "intervals": [16.7] * 60,
+                "result": {"output": markers, "error": "", "exited": False}}]}
+        self.assertEqual(gate.validate_fly_report(report()), ("fly.png", "fly-after.png"))
+        missing = report()
+        missing["views"][0]["result"]["output"] = markers.replace(anatomy + "\n", "")
+        with self.assertRaises(RuntimeError):
+            gate.validate_fly_report(missing)
+
     def test_frog_scope_requires_solid_anatomy(self):
         anatomy = ("near frogs use solid folded legs, separated webbed toes, rounded eye "
                    "sockets, fitted irises, nostrils, and a mouth line")

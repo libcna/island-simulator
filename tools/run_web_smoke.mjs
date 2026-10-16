@@ -929,7 +929,7 @@ try {
               && (mode !== "rats" || (log.includes("rat QA camera frames one larger inland rat at ground level")
                 && /rats [1-9][0-9]*\/8 visible in shared draw/.test(log)))))
             && (!focusedFlyCheck || (log.includes("four close-range fly swarms use twenty-four hover, orbit, and dart agents in the shared small-fauna batch")
-              && log.includes("near flies use compact dark thoraxes, tapered abdomens, highlighted eyes, six legs, and two beating pale wings")
+              && log.includes("near flies use separate rounded thoraxes, tapered abdomens, fitted red compound eyes, jointed solid legs, antennae, and veined swept wings")
               && log.includes("fly QA camera frames one close insect within its inland swarm")
               && /flies [1-9][0-9]*\/24 visible in shared draw/.test(log)))
             && (!focusedAntCheck || (log.includes("four close-range ant trails use sixty-four soil and trunk-climbing agents in the shared small-fauna batch")

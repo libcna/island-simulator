@@ -1210,7 +1210,7 @@ def main():
             if args.viewpoint == "flies":
                 for marker in (
                     "four close-range fly swarms use twenty-four hover, orbit, and dart agents in the shared small-fauna batch",
-                    "near flies use compact dark thoraxes, tapered abdomens, highlighted eyes, six legs, and two beating pale wings",
+                    "near flies use separate rounded thoraxes, tapered abdomens, fitted red compound eyes, jointed solid legs, antennae, and veined swept wings",
                     "fly QA camera frames one close insect within its inland swarm"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"fly integration diagnostic missing: {marker}")
