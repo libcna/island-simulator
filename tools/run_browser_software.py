@@ -714,7 +714,7 @@ def validate_hermit_crab_report(report):
         or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
         or len(set(frames))!=2
         or "ten sheltered-beach hermit crabs pause, forage, and retreat in the shared crab batch" not in log
-        or "hermit crabs use raised spiral shells, projecting eyes and antennae, six walking legs, and unequal claws" not in log
+        or "hermit crabs use rounded backswept spiral shells with fitted apertures, rounded bodies, projecting eyes, bent antennae, six solid three-segment legs, and unequal claws" not in log
         or "hermit-crab QA camera frames one shell-bearing animal on sheltered sand" not in log
         or not re.search(r"hermit crabs [1-9][0-9]*/10 visible in shared draw",log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):

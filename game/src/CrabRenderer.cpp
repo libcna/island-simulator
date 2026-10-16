@@ -40,8 +40,9 @@ namespace island
         constexpr int FarCrabVertexCount = 12;
         constexpr int MaximumVerticesPerCrab = NearCrabVertexCount;
         constexpr int MaximumBurrowVertices = 1024;
+        constexpr int HermitCrabVertexCount = 2088;
         constexpr int MaximumHermitCrabVertices =
-            static_cast<int>(HermitCrabGroup::Count) * 1024;
+            static_cast<int>(HermitCrabGroup::Count) * HermitCrabVertexCount;
         constexpr int CoconutCrabVertexCount = 2664;
         constexpr int MaximumCoconutCrabVertices =
             static_cast<int>(CoconutCrabGroup::Count) * CoconutCrabVertexCount;
@@ -69,7 +70,7 @@ namespace island
         constexpr std::string_view HermitCrabDiagnostic =
             "island-simulator: ten sheltered-beach hermit crabs pause, forage, and retreat in the shared crab batch";
         constexpr std::string_view HermitCrabAnatomyDiagnostic =
-            "island-simulator: hermit crabs use raised spiral shells, projecting eyes and antennae, six walking legs, and unequal claws";
+            "island-simulator: hermit crabs use rounded backswept spiral shells with fitted apertures, rounded bodies, projecting eyes, bent antennae, six solid three-segment legs, and unequal claws";
         constexpr std::string_view CoconutCrabDiagnostic =
             "island-simulator: six coastal palm-zone coconut crabs rest, forage, and retreat in the shared crab batch";
         constexpr std::string_view CoconutCrabAnatomyDiagnostic =
@@ -339,6 +340,11 @@ namespace island
             }
         }
 
+        void AppendPrismaticFinger(std::vector<VertexPositionColor>& vertices,
+                                   const Vector3& a, const Vector3& b,
+                                   const Vector3& tip, float halfThickness,
+                                   const Color& faceColor, const Color& edgeColor);
+
         void AppendHermitCrab(std::vector<VertexPositionColor>& vertices,
                               const HermitCrabState& crab)
         {
@@ -361,115 +367,179 @@ namespace island
             const Vector3 right(-forward.Z, 0.0f, forward.X);
             const Vector3 up = Vector3::Up;
 
+            // A tilted six-station shell replaces the former vertical cone. Its
+            // broad lower whorl encloses the body and its restrained apex sweeps
+            // rearward, matching the silhouette of a carried gastropod shell.
             constexpr int RingSegments = 12;
-            constexpr std::array<float, 5> RingHeights = {{-.070f, -.025f, .032f, .105f, .165f}};
-            constexpr std::array<float, 5> RingRadii = {{.046f, .098f, .122f, .080f, .022f}};
-            const Vector3 shellCentre = centre - forward * (.075f * scale)
-                + up * (.080f * scale);
-            const auto shellPoint = [&](const std::size_t ring, const int segment) {
+            constexpr std::array<float, 6> ShellStations =
+                {{-.145f, -.090f, -.015f, .070f, .145f, .215f}};
+            constexpr std::array<float, 6> ShellRadii =
+                {{.050f, .125f, .158f, .150f, .095f, .018f}};
+            const Vector3 shellAxis = Vector3::Normalize(up * .84f - forward * .54f);
+            const Vector3 shellOther = Vector3::Normalize(Vector3::Cross(shellAxis, right));
+            const Vector3 shellCentre = centre - forward * (.070f * scale)
+                + up * (.145f * scale);
+            const auto shellPoint = [&](const std::size_t station, const int segment) {
                 const float angle = TwoPi * static_cast<float>(segment)
                     / static_cast<float>(RingSegments);
-                return shellCentre + up * (RingHeights[ring] * scale)
-                    + right * (std::cos(angle) * RingRadii[ring] * scale)
-                    + forward * (std::sin(angle) * RingRadii[ring] * .86f * scale);
+                return shellCentre + shellAxis * (ShellStations[station] * scale)
+                    + right * (std::cos(angle) * ShellRadii[station] * scale)
+                    + shellOther * (std::sin(angle) * ShellRadii[station] * .92f * scale);
             };
-            for (std::size_t ring = 0; ring + 1U < RingHeights.size(); ++ring) {
+            for (std::size_t station = 0; station + 1U < ShellStations.size(); ++station) {
                 for (int segment = 0; segment < RingSegments; ++segment) {
                     const int next = (segment + 1) % RingSegments;
-                    const Color color = segment < RingSegments / 2 ? shell : shellShade;
-                    AddQuad(vertices, shellPoint(ring, segment),
-                            shellPoint(ring + 1U, segment),
-                            shellPoint(ring + 1U, next),
-                            shellPoint(ring, next), color);
+                    const Color base = station % 2U == 0U ? shell : shellShade;
+                    const Color color = segment < RingSegments / 2
+                        ? Color::Lerp(base, shellRidge, .10f) : base;
+                    AddQuad(vertices, shellPoint(station, segment),
+                            shellPoint(station + 1U, segment),
+                            shellPoint(station + 1U, next),
+                            shellPoint(station, next), color);
                 }
             }
-            const Vector3 shellTop = shellCentre + up * (.178f * scale);
-            const Vector3 shellBottom = shellCentre - up * (.085f * scale);
+            const Vector3 shellRear = shellCentre
+                + shellAxis * (ShellStations.front() * scale);
+            const Vector3 shellApex = shellCentre
+                + shellAxis * (ShellStations.back() * scale);
             for (int segment = 0; segment < RingSegments; ++segment) {
                 const int next = (segment + 1) % RingSegments;
-                AddTriangle(vertices, shellBottom, shellPoint(0U, next),
+                AddTriangle(vertices, shellRear, shellPoint(0U, next),
                             shellPoint(0U, segment), shellShade);
-                AddTriangle(vertices, shellTop, shellPoint(4U, segment),
-                            shellPoint(4U, next), shell);
+                AddTriangle(vertices, shellApex, shellPoint(5U, segment),
+                            shellPoint(5U, next), shellRidge);
             }
 
-            // A connected raised curl reads as a gastropod shell rather than a
-            // round coconut, even with opaque vertex-colour geometry.
-            Vector3 previousSpiral = shellCentre + right * (.121f * scale)
-                + forward * (.078f * scale) + up * (.025f * scale);
-            for (int mark = 1; mark <= 11; ++mark) {
-                const float angle = .25f + static_cast<float>(mark) * .78f;
-                const float radius = .080f - static_cast<float>(mark) * .0052f;
-                const Vector3 point = shellCentre + right * (.121f * scale)
-                    + forward * (std::cos(angle) * radius * scale)
-                    + up * ((.035f + std::sin(angle) * radius) * scale);
+            const Vector3 spiralCentre = shellCentre + right * (.157f * scale)
+                - shellAxis * (.005f * scale);
+            Vector3 previousSpiral = spiralCentre + shellOther * (.105f * scale);
+            for (int mark = 1; mark <= 13; ++mark) {
+                const float angle = .20f + static_cast<float>(mark) * .72f;
+                const float radius = .105f - static_cast<float>(mark) * .0067f;
+                const Vector3 point = spiralCentre
+                    + shellOther * (std::cos(angle) * radius * scale)
+                    + shellAxis * (std::sin(angle) * radius * scale);
                 AppendCrossedSegment(vertices, previousSpiral, point,
-                                     .0040f * scale, shellRidge);
+                                     .0042f * scale, shellRidge);
                 previousSpiral = point;
             }
 
-            const Vector3 aperture = shellCentre + forward * (.102f * scale)
-                - up * (.020f * scale);
-            AppendOctahedron(vertices, aperture, right, up, forward,
-                             .060f * scale, .050f * scale, .015f * scale,
-                             Color(45, 31, 25, 255), Color(26, 21, 18, 255));
+            const Vector3 aperture = shellCentre + forward * (.105f * scale)
+                - up * (.045f * scale);
+            AppendRoundedCrabPalm(vertices, aperture, right, up, forward,
+                .070f * scale, .058f * scale, .026f * scale,
+                Color(54, 38, 29, 255), Color(28, 23, 19, 255));
 
-            const Vector3 head = centre + forward * (.105f * scale)
-                + up * (.050f * scale);
             const Vector3 exposedBody = centre + forward * (.020f * scale)
-                + up * (.042f * scale);
-            AppendOctahedron(vertices, exposedBody, right, up, forward,
-                             .068f * scale, .043f * scale, .095f * scale,
-                             limb, joint);
-            AppendOctahedron(vertices, head, right, up, forward,
-                             .060f * scale, .040f * scale, .058f * scale,
-                             limb, joint);
-            for (const float side : {-1.0f, 1.0f}) {
-                const Vector3 eyeRoot = head + right * (side * .036f * scale)
-                    + forward * (.035f * scale) + up * (.025f * scale);
-                const Vector3 eyeTip = eyeRoot + forward * (.040f * scale)
-                    + up * (.025f * scale);
-                AppendCrossedSegment(vertices, eyeRoot, eyeTip, .006f * scale, limb);
-                AppendOctahedron(vertices, eyeTip, right, up, forward,
-                                 .012f * scale, .012f * scale, .010f * scale,
-                                 eye, eye);
-                const float antennaSwing = std::sin(crab.antennaPhase
-                    + side * .8f) * .012f * scale;
-                const Vector3 antennaTip = head + forward * (.145f * scale)
-                    + right * (side * (.045f * scale + antennaSwing))
-                    + up * (.075f * scale);
-                AppendCrossedSegment(vertices, eyeRoot, antennaTip,
-                                     .0025f * scale, joint);
-            }
+                + up * (.055f * scale);
+            const Vector3 head = centre + forward * (.125f * scale)
+                + up * (.070f * scale);
+            AppendRoundedCrabPalm(vertices, exposedBody, right, up, forward,
+                .076f * scale, .050f * scale, .105f * scale, limb, joint);
+            AppendRoundedCrabPalm(vertices, head, right, up, forward,
+                .067f * scale, .052f * scale, .068f * scale, limb, joint);
 
             for (int leg = 0; leg < 3; ++leg) {
                 for (const float side : {-1.0f, 1.0f}) {
                     const float stride = crab.legPhase
-                        * (leg % 2 == 0 ? .018f : -.018f) * scale;
-                    const Vector3 hip = centre + right * (side * .045f * scale)
-                        + forward * ((.055f - leg * .055f) * scale);
-                    const Vector3 knee = hip + right * (side * (.070f + leg * .010f) * scale)
-                        + forward * stride - up * (.018f * scale);
-                    const Vector3 foot = knee + right * (side * .060f * scale)
-                        + forward * ((-.035f + leg * .020f) * scale)
-                        - up * (.018f * scale);
+                        * (leg % 2 == 0 ? .020f : -.020f) * scale;
+                    const Vector3 hip = centre + right * (side * .050f * scale)
+                        + forward * ((.060f - leg * .058f) * scale)
+                        + up * (.050f * scale);
+                    const Vector3 knee = hip
+                        + right * (side * (.080f + leg * .010f) * scale)
+                        + forward * stride + up * (.012f * scale);
+                    const Vector3 ankle = knee
+                        + right * (side * (.072f + leg * .008f) * scale)
+                        + forward * ((-.028f + leg * .018f) * scale)
+                        - up * (.048f * scale);
+                    const Vector3 toe = ankle + right * (side * .060f * scale)
+                        + forward * ((-.020f + leg * .016f) * scale)
+                        - up * (.010f * scale);
                     AppendTaperedLimbSegment(vertices, hip, knee,
-                                             .017f * scale, .012f * scale, limb);
-                    AppendTaperedLimbSegment(vertices, knee, foot,
-                                             .012f * scale, .004f * scale, joint);
+                                             .019f * scale, .015f * scale, limb);
+                    AppendTaperedLimbSegment(vertices, knee, ankle,
+                                             .015f * scale, .010f * scale, joint);
+                    AppendTaperedLimbSegment(vertices, ankle, toe,
+                                             .010f * scale, .0035f * scale, limb);
+                    AppendOctahedron(vertices, knee, right, up, forward,
+                        .021f * scale, .018f * scale, .021f * scale, limb, joint);
                 }
             }
+
             for (const float side : {-1.0f, 1.0f}) {
-                const Vector3 clawCentre = head + forward * (.075f * scale)
-                    + right * (side * (.070f + (side > 0.0f ? .018f : 0.0f)) * scale);
-                const Vector3 armRoot = head + right * (side * .035f * scale)
-                    + forward * (.015f * scale);
-                AppendTaperedLimbSegment(vertices, armRoot, clawCentre,
-                                         .016f * scale, .012f * scale, limb);
-                AppendOctahedron(vertices, clawCentre, right, up, forward,
-                    (side > 0.0f ? .034f : .025f) * scale, .020f * scale,
-                    .035f * scale, limb, joint);
+                const bool major = side > 0.0f;
+                const Vector3 root = head + right * (side * .045f * scale)
+                    + forward * (.010f * scale);
+                const Vector3 elbow = head + right * (side * .105f * scale)
+                    + forward * (.080f * scale) + up * (.015f * scale);
+                const Vector3 wrist = head + right * (side * .132f * scale)
+                    + forward * (.145f * scale) - up * (.005f * scale);
+                const Vector3 palm = wrist + forward * (.030f * scale);
+                AppendTaperedLimbSegment(vertices, root, elbow,
+                    .020f * scale, .016f * scale, limb);
+                AppendTaperedLimbSegment(vertices, elbow, wrist,
+                    .016f * scale, .012f * scale, joint);
+                AppendOctahedron(vertices, elbow, right, up, forward,
+                    .022f * scale, .019f * scale, .023f * scale, limb, joint);
+                AppendRoundedCrabPalm(vertices, palm, right, up, forward,
+                    (major ? .046f : .039f) * scale,
+                    (major ? .032f : .028f) * scale,
+                    (major ? .052f : .045f) * scale, limb, joint);
+                const Vector3 outerBase = palm + right * (side * .020f * scale)
+                    + forward * (.030f * scale);
+                const Vector3 innerBase = palm - right * (side * .016f * scale)
+                    + forward * (.030f * scale);
+                const Vector3 outerMid = palm + right * (side * .032f * scale)
+                    + forward * (.070f * scale);
+                const Vector3 innerMid = palm - right * (side * .026f * scale)
+                    + forward * (.068f * scale);
+                const Vector3 outerTip = palm + right * (side * .010f * scale)
+                    + forward * ((major ? .112f : .098f) * scale);
+                const Vector3 innerTip = palm - right * (side * .006f * scale)
+                    + forward * ((major ? .108f : .094f) * scale);
+                AppendPrismaticFinger(vertices, outerBase, outerMid, outerTip,
+                    .010f * scale, limb, joint);
+                AppendPrismaticFinger(vertices, innerBase, innerMid, innerTip,
+                    .008f * scale, shellRidge, joint);
             }
+
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 eyeRoot = head + right * (side * .036f * scale)
+                    + forward * (.040f * scale) + up * (.030f * scale);
+                const Vector3 eyeTip = eyeRoot + forward * (.055f * scale)
+                    + up * (.035f * scale);
+                AppendTaperedLimbSegment(vertices, eyeRoot, eyeTip,
+                    .009f * scale, .006f * scale, limb);
+                AppendOctahedron(vertices, eyeTip, right, up, forward,
+                    .013f * scale, .013f * scale, .011f * scale, eye, eye);
+                AppendOctahedron(vertices,
+                    eyeTip + forward * (.010f * scale) + up * (.004f * scale),
+                    right, up, forward, .004f * scale, .004f * scale,
+                    .003f * scale, Color(213, 190, 144, 255), eye);
+                const float antennaSwing = std::sin(crab.antennaPhase + side * .8f)
+                    * .012f * scale;
+                const Vector3 antennaMid = head + forward * (.095f * scale)
+                    + right * (side * .050f * scale) + up * (.040f * scale);
+                const Vector3 antennaTip = head + forward * (.185f * scale)
+                    + right * (side * (.075f * scale + antennaSwing))
+                    + up * (.085f * scale);
+                AppendCrossedSegment(vertices, eyeRoot, antennaMid,
+                                     .0032f * scale, joint);
+                AppendCrossedSegment(vertices, antennaMid, antennaTip,
+                                     .0020f * scale, joint);
+            }
+
+            const Vector3 mouth = head + forward * (.070f * scale)
+                - up * (.032f * scale);
+            AddQuad(vertices, mouth - right * (.032f * scale),
+                    mouth + right * (.032f * scale),
+                    mouth + right * (.026f * scale) - up * (.010f * scale),
+                    mouth - right * (.026f * scale) - up * (.010f * scale), joint);
+            AddDoubleSidedTriangle(vertices,
+                mouth - right * (.018f * scale) - up * (.012f * scale),
+                mouth + right * (.018f * scale) - up * (.012f * scale),
+                mouth - up * (.028f * scale), shellRidge);
         }
 
         void AppendPrismaticFinger(std::vector<VertexPositionColor>& vertices,
@@ -1129,7 +1199,12 @@ namespace island
                 || !frustum.Intersects(BoundingSphere(centre, crab.scale * .34f))) {
                 continue;
             }
+            const std::size_t firstVertex = stagingVertices_.size();
             AppendHermitCrab(stagingVertices_, crab);
+            if (stagingVertices_.size() - firstVertex != HermitCrabVertexCount) {
+                throw std::logic_error(
+                    "Hermit crab geometry violated its exact vertex budget");
+            }
             ++visibleHermitCrabCount_;
         }
         for (const CoconutCrabState& crab : coconutCrabs) {

@@ -891,7 +891,7 @@ try {
               && /crab QA subject [0-9]+ is [0-9.]+m from the burrow/.test(log)
               && /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedHermitCrabCheck || (log.includes("ten sheltered-beach hermit crabs pause, forage, and retreat in the shared crab batch")
-              && log.includes("hermit crabs use raised spiral shells, projecting eyes and antennae, six walking legs, and unequal claws")
+              && log.includes("hermit crabs use rounded backswept spiral shells with fitted apertures, rounded bodies, projecting eyes, bent antennae, six solid three-segment legs, and unequal claws")
               && log.includes("hermit-crab QA camera frames one shell-bearing animal on sheltered sand")
               && /hermit crabs [1-9][0-9]*\/10 visible in shared draw/.test(log)))
             && (!focusedCoconutCrabCheck || (log.includes("six coastal palm-zone coconut crabs rest, forage, and retreat in the shared crab batch")

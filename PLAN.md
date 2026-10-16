@@ -16364,6 +16364,21 @@ Existing observation and qualification queue:
   SHA-256 `8008b0fa885b5aaa82598c544e21e5de8593d8d18ed1e85dd14aa1be68827e33`; stripped
   `libmain.so` is 19,688,216 bytes.
 
+### 2026-10-16 — Hermit-crab backswept shell audit
+
+- Replaced the close hermit-crab shell's tall tent silhouette with a closed twelve-sided,
+  six-station backswept gastropod shell, a fitted aperture and thirteen-section side spiral. Rounded
+  connected body volumes now carry six solid three-segment legs, knee joints, unequal articulated
+  chelipeds, separated fingers, smaller eye stalks and bent antennae.
+- The exact 2,088-vertex form stays in the ten-agent shared crab buffer and one draw. Population,
+  beach habitat, behaviour, culling and simulation are unchanged. Native evidence
+  `20261016T182613.837610Z-hermit-crabs` and Chrome/SwiftShader evidence
+  `20261016T182832.108279Z-chrome-hermit-crabs` were inspected and pass image, GL0, live-context
+  and kernel gates; core and all 102 browser/capture harness tests pass.
+- ARM64 Android assemble/lint passes without an emulator or KVM. The APK is 24,737,459 bytes with
+  SHA-256 `331fac249354a32e6f1256de82e358daca937bda48bb2669d87de45239dc5f2e`; stripped
+  `libmain.so` is 19,694,888 bytes.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.

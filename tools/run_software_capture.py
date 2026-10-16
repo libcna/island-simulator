@@ -1254,7 +1254,7 @@ def main():
             if args.viewpoint == "hermit-crabs":
                 if "ten sheltered-beach hermit crabs pause, forage, and retreat in the shared crab batch" not in diagnostics:
                     raise RuntimeError("current hermit-crab renderer is missing; check for a stale executable")
-                if "hermit crabs use raised spiral shells, projecting eyes and antennae, six walking legs, and unequal claws" not in diagnostics:
+                if "hermit crabs use rounded backswept spiral shells with fitted apertures, rounded bodies, projecting eyes, bent antennae, six solid three-segment legs, and unequal claws" not in diagnostics:
                     raise RuntimeError("current hermit-crab anatomy is missing; check for a stale executable")
                 if "hermit-crab QA camera frames one shell-bearing animal on sheltered sand" not in diagnostics:
                     raise RuntimeError("current hermit-crab inspection composition is missing")

@@ -483,6 +483,26 @@ disconnected pieces. The second introduced a conical shell and front camera but 
 gaps. The accepted exact-final-binary capture adds a connected exposed body, forearms and stronger
 leg roots and uses a clean front three-quarter beach composition.
 
+### Backswept shell and solid-limb audit (2026-10-16)
+
+A fresh exact capture exposed the accepted shell as a tall faceted tent and the walking anatomy as
+six flat pointed bars. The replacement shell is a closed twelve-sided, six-station globose volume
+whose axis sweeps upward and rearward. Its broad lower whorl, tapered apex, fitted dark aperture and
+thirteen-section raised side spiral now read from the established three-quarter beach view.
+Underneath it, two rounded body volumes connect to six planted three-segment legs with knee joints,
+two unequal shoulder-connected chelipeds with rounded palms and separated solid fingers, smaller
+eye stalks, highlights, bent antennae and dark mouth parts.
+
+Each visible animal has an exact runtime-checked 2,088-vertex budget. All ten retain their existing
+beach homes, rest/forage/retreat controller, culling, shared crab buffer, material and one draw.
+Accepted native llvmpipe/pixman evidence `20261016T182613.837610Z-hermit-crabs` passes at 1280x720
+with 268 colour bins, 30.80 luminance deviation, 157.19 spatial contrast and a clean kernel delta.
+Focused Chrome/SwiftShader evidence `20261016T182832.108279Z-chrome-hermit-crabs` passes its finite
+interval, GL0, live-context, motion-frame and kernel gates; the frame was inspected. ARM64 Android
+assemble/lint passes without an emulator or KVM; the APK is 24,737,459 bytes with SHA-256
+`331fac249354a32e6f1256de82e358daca937bda48bb2669d87de45239dc5f2e`, and stripped
+`libmain.so` is 19,694,888 bytes.
+
 ## Coconut crabs
 
 Six deterministic coconut crabs occupy compact 7.5--9.1 m home ranges on dry coastal palm-zone
