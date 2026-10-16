@@ -34,15 +34,17 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 86.0f;
-        // Rounded multi-station jaws stay close to the former detailed budget but
-        // need a small deterministic allowance beyond the old wedge-based 5,200.
-        constexpr int MaximumVerticesPerCrocodile = 5600;
+        // Rounded multi-station jaws and the low articulated armor stay bounded but
+        // need deterministic headroom beyond the former wedge-based 5,200 budget.
+        constexpr int MaximumVerticesPerCrocodile = 5900;
         constexpr int MaximumVertexCount = static_cast<int>(CrocodileGroup::CrocodileCount)
             * MaximumVerticesPerCrocodile;
         constexpr std::string_view FormDiagnostic =
             "island-simulator: crocodiles use long low armored bodies, broad skulls, muscular tails, and planted splayed limbs";
         constexpr std::string_view DetailDiagnostic =
             "island-simulator: near crocodiles use raised eyes, nostrils, separate jaws, teeth, dorsal osteoderms, and wet mottled facet shading, with multi-section rounded snouts and lateral eyes";
+        constexpr std::string_view ArmorDiagnostic =
+            "island-simulator: crocodile armor uses low paired trunk scutes that merge into a diminishing articulated tail keel";
 
         struct Palette
         {
@@ -282,20 +284,47 @@ namespace island
                                 palette.pupil,palette.pupil,2,7);
             }
 
-            // Paired rows of raised osteoderms break the smooth body silhouette.
-            for(int row=0;row<9;++row) {
-                const float z=-.88f+static_cast<float>(row)*.23f;
-                const float width=.24f+.08f*std::sin(static_cast<float>(row)*.55f);
+            // Low paired trunk osteoderms replace the old repeated saw-tooth peaks.
+            // Four-sided keeled plates follow the changing back line; they remain
+            // readable broadside without turning a crocodile into a spined dinosaur.
+            for(int row=0;row<11;++row) {
+                const float z=-1.04f+static_cast<float>(row)*.22f;
+                const float width=.22f+.055f*std::sin(static_cast<float>(row)*.61f);
+                const float backY=.665f+.024f*std::cos((z+.12f)*2.1f);
                 for(int sideIndex=-1;sideIndex<=1;sideIndex+=2) {
                     const float x=static_cast<float>(sideIndex)*width;
-                    const Vector3 left=Local(centre,axes,x-.085f,.67f,z-.07f,scale);
-                    const Vector3 right=Local(centre,axes,x+.085f,.67f,z-.07f,scale);
-                    const Vector3 back=Local(centre,axes,x,.67f,z+.09f,scale);
-                    const Vector3 peak=Local(centre,axes,x,.79f,z,scale);
-                    AddTriangle(vertices,left,right,peak,palette.scute);
-                    AddTriangle(vertices,right,back,peak,palette.scute);
-                    AddTriangle(vertices,back,left,peak,palette.scute);
+                    const Vector3 rearLeft=Local(centre,axes,x-.070f,backY,z-.075f,scale);
+                    const Vector3 rearRight=Local(centre,axes,x+.070f,backY,z-.075f,scale);
+                    const Vector3 frontRight=Local(centre,axes,x+.064f,backY,z+.075f,scale);
+                    const Vector3 frontLeft=Local(centre,axes,x-.064f,backY,z+.075f,scale);
+                    const Vector3 peak=Local(centre,axes,x,backY+.066f,z+.006f,scale);
+                    AddTriangle(vertices,rearLeft,rearRight,peak,palette.scute);
+                    AddTriangle(vertices,rearRight,frontRight,peak,palette.scute);
+                    AddTriangle(vertices,frontRight,frontLeft,peak,palette.scute);
+                    AddTriangle(vertices,frontLeft,rearLeft,peak,palette.scute);
                 }
+            }
+            // Behind the hips the paired rows merge into one progressively smaller
+            // keel which follows the exact same animated tail wave as the volume.
+            for(int row=0;row<8;++row) {
+                const float t=(static_cast<float>(row)+.65f)/9.0f;
+                const float z=-1.10f-2.55f*t;
+                const float wave=std::sin(t*4.2f+crocodile.gaitPhase)*crocodile.bodyWave
+                    *t*t*.55f;
+                const float centreY=.22f-.17f*t;
+                const float tailHeight=.28f*(1.0f-t)+.018f;
+                const float halfWidth=std::lerp(.070f,.018f,t);
+                const float halfLength=std::lerp(.090f,.038f,t);
+                const float baseY=centreY+tailHeight*.88f;
+                const Vector3 rear=Local(centre,axes,wave,baseY,z-halfLength,scale);
+                const Vector3 right=Local(centre,axes,wave+halfWidth,baseY,z,scale);
+                const Vector3 front=Local(centre,axes,wave,baseY,z+halfLength,scale);
+                const Vector3 left=Local(centre,axes,wave-halfWidth,baseY,z,scale);
+                const Vector3 peak=Local(centre,axes,wave,baseY+.055f*(1.0f-.65f*t),z,scale);
+                AddTriangle(vertices,rear,right,peak,palette.scute);
+                AddTriangle(vertices,right,front,peak,palette.scute);
+                AddTriangle(vertices,front,left,peak,palette.scute);
+                AddTriangle(vertices,left,rear,peak,palette.scute);
             }
 
             // Four short, muscular, splayed legs with alternating planted gait.
@@ -369,9 +398,10 @@ namespace island
         effect_->setFogStartProperty(135.0f);
         effect_->setFogEndProperty(260.0f);
         stagingVertices_.reserve(MaximumVertexCount);
-        std::cout<<FormDiagnostic<<'\n'<<DetailDiagnostic<<'\n';
+        std::cout<<FormDiagnostic<<'\n'<<DetailDiagnostic<<'\n'<<ArmorDiagnostic<<'\n';
         MirrorRuntimeDiagnosticToPlatformLog(FormDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(DetailDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(ArmorDiagnostic);
     }
 
     CrocodileRenderer::~CrocodileRenderer()=default;

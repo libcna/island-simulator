@@ -234,7 +234,30 @@ same-camera baseline `20261015T174806.814354Z-litter` and accepted current-binar
 showing five narrower dry leaves. The final 1280x720 frame passes with 196 colour bins, 17.95
 luminance deviation, 43.95 spatial contrast and an empty kernel delta.
 
-## Latest animal visual pass — rounded crocodile jaws and lateral eyes
+## Latest crocodile silhouette pass — low trunk armor and tail keel
+
+The next multi-animal comparison retained the improved head and attached legs but selected the
+crocodile's repeated tall triangular back spikes as the weakest remaining species cue. Eleven
+irregular rows of low four-sided paired trunk scutes now follow the changing back line instead of
+nine identical three-sided peaks. Behind the hips those paired rows merge into eight progressively
+smaller single keel plates which use the same animated lateral displacement as the twelve-section
+volumetric tail. The result preserves recognizable crocodilian armor without the former
+saw-toothed dinosaur silhouette.
+
+Replacing the old plates adds 198 generated vertices to a visible near animal. The checked
+per-animal dynamic-buffer boundary rises from 5,600 to 5,900 vertices, adding 900 shared slots for
+all three agents; population, habitat, behavior, LOD, simulation and the single draw are unchanged.
+The first post-edit native attempt stopped safely at the old bound before upload and is rejected.
+`IslandCrocodileGroupTests`, `IslandCoreTests` and all 103 browser/capture harness tests pass.
+
+Inspected same-camera baseline `20261015T183247.193116Z-crocodiles` and accepted current native
+`20261016T004505.743320Z-crocodiles` show the lower trunk contour and diminishing tail keel. The
+accepted frame passes at 313 colour bins, 39.15 luminance deviation, 153.64 spatial contrast and
+kernel `[]`. Focused Chrome/SwiftShader `20261016T004809.071264Z-chrome-crocodiles` passes two
+distinct inspected motion frames, 60 finite positive intervals, GL0, a live context, zero
+target-close timeouts and kernel `[]`.
+
+## Animal visual pass — rounded crocodile jaws and lateral eyes
 
 The current twelve-family animal matrix selected the crocodile's head as the weakest explicit-goal
 anatomy. Although its torso, tail, scutes and newly attached limb roots were readable, the upper and
@@ -246,8 +269,9 @@ lateral faces rather than pointing them along the snout.
 
 Population remains three, near/far distance, habitat, motion and one-draw batching are unchanged.
 The richer head exceeded the former 5,200-vertex per-animal safety boundary during the first real
-capture; the renderer stopped through its own checked exception before submission. Capacity is now
-5,600 per animal, adding 1,200 shared dynamic-buffer slots across the full population. The repeated
+capture; the renderer stopped through its own checked exception before submission. Capacity at
+that milestone was raised to 5,600 per animal, adding 1,200 shared dynamic-buffer slots across the
+full population; the later armor pass records the current 5,900 bound. The repeated
 capture completes without overflow. `IslandCrocodileGroupTests` and `IslandCoreTests` pass.
 Inspected prior evidence `20261015T143659.327901Z-crocodiles` and accepted current broadside
 `20261015T183247.193116Z-crocodiles` show a rounded cheek-to-snout taper, separate slim jaw and

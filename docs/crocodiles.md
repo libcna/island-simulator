@@ -14,6 +14,30 @@ lower jaw, mouth, teeth, embedded lateral eyes, pupils and nostrils, paired dors
 splayed articulated legs with toes. Land gait alternates the feet; swimming increases the tail
 wave and lowers the body toward the water. Beyond 86 m a reduced long-body silhouette is used.
 
+### Low trunk armor and tail keel — 2026-10-16
+
+A later full-animal comparison retained the rounded jaws and attached legs but selected the nine
+repeated tall triangular back peaks as the weakest remaining silhouette. Eleven irregular rows of
+low four-sided paired trunk scutes now follow the changing dorsal line. Behind the hips, the paired
+rows merge into eight progressively smaller single keel plates whose centres use the same animated
+lateral wave as the underlying twelve-section tail volume. This keeps the armor readable in a
+broadside view without the former saw-toothed dinosaur profile.
+
+The replacement adds 198 generated vertices to each visible near animal. The checked per-animal
+dynamic staging boundary rises from 5,600 to 5,900 vertices, adding 900 slots over the complete
+three-animal batch. Population, habitat, behavior, simulation, 86 m LOD and the single draw are
+unchanged. The first native attempt stopped through the old checked boundary before upload and is
+explicitly rejected; no overflow or graphics submission occurred.
+
+Inspected same-camera native baseline `20261015T183247.193116Z-crocodiles` and accepted current
+evidence `20261016T004505.743320Z-crocodiles` show lower, denser trunk armor and a diminishing tail
+keel. The accepted 1280x720 frame passes at 313 colour bins, 39.15 luminance deviation, 153.64
+spatial contrast and an empty kernel delta. `IslandCrocodileGroupTests`, `IslandCoreTests` and all
+103 browser/capture harness tests pass. Focused Chrome/SwiftShader
+`20261016T004809.071264Z-chrome-crocodiles` passes two distinct inspected motion frames, 60 finite
+positive intervals, GL error zero, a live context, zero target-close timeouts and an empty final
+kernel delta.
+
 ## Evidence and honest limits
 
 The 2026-10-15 follow-up animal audit found that the near torso, skull, tail and scutes were
@@ -41,7 +65,8 @@ lower and wider; thin irises and vertical pupils are embedded on their outward f
 crocodile's lateral eye orientation and removing the stalk-eyed toy silhouette.
 
 The first real capture safely stopped at the renderer's old 5,200-vertex per-animal boundary. The
-fixed capacity is now 5,600, adding 1,200 dynamic-buffer vertex slots over all three animals; no
+fixed capacity was raised to 5,600 at that milestone, adding 1,200 dynamic-buffer vertex slots over
+all three animals; the later armor pass documents the current 5,900 bound. No
 population, draw, habitat, motion or LOD change was made. A repeated current-binary native capture
 `20261015T183247.193116Z-crocodiles` passes at 1280x720 with 313 colour bins, 39.27 luminance
 deviation, 154.05 spatial contrast and an empty kernel delta. It was inspected against
