@@ -967,6 +967,8 @@ def main():
                     raise RuntimeError("current fish eye and fin profile is missing; check for a stale executable")
                 if "near fish use blunt convex foreheads and rounded snouts instead of needle-point wedges" not in diagnostics:
                     raise RuntimeError("current rounded fish head is missing; check for a stale executable")
+                if "near fish use restrained upper-flank iridescence and palette-matched gill creases" not in diagnostics:
+                    raise RuntimeError("current fish surface pigment is missing; check for a stale executable")
                 if not re.search(r"fish [1-9][0-9]*/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):
                     raise RuntimeError("fish capture did not submit a near detailed school")
             if args.viewpoint == "stingrays":

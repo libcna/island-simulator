@@ -100,6 +100,8 @@ namespace island
             "island-simulator: fish profile pass uses six-facet oval eyes, tapered fork tips, and a lower rear-swept dorsal";
         constexpr std::string_view FishHeadDiagnostic =
             "island-simulator: near fish use blunt convex foreheads and rounded snouts instead of needle-point wedges";
+        constexpr std::string_view FishSurfaceDiagnostic =
+            "island-simulator: near fish use restrained upper-flank iridescence and palette-matched gill creases";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -219,6 +221,18 @@ namespace island
                 break;
             }
             }
+            // A broad, low-contrast shoulder sheen breaks up the otherwise uninterrupted
+            // vertex-colour flank without painting a checkerboard across the coarse rings.
+            // It follows the rounded surface, fades before the head and peduncle, and keeps
+            // every family rooted in its existing underwater-adjusted palette.
+            const float shoulder = flank * SoftBand(std::sin(angle), .27f, .24f)
+                * SoftBand(longitudinal, .08f, .34f);
+            const float sheenVariation = .78f + .22f * (
+                .5f + .5f * std::sin((longitudinal + .56f) * 7.2f
+                                     + static_cast<float>(variant % 4U) * 1.31f));
+            const float sheen = shoulder * sheenVariation;
+            patterned = Color::Lerp(patterned, palette.belly, sheen * .14f);
+            patterned = wildlife_render::ScaleColor(patterned, 1.0f + sheen * .055f);
             return wildlife_render::ScaleColor(patterned,
                                                .76f + .25f * direct + .05f * sky);
         }
@@ -386,7 +400,8 @@ namespace island
 
             const Color eye(19, 31, 33, 255);
             const Color eyeShine(132, 158, 151, 255);
-            const Color gill(65, 86, 83, 255);
+            const Color gill = wildlife_render::ScaleColor(
+                Color::Lerp(palette.back, palette.body, .38f), .76f);
             for (const float side : {-1.0f, 1.0f}) {
                 constexpr int EyeSegments = 6;
                 const Vector3 eyeCentre = LocalPoint(
@@ -493,6 +508,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(FishProfileDiagnostic);
         std::cout << FishHeadDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(FishHeadDiagnostic);
+        std::cout << FishSurfaceDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(FishSurfaceDiagnostic);
     }
 
     FishRenderer::~FishRenderer() = default;

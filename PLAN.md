@@ -772,6 +772,24 @@ unchanged. Inspected native baseline `20261015T152048.597141Z-fish` and accepted
 passes at 1280x720 with 119 colour bins, 20.22 luminance deviation, 110.65 spatial contrast and an
 empty kernel delta.
 
+## Latest aquatic visual pass — restrained fish surface pigment
+
+The renewed close-school comparison retained the current body, head, fins and four family markings,
+but selected their broad upper flanks as the remaining flat-looking surface. Existing body vertices
+now add a continuous low-contrast shoulder sheen that fades over the back, belly, snout and tail
+stock. Gill creases use the underwater-adjusted palette of their own family rather than one common
+dark green. The result adds material depth without a texture, extra geometry or sharp artificial
+bands.
+
+The exact 1,386/12 near/far inventory, all 48 agents, one dynamic draw, buffers, LOD, habitat and
+simulation remain unchanged. Inspected same-camera native baseline
+`20261015T201745.737686Z-fish` and accepted `20261016T010828.510003Z-fish` show the restrained
+transition; the accepted 1280x720 frame passes with 119 colour bins, 19.64 luminance deviation,
+131.95 spatial contrast and an empty kernel delta. Focused Chrome/SwiftShader evidence
+`20261016T010941.369459Z-chrome-fish` passes two different live frames, 60 finite positive
+intervals, GL error zero, a live context and no new kernel GPU fault. Native/Web guards pin the
+new surface marker.
+
 ## Latest aquatic visual pass — blunt convex fish heads
 
 The next current-binary animal contact sheet retained the fish as the weakest requested aquatic

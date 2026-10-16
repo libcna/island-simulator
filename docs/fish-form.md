@@ -1,5 +1,24 @@
 # Shallow-water fish form
 
+## Restrained flank sheen and family gills (2026-10-16)
+
+The next current-binary wildlife audit found that the close fish silhouettes, heads and four
+family patterns were sound, but broad upper flanks still read as one flat cyan patch under the
+shared water tint. The existing body vertices now carry a broad, low-contrast shoulder sheen.
+It fades continuously over the back, belly, snout and caudal peduncle and varies gently along the
+body, avoiding a checkerboard or painted stripe. Gill creases now derive from each fish's
+underwater-adjusted back/body palette instead of using one identical dark green on every family.
+
+This is solely vertex pigment on the existing mesh: the exact 1,386/12 near/far inventory,
+48 agents, four families, animation, habitat, LOD, buffer size and one dynamic draw are unchanged.
+Inspected same-camera native baseline `20261015T201745.737686Z-fish` and accepted evidence
+`20261016T010828.510003Z-fish` show a softer readable shoulder transition without neon bands. The
+accepted 1280x720 frame passes with 119 colour bins, 19.64 luminance deviation, 131.95 spatial
+contrast and an empty kernel delta. Focused Chrome/SwiftShader evidence
+`20261016T010941.369459Z-chrome-fish` passes two inspected moving frames, 60 finite positive
+intervals, GL error zero, a live context and an empty kernel delta. Native and Web guards require
+the surface-pigment diagnostic so a stale executable cannot qualify.
+
 ## Blunt convex head profile (2026-10-15)
 
 A current whole-animal contact sheet found that the fish still ended in a pointed wedge despite
