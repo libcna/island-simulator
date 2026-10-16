@@ -16394,6 +16394,22 @@ Existing observation and qualification queue:
   SHA-256 `489ecfef6b69fce09951d94315a6ad8c917c5cae24515b0515f44086ae15b11e`; stripped
   `libmain.so` is 19,696,184 bytes.
 
+### 2026-10-16 — Rounded mouse and rat profiles with corrected capacity
+
+- Replaced the shared eight-sided wedge body/head with separate twelve-sided, eight-station body
+  and seven-station head profiles. Mice now have compact rounded shoulders; rats retain a longer,
+  lower torso and muzzle. Bounded facet variation softens the former flat single-colour panels.
+- Added an exact 4,056-vertex runtime check per animal and corrected the shared buffer reservation:
+  the old 1,400-vertex allowance understated the old model's actual 3,588 vertices. Population,
+  behaviour, habitat, textures and the shared single draw remain unchanged.
+- Inspected native evidence `20261016T185423.887046Z-mice` and
+  `20261016T185443.528465Z-rats`; focused Chrome/SwiftShader evidence
+  `20261016T185804.115805Z-chrome-rodents` passes both moving views, GL0, live contexts and clean
+  kernel monitoring. Core and all 103 browser/capture harness tests pass.
+- ARM64 Android assemble/lint passes without an emulator or KVM. The APK is 24,744,403 bytes with
+  SHA-256 `a529ed7281da08529785542ce6d8fe9a60edebf508517b7c86780a690e7bcaea`; stripped
+  `libmain.so` is 19,701,832 bytes.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.

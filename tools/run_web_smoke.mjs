@@ -925,6 +925,7 @@ try {
               && /frogs [1-9][0-9]*\/10 visible in shared draw/.test(log)))
             && (!focusedRodentCheck || (log.includes("twelve field mice and eight rats forage, scurry, and hide in the shared small-fauna batch")
               && log.includes("near rodents use species-scaled lofted bodies, pointed muzzles, rounded ears, whiskers, paws, eyes, and long segmented tails")
+              && log.includes("mice use rounded compact shoulders while rats use long low twelve-facet body and head profiles")
               && (mode !== "mice" || (log.includes("mouse QA camera frames one field mouse at ground level")
                 && /mice [1-9][0-9]*\/12 visible in shared draw/.test(log)))
               && (mode !== "rats" || (log.includes("rat QA camera frames one larger inland rat at ground level")

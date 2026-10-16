@@ -785,6 +785,35 @@ class BrowserSoftwareTests(unittest.TestCase):
             invalid = report(); mutate(invalid)
             with self.assertRaises(RuntimeError): gate.validate_fish_report(invalid)
 
+    def test_rodent_scope_requires_rounded_species_profiles(self):
+        self.assertIn("rodents", gate.SCOPES)
+        population = ("twelve field mice and eight rats forage, scurry, and hide in the "
+                      "shared small-fauna batch")
+        anatomy = ("near rodents use species-scaled lofted bodies, pointed muzzles, rounded "
+                   "ears, whiskers, paws, eyes, and long segmented tails")
+        surface = ("mice use rounded compact shoulders while rats use long low twelve-facet "
+                   "body and head profiles")
+        def report():
+            views = []
+            for species, total, camera in (
+                ("mice", 12, "mouse QA camera frames one field mouse at ground level"),
+                ("rats", 8, "rat QA camera frames one larger inland rat at ground level")):
+                views.append({"mode": species, "passed": True, "glError": 0,
+                    "contextLost": False, "renderer": "ANGLE SwiftShader",
+                    "screenshot": species + ".png",
+                    "afterSimulationScreenshot": species + "-after.png",
+                    "intervals": [16.7] * 60,
+                    "result": {"output": population + "\n" + anatomy + "\n" + surface
+                        + "\n" + camera + f"\n{species} 1/{total} visible in shared draw"}})
+            return {"passed": True, "views": views}
+        self.assertEqual(gate.validate_rodent_report(report()),
+                         ["mice.png", "mice-after.png", "rats.png", "rats-after.png"])
+        invalid = report()
+        invalid["views"][1]["result"]["output"] = invalid["views"][1]["result"]["output"].replace(
+            surface + "\n", "")
+        with self.assertRaises(RuntimeError):
+            gate.validate_rodent_report(invalid)
+
     def test_shark_scope_requires_current_anatomy_two_frames_and_live_context(self):
         self.assertIn("shark", gate.SCOPES)
         self.assertIn('["shark", ["--viewpoint", "shark", "--debug-overlay"]]',

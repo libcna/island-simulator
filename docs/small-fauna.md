@@ -255,6 +255,24 @@ emulator/KVM. The current APK is 24,531,251 bytes with SHA-256
 `b046291bc9814f05bd19a37bc94231e7b2768b5800ec3a6681c2f1e9e778ce3c` and packages a
 19,488,680-byte `libmain.so`.
 
+The 2026-10-16 comparative fauna audit replaced the remaining eight-sided body and head lofts
+with species-specific twelve-sided profiles. Eight body stations give the mouse a compact rounded
+shoulder and hip line, while the rat is longer and lower. Seven head stations soften the cheek and
+forehead transitions but retain the mouse's shorter face and the rat's long pointed muzzle.
+Restrained station and facet tint variation breaks up the former single flat coat patch.
+
+Each complete animal now has an exact checked 4,056-vertex budget. This also fixes the former
+conservative-capacity constant, which reserved only 1,400 vertices despite the previous animal
+actually emitting 3,588. The corrected all-twenty capacity adds buffer headroom but no population,
+draw, texture, simulation or habitat work. Native accepted evidence is
+`20261016T185423.887046Z-mice` (186 colour bins, 22.75 luminance deviation, 125.83 spatial
+contrast) and `20261016T185443.528465Z-rats` (67 bins, 26.49 deviation, 83.88 contrast).
+Chrome/SwiftShader evidence `20261016T185804.115805Z-chrome-rodents` passes both moving views,
+GL0, live contexts and clean kernel monitoring. Core and all 103 browser/capture harness tests
+pass. ARM64 assemble/lint passes without an emulator or KVM; the 24,744,403-byte APK has SHA-256
+`a529ed7281da08529785542ce6d8fe9a60edebf508517b7c86780a690e7bcaea`, and stripped
+`libmain.so` is 19,701,832 bytes.
+
 ## Frogs
 
 Ten deterministic frogs occupy eight compact bank homes along qualified permanent-stream sections

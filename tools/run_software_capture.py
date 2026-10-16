@@ -1206,6 +1206,7 @@ def main():
                 for marker in (
                     "twelve field mice and eight rats forage, scurry, and hide in the shared small-fauna batch",
                     "near rodents use species-scaled lofted bodies, pointed muzzles, rounded ears, whiskers, paws, eyes, and long segmented tails",
+                    "mice use rounded compact shoulders while rats use long low twelve-facet body and head profiles",
                     "mouse QA camera frames one field mouse at ground level" if args.viewpoint == "mice"
                         else "rat QA camera frames one larger inland rat at ground level"):
                     if marker not in diagnostics:

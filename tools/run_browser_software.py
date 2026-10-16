@@ -600,6 +600,7 @@ def validate_rodent_report(report):
             or len(set(frames))!=2
             or "twelve field mice and eight rats forage, scurry, and hide in the shared small-fauna batch" not in log
             or "near rodents use species-scaled lofted bodies, pointed muzzles, rounded ears, whiskers, paws, eyes, and long segmented tails" not in log
+            or "mice use rounded compact shoulders while rats use long low twelve-facet body and head profiles" not in log
             or camera_marker not in log
             or not re.search(rf"{species} [1-9][0-9]*/{total} visible in shared draw",log)
             or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):

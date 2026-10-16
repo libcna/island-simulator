@@ -39,7 +39,9 @@ namespace island
         constexpr int MaximumDragonflyVertices =
             static_cast<int>(DragonflySwarm::Count) * 1500;
         constexpr int MaximumFrogVertices = static_cast<int>(FrogPopulation::Count) * 1700;
-        constexpr int MaximumRodentVertices = static_cast<int>(RodentPopulation::Count) * 1400;
+        constexpr int RodentVertexCount = 4056;
+        constexpr int MaximumRodentVertices =
+            static_cast<int>(RodentPopulation::Count) * RodentVertexCount;
         // A close fly uses fewer than 1,400 vertices across three closed body volumes,
         // fitted eyes, swept wings and six articulated solid legs.
         constexpr int MaximumFlyVertices = static_cast<int>(FlySwarms::Count) * 1400;
@@ -89,6 +91,8 @@ namespace island
             "island-simulator: twelve field mice and eight rats forage, scurry, and hide in the shared small-fauna batch";
         constexpr std::string_view RodentAnatomyDiagnostic =
             "island-simulator: near rodents use species-scaled lofted bodies, pointed muzzles, rounded ears, whiskers, paws, eyes, and long segmented tails";
+        constexpr std::string_view RodentSurfaceDiagnostic =
+            "island-simulator: mice use rounded compact shoulders while rats use long low twelve-facet body and head profiles";
         constexpr std::string_view FlyDiagnostic =
             "island-simulator: four close-range fly swarms use twenty-four hover, orbit, and dart agents in the shared small-fauna batch";
         constexpr std::string_view FlyAnatomyDiagnostic =
@@ -1366,9 +1370,62 @@ namespace island
             }
         }
 
+        template<std::size_t StationCount>
+        void AppendRodentLoft(std::vector<VertexPositionColor>& vertices,
+                              const Vector3& centre, const Vector3& right,
+                              const Vector3& up, const Vector3& forward,
+                              const std::array<float, StationCount>& stations,
+                              const std::array<float, StationCount>& halfWidths,
+                              const std::array<float, StationCount>& halfHeights,
+                              const float scale, const Color& dorsal,
+                              const Color& flank, const Color& underside,
+                              const std::size_t colorVariant)
+        {
+            constexpr int Sides = 12;
+            const auto ringPoint = [&](const std::size_t station, const int side) {
+                const float angle = 6.28318530718f * static_cast<float>(side) / Sides;
+                return centre + forward * (stations[station] * scale)
+                    + right * (std::cos(angle) * halfWidths[station] * scale)
+                    + up * (std::sin(angle) * halfHeights[station] * scale);
+            };
+            for (std::size_t station = 0; station + 1U < StationCount; ++station) {
+                for (int side = 0; side < Sides; ++side) {
+                    const int next = (side + 1) % Sides;
+                    const float angle = 6.28318530718f
+                        * (static_cast<float>(side) + .5f) / Sides;
+                    const float vertical = std::sin(angle);
+                    const float lateralLight = std::max(0.0f, std::cos(angle)) * .08f;
+                    const float furVariation = .018f * std::sin(
+                        static_cast<float>(station) * 2.17f
+                        + static_cast<float>(colorVariant) * 1.31f);
+                    Color color = vertical > .24f
+                        ? Color::Lerp(dorsal, Color(211, 194, 157),
+                                      .10f + lateralLight + furVariation)
+                        : (vertical < -.24f ? underside
+                            : Color::Lerp(flank, Color(194, 174, 139),
+                                          lateralLight + std::max(0.0f, furVariation)));
+                    const Vector3 a = ringPoint(station, side);
+                    const Vector3 b = ringPoint(station + 1U, side);
+                    const Vector3 c = ringPoint(station + 1U, next);
+                    const Vector3 d = ringPoint(station, next);
+                    AddTriangle(vertices, a, b, c, color);
+                    AddTriangle(vertices, a, c, d, color);
+                }
+            }
+            const Vector3 rear = centre + forward * (stations.front() * scale);
+            const Vector3 front = centre + forward * (stations.back() * scale);
+            for (int side = 0; side < Sides; ++side) {
+                const int next = (side + 1) % Sides;
+                AddTriangle(vertices, rear, ringPoint(0U, next), ringPoint(0U, side), flank);
+                AddTriangle(vertices, front, ringPoint(StationCount - 1U, side),
+                            ringPoint(StationCount - 1U, next), dorsal);
+            }
+        }
+
         void AppendRodent(std::vector<VertexPositionColor>& vertices,
                           const RodentState& rodent)
         {
+            const std::size_t startingVertexCount = vertices.size();
             const bool rat = rodent.species == RodentSpecies::Rat;
             const std::array<Color, 4> mouseCoats = {{Color(139, 119, 92), Color(116, 105, 91),
                 Color(154, 132, 100), Color(96, 91, 82)}};
@@ -1390,29 +1447,43 @@ namespace island
             const float bob = std::abs(std::sin(rodent.gaitPhase)) * .012f * unit;
             const Vector3 centre(rodent.x, rodent.y + (rat ? .095f : .072f) * unit + bob,
                                  rodent.z);
-            constexpr std::array<float, 6> BodyStations = {{-.18f, -.12f, -.02f, .10f, .19f, .24f}};
-            constexpr std::array<float, 6> BodyWidths = {{.055f, .11f, .14f, .135f, .095f, .045f}};
-            constexpr std::array<float, 6> BodyHeights = {{.045f, .085f, .105f, .10f, .075f, .035f}};
-            AppendGeckoLoft(vertices, centre, right, up, forward, BodyStations, BodyWidths,
-                            BodyHeights, unit, coat, flank, underside);
+            constexpr std::array<float, 8> MouseBodyStations =
+                {{-.22f, -.18f, -.10f, .015f, .12f, .20f, .25f, .27f}};
+            constexpr std::array<float, 8> MouseBodyWidths =
+                {{.026f, .102f, .145f, .155f, .145f, .112f, .062f, .022f}};
+            constexpr std::array<float, 8> MouseBodyHeights =
+                {{.024f, .078f, .112f, .120f, .108f, .078f, .043f, .020f}};
+            constexpr std::array<float, 8> RatBodyStations =
+                {{-.27f, -.225f, -.13f, -.005f, .115f, .205f, .255f, .275f}};
+            constexpr std::array<float, 8> RatBodyWidths =
+                {{.030f, .098f, .137f, .148f, .139f, .108f, .058f, .021f}};
+            constexpr std::array<float, 8> RatBodyHeights =
+                {{.026f, .074f, .103f, .112f, .101f, .073f, .040f, .019f}};
+            AppendRodentLoft(vertices, centre, right, up, forward,
+                rat ? RatBodyStations : MouseBodyStations,
+                rat ? RatBodyWidths : MouseBodyWidths,
+                rat ? RatBodyHeights : MouseBodyHeights,
+                unit, coat, flank, underside, rodent.colorVariant);
             const float sniff = std::sin(rodent.sniffPhase) * .008f * unit;
-            const Vector3 head = centre + forward * (.245f * unit)
+            const Vector3 head = centre + forward * (.235f * unit)
                 + up * ((rat ? .018f : .028f) * unit + sniff);
-            constexpr std::array<float, 5> MouseHeadStations = {{-.08f, -.01f, .075f, .145f, .20f}};
-            constexpr std::array<float, 5> MouseHeadWidths = {{.075f, .11f, .095f, .055f, .018f}};
-            constexpr std::array<float, 5> MouseHeadHeights = {{.055f, .092f, .080f, .045f, .018f}};
-            constexpr std::array<float, 5> RatHeadStations = {{-.08f, -.01f, .09f, .18f, .24f}};
-            constexpr std::array<float, 5> RatHeadWidths = {{.070f, .105f, .082f, .043f, .016f}};
-            constexpr std::array<float, 5> RatHeadHeights = {{.052f, .086f, .068f, .038f, .016f}};
-            AppendGeckoLoft(vertices, head, right, up, forward,
+            constexpr std::array<float, 7> MouseHeadStations =
+                {{-.12f, -.075f, -.01f, .065f, .13f, .18f, .215f}};
+            constexpr std::array<float, 7> MouseHeadWidths =
+                {{.040f, .090f, .112f, .106f, .080f, .046f, .014f}};
+            constexpr std::array<float, 7> MouseHeadHeights =
+                {{.037f, .076f, .095f, .087f, .064f, .036f, .013f}};
+            constexpr std::array<float, 7> RatHeadStations =
+                {{-.13f, -.082f, -.01f, .080f, .165f, .230f, .272f}};
+            constexpr std::array<float, 7> RatHeadWidths =
+                {{.035f, .080f, .105f, .096f, .064f, .034f, .013f}};
+            constexpr std::array<float, 7> RatHeadHeights =
+                {{.033f, .069f, .087f, .073f, .052f, .029f, .012f}};
+            AppendRodentLoft(vertices, head, right, up, forward,
                             rat ? RatHeadStations : MouseHeadStations,
                             rat ? RatHeadWidths : MouseHeadWidths,
                             rat ? RatHeadHeights : MouseHeadHeights,
-                            unit, coat, flank, underside);
-            const Vector3 neck = centre + forward * (.205f * unit)
-                + up * (.018f * unit);
-            AppendRodentSegment(vertices, neck, head - forward * (.055f * unit),
-                                .070f * unit, .064f * unit, flank);
+                            unit, coat, flank, underside, rodent.colorVariant + 3U);
 
             for (const float side : {-1.0f, 1.0f}) {
                 const Vector3 earCentre = head - forward * (.035f * unit)
@@ -1482,6 +1553,9 @@ namespace island
                 AppendRodentSegment(vertices, start, end,
                     (.013f - .0025f * segment) * unit,
                     (.011f - .0025f * segment) * unit, tail);
+            }
+            if (vertices.size() - startingVertexCount != RodentVertexCount) {
+                throw std::logic_error("Rodent geometry violated its exact vertex budget");
             }
         }
 
@@ -1673,6 +1747,7 @@ namespace island
         std::cout << FrogAnatomyDiagnostic << '\n';
         std::cout << RodentDiagnostic << '\n';
         std::cout << RodentAnatomyDiagnostic << '\n';
+        std::cout << RodentSurfaceDiagnostic << '\n';
         std::cout << FlyDiagnostic << '\n';
         std::cout << FlyAnatomyDiagnostic << '\n';
         std::cout << AntDiagnostic << '\n';
@@ -1696,6 +1771,7 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(FrogAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(RodentDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(RodentAnatomyDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(RodentSurfaceDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(FlyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(FlyAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(AntDiagnostic);
