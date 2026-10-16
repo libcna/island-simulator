@@ -124,6 +124,28 @@ BunkerRenderer::BunkerRenderer(GraphicsDevice& device,const BunkerLayout& layout
                      p1+Vector3(0,height,0),shade(top,1.12f),lit);
         }
     };
+    const auto tube=[&](const Vector3& a,const Vector3& b,float radius,int segments,
+                        const Color& color,bool capEnds=true) {
+        Vector3 axis=b-a;
+        if(axis.LengthSquared()<1.0e-8f)return;
+        axis.Normalize();
+        Vector3 side=Vector3::Cross(axis,std::abs(axis.Y)<.85f?Vector3::Up:Vector3::Right);
+        side.Normalize();
+        const Vector3 up=Vector3::Normalize(Vector3::Cross(side,axis));
+        for(int i=0;i<segments;++i) {
+            const float angle0=tau*i/segments,angle1=tau*(i+1)/segments;
+            const Vector3 radial0=side*std::cos(angle0)+up*std::sin(angle0);
+            const Vector3 radial1=side*std::cos(angle1)+up*std::sin(angle1);
+            const float facet=.77f+.25f*std::max(0.0f,
+                Vector3::Dot((radial0+radial1)*.5f,Vector3(.62f,.71f,-.32f)));
+            quad(a+radial0*radius,a+radial1*radius,b+radial1*radius,b+radial0*radius,
+                 shade(color,facet));
+            if(capEnds) {
+                triangle(a,a+radial1*radius,a+radial0*radius,shade(color,.72f));
+                triangle(b,b+radial0*radius,b+radial1*radius,shade(color,1.04f));
+            }
+        }
+    };
     const auto ellipsoid=[&](const Vector3& centre,const Vector3& radius,int rings,int slices,
                              const Color& color) {
         for(int ring=0;ring<rings;++ring) {
@@ -266,8 +288,39 @@ BunkerRenderer::BunkerRenderer(GraphicsDevice& device,const BunkerLayout& layout
     // see the underside of the island heightfield beyond the authored facility.
     box({-1.36f,roomFloor,35.92f},{1.36f,roomCeiling,36.10f},steelDark);
     box({-1.12f,roomFloor+.18f,35.88f},{1.12f,roomCeiling-.18f,35.94f},Color(69,77,76));
-    box({-.07f,roomFloor+.18f,35.84f},{.07f,roomCeiling-.18f,35.89f},Color(171,137,48));
-    box({-1.04f,roomFloor+1.38f,35.83f},{1.04f,roomFloor+1.52f,35.90f},Color(171,137,48));
+    // A proper wheel replaces the old gold rectangular cross, which looked like
+    // signage rather than maintenance-door hardware. It remains entirely in front
+    // of the already-solid bulkhead and therefore cannot reopen the terrain leak.
+    const Color wheelMetal(153,126,56),wheelEdge(99,83,48);
+    const Vector3 wheelCentre(0,roomFloor+1.43f,35.79f);
+    constexpr int WheelSegments=16;
+    for(int segment=0;segment<WheelSegments;++segment) {
+        const float a0=tau*segment/WheelSegments,a1=tau*(segment+1)/WheelSegments;
+        const Vector3 p0=wheelCentre+Vector3(std::cos(a0)*.48f,std::sin(a0)*.48f,0);
+        const Vector3 p1=wheelCentre+Vector3(std::cos(a1)*.48f,std::sin(a1)*.48f,0);
+        tube(p0,p1,.035f,7,wheelMetal,false);
+    }
+    for(int spoke=0;spoke<6;++spoke) {
+        const float angle=tau*spoke/6;
+        const Vector3 direction(std::cos(angle),std::sin(angle),0);
+        tube(wheelCentre+direction*.11f,wheelCentre+direction*.44f,.027f,7,wheelEdge);
+    }
+    tube(wheelCentre-Vector3(0,0,.075f),wheelCentre+Vector3(0,0,.075f),.115f,10,wheelMetal);
+    for(int bolt=0;bolt<8;++bolt) {
+        const float angle=tau*(static_cast<float>(bolt)+.5f)/8;
+        ellipsoid(wheelCentre+Vector3(std::cos(angle)*.82f,std::sin(angle)*.82f,-.015f),
+                  Vector3(.045f,.045f,.024f),3,7,Color(126,132,123));
+    }
+    // Compact retro status panel breaks the otherwise monochrome door leaf and
+    // communicates powered-but-sealed machinery without becoming an objective UI.
+    box({-.98f,roomFloor+2.26f,35.77f},{-.42f,roomFloor+2.53f,35.84f},steelDark);
+    const std::array<Color,3> IndicatorColors{{
+        Color(185,61,42,235),Color(206,154,51,235),Color(67,170,126,235)}};
+    for(int indicator=0;indicator<3;++indicator) {
+        const float x=-.88f+indicator*.18f;
+        box({x-.045f,roomFloor+2.34f,35.755f},{x+.045f,roomFloor+2.44f,35.77f},
+            IndicatorColors[static_cast<std::size_t>(indicator)],true);
+    }
     box({-.52f,roomCeiling-.42f,35.80f},{.52f,roomCeiling-.27f,35.89f},Color(160,55,43),true);
     // Near-ramp ribs and cable trays make the first descent as authored as the
     // deep spine; these sit against the shell and do not narrow capsule clearance.
@@ -460,6 +513,8 @@ BunkerRenderer::BunkerRenderer(GraphicsDevice& device,const BunkerLayout& layout
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
     const char* closure="island-simulator: bunker deep spine ends at a sealed maintenance bulkhead and the service branch has a complete lit shell";
     std::cout<<closure<<'\n';MirrorRuntimeDiagnosticToPlatformLog(closure);
+    const char* bulkhead="island-simulator: bunker end bulkhead uses a round six-spoke handwheel, central hub, and eight perimeter bolts";
+    std::cout<<bulkhead<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bulkhead);
 }
 
 BunkerRenderer::~BunkerRenderer()=default;

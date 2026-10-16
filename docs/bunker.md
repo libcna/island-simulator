@@ -22,7 +22,7 @@ ordinary vegetation reserve the entrance and facility footprint.
 
 ## Visual construction
 
-The current static mesh is 3,876 triangles in two culled draws. It includes:
+The current static mesh is 4,508 triangles in two culled draws. It includes:
 
 - a rock-concealed reinforced portal, open blast door, jamb bolts and drainage threshold;
 - repeated structural corridor bays, recessed lower panels, safety stripe, cable trays,
@@ -32,7 +32,8 @@ The current static mesh is 3,876 triangles in two culled draws. It includes:
 - a complete service-room shell with cabinets, workbench and amber task lighting;
 - a cyan fictional generator core, containment rings, support posts, control cabinets,
   pipes and caution markings;
-- a reinforced sealed end bulkhead that replaces the former view beyond the facility.
+- a reinforced sealed end bulkhead that replaces the former view beyond the facility, now with a
+  round six-spoke handwheel, closed hub, perimeter bolts and a powered status panel.
 
 Opaque concrete, steel and rock use one portable desktop-GL/GLES shader with subtle
 world-space mottling, damp ageing, restrained oxidation and baked per-face shading.
@@ -66,3 +67,27 @@ The facility is intentionally compact and still visibly procedural at close rang
 Moving first-person artistic review, richer prop variation, localized audio, Android
 device runtime and real-GPU performance qualification remain future polish. They do not
 reopen the fixed entrance collision or the sealed-end terrain leak.
+
+## Maintenance bulkhead handwheel — 2026-10-16
+
+A later landmark audit accepted the repaired closure but selected the end door's two gold
+rectangular braces: together they looked like a large cross or sign rather than believable
+maintenance hardware. They are replaced by a sixteen-segment circular wheel, six tubular spokes,
+a closed central hub and eight perimeter fasteners. A small powered three-lamp status panel breaks
+the otherwise monochrome door leaf. All additions sit in front of the existing complete bulkhead;
+none changes the authoritative shell or collision.
+
+The original project-owned bunker grows from 3,876 to 4,508 triangles inside the same two static
+draws and existing 24,000-vertex construction guard. No texture, shader input, buffer, collision or
+gameplay object is added. The visually correct first result
+`20261016T112318.215292Z-bunker-end` was rejected because its 60 quantized colours missed the
+generic 64-bin scene gate. The retained status-panel result
+`20261016T112758.539261Z-bunker-end` passes at 1280x720 with 65 bins, 49.82 luminance deviation,
+228.58 spatial contrast and an empty kernel delta.
+
+Four focused native groups and all 97 browser/capture harness tests pass. Focused Chrome
+155/SwiftShader evidence `build/browser-software/20261016T113224.443896Z-chrome-bunker` contains
+six inspected current views. Each supplies 12 finite positive intervals, GL error zero and a live
+context; the final frame shows the wheel, bolts and status panel, while the room views retain the
+computer, generator and service spaces. The kernel delta is empty. Physical Android/AMD runtime
+and moving first-person performance remain grouped with final qualification.

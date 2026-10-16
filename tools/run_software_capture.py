@@ -721,6 +721,7 @@ def main():
                     "bunker computer room has four desks and terminals, keyboard consoles, eight server cabinets, and a separate generator control bank",
                     "bunker concrete and metal use portable world-space mottling, restrained age variation, and baked face shading",
                     "bunker deep spine ends at a sealed maintenance bulkhead and the service branch has a complete lit shell",
+                    "bunker end bulkhead uses a round six-spoke handwheel, central hub, and eight perimeter bolts",
                     f"bunker QA camera {args.viewpoint}"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"bunker integration diagnostic missing: {marker}")

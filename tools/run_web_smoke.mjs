@@ -872,6 +872,7 @@ try {
               && log.includes("bunker computer room has four desks and terminals, keyboard consoles, eight server cabinets, and a separate generator control bank")
               && log.includes("bunker concrete and metal use portable world-space mottling, restrained age variation, and baked face shading")
               && log.includes("bunker deep spine ends at a sealed maintenance bulkhead and the service branch has a complete lit shell")
+              && log.includes("bunker end bulkhead uses a round six-spoke handwheel, central hub, and eight perimeter bolts")
               && !log.includes("bunker material fallback:")))
             && (!focusedTurtleCheck || (log.includes("near turtles use staggered scutes and closed tapered-volume paddles")
               && log.includes("near turtles use compact integrated heads, narrower hydrodynamic paddles, and restrained shell seams")

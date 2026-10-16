@@ -150,6 +150,25 @@ Chrome/SwiftShader `20261016T111259.627192Z-chrome-resident` supplies two distin
 60 finite positive intervals, GL error zero, a live context and kernel `[]`. Details are in
 `docs/resident.md`.
 
+## Latest bunker visual pass — maintenance bulkhead handwheel
+
+The next island/landmark review selected the deep bunker end: the leak was already sealed, but two
+gold rectangular braces formed a conspicuous cross and read as signage rather than industrial
+hardware. They are replaced by a round segmented handwheel with six tubular spokes, a closed hub,
+eight perimeter bolts and a compact red/amber/green status panel. The new pieces sit wholly in
+front of the existing solid bulkhead, so collision, closure and the hidden island underside remain
+unchanged.
+
+The complete two-draw bunker rises from 3,876 to 4,508 triangles, still below its existing static
+24,000-vertex guard; no buffer, draw, shader input or gameplay object is added. The first correct
+wheel image `20261016T112318.215292Z-bunker-end` was explicitly rejected at 60 colour bins against
+the 64-bin scene threshold. The accepted powered-panel follow-up
+`20261016T112758.539261Z-bunker-end` passes at 65 bins, 49.82 luminance deviation, 228.58 spatial
+contrast and kernel `[]`. Four focused native groups and all 97 browser/capture harness tests pass.
+Inspected six-camera Chrome/SwiftShader `20261016T113224.443896Z-chrome-bunker` preserves the
+entrance, corridor and all three rooms, shows the new sealed end, and passes 12 finite positive
+intervals per view, GL error zero, live contexts and kernel `[]`. Details are in `docs/bunker.md`.
+
 ## Latest aquatic visual pass — layered fish eyes
 
 The renewed close-school audit retained the rounded heads, family pigment, fins and live schooling,
