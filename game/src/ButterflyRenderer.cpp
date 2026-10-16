@@ -38,7 +38,7 @@ namespace island
         constexpr int MaximumSkinkVertices = static_cast<int>(SkinkPopulation::Count) * 1700;
         constexpr int MaximumDragonflyVertices =
             static_cast<int>(DragonflySwarm::Count) * 720;
-        constexpr int MaximumFrogVertices = static_cast<int>(FrogPopulation::Count) * 720;
+        constexpr int MaximumFrogVertices = static_cast<int>(FrogPopulation::Count) * 1700;
         constexpr int MaximumRodentVertices = static_cast<int>(RodentPopulation::Count) * 1400;
         // A close fly uses 348 vertices: 192 body, 24 head, 12 wings,
         // 48 eyes and 72 legs. Keep a small per-agent margin for later detail edits.
@@ -76,6 +76,8 @@ namespace island
             "island-simulator: nine stream and wetland dragonflies hover, patrol, and dart in the shared butterfly batch";
         constexpr std::string_view FrogDiagnostic =
             "island-simulator: ten stream and wetland frogs rest, hop, and retreat in the shared butterfly batch";
+        constexpr std::string_view FrogAnatomyDiagnostic =
+            "island-simulator: near frogs use solid folded legs, separated webbed toes, rounded eye sockets, fitted irises, nostrils, and a mouth line";
         constexpr std::string_view RodentDiagnostic =
             "island-simulator: twelve field mice and eight rats forage, scurry, and hide in the shared small-fauna batch";
         constexpr std::string_view RodentAnatomyDiagnostic =
@@ -666,24 +668,34 @@ namespace island
                     + right * (side * .07f * scale) - up * (.035f * scale);
                 const Vector3 rearToe = ankle + forward * (.18f * scale)
                     + right * (side * .025f * scale);
-                AppendGeckoSegment(vertices, hip, knee, .055f * scale, flank);
-                AppendGeckoSegment(vertices, knee, ankle, .039f * scale, back);
-                AppendGeckoSegment(vertices, ankle, rearToe, .020f * scale, underside);
+                AppendGeckoTube(vertices, hip, knee, .062f * scale, .047f * scale, flank);
+                AppendGeckoTube(vertices, knee, ankle, .047f * scale, .032f * scale, back);
+                AppendGeckoTube(vertices, ankle, rearToe, .030f * scale, .017f * scale, underside);
+                std::array<Vector3, 3> rearTips;
                 for (int toe = -1; toe <= 1; ++toe) {
                     const Vector3 tip = rearToe + forward * (.095f * scale)
                         + right * ((side * .025f + static_cast<float>(toe) * .045f) * scale);
-                    AppendGeckoSegment(vertices, rearToe, tip, .008f * scale, underside);
+                    rearTips[static_cast<std::size_t>(toe + 1)] = tip;
+                    AppendGeckoTube(vertices, rearToe, tip, .010f * scale,
+                                    .0045f * scale, underside, 5);
+                }
+                for (int web = 0; web < 2; ++web) {
+                    AddDoubleSidedTriangle(vertices, rearToe,
+                        rearTips[static_cast<std::size_t>(web)],
+                        rearTips[static_cast<std::size_t>(web + 1)], underside);
                 }
 
                 const Vector3 shoulder = head - forward * (.075f * scale)
                     + right * (side * .17f * scale) - up * (.04f * scale);
                 const Vector3 wrist = shoulder + forward * ((.15f + extension * .10f) * scale)
                     + right * (side * .055f * scale) - up * (.11f * scale);
-                AppendGeckoSegment(vertices, shoulder, wrist, .026f * scale, flank);
+                AppendGeckoTube(vertices, shoulder, wrist, .031f * scale,
+                                .017f * scale, flank);
                 for (int toe = -1; toe <= 1; ++toe) {
                     const Vector3 tip = wrist + forward * (.095f * scale)
                         + right * ((side * .025f + static_cast<float>(toe) * .025f) * scale);
-                    AppendGeckoSegment(vertices, wrist, tip, .007f * scale, underside);
+                    AppendGeckoTube(vertices, wrist, tip, .0085f * scale,
+                                    .0038f * scale, underside, 5);
                 }
             }
 
@@ -693,7 +705,8 @@ namespace island
                     + right * (side * .13f * scale) + up * (.15f * scale);
                 const Vector3 foldB = centre + forward * (.19f * scale)
                     + right * (side * .15f * scale) + up * (.13f * scale);
-                AppendGeckoSegment(vertices, foldA, foldB, .010f * scale, marking);
+                AppendGeckoTube(vertices, foldA, foldB, .011f * scale,
+                                .008f * scale, marking, 5);
             }
             for (int spot = 0; spot < 3; ++spot) {
                 const float side = spot == 1 ? -1.0f : 1.0f;
@@ -709,12 +722,20 @@ namespace island
                     + right * (side * .195f * scale) + up * (.115f * scale);
                 AppendGeckoDiamond(vertices, eyeCentre, right, up, forward,
                                    .060f * scale, .058f * scale, .046f * scale, back, flank);
-                const Vector3 irisCentre = eyeCentre + right * (side * .050f * scale)
+                const Vector3 irisCentre = eyeCentre + right * (side * .052f * scale)
                     + forward * (.012f * scale) + up * (.004f * scale);
-                AppendGeckoDiamond(vertices, irisCentre, right, up, forward,
-                                   .023f * scale, .029f * scale, .014f * scale, iris, iris);
-                const Vector3 pupilCentre = irisCentre + right * (side * .015f * scale)
-                    + forward * (.005f * scale);
+                for (int edge = 0; edge < 8; ++edge) {
+                    const float firstAngle = 6.28318530718f * static_cast<float>(edge) / 8.0f;
+                    const float secondAngle = 6.28318530718f * static_cast<float>(edge + 1) / 8.0f;
+                    const Vector3 first = irisCentre
+                        + forward * (std::cos(firstAngle) * .025f * scale)
+                        + up * (std::sin(firstAngle) * .030f * scale);
+                    const Vector3 second = irisCentre
+                        + forward * (std::cos(secondAngle) * .025f * scale)
+                        + up * (std::sin(secondAngle) * .030f * scale);
+                    AddDoubleSidedTriangle(vertices, irisCentre, first, second, iris);
+                }
+                const Vector3 pupilCentre = irisCentre + right * (side * .002f * scale);
                 AddDoubleSidedTriangle(vertices, pupilCentre + up * (.035f * scale),
                     pupilCentre - forward * (.012f * scale) - up * (.035f * scale),
                     pupilCentre + forward * (.012f * scale) - up * (.035f * scale), pupil);
@@ -724,6 +745,24 @@ namespace island
                     highlight - forward * (.006f * scale) - up * (.004f * scale),
                     highlight + forward * (.006f * scale) - up * (.004f * scale), glint);
             }
+
+            const Vector3 snout = head + forward * (.194f * scale);
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 nostril = snout + right * (side * .060f * scale)
+                    + up * (.026f * scale);
+                AddDoubleSidedTriangle(vertices, nostril + up * (.007f * scale),
+                    nostril - right * (side * .007f * scale) - up * (.005f * scale),
+                    nostril + right * (side * .007f * scale) - up * (.005f * scale), pupil);
+            }
+            const Vector3 mouthCentre = snout - up * (.054f * scale);
+            const Vector3 mouthLeft = mouthCentre - right * (.115f * scale)
+                + forward * (.001f * scale) + up * (.012f * scale);
+            const Vector3 mouthRight = mouthCentre + right * (.115f * scale)
+                + forward * (.001f * scale) + up * (.012f * scale);
+            AppendGeckoTube(vertices, mouthLeft, mouthCentre, .006f * scale,
+                            .004f * scale, marking, 5);
+            AppendGeckoTube(vertices, mouthCentre, mouthRight, .004f * scale,
+                            .006f * scale, marking, 5);
         }
 
         void AppendFly(std::vector<VertexPositionColor>& vertices, const FlyState& fly)
@@ -1371,6 +1410,7 @@ namespace island
         std::cout << SkinkSolidDiagnostic << '\n';
         std::cout << DragonflyDiagnostic << '\n';
         std::cout << FrogDiagnostic << '\n';
+        std::cout << FrogAnatomyDiagnostic << '\n';
         std::cout << RodentDiagnostic << '\n';
         std::cout << RodentAnatomyDiagnostic << '\n';
         std::cout << FlyDiagnostic << '\n';
@@ -1392,6 +1432,7 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(SkinkSolidDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(DragonflyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(FrogDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(FrogAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(RodentDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(RodentAnatomyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(FlyDiagnostic);

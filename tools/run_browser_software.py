@@ -569,6 +569,7 @@ def validate_frog_report(report):
         or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
         or len(set(frames))!=2
         or "ten stream and wetland frogs rest, hop, and retreat in the shared butterfly batch" not in log
+        or "near frogs use solid folded legs, separated webbed toes, rounded eye sockets, fitted irises, nostrils, and a mouth line" not in log
         or "frog QA camera frames one resting stream-bank animal" not in log
         or not re.search(r"frogs [1-9][0-9]*/10 visible in shared draw",log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):

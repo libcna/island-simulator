@@ -919,6 +919,7 @@ try {
               && log.includes("dragonfly QA camera frames one visible wet-habitat insect broadside")
               && /dragonflies [1-9]\/9 visible in shared draw/.test(log)))
             && (!focusedFrogCheck || (log.includes("ten stream and wetland frogs rest, hop, and retreat in the shared butterfly batch")
+              && log.includes("near frogs use solid folded legs, separated webbed toes, rounded eye sockets, fitted irises, nostrils, and a mouth line")
               && log.includes("frog QA camera frames one resting stream-bank animal")
               && /frogs [1-9][0-9]*\/10 visible in shared draw/.test(log)))
             && (!focusedRodentCheck || (log.includes("twelve field mice and eight rats forage, scurry, and hide in the shared small-fauna batch")

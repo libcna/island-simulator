@@ -213,6 +213,28 @@ The first rejected native view exposed gold whole-eye volumes and threadlike rea
 confirmed the corrected attached eyes and stronger legs but viewed the face from behind. The
 accepted front-quarter view uses the exact final geometry and camera.
 
+### Solid frog anatomy pass — 2026-10-16
+
+A later close-animal audit found that all folded legs and toes were still double-sided cards and
+collapsed into wires, while the gold eye geometry read as angular horns. Upper and lower hind legs,
+ankles, forelegs and toes are now closed tapered volumes. The rear foot carries three separated
+toes and two restrained triangular web membranes. Green outer eye sockets now hold fitted
+octagonal gold irises, vertical dark pupils and highlights; two nostrils and a shallow mouth line
+identify the front of the broad head. Existing hop extension, breathing, scale, palettes, habitat,
+ten-agent controller and shared single draw remain unchanged.
+
+One detailed animal uses exactly 1,422 vertices inside its 1,700-vertex slot. Conservative
+full-population capacity grows from 7,200 to 17,000 vertices, adding 156,800 bytes to the shared
+dynamic buffer. Inspected baseline `build-consumer/software-captures/20261016T150116.996219Z-frogs`
+and accepted native evidence `build-consumer/software-captures/20261016T151748.270949Z-frogs`
+show the corrected anatomy; accepted metrics are 202 colour bins, 22.70 luminance deviation, 95.82
+spatial contrast and kernel `[]`. Core and all 45 browser/capture harness tests pass.
+Chrome/SwiftShader `build/browser-software/20261016T151957.839440Z-chrome-frogs` passes two distinct
+separated-time frames, 60 finite intervals, GL0, a live context and kernel `[]`. WebAssembly and
+Android ARM64 assemble/lint pass without an emulator or KVM; the APK is 24,687,203 bytes with
+SHA-256 `82eb640bf2ed04aab1c63e2d021ecc2366264602896beeb53d431f15617a5e93` and contains a
+19,644,632-byte stripped `libmain.so`.
+
 Each gecko owns a compact 5.2--6.1 m home range in one of the two clearings, near the seasonal
 wetland, or on suitable inland ground. Placement rejects beach proximity, steep slopes and invalid
 surface classes. The three-state simulation rests, briefly scurries away when the player comes

@@ -112,6 +112,28 @@ hard grass/bush wall at a tier boundary; WebGL remains live, GL error is zero, t
 error is 1.075 m and kernel monitoring is clean. This is representative motion evidence, not a
 mathematical all-view aliasing proof.
 
+## Latest frog visual pass — folded legs, webbed feet and readable face
+
+The next close-animal audit selected the frog. Its broad body already read as an amphibian, but
+card-built legs and toes collapsed into wires, the long straight forelimbs lacked joints, and the
+gold eye geometry read as angular horns. Upper and lower hind legs, ankle sections, forelegs and
+all toes are now closed tapered volumes. The rear toes are visibly separated by two restrained
+web membranes per foot. Eye sockets retain a green exterior but receive fitted octagonal gold
+irises, vertical dark pupils and highlights; two nostrils and a shallow two-part mouth line make
+the front of the head readable. Existing folded/hop extension, breathing, colours, habitat,
+ten-agent simulation and one-draw sharing are unchanged.
+
+One detailed frog now uses exactly 1,422 vertices inside its 1,700-vertex slot. Conservative
+full-population capacity grows from 7,200 to 17,000 vertices, adding 156,800 bytes to the shared
+dynamic buffer. The inspected baseline `20261016T150116.996219Z-frogs` and accepted native
+`20261016T151748.270949Z-frogs` show the corrected legs, webbing and face; accepted evidence passes
+at 202 colour bins, 22.70 luminance deviation, 95.82 spatial contrast and kernel `[]`. Core and all
+45 browser/capture harness tests pass. Chrome/SwiftShader
+`20261016T151957.839440Z-chrome-frogs` passes two distinct frames, 60 finite intervals, GL0, a live
+context and kernel `[]`. WebAssembly and Android ARM64 assemble/lint pass; the APK is 24,687,203
+bytes with a 19,644,632-byte packaged library and SHA-256
+`82eb640bf2ed04aab1c63e2d021ecc2366264602896beeb53d431f15617a5e93`. No emulator/KVM was used.
+
 ## Latest skink visual pass — solid limbs, toes and segmented tail
 
 The next close-animal comparison selected the skink over the current frog. Its elongated striped

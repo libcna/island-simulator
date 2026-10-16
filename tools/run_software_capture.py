@@ -1189,6 +1189,8 @@ def main():
             if args.viewpoint == "frogs":
                 if "ten stream and wetland frogs rest, hop, and retreat in the shared butterfly batch" not in diagnostics:
                     raise RuntimeError("current frog renderer is missing; check for a stale executable")
+                if "near frogs use solid folded legs, separated webbed toes, rounded eye sockets, fitted irises, nostrils, and a mouth line" not in diagnostics:
+                    raise RuntimeError("current frog anatomy is missing; check for a stale executable")
                 if "frog QA camera frames one resting stream-bank animal" not in diagnostics:
                     raise RuntimeError("current frog inspection composition is missing")
                 if not re.search(r"frogs [1-9][0-9]*/10 visible in shared draw", diagnostics):

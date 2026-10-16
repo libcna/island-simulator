@@ -17,6 +17,27 @@ from gpu_incident_qualification import contained_command
 
 
 class BrowserSoftwareTests(unittest.TestCase):
+    def test_frog_scope_requires_solid_anatomy(self):
+        anatomy = ("near frogs use solid folded legs, separated webbed toes, rounded eye "
+                   "sockets, fitted irises, nostrils, and a mouth line")
+        markers = "\n".join((
+            "ten stream and wetland frogs rest, hop, and retreat in the shared butterfly batch",
+            anatomy,
+            "frog QA camera frames one resting stream-bank animal",
+            "frogs 1/10 visible in shared draw"))
+        def report():
+            return {"passed": True, "views": [{"mode": "frogs", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": "frog.png", "afterSimulationScreenshot": "frog-after.png",
+                "intervals": [16.7] * 60,
+                "result": {"output": markers, "error": "", "exited": False}}]}
+        self.assertEqual(gate.validate_frog_report(report()),
+                         ("frog.png", "frog-after.png"))
+        missing = report()
+        missing["views"][0]["result"]["output"] = markers.replace(anatomy + "\n", "")
+        with self.assertRaises(RuntimeError):
+            gate.validate_frog_report(missing)
+
     def test_skink_scope_requires_solid_limbs_and_tail(self):
         solid = ("skinks use solid tapered leg, toe, and five-section tail volumes "
                  "with surface-set highlighted eyes")
