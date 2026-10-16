@@ -45,6 +45,8 @@ namespace island
             "island-simulator: near crocodiles use raised eyes, nostrils, separate jaws, teeth, dorsal osteoderms, and wet mottled facet shading, with multi-section rounded snouts and lateral eyes";
         constexpr std::string_view ArmorDiagnostic =
             "island-simulator: crocodile armor uses low paired trunk scutes that merge into a diminishing articulated tail keel";
+        constexpr std::string_view SkinDiagnostic =
+            "island-simulator: near crocodile torso, tail, skull, jaw, and limb roots use bounded reticulated facet pigment";
 
         struct Palette
         {
@@ -62,6 +64,15 @@ namespace island
              Color(57, 55, 30), Color(113, 101, 57), Color(91, 38, 28),
              Color(225, 213, 169), Color(190, 159, 76), Color(17, 15, 8)}
         }};
+
+        [[nodiscard]] Color ScalePigment(const Color& color,const float scale)
+        {
+            const auto channel=[scale](const int value) {
+                return static_cast<int>(std::clamp(std::lround(value*scale),0L,255L));
+            };
+            return Color(channel(color.getRProperty()),channel(color.getGProperty()),
+                         channel(color.getBProperty()),static_cast<int>(color.getAProperty()));
+        }
 
         struct Axes { Vector3 right, up, forward; };
 
@@ -110,7 +121,9 @@ namespace island
                              const Vector3& centre, const Axes& axes, const float scale,
                              const float radiusX, const float radiusY, const float radiusZ,
                              const Color& upper, const Color& lower,
-                             const int rings = 5, const int segments = 12)
+                             const int rings = 5, const int segments = 12,
+                             const float pigmentVariation = 0.0f,
+                             const int pigmentSeed = 0)
         {
             for (int ring=0; ring<rings; ++ring) {
                 const float v0=-.5f*std::numbers::pi_v<float>
@@ -126,7 +139,14 @@ namespace island
                         return Local(centre,axes,std::cos(v)*std::cos(u)*radiusX,
                             std::sin(v)*radiusY,std::cos(v)*std::sin(u)*radiusZ,scale);
                     };
-                    const Color color=(v0+v1)*.5f>0?upper:lower;
+                    const Color base=(v0+v1)*.5f>0?upper:lower;
+                    // Two incommensurate row/column waves produce bounded irregular
+                    // quadrilateral scale fields without another texture, vertex or draw.
+                    const float patch=.68f*std::sin((ring+1)*2.17f+(segment+1)*3.71f
+                                                    +pigmentSeed*.91f)
+                        +.32f*std::cos((ring+1)*4.03f-(segment+1)*1.43f
+                                      +pigmentSeed*1.27f);
+                    const Color color=ScalePigment(base,1.0f+pigmentVariation*patch);
                     AddQuad(vertices,surface(u0,v0),surface(u0,v1),surface(u1,v1),
                             surface(u1,v0),color);
                 }
@@ -158,7 +178,8 @@ namespace island
                                const Vector3& a,const Vector3& b,const Axes& axes,
                                const float widthA,const float heightA,
                                const float widthB,const float heightB,
-                               const Color& color)
+                               const Color& color,const float pigmentVariation=0.0f,
+                               const int pigmentSeed=0)
         {
             constexpr int Sides=12;
             for(int i=0;i<Sides;++i) {
@@ -174,7 +195,10 @@ namespace island
                     +axes.up*(std::sin(angle0)*heightB);
                 const Vector3 b1=b+axes.right*(std::cos(angle1)*widthB)
                     +axes.up*(std::sin(angle1)*heightB);
-                AddQuad(vertices,a0,a1,b1,b0,color);
+                const float patch=.66f*std::sin((i+1)*2.43f+pigmentSeed*.83f)
+                    +.34f*std::cos((i+1)*4.19f-pigmentSeed*1.31f);
+                AddQuad(vertices,a0,a1,b1,b0,
+                        ScalePigment(color,1.0f+pigmentVariation*patch));
             }
         }
 
@@ -187,9 +211,9 @@ namespace island
             const float scale=crocodile.scale;
             // Low barrel torso and heavy shoulder mass.
             AppendEllipsoid(vertices,Local(centre,axes,0,.34f,-.18f,scale),axes,scale,
-                            .68f,.37f,1.28f,palette.back,palette.belly,7,14);
+                            .68f,.37f,1.28f,palette.back,palette.belly,7,14,.12f,3);
             AppendEllipsoid(vertices,Local(centre,axes,0,.35f,.72f,scale),axes,scale,
-                            .63f,.32f,.72f,palette.back,palette.side,5,14);
+                            .63f,.32f,.72f,palette.back,palette.side,5,14,.10f,11);
 
             // The tapering tail bends visibly during swimming instead of reading as a rigid cone.
             Vector3 previous=Local(centre,axes,0,.27f,-1.18f,scale);
@@ -203,14 +227,14 @@ namespace island
                 const float width=(.47f*(1.0f-t)+.025f)*scale;
                 const float height=(.28f*(1.0f-t)+.018f)*scale;
                 AppendTailSegment(vertices,previous,next,axes,previousWidth,previousHeight,
-                                  width,height,palette.side);
+                                  width,height,palette.side,.10f,section);
                 previous=next;previousWidth=width;previousHeight=height;
             }
 
             // Broad, shallow saltwater-crocodile skull and independently opening lower jaw.
             const Vector3 skull=Local(centre,axes,0,.39f,1.25f,scale);
             AppendEllipsoid(vertices,skull,axes,scale,.58f,.29f,.70f,
-                            palette.back,palette.jaw,5,14);
+                            palette.back,palette.jaw,5,14,.10f,17);
             // Four shallow elliptical stations replace the old rectangular upper
             // wedge. They keep the broad saltwater-crocodile proportions while
             // rounding the cheek-to-muzzle transition and tapering the nasal tip.
@@ -223,10 +247,11 @@ namespace island
                     Local(centre,axes,0,upperY[section],upperZ[section],scale),
                     Local(centre,axes,0,upperY[section+1],upperZ[section+1],scale),axes,
                     upperWidth[section]*scale,upperHeight[section]*scale,
-                    upperWidth[section+1]*scale,upperHeight[section+1]*scale,palette.side);
+                    upperWidth[section+1]*scale,upperHeight[section+1]*scale,palette.side,
+                    .09f,20+static_cast<int>(section));
             }
             AppendEllipsoid(vertices,Local(centre,axes,0,.36f,2.43f,scale),axes,scale,
-                            .355f,.12f,.17f,palette.side,palette.jaw,4,12);
+                            .355f,.12f,.17f,palette.side,palette.jaw,4,12,.08f,23);
             const float gape=crocodile.jawOpen;
             const Axes jawAxes{axes.right,axes.up,axes.forward};
             const Vector3 lowerJawCentre=centre-axes.up*(gape*.18f*scale);
@@ -239,7 +264,8 @@ namespace island
                     Local(lowerJawCentre,jawAxes,0,jawY[section],jawZ[section],scale),
                     Local(lowerJawCentre,jawAxes,0,jawY[section+1],jawZ[section+1],scale),
                     jawAxes,jawWidth[section]*scale,jawHeight[section]*scale,
-                    jawWidth[section+1]*scale,jawHeight[section+1]*scale,palette.jaw);
+                    jawWidth[section+1]*scale,jawHeight[section+1]*scale,palette.jaw,
+                    .07f,30+static_cast<int>(section));
             }
             if(gape>.012f) {
                 const auto mouthPoint=[&](const float x,const float z) {
@@ -345,7 +371,8 @@ namespace island
                     const float rootHeight=(pair==0?.14f:.16f)*scale;
                     const float rootLength=(pair==0?.28f:.30f)*scale;
                     AppendEllipsoid(vertices,shoulder,axes,1.0f,rootWidth,rootHeight,rootLength,
-                                    palette.back,palette.side,3,8);
+                                    palette.back,palette.side,3,8,.09f,
+                                    41+pair*2+(sideIndex>0?1:0));
                     AppendTaperedSegment(vertices,shoulder,elbow,.17f*scale,.125f*scale,palette.side,8);
                     AppendTaperedSegment(vertices,elbow,wrist,.125f*scale,.075f*scale,palette.side,8);
                     for(int toe=0;toe<3;++toe) {
@@ -398,10 +425,12 @@ namespace island
         effect_->setFogStartProperty(135.0f);
         effect_->setFogEndProperty(260.0f);
         stagingVertices_.reserve(MaximumVertexCount);
-        std::cout<<FormDiagnostic<<'\n'<<DetailDiagnostic<<'\n'<<ArmorDiagnostic<<'\n';
+        std::cout<<FormDiagnostic<<'\n'<<DetailDiagnostic<<'\n'<<ArmorDiagnostic<<'\n'
+                 <<SkinDiagnostic<<'\n';
         MirrorRuntimeDiagnosticToPlatformLog(FormDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(DetailDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ArmorDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(SkinDiagnostic);
     }
 
     CrocodileRenderer::~CrocodileRenderer()=default;

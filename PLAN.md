@@ -235,6 +235,22 @@ world/core/capture tests pass. Inspected Chrome/SwiftShader
 `20261016T055151.536764Z-chrome-goats` shows four distinct current-habitat frames and passes 60
 finite intervals, GL0, a live context and kernel `[]`. Details are in `docs/goats.md`.
 
+## Latest crocodile visual pass — reticulated facet pigment
+
+The current twelve-species matrix selected the crocodile's large uniformly coloured flank and jaw
+planes as the weakest remaining close animal surface. Existing near torso, shoulder, skull, nasal
+cap, upper/lower jaw sections, articulated tail and four limb-root masses now receive bounded
+deterministic pigment variation from two non-repeating row/column fields. Fixed-sun facet lighting
+remains separate; the result reads as restrained scale-like breakup rather than painted stripes.
+
+The pass adds no geometry, sampled texture, shader, buffer, simulation or draw, and the far LOD is
+unchanged. Five focused native groups and 41 browser/capture tests pass. Inspected native baseline
+`20261016T004505.743320Z-crocodiles` and accepted `20261016T070838.194430Z-crocodiles` show the
+flat flank replaced by irregular surface patches; the accepted image passes at 315 colour bins,
+39.23 luminance deviation, 153.94 spatial contrast and kernel `[]`. Inspected Chrome/SwiftShader
+`20261016T071135.535809Z-chrome-crocodiles` passes two distinct motion frames, 60 finite positive
+intervals, GL0, a live context, one draw and kernel `[]`. Details are in `docs/crocodiles.md`.
+
 ## Latest terrain overview pass — second far-silhouette material fade
 
 The renewed current overview found that the previous 0.30 aerial endpoints still became repeated

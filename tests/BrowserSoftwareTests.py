@@ -553,6 +553,8 @@ class BrowserSoftwareTests(unittest.TestCase):
                    "and lateral eyes")
         armor = ("crocodile armor uses low paired trunk scutes that merge into a diminishing "
                  "articulated tail keel")
+        pigment = ("near crocodile torso, tail, skull, jaw, and limb roots use bounded "
+                   "reticulated facet pigment")
         camera = "crocodile QA camera frames an estuary animal broadside"
         def report():
             return {"passed": True, "views": [{"mode": "crocodiles", "passed": True,
@@ -560,7 +562,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                 "screenshot": "crocodiles.png",
                 "afterSimulationScreenshot": "crocodiles-after.png",
                 "intervals": [16.7] * 60,
-                "result": {"output": silhouette + "\n" + surface + "\n" + armor + "\n" + camera
+                "result": {"output": silhouette + "\n" + surface + "\n" + armor + "\n" + pigment + "\n" + camera
                     + "\ncrocodiles 1/3 visible (near 1, far 0), 1 draw"}}]}
         self.assertEqual(gate.validate_crocodile_report(report()),
                          ("crocodiles.png", "crocodiles-after.png"))
@@ -569,14 +571,17 @@ class BrowserSoftwareTests(unittest.TestCase):
             lambda value: value["views"][0].update(glError=1282),
             lambda value: value["views"][0].update(contextLost=True),
             lambda value: value["views"][0].update(intervals=[16.7] * 59),
-            lambda value: value["views"][0]["result"].update(output=surface + "\n" + armor + "\n" + camera
+            lambda value: value["views"][0]["result"].update(output=surface + "\n" + armor + "\n" + pigment + "\n" + camera
                 + "\ncrocodiles 1/3 visible (near 1, far 0), 1 draw"),
-            lambda value: value["views"][0]["result"].update(output=silhouette + "\n" + armor + "\n" + camera
+            lambda value: value["views"][0]["result"].update(output=silhouette + "\n" + armor + "\n" + pigment + "\n" + camera
                 + "\ncrocodiles 1/3 visible (near 1, far 0), 1 draw"),
             lambda value: value["views"][0]["result"].update(output=silhouette + "\n" + surface
-                + "\n" + camera + "\ncrocodiles 1/3 visible (near 1, far 0), 1 draw"),
+                + "\n" + pigment + "\n" + camera + "\ncrocodiles 1/3 visible (near 1, far 0), 1 draw"),
             lambda value: value["views"][0]["result"].update(output=silhouette + "\n" + surface
-                + "\n" + armor
+                + "\n" + armor + "\n" + camera
+                + "\ncrocodiles 1/3 visible (near 1, far 0), 1 draw"),
+            lambda value: value["views"][0]["result"].update(output=silhouette + "\n" + surface
+                + "\n" + armor + "\n" + pigment
                 + "\n" + camera + "\ncrocodiles 0/3 visible (near 0, far 0), 0 draw"),
         ):
             invalid = report(); mutate(invalid)

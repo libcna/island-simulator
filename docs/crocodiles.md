@@ -14,6 +14,29 @@ lower jaw, mouth, teeth, embedded lateral eyes, pupils and nostrils, paired dors
 splayed articulated legs with toes. Land gait alternates the feet; swimming increases the tail
 wave and lowers the body toward the water. Beyond 86 m a reduced long-body silhouette is used.
 
+### Reticulated facet pigment — 2026-10-16
+
+The renewed twelve-species matrix retained the crocodile's broad skull, lateral eyes, low trunk
+armor and articulated limbs but selected its large uniformly coloured side planes as the weakest
+remaining close surface. The existing near torso, shoulder, skull, nasal cap, three upper-jaw
+sections, three lower-jaw sections, twelve tail sections and four buried limb-root volumes now
+receive deterministic irregular pigment modulation. Two incommensurate row/column fields keep the
+variation bounded and prevent repeating stripes; existing fixed-sun facet light remains separate.
+
+This is vertex pigment on the geometry already submitted, not a sampled texture or normal map. It
+adds no vertex, triangle, texture, buffer, shader, simulation or draw work, and the far LOD remains
+calm. Five focused native groups and all 41 browser/capture harness tests pass. Inspected native
+baseline `20261016T004505.743320Z-crocodiles` and accepted
+`20261016T070838.194430Z-crocodiles` show the former flat flank replaced by restrained scale-like
+patches without obscuring the belly, teeth, eyes or armor. The accepted 1280x720 frame passes at
+315 colour bins, 39.23 luminance deviation, 153.94 spatial contrast and kernel `[]`.
+
+Inspected Chrome 155/SwiftShader
+`build/browser-software/20261016T071135.535809Z-chrome-crocodiles` passes two distinct motion
+frames. The front-quarter and broadside views both retain the irregular pigment through pose
+changes; 60 finite positive intervals, GL error zero, a live context, one crocodile draw and
+kernel `[]` pass.
+
 ### Low trunk armor and tail keel — 2026-10-16
 
 A later full-animal comparison retained the rounded jaws and attached legs but selected the nine
