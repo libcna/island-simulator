@@ -84,6 +84,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             "helicopter realism pass adds a rounded chin and tail-root fairing, twelve-sided six-station tail boom, maintenance seams, engine intakes, shaped cushions, harnesses, centre pedestal, and overhead console",
             "helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry",
             "helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen",
+            "helicopter divided windscreen carries paired articulated parked wipers and restrained translucent sky glints",
             "parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep",
             "lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands",
             "helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs",

@@ -151,6 +151,7 @@ def validate_helicopter_report(report):
             or "helicopter realism pass adds a rounded chin and tail-root fairing, twelve-sided six-station tail boom, maintenance seams, engine intakes, shaped cushions, harnesses, centre pedestal, and overhead console" not in log
             or "helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry" not in log
             or "helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen" not in log
+            or "helicopter divided windscreen carries paired articulated parked wipers and restrained translucent sky glints" not in log
             or "parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep" not in log
             or "lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands" not in log
             or "helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs" not in log

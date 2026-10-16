@@ -1,5 +1,22 @@
 # Grounded helicopter
 
+## Articulated windscreen equipment — 2026-10-16
+
+The next exterior audit accepted the rounded canopy, open doors, transmission and interior, but
+selected the broad uniformly blue windscreen as the remaining weak close surface. Each divided
+front pane now carries a parked two-link wiper with a separate pivot and blade, plus one restrained
+translucent sky-glint ribbon. These are real surface details rather than a texture decal, so the
+familiar scale and curvature cue remains readable as the player walks around the aircraft.
+
+The additions cost 156 triangles, raising the complete helicopter from 5,472 to 5,628 triangles in
+the same opaque/glass two draws. Placement, four open entry corridors, supported cabin floor,
+collision and the deliberately grounded non-flying state remain unchanged. Native exterior
+evidence `20261016T040146.543875Z-helicopter` passes at 1280x720 with 314 colour bins, 54.77
+luminance deviation and 232.22 spatial contrast; interior guard
+`20261016T040213.276263Z-helicopter-inside` passes at 184/21.71/78.13. Both have empty kernel
+deltas. Focused Chrome/SwiftShader evidence `20261016T040330.401017Z-chrome-helicopter` passes
+both views with 60 finite positive intervals, GL error zero, live contexts and kernel `[]`.
+
 ## Layered readable flight instruments — 2026-10-16
 
 The renewed paired exterior/interior audit retained the recognisable airframe, rounded seating and

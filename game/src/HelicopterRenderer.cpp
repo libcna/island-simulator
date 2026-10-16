@@ -383,6 +383,26 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     ellipsoid({0,.87f,2.36f},{.57f,.23f,.36f},4,16,olive);
     beam({-.59f,1.03f,2.47f},{.59f,1.03f,2.47f},.055f,oliveDark);
 
+    // Parked paired wipers give the broad canopy a familiar mechanical scale cue.
+    // Their articulated arms sit just ahead of the generated glass instead of being
+    // painted into it, while two deliberately restrained translucent ribbons break
+    // up the otherwise uniform pane without pretending to mirror the whole sky.
+    for(const float side:{-1.0f,1.0f}) {
+        const Vector3 pivot(side*.25f,1.095f,2.492f);
+        const Vector3 elbow(side*.34f,1.32f,2.402f);
+        const Vector3 tip(side*.13f,1.70f,2.225f);
+        ellipsoid(pivot,{.041f,.033f,.029f},3,8,metal,Surface::Metal);
+        tube(pivot,elbow,.016f,rubber,Surface::Rubber);
+        tube(elbow,tip,.013f,rubber,Surface::Rubber);
+        beam(tip-Vector3(.12f*side,.055f,-.018f),
+             tip+Vector3(.12f*side,.055f,-.018f),.014f,rubber,Surface::Rubber);
+
+        const Color reflection(151,196,204,38);
+        quad({side*.11f,1.77f,2.194f},{side*.22f,1.80f,2.205f},
+             {side*.47f,1.55f,2.326f},{side*.39f,1.50f,2.350f},
+             reflection,Surface::Glass);
+    }
+
     // Flat walkable floor, two-stage door sills and visible frames match collision support.
     box({-.78f,.405f,-1.78f},{.78f,.455f,1.48f},interior,Surface::Cabin);
     for(const float side:{-1.0f,1.0f})for(const auto& door:
@@ -856,6 +876,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<smoothSurfaces<<'\n';MirrorRuntimeDiagnosticToPlatformLog(smoothSurfaces);
     const std::string bubble="island-simulator: helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen";
     std::cout<<bubble<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bubble);
+    const std::string glazingDetail="island-simulator: helicopter divided windscreen carries paired articulated parked wipers and restrained translucent sky glints";
+    std::cout<<glazingDetail<<'\n';MirrorRuntimeDiagnosticToPlatformLog(glazingDetail);
     const std::string bladeShape="island-simulator: parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep";
     std::cout<<bladeShape<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bladeShape);
     const std::string tailRotorShape="island-simulator: lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands";

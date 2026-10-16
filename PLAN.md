@@ -175,7 +175,23 @@ four-animal ceiling; the retained failed attempt remains, while the corrected cu
 with the tree view bounded by the renderer's nearest-16 cap. Physical Android appearance remains open behind the
 independent shared dependency revision mismatch above.
 
-## Latest helicopter exterior pass — rounded rotor transmission
+## Latest helicopter exterior pass — articulated windscreen equipment
+
+The next exterior audit accepted the rounded canopy, open doors, transmission and interior, but
+selected the broad uniformly blue windscreen as the remaining weak close surface. Both divided
+front panes now carry parked two-link wipers with separate pivots and blades, plus restrained
+translucent sky-glint ribbons. The additions cost 156 triangles, taking the complete procedural
+helicopter from 5,472 to 5,628 triangles in the unchanged opaque/glass two draws. Placement, four
+open entry corridors, collision, supported floor and grounded non-flying state are unchanged.
+
+Inspected native evidence `20261016T040146.543875Z-helicopter` passes at 314 colour bins, 54.77
+luminance deviation and 232.22 spatial contrast; interior guard
+`20261016T040213.276263Z-helicopter-inside` passes at 184/21.71/78.13. Both report empty kernel
+deltas. Focused Chrome/SwiftShader `20261016T040330.401017Z-chrome-helicopter` passes both views
+with 60 finite positive intervals each, GL0, live contexts and kernel `[]`. Native build, 41
+browser/capture harness tests and WebGL build pass under the three-worker cap.
+
+## Earlier helicopter exterior pass — rounded rotor transmission
 
 The next same-camera exterior audit retained the recognisable cabin and open access but selected the
 oversized square mast column and box-shaped rotor gearbox as the weakest remaining mechanical

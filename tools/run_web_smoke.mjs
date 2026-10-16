@@ -839,6 +839,7 @@ try {
               && log.includes("helicopter realism pass adds a rounded chin and tail-root fairing, twelve-sided six-station tail boom, maintenance seams, engine intakes, shaped cushions, harnesses, centre pedestal, and overhead console")
               && log.includes("helicopter curved shell uses analytic per-vertex lighting across the canopy, cowling, tail boom, fairings, and cushions without added geometry")
               && log.includes("helicopter cockpit uses a fuller nine-station longitudinal bubble and a progressively wrapped lower windscreen")
+              && log.includes("helicopter divided windscreen carries paired articulated parked wipers and restrained translucent sky glints")
               && log.includes("parked main rotor uses three-span quadratic blade droop, progressive chord taper, and restrained tip sweep")
               && log.includes("lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands")
               && log.includes("helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs")
