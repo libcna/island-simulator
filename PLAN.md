@@ -148,6 +148,24 @@ passes 60 finite positive intervals, GL0, a live context and kernel `[]`. The br
 `20261016T043640.536564Z-chrome-coast` attempt exceeded its multi-scene software timeout and is
 explicitly rejected. Details are in `docs/reef-seabed.md`.
 
+## Latest dolphin visual pass — falcate dorsal and rounded forked flukes
+
+The next bear/dolphin comparison accepted the bear's fur, face and planted anatomy but selected the
+dolphin's coarse broadside silhouette. Its dorsal now uses a lower rear-swept ten-point falcate
+curve, each horizontal fluke has an eight-point rounded outline and both pectorals use a corrected
+nine-point curved contour. The rostrum extends to a narrower rounded cap and all three palettes
+carry brighter ventral pigment with a stronger swept lower-flank transition. An intermediate
+long-pectoral capture was rejected because the banked near fin appeared oversized; the final span
+is deliberately restrained.
+
+The close budget rises from 3,168 to 3,300 vertices while the 15-vertex far form, four-agent pod,
+one draw, habitat and cruise/surface/dive motion stay unchanged. Native evidence
+`20261016T045838.259438Z-dolphins` passes at 146 colour bins, 44.90 luminance deviation and 214.08
+spatial contrast with kernel `[]`. Core, dolphin-pod, capture and 41 browser/capture harness tests
+pass. Focused Chrome/SwiftShader `20261016T050134.095522Z-chrome-dolphins` passes two distinct
+frames, 60 finite positive intervals, GL0, a live context and kernel `[]`. Details are in
+`docs/dolphins.md`.
+
 The current Firefox qualification exposed a real beach-start regression rather than a renderer
 failure: the relocated firewood collision sat 1.73 m ahead of the old `(0,-225)` start and rejected
 forward movement. The player now starts at `(4,-225)` inside the unchanged 17 m reserved beach

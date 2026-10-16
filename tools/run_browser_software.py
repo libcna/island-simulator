@@ -301,7 +301,8 @@ def validate_dolphin_report(report):
         or "dolphin skin pass uses continuous axial pigment, a pale swept lower flank, restrained tonal variation, a longer rounded rostrum, and softer swept fins" not in log
         or "near dolphins use a slimmer fusiform midbody, narrower bottlenose rostrum, stronger countershading, a taller falcate dorsal, and root-thickened tapered fins and flukes" not in log
         or "near dolphins use narrow curved-back pectorals and a restrained fitted lower-jaw mouth seam" not in log
-        or "dolphin near/far geometry 3168/15 vertices, closed fins and CPU faceted daylight" not in log
+        or "dolphin silhouette pass uses a ten-point falcate dorsal, nine-point curved pectorals, eight-point forked flukes, and brighter swept ventral countershading" not in log
+        or "dolphin near/far geometry 3300/15 vertices, closed fins and CPU faceted daylight" not in log
         or not re.search(r"dolphins [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("dolphin view lacks current anatomy, frames or clean graphics state")

@@ -95,7 +95,7 @@ Color SmoothBodyColor(const std::array<Color, 4> &colors, const Axes &axes,
   const float headToShoulder = std::clamp((axialPosition + .48f) / 1.20f,
                                           0.0f, 1.0f);
   const float lowerFlank = std::clamp((.34f - vertical) / .82f, 0.0f, 1.0f);
-  const float flankFlash = sideFacing * headToShoulder * lowerFlank * .24f;
+  const float flankFlash = sideFacing * headToShoulder * lowerFlank * .34f;
   Color pigment = Color::Lerp(BodyColor(colors, vertical), colors[2], flankFlash);
   const float phase = static_cast<float>(colorVariant % 3U) * 1.71f;
   const float skinVariation = 1.0f
@@ -155,12 +155,12 @@ Vector3 Point(const Vector3 &centre, const Axes &axes, float x, float y,
 
 std::array<Color, 4> Palette(const DolphinState &dolphin, float time) {
   const std::array<std::array<Color, 4>, 3> colors{
-      {std::array{Color(105, 124, 132, 255), Color(87, 107, 117, 255),
-                  Color(154, 168, 168, 255), Color(20, 28, 33, 255)},
-       std::array{Color(112, 128, 133, 255), Color(92, 110, 118, 255),
-                  Color(160, 171, 165, 255), Color(18, 27, 31, 255)},
-       std::array{Color(96, 118, 132, 255), Color(78, 101, 116, 255),
-                  Color(148, 166, 171, 255), Color(17, 25, 30, 255)}}};
+      {std::array{Color(105, 124, 132, 255), Color(82, 103, 114, 255),
+                  Color(184, 194, 190, 255), Color(20, 28, 33, 255)},
+       std::array{Color(112, 128, 133, 255), Color(87, 106, 116, 255),
+                  Color(190, 198, 188, 255), Color(18, 27, 31, 255)},
+       std::array{Color(96, 118, 132, 255), Color(74, 97, 113, 255),
+                  Color(178, 193, 196, 255), Color(17, 25, 30, 255)}}};
   auto result = colors[dolphin.colorVariant % colors.size()];
   const auto light = AquaticLightAt(dolphin.x, dolphin.y, dolphin.z, time);
   for (auto &color : result)
@@ -229,10 +229,10 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
         * static_cast<float>(segment) / static_cast<float>(RostrumSegments);
     rostrumBase[segment] = Point(centre, axes, .096f * std::cos(angle),
         -.033f + .068f * std::sin(angle), .890f, scale);
-    rostrumTip[segment] = Point(centre, axes, .052f * std::cos(angle),
-        -.044f + .046f * std::sin(angle), 1.300f, scale);
+    rostrumTip[segment] = Point(centre, axes, .046f * std::cos(angle),
+        -.044f + .042f * std::sin(angle), 1.420f, scale);
   }
-  const auto rostrumCap = Point(centre, axes, 0, -.044f, 1.350f, scale);
+  const auto rostrumCap = Point(centre, axes, 0, -.044f, 1.475f, scale);
   for (int segment = 0; segment < RostrumSegments; ++segment) {
     const int next = (segment + 1) % RostrumSegments;
     const float angle = 2.0f * std::numbers::pi_v<float>
@@ -255,41 +255,51 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
   // edge-on like the former coincident sheet.
   const std::array dorsal{
       Point(centre, axes, 0, .185f, .20f, scale),
-      Point(centre, axes, 0, .275f, .10f, scale),
-      Point(centre, axes, 0, .365f, -.025f, scale),
-      Point(centre, axes, 0, .395f, -.095f, scale),
-      Point(centre, axes, 0, .345f, -.135f, scale),
-      Point(centre, axes, 0, .245f, -.240f, scale),
-      Point(centre, axes, 0, .175f, -.390f, scale)};
-  const std::array<float, 7> dorsalThickness{{.022f*scale,.018f*scale,
-      .012f*scale,.008f*scale,.010f*scale,.016f*scale,.022f*scale}};
+      Point(centre, axes, 0, .235f, .12f, scale),
+      Point(centre, axes, 0, .285f, .030f, scale),
+      Point(centre, axes, 0, .330f, -.070f, scale),
+      Point(centre, axes, 0, .360f, -.160f, scale),
+      Point(centre, axes, 0, .330f, -.190f, scale),
+      Point(centre, axes, 0, .290f, -.210f, scale),
+      Point(centre, axes, 0, .250f, -.250f, scale),
+      Point(centre, axes, 0, .205f, -.320f, scale),
+      Point(centre, axes, 0, .170f, -.420f, scale)};
+  const std::array<float, 10> dorsalThickness{{.022f*scale,.020f*scale,
+      .016f*scale,.011f*scale,.007f*scale,.008f*scale,.010f*scale,
+      .014f*scale,.018f*scale,.022f*scale}};
   ClosedTaperedPolygon(out,dorsal,axes.right,dorsalThickness,colors[0],colors[1]);
   for (float side : {-1.0f, 1.0f}) {
     // Long narrow pectorals follow the lower flank and sweep rearward.  The former
     // broad seven-point plate overpowered the head/body in close broadside views.
     const std::array fin{
         Point(centre, axes, side * .17f, -.055f, .34f, scale),
-        Point(centre, axes, side * .225f, -.076f, .275f, scale),
-        Point(centre, axes, side * .292f, -.102f, .155f, scale),
-        Point(centre, axes, side * .355f, -.128f, .015f, scale),
-        Point(centre, axes, side * .322f, -.139f, -.105f, scale),
-        Point(centre, axes, side * .238f, -.126f, -.178f, scale),
-        Point(centre, axes, side * .145f, -.096f, -.105f, scale)};
-    const std::array<float, 7> finThickness{{.027f*scale,.021f*scale,
-        .014f*scale,.007f*scale,.012f*scale,.020f*scale,.028f*scale}};
+        Point(centre, axes, side * .220f, -.072f, .285f, scale),
+        Point(centre, axes, side * .300f, -.095f, .195f, scale),
+        Point(centre, axes, side * .370f, -.114f, .080f, scale),
+        Point(centre, axes, side * .405f, -.126f, -.025f, scale),
+        Point(centre, axes, side * .360f, -.130f, -.110f, scale),
+        Point(centre, axes, side * .270f, -.122f, -.180f, scale),
+        Point(centre, axes, side * .190f, -.104f, -.165f, scale),
+        Point(centre, axes, side * .140f, -.085f, -.080f, scale)};
+    const std::array<float, 9> finThickness{{.027f*scale,.022f*scale,
+        .017f*scale,.011f*scale,.006f*scale,.008f*scale,.014f*scale,
+        .021f*scale,.028f*scale}};
     ClosedTaperedPolygon(out,fin,axes.up,finThickness,colors[0],colors[1]);
   }
   const float tail = dolphin.tailBeat * .12f;
   for (float side : {-1.0f, 1.0f}) {
     const std::array fluke{
         Point(centre, axes, 0, tail, -.68f, scale),
-        Point(centre, axes, side * .18f, tail + .018f, -.75f, scale),
-        Point(centre, axes, side * .43f, tail + .020f, -.84f, scale),
-        Point(centre, axes, side * .52f, tail + .012f, -.92f, scale),
-        Point(centre, axes, side * .38f, tail - .008f, -1.00f, scale),
-        Point(centre, axes, side * .10f, tail - .014f, -1.05f, scale)};
-    const std::array<float, 6> flukeThickness{{.018f*scale,.014f*scale,
-        .009f*scale,.005f*scale,.007f*scale,.014f*scale}};
+        Point(centre, axes, side * .14f, tail + .016f, -.72f, scale),
+        Point(centre, axes, side * .30f, tail + .022f, -.79f, scale),
+        Point(centre, axes, side * .46f, tail + .020f, -.86f, scale),
+        Point(centre, axes, side * .54f, tail + .010f, -.93f, scale),
+        Point(centre, axes, side * .46f, tail - .004f, -1.00f, scale),
+        Point(centre, axes, side * .28f, tail - .012f, -1.045f, scale),
+        Point(centre, axes, side * .08f, tail - .016f, -1.075f, scale)};
+    const std::array<float, 8> flukeThickness{{.018f*scale,.016f*scale,
+        .012f*scale,.007f*scale,.004f*scale,.006f*scale,.009f*scale,
+        .014f*scale}};
     ClosedTaperedPolygon(out,fluke,axes.up,flukeThickness,colors[0],colors[1]);
   }
   const Color eyeShine(153, 173, 176, 255);
@@ -407,6 +417,10 @@ DolphinRenderer::DolphinRenderer(GraphicsDevice &device,
       "island-simulator: near dolphins use a slimmer fusiform midbody, narrower bottlenose rostrum, stronger countershading, a taller falcate dorsal, and root-thickened tapered fins and flukes";
   std::cout << proportion << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(proportion);
+  const char *silhouettePolish =
+      "island-simulator: dolphin silhouette pass uses a ten-point falcate dorsal, nine-point curved pectorals, eight-point forked flukes, and brighter swept ventral countershading";
+  std::cout << silhouettePolish << '\n';
+  MirrorRuntimeDiagnosticToPlatformLog(silhouettePolish);
 }
 DolphinRenderer::~DolphinRenderer() = default;
 

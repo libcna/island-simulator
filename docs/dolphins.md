@@ -24,7 +24,7 @@ body follows smoothed dive pitch and turn bank, while the tail stock bends verti
 horizontal flukes' up/down stroke. Three
 restrained grey-blue palettes share the existing CPU depth tint and moving shallow-sun response.
 
-The fixed budgets are 3,144 vertices for a close animal and 15 vertices for a distant silhouette.
+The fixed budgets are 3,300 vertices for a close animal and 15 vertices for a distant silhouette.
 Four animals still produce at most one draw call. There
 is no dolphin texture, separate shadow, collision proxy or audio voice.
 
@@ -207,3 +207,23 @@ deviation, 214.36 spatial contrast and an empty kernel delta.
 Focused Chrome/SwiftShader `20261015T233646.005186Z-chrome-dolphins` passes two distinct inspected
 swimming frames, 60 finite intervals, GL error zero, a live context and an empty final kernel delta.
 Physical Android/AMD appearance and continuous interactive observation remain open.
+
+## Falcate dorsal, forked flukes and stronger countershading — 2026-10-16
+
+The next bear/dolphin comparison retained the dolphin's closed fusiform shell and facial cues but
+selected its coarse broadside outline: the seven-point dorsal still collapsed into a shark-like
+triangle, six-point flukes read as straight plates and the underwater palette hid the lower-flank
+countershading. The dorsal now follows a ten-point lower rear-swept falcate curve, each fluke uses
+an eight-point rounded leading/trailing contour and both pectorals use a corrected nine-point
+curve. A first long-pectoral candidate was rejected after capture because banking made the near fin
+oversized; the accepted span is only modestly greater than the prior seven-point form.
+
+The rostrum also extends from its fitted twelve-sided base to a narrower rounded 1.475-local-unit
+cap, and all three palettes carry a brighter belly with a stronger swept side transition. The near
+budget rises by only 132 vertices, from 3,168 to 3,300; the 15-vertex far form, four-agent pod,
+one draw, movement and habitat are unchanged. Native accepted evidence
+`20261016T045838.259438Z-dolphins` passes at 1280x720 with 146 colour bins, 44.90 luminance
+deviation, 214.08 spatial contrast and an empty kernel delta. Core, pod, capture and all 41
+browser/capture harness tests pass. Focused Chrome/SwiftShader
+`20261016T050134.095522Z-chrome-dolphins` passes two distinct frames with 60 finite positive
+intervals, GL error zero, a live context and kernel `[]`.
