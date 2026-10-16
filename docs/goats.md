@@ -743,3 +743,29 @@ outside this focused pass.
 
 The AMD hardware stop latch remains unchanged. No Android emulator/KVM or dependency
 configuration was changed for this integration.
+
+## Local-space feral coat markings — 2026-10-16
+
+A fresh current-binary eight-stage audit accepted the planted limb chain, horns, beard, face and
+directional hair source, but the large coat regions still read as one flat tint per animal. The
+renderer now modulates only fur vertices with bounded masks authored in undeformed goat-local
+coordinates. Every animal receives a narrow dorsal tone; three selected palettes carry unequal
+broad flank or shoulder-cape areas, the nearest buck's cape continues through its neck, selected
+animals receive a soft pale facial blaze, and three carry darker lower-leg points. Eyes, nose,
+mouth, ear skin, horns and hooves remain outside the fur treatment.
+
+The masks are evaluated before the existing pose transform, so body bob, planted-foot motion and
+world heading cannot make a marking slide over the animal. They reuse the existing neutral fur
+atlas, six palette colours and textured coat draw. Near/far geometry remains 7,848/4,260 vertices,
+the all-near population remains bounded beneath the existing 49,152-vertex batch allocation, and
+there is no new texture, buffer, draw, state, simulation or collision work.
+
+Seven focused native groups pass, as do all 97 browser/capture harness tests. Same-camera native
+baseline `20261016T103705.952734Z-goats` and accepted
+`20261016T104401.379617Z-goats` were inspected across all eight motion stages. The accepted
+1280x720 result retains distinct movement and passes at 253 colour bins, 56.91 luminance deviation,
+254.51 spatial contrast and an empty kernel delta. Focused Chrome 155/SwiftShader evidence
+`build/browser-software/20261016T104712.598400Z-chrome-goats` was inspected across four distinct
+poses and passes 60 finite positive intervals, GL error zero, a live context and kernel `[]`.
+Physical Android/AMD appearance, continuous all-angle gait and subjective call listening remain
+outside this bounded material pass.

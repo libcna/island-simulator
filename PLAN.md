@@ -112,6 +112,26 @@ hard grass/bush wall at a tier boundary; WebGL remains live, GL error is zero, t
 error is 1.075 m and kernel monitoring is clean. This is representative motion evidence, not a
 mathematical all-view aliasing proof.
 
+## Latest terrestrial-fauna material pass — local-space feral-goat markings
+
+The renewed eight-stage animal audit retained the goats' planted gait, horns, beard, muzzle detail
+and directional source fur, but selected the large uniformly tinted coat regions as the remaining
+weakness. The existing six palettes now receive restrained goat-local tonal masks: a narrow dorsal
+line, three unequal broad flank/cape regions, one cape continued through the neck, selected pale
+face blazes and selected dark lower-leg points. Fur motion and world heading cannot move these
+patterns because they are evaluated before the authoritative local-to-world pose transform.
+
+This is vertex-colour modulation in the existing textured coat draw. Geometry remains exactly
+7,848/4,260 vertices per near/far goat, the six-agent population remains below the 49,152-vertex
+batch guard and rendering remains two draws with no new texture, buffer, state, collision or
+simulation work. Seven focused native groups and all 97 browser/capture harness tests pass.
+Inspected native before/after evidence `20261016T103705.952734Z-goats` and
+`20261016T104401.379617Z-goats` preserves all eight distinct walking stages; the accepted frame
+passes at 253 colour bins, 56.91 luminance deviation, 254.51 spatial contrast and kernel `[]`.
+Inspected Chrome/SwiftShader `20261016T104712.598400Z-chrome-goats` supplies four distinct current
+poses, 60 finite positive intervals, GL error zero, a live context and kernel `[]`. Details are in
+`docs/goats.md`.
+
 ## Latest aquatic visual pass — layered fish eyes
 
 The renewed close-school audit retained the rounded heads, family pigment, fins and live schooling,

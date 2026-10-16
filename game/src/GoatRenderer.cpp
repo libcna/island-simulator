@@ -42,6 +42,50 @@ const std::array<Color,8> Materials{Color(244,238,222),Color(145,116,92),
 // cream, fawn, grey and sable individuals without another texture or draw.
 const std::array<Color,6> CoatPalettes{Color(221,199,161),Color(242,235,216),
     Color(169,158,139),Color(190,151,111),Color(126,112,94),Color(232,220,198)};
+
+float SmoothStep(const float edge0,const float edge1,const float value) {
+    const float t=std::clamp((value-edge0)/(edge1-edge0),0.0f,1.0f);
+    return t*t*(3.0f-2.0f*t);
+}
+
+float CoatPatternTone(const GoatVertex& vertex,const std::size_t goatIndex) {
+    if(vertex.material!=GoatMaterial::Coat)return 1.0f;
+    float tone=1.0f;
+    if(vertex.part==GoatPart::Body) {
+        // A narrow topline follows the spine rather than darkening the complete
+        // upper barrel.  The mask is evaluated in undeformed goat-local space,
+        // so walking bob and world heading cannot make it swim through the coat.
+        const float dorsal=SmoothStep(.89f,1.045f,vertex.position.y)
+            *(1.0f-SmoothStep(.055f,.225f,std::abs(vertex.position.x)));
+        tone*=1.0f-dorsal*(.075f+.018f*static_cast<float>(goatIndex%3));
+
+        // Alternate restrained flank identity between the otherwise similar
+        // cream and fawn animals.  Broad transitions avoid painted-on circles.
+        if(goatIndex==0||goatIndex==1||goatIndex==3) {
+            const float longitudinal=goatIndex==1
+                ?1.0f-SmoothStep(.08f,.42f,vertex.position.z)
+                :(goatIndex==0?SmoothStep(.02f,.34f,vertex.position.z)
+                               :SmoothStep(-.40f,-.04f,vertex.position.z));
+            const float flank=longitudinal*SmoothStep(.06f,.20f,std::abs(vertex.position.x));
+            tone*=1.0f-(goatIndex==0?.14f:.085f)*flank;
+        }
+    } else if(vertex.part==GoatPart::Neck&&goatIndex==0) {
+        // Continue the first buck's shoulder cape up the neck so the marking
+        // reads as one coat region instead of an isolated barrel patch.
+        tone*=.89f;
+    } else if(vertex.part==GoatPart::Leg&&(goatIndex==0||goatIndex==3||goatIndex==4)) {
+        // Dark lower-leg points are common in mixed feral coats and help the
+        // narrow planted cannon/pastern chain remain readable against grass.
+        tone*=1.0f-.15f*(1.0f-SmoothStep(.26f,.47f,vertex.position.y));
+    } else if(vertex.part==GoatPart::Head&&(goatIndex==1||goatIndex==4)) {
+        // A soft central blaze breaks the last large uniform head surface.  It
+        // stays on fur; eyes, nose, mouth and bare ear interiors are untouched.
+        const float blaze=(1.0f-SmoothStep(.028f,.086f,std::abs(vertex.position.x)))
+            *SmoothStep(.47f,.69f,vertex.position.z);
+        tone*=1.0f+.10f*blaze;
+    }
+    return tone;
+}
 }
 GoatRenderer::GoatRenderer(GraphicsDevice& device,
     const CanopyLightField& canopy,float maximumDistance)
@@ -66,6 +110,8 @@ GoatRenderer::GoatRenderer(GraphicsDevice& device,
     std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
     const char* face="island-simulator: near goats use paired surface nostrils and fitted lateral mouth creases";
     std::cout<<face<<'\n';MirrorRuntimeDiagnosticToPlatformLog(face);
+    const char* markings="island-simulator: goat coats add local-space dorsal, flank, face-blaze, and lower-leg tonal markings";
+    std::cout<<markings<<'\n';MirrorRuntimeDiagnosticToPlatformLog(markings);
     effect_->setVertexColorEnabledProperty(true);
     effect_->setLightingEnabledProperty(false);
     effect_->setTextureEnabledProperty(false);
@@ -101,8 +147,9 @@ void GoatRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector
                 :Materials.at(static_cast<std::size_t>(vertex.material));
             // A restrained darker belly/warmer topline prevents the textured barrel
             // from reading as one flat pale sphere; non-body fur keeps its palette.
-            const float coatTone=vertex.material==GoatMaterial::Coat&&vertex.part==GoatPart::Body
-                ?.91f+.10f*std::clamp((vertex.position.y-.53f)/.58f,0.0f,1.0f):1.0f;
+            const float coatTone=(vertex.material==GoatMaterial::Coat&&vertex.part==GoatPart::Body
+                ?.91f+.10f*std::clamp((vertex.position.y-.53f)/.58f,0.0f,1.0f):1.0f)
+                *CoatPatternTone(vertex,goatIndex);
             const auto channel=[light,coatTone](int value,float transmission){
                 return static_cast<int>(std::clamp(std::lround(value*light*coatTone*transmission),0L,255L));};
             const auto uv=GoatCoatUv(vertex);
