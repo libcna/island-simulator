@@ -471,7 +471,9 @@ def validate_butterfly_report(report):
         or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
         or len(set(frames)) != 2
         or "butterflies feed at three visible deterministic nectar-flower patches" not in log
-        or "butterfly QA camera frames one concrete nectar patch and its six animals" not in log
+        or "near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins" not in log
+        or "near butterflies use three-ring tapered abdomens with palette-linked segmentation" not in log
+        or "butterfly QA camera follows one live near animal at its nectar patch" not in log
         or not re.search(r"butterflies [1-9][0-9]*/18 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("butterfly view lacks nectar habitat, frames or clean graphics state")

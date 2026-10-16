@@ -155,6 +155,28 @@ class BrowserSoftwareTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             gate.validate_helicopter_report(report)
 
+    def test_butterfly_scope_requires_close_segmented_subject(self):
+        habitat = "butterflies feed at three visible deterministic nectar-flower patches"
+        anatomy = "near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins"
+        body = "near butterflies use three-ring tapered abdomens with palette-linked segmentation"
+        camera = "butterfly QA camera follows one live near animal at its nectar patch"
+        visible = "butterflies 6/18 visible (near 6, far 0), 1 draw"
+        def report():
+            return {"passed": True, "views": [{"mode": "butterflies", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": "butterflies.png",
+                "afterSimulationScreenshot": "butterflies-after.png",
+                "intervals": [16.7] * 60, "result": {"output":
+                    "\n".join((habitat, anatomy, body, camera, visible))}}]}
+        self.assertEqual(gate.validate_butterfly_report(report()),
+                         ("butterflies.png", "butterflies-after.png"))
+        for marker in (habitat, anatomy, body, camera):
+            invalid = report()
+            output = invalid["views"][0]["result"]["output"]
+            invalid["views"][0]["result"]["output"] = output.replace(marker, "")
+            with self.subTest(marker=marker), self.assertRaises(RuntimeError):
+                gate.validate_butterfly_report(invalid)
+
     def test_shipwreck_scope_requires_current_end_profile_two_frames_and_live_context(self):
         self.assertIn("shipwreck", gate.SCOPES)
         markers = "\n".join((

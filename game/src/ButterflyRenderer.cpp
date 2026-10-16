@@ -32,7 +32,7 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 25.0f;
-        constexpr int MaximumVerticesPerButterfly = 228;
+        constexpr int MaximumVerticesPerButterfly = 264;
         constexpr int MaximumFlowerVertices = 1800;
         constexpr int MaximumGeckoVertices = static_cast<int>(GeckoPopulation::Count) * 900;
         constexpr int MaximumSkinkVertices = static_cast<int>(SkinkPopulation::Count) * 900;
@@ -58,6 +58,8 @@ namespace island
             "island-simulator: clearing butterflies use hinged patterned wings in one culled batch";
         constexpr std::string_view ButterflyAnatomyDiagnostic =
             "island-simulator: near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins";
+        constexpr std::string_view ButterflyBodyDiagnostic =
+            "island-simulator: near butterflies use three-ring tapered abdomens with palette-linked segmentation";
         constexpr std::string_view ButterflyHabitatDiagnostic =
             "island-simulator: butterflies feed at three visible deterministic nectar-flower patches";
         constexpr std::string_view GeckoDiagnostic =
@@ -1137,6 +1139,7 @@ namespace island
         void AppendNearButterfly(std::vector<VertexPositionColor>& vertices,
                                  const ButterflyState& butterfly)
         {
+            const std::size_t startingVertexCount = vertices.size();
             const ButterflyPalette& palette =
                 Palettes[butterfly.colorVariant % Palettes.size()];
             const Vector3 centre(butterfly.x, butterfly.y, butterfly.z);
@@ -1150,10 +1153,11 @@ namespace island
             const float lift = std::sin(foldAngle);
 
             constexpr int BodySides=6;
+            const Color abdomen = Color::Lerp(palette.body, palette.accent, .42f);
             const Vector3 bodyFront=LocalPoint(
-                centre,right,up,forward,0,.012f,.21f,scale);
+                centre,right,up,forward,0,.012f,.22f,scale);
             const Vector3 bodyRear=LocalPoint(
-                centre,right,up,forward,0,-.012f,-.38f,scale);
+                centre,right,up,forward,0,-.012f,-.39f,scale);
             const auto bodyRing=[&](float angle,float z,float radius) {
                 return LocalPoint(centre,right,up,forward,std::cos(angle)*radius,
                     std::sin(angle)*radius,z,scale);
@@ -1161,12 +1165,18 @@ namespace island
             for(int sideIndex=0;sideIndex<BodySides;++sideIndex) {
                 const float a0=6.28318530718f*static_cast<float>(sideIndex)/BodySides;
                 const float a1=6.28318530718f*static_cast<float>(sideIndex+1)/BodySides;
-                const Vector3 front0=bodyRing(a0,.12f,.055f),front1=bodyRing(a1,.12f,.055f);
-                const Vector3 rear0=bodyRing(a0,-.15f,.050f),rear1=bodyRing(a1,-.15f,.050f);
+                const Vector3 front0=bodyRing(a0,.12f,.064f);
+                const Vector3 front1=bodyRing(a1,.12f,.064f);
+                const Vector3 middle0=bodyRing(a0,-.05f,.060f);
+                const Vector3 middle1=bodyRing(a1,-.05f,.060f);
+                const Vector3 rear0=bodyRing(a0,-.22f,.043f);
+                const Vector3 rear1=bodyRing(a1,-.22f,.043f);
                 AddTriangle(vertices,bodyFront,front0,front1,palette.body);
-                AddTriangle(vertices,front0,rear0,rear1,palette.body);
-                AddTriangle(vertices,front0,rear1,front1,palette.body);
-                AddTriangle(vertices,bodyRear,rear1,rear0,palette.body);
+                AddTriangle(vertices,front0,middle0,middle1,palette.body);
+                AddTriangle(vertices,front0,middle1,front1,palette.body);
+                AddTriangle(vertices,middle0,rear0,rear1,abdomen);
+                AddTriangle(vertices,middle0,rear1,middle1,abdomen);
+                AddTriangle(vertices,bodyRear,rear1,rear0,abdomen);
             }
             const Vector3 headCentre=LocalPoint(
                 centre,right,up,forward,0,.012f,.255f,scale);
@@ -1236,6 +1246,10 @@ namespace island
                 AddDoubleSidedTriangle(vertices,foreRoot,accentTip,hindRoot,
                     palette.accent);
             }
+            if (vertices.size() - startingVertexCount != MaximumVerticesPerButterfly) {
+                throw std::runtime_error(
+                    "Butterfly near mesh does not match its fixed vertex budget");
+            }
         }
 
         void AppendFarButterfly(std::vector<VertexPositionColor>& vertices,
@@ -1288,6 +1302,7 @@ namespace island
         stagingVertices_.reserve(static_cast<std::size_t>(MaximumVertexCount));
         std::cout << ButterflyDiagnostic << '\n';
         std::cout << ButterflyAnatomyDiagnostic << '\n';
+        std::cout << ButterflyBodyDiagnostic << '\n';
         std::cout << ButterflyHabitatDiagnostic << '\n';
         std::cout << GeckoDiagnostic << '\n';
         std::cout << SkinkDiagnostic << '\n';
@@ -1306,6 +1321,7 @@ namespace island
         std::cout << BeetleAnatomyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyAnatomyDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(ButterflyBodyDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ButterflyHabitatDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(GeckoDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(SkinkDiagnostic);

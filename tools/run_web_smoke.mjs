@@ -899,7 +899,9 @@ try {
               && log.includes("coconut-crab QA camera frames one large terrestrial animal in coastal vegetation")
               && /coconut crabs [1-6]\/6 visible in shared draw/.test(log)))
             && (!focusedButterflyCheck || (log.includes("butterflies feed at three visible deterministic nectar-flower patches")
-              && log.includes("butterfly QA camera frames one concrete nectar patch and its six animals")
+              && log.includes("near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins")
+              && log.includes("near butterflies use three-ring tapered abdomens with palette-linked segmentation")
+              && log.includes("butterfly QA camera follows one live near animal at its nectar patch")
               && /butterflies [1-9][0-9]*\/18 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(log)))
             && (!focusedGeckoCheck || (log.includes("eight inland geckos rest, scurry from the player, and hide in the shared butterfly batch")
               && log.includes("gecko QA camera frames a resting inland lizard at ground level")
@@ -2378,7 +2380,9 @@ try {
     && butterflyResult.output?.includes(
       "island-simulator: near butterflies use closed bodies, paired antennae, rounded wing lobes, and dark margins")
     && butterflyResult.output?.includes(
-      "island-simulator: butterfly QA camera frames one concrete nectar patch and its six animals")
+      "island-simulator: near butterflies use three-ring tapered abdomens with palette-linked segmentation")
+    && butterflyResult.output?.includes(
+      "island-simulator: butterfly QA camera follows one live near animal at its nectar patch")
     && /butterflies [1-9][0-9]*\/18 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(
       butterflyResult.output ?? "")
     && !butterflyResult.error;

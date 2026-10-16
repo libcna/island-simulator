@@ -169,6 +169,25 @@ and interior with 60 finite positive intervals each, GL error zero and live cont
 supervision reports no GPU fault; four unrelated Wine seccomp audit entries are retained in the
 evidence rather than misreported as an empty journal delta.
 
+## Latest small-wildlife visual pass — segmented butterfly body
+
+The current small-animal audit found that the existing rounded patterned wings were recognisable,
+but the near butterfly still collapsed into two coloured planes around one dark rod. The close body
+now has three tapered six-sided rings instead of two, creating a fuller thorax and narrowing rear
+abdomen with a restrained palette-linked pigment break. Head, paired antennae, rounded fore/hind
+wing lobes, margins, central accents and live wing fold are retained.
+
+Near geometry rises from 228 to 264 vertices per animal. The conservative all-18-near addition is
+only 648 vertices / 10,368 bytes in the already shared small-fauna buffer; population, habitats,
+far tier, simulation and one dynamic draw are unchanged. The former five-metre patch overview was
+also too weak to prove close anatomy. The diagnostic camera now follows one live animal from about
+0.7 m while presenting an observer overhead, so the butterfly continues to fly and fold without
+being chased from frame by the audit itself. Inspected native evidence
+`20261016T092020.815244Z-butterflies` passes at 219 colour bins, 31.39 luminance deviation, 193.69
+spatial contrast and kernel `[]`. Inspected Chrome/SwiftShader
+`20261016T092424.885223Z-chrome-butterflies` passes two visibly distinct wing poses, 60 finite
+positive intervals, GL error zero, a live context and an empty kernel delta.
+
 ## Latest vegetation microhabitat pass — canopy trunk epiphytes
 
 The next vegetation audit accepted the connected crowns, bark and traversable forest floor but

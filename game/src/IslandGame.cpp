@@ -1518,15 +1518,20 @@ namespace island
             std::cout<<"island-simulator: crocodile QA camera frames an estuary animal broadside\n";
         } else if (viewpoint_ == FixedViewpoint::ButterflyDetail
                    && butterflyMeadow_.Butterflies().size() > 2U) {
-            const ButterflyFlowerPatch& patch=butterflyMeadow_.FlowerPatches().front();
-            cameraPosition_=Vector3(patch.x+4.4f,
-                std::max(terrain_.Height(patch.x+4.4f,patch.z+2.4f)+1.25f,
-                         patch.y+1.55f),patch.z+2.4f);
-            const Vector3 toGroup=Vector3(patch.x,patch.y+.30f,patch.z)-cameraPosition_;
-            yaw_ = std::atan2(toGroup.X, toGroup.Z);
+            const ButterflyState& butterfly=butterflyMeadow_.Butterflies()[2U];
+            const Vector3 forward(std::cos(butterfly.headingRadians),0,
+                                  std::sin(butterfly.headingRadians));
+            const Vector3 side(-forward.Z,0,forward.X);
+            const float cameraX=butterfly.x-forward.X*.62f+side.X*.30f;
+            const float cameraZ=butterfly.z-forward.Z*.62f+side.Z*.30f;
+            cameraPosition_=Vector3(cameraX,
+                std::max(terrain_.Height(cameraX,cameraZ)+.28f,butterfly.y+.26f),cameraZ);
+            const Vector3 toButterfly=Vector3(
+                butterfly.x,butterfly.y+.015f,butterfly.z)-cameraPosition_;
+            yaw_ = std::atan2(toButterfly.X, toButterfly.Z);
             pitch_ = std::atan2(
-                toGroup.Y, std::hypot(toGroup.X, toGroup.Z));
-            std::cout << "island-simulator: butterfly QA camera frames one concrete nectar patch and its six animals\n";
+                toButterfly.Y, std::hypot(toButterfly.X, toButterfly.Z));
+            std::cout << "island-simulator: butterfly QA camera follows one live near animal at its nectar patch\n";
         } else if (viewpoint_ == FixedViewpoint::GeckoDetail
                    && geckoPopulation_.Geckos().size() > 2U) {
             const GeckoState& gecko=geckoPopulation_.Geckos()[2U];
@@ -2334,8 +2339,24 @@ namespace island
                                    || viewpoint_ == FixedViewpoint::FruitBatRoostDetail)
                                   ? 0.0f : deltaSeconds,
                                cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
-        butterflyMeadow_.Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,
-            cameraPosition_.Z);
+        const ButterflyState previousButterflySubject=butterflyMeadow_.Butterflies()[2U];
+        Vector3 butterflyObserver=cameraPosition_;
+        if(viewpoint_==FixedViewpoint::ButterflyDetail) {
+            const ButterflyState& subject=butterflyMeadow_.Butterflies()[2U];
+            butterflyObserver=Vector3(subject.x,subject.y+18.0f,subject.z);
+        }
+        butterflyMeadow_.Update(deltaSeconds,butterflyObserver.X,butterflyObserver.Y,
+            butterflyObserver.Z);
+        if(viewpoint_==FixedViewpoint::ButterflyDetail) {
+            const ButterflyState& subject=butterflyMeadow_.Butterflies()[2U];
+            cameraPosition_+=Vector3(subject.x-previousButterflySubject.x,
+                                     subject.y-previousButterflySubject.y,
+                                     subject.z-previousButterflySubject.z);
+            const Vector3 target(subject.x,subject.y+.015f,subject.z);
+            const Vector3 direction=target-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+        }
         const GeckoState previousGeckoSubject=geckoPopulation_.Geckos()[2U];
         Vector3 geckoObserver=cameraPosition_;
         if(viewpoint_==FixedViewpoint::GeckoDetail) {
