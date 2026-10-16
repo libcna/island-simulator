@@ -132,6 +132,24 @@ Inspected Chrome/SwiftShader `20261016T104712.598400Z-chrome-goats` supplies fou
 poses, 60 finite positive intervals, GL error zero, a live context and kernel `[]`. Details are in
 `docs/goats.md`.
 
+## Latest resident material pass — fine broken woven cloth
+
+The next fresh eight-stage resident audit retained the repaired shoulder/neck silhouette, layered
+face, split hands and live gait but selected a new close-view mannequin cue: the atlas used bright
+complete warp and weft lines every few texels, producing a large graph-paper grid across the tunic
+and wrap. The cloth quadrant now uses two independently wandering fine thread phases, bounded
+irregular slubs and sparse fibre highlights. No complete high-contrast line crosses the garment.
+
+The deterministic 128x128 atlas allocation, mip chain, material quadrants, 7,154-triangle body,
+one body draw plus fitted foot-shadow draw, route and animation are unchanged. Four focused native
+groups and all 97 browser/capture harness tests pass. Inspected same-stage native baseline
+`20261016T105645.076574Z-resident` and accepted `20261016T110752.908894Z-resident` show the square
+grid removed while retaining a fine woven surface; the accepted 1280x720 frame passes at 293 colour
+bins, 42.62 luminance deviation, 158.60 spatial contrast and kernel `[]`. Inspected
+Chrome/SwiftShader `20261016T111259.627192Z-chrome-resident` supplies two distinct moving frames,
+60 finite positive intervals, GL error zero, a live context and kernel `[]`. Details are in
+`docs/resident.md`.
+
 ## Latest aquatic visual pass — layered fish eyes
 
 The renewed close-school audit retained the rounded heads, family pigment, fins and live schooling,

@@ -229,3 +229,27 @@ Inspected llvmpipe evidence `20261014T004313.678113Z-resident` passes all eight 
 stages at1280x720 with353 colour bins,47.65 luminance deviation and186.44 spatial contrast.
 The final and stride frames show sloping shoulders, a tapered neck and the same walking actor;
 the new beach route also places the resident near, but outside, the campfire/wood collisions.
+
+## Fine broken woven-cloth atlas — 2026-10-16
+
+A fresh current-binary eight-stage audit retained the resident's corrected sloping shoulders,
+tapered neck, face volumes, split hands, moving wrap and counter-swing gait. It selected the cloth
+atlas instead: bright complete lines every five and seven texels created a large square grid over
+the tunic and lower wrap, reinforcing the impression of a rigid procedural mannequin.
+
+The cloth quadrant now combines two independently wandering high-frequency warp/weft phases with
+bounded irregular slub variation, low-amplitude deterministic grain and sparse fibre highlights.
+No complete high-contrast line spans the material. Skin, hair, plant fibre, UV insets and mip
+generation remain unchanged. This replaces pixels in the existing deterministic 128x128 atlas;
+the 7,154-triangle body, 40,000-vertex stream allocation, one body draw plus fitted foot-shadow
+draw, route, collision and animation are identical.
+
+Four focused native groups and all 97 browser/capture harness tests pass. Same-stage native
+baseline `20261016T105645.076574Z-resident` and accepted
+`20261016T110752.908894Z-resident` were inspected side by side. The accepted 1280x720 frame removes
+the graph-paper pattern while retaining a fine fabric response and passes at 293 colour bins, 42.62
+luminance deviation, 158.60 spatial contrast and an empty kernel delta. Focused Chrome
+155/SwiftShader evidence `build/browser-software/20261016T111259.627192Z-chrome-resident` contains
+two distinct inspected live poses and passes 60 finite positive intervals, GL error zero, a live
+context and kernel `[]`. Physical Android/AMD appearance and continuous all-angle gait remain part
+of consolidated qualification.

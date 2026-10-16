@@ -89,8 +89,15 @@ std::vector<Texel> MakeAtlasBase() {
             value=238+static_cast<int>(hash%13U)-6;
             if(hash%97U==0U)value-=23;
         } else if(quadrant==1) {
-            // Unequal warp and weft threads make the plain tropical cloth visibly woven.
-            value=218+((lx%7)==0?23:0)+((ly%5)==0?14:0)+static_cast<int>(hash%7U)-3;
+            // Fine broken warp/weft modulation and irregular slubs preserve a woven
+            // surface without the former high-contrast graph-paper grid.  The two
+            // phases wander independently so no complete line crosses the garment.
+            const float warp=std::sin(lx*2.31f+std::sin(ly*.19f)*.63f);
+            const float weft=std::sin(ly*2.07f+std::sin(lx*.14f)*.48f);
+            const float slub=std::sin(lx*.43f+ly*.27f+std::sin(ly*.11f)*1.2f);
+            value=223+static_cast<int>(std::lround(warp*4.0f+weft*3.0f+slub*4.5f))
+                +static_cast<int>(hash%5U)-2;
+            if(hash%113U==0U)value+=8;
         } else if(quadrant==2) {
             const float curls=std::sin(lx*.47f+std::sin(ly*.31f)*2.2f)
                 *std::sin(ly*.51f+std::sin(lx*.27f)*1.7f);
@@ -403,6 +410,8 @@ ResidentRenderer::ResidentRenderer(GraphicsDevice& device,const CanopyLightField
     std::cout<<faceProfile<<'\n';MirrorRuntimeDiagnosticToPlatformLog(faceProfile);
     const char* garment="island-simulator: resident woven clothing adds a bound V neckline and split thigh-following wrap";
     std::cout<<garment<<'\n';MirrorRuntimeDiagnosticToPlatformLog(garment);
+    const char* cloth="island-simulator: resident cloth uses fine broken warp, weft, and slub variation without a square grid";
+    std::cout<<cloth<<'\n';MirrorRuntimeDiagnosticToPlatformLog(cloth);
     const char* gait="island-simulator: resident gait uses foot-synchronised thirty-degree arm counter-swing with relaxed elbows";
     std::cout<<gait<<'\n';MirrorRuntimeDiagnosticToPlatformLog(gait);
 }

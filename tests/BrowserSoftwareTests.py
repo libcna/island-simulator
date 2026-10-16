@@ -853,6 +853,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                "resident anatomy uses a tapered trapezius neck, rounded sleeve-deltoid transitions, shaped forearms, cheeks, jaw, eyelids, and nostril wings\n"
                "resident face uses a restrained nasal tip and separate upper and lower lip contours\n"
                "resident woven clothing adds a bound V neckline and split thigh-following wrap\n"
+               "resident cloth uses fine broken warp, weft, and slub variation without a square grid\n"
                "resident gait uses foot-synchronised thirty-degree arm counter-swing with relaxed elbows\n"
                "resident 1/1 visible, 2 draws, 5154 body triangles")
         report = {"passed":True,"views":[{"mode":"resident","passed":True,"glError":0,

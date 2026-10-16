@@ -246,6 +246,7 @@ def validate_resident_report(report):
         or "resident anatomy uses a tapered trapezius neck, rounded sleeve-deltoid transitions, shaped forearms, cheeks, jaw, eyelids, and nostril wings" not in log
         or "resident face uses a restrained nasal tip and separate upper and lower lip contours" not in log
         or "resident woven clothing adds a bound V neckline and split thigh-following wrap" not in log
+        or "resident cloth uses fine broken warp, weft, and slub variation without a square grid" not in log
         or "resident gait uses foot-synchronised thirty-degree arm counter-swing with relaxed elbows" not in log
         or not re.search(r"resident 1/1 visible, 2 draws, [1-9][0-9]* body triangles", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
