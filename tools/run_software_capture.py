@@ -1369,6 +1369,7 @@ def main():
                     "near deer use vertex-blended ellipsoid light, curved tapered necks, articulated hocks, fitted muzzles, and smooth antler beams, with continuous five-ring necks, separate nasal pads, and surface-fitted oval coat spots",
                     "deer use separated chest and haunch masses, muscle-profiled upper legs, and normal-driven dorsal-to-belly coat tone",
                     "near deer use a continuous sectioned torso, slender shoulder-grown neck, compact tapered face, leaf-shaped ears, split hooves, and curved multi-tine antlers",
+                    "deer use ten-stage rounded rump and chest contours, fuller hock joints, and five-station tufted tails",
                     "deer QA camera frames one antlered clearing animal broadside"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"current deer diagnostic missing: {marker}")

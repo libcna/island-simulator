@@ -183,14 +183,16 @@ namespace island
         };
 
         constexpr std::array DeerBodySections{
-            BodySection{-.72f,.060f,.045f,.050f},
-            BodySection{-.62f,.035f,.255f,.275f},
-            BodySection{-.43f,.015f,.340f,.345f},
-            BodySection{-.15f,.000f,.350f,.340f},
-            BodySection{ .15f,.015f,.340f,.345f},
-            BodySection{ .40f,.065f,.330f,.370f},
-            BodySection{ .58f,.140f,.265f,.295f},
-            BodySection{ .68f,.195f,.055f,.065f},
+            BodySection{-.74f,.070f,.035f,.045f},
+            BodySection{-.68f,.050f,.145f,.165f},
+            BodySection{-.58f,.030f,.275f,.305f},
+            BodySection{-.40f,.015f,.340f,.345f},
+            BodySection{-.13f,.000f,.350f,.335f},
+            BodySection{ .16f,.018f,.340f,.342f},
+            BodySection{ .40f,.068f,.330f,.370f},
+            BodySection{ .55f,.125f,.280f,.315f},
+            BodySection{ .63f,.175f,.150f,.180f},
+            BodySection{ .69f,.205f,.045f,.055f},
         };
 
         [[nodiscard]] float BodyHalfWidthAt(const float longitudinal,
@@ -361,10 +363,10 @@ namespace island
                 const std::array<float,4> upperLegRadii{{upperRootRadius*scale,
                     (hind?.132f:.118f)*scale,.091f*scale,.069f*scale}};
                 LoftTube(out,upperLeg,upperLegRadii,right,coat,transmission,near?9:7);
-                Tube(out, knee, hock, .060f * scale, .043f * scale, dark, transmission,
+                Tube(out, knee, hock, .064f * scale, .052f * scale, dark, transmission,
                      near ? 9 : 7);
                 Tube(out, hock, Vector3(hoofPoint.X, deer.y + .060f * scale, hoofPoint.Z),
-                     .043f * scale, .031f * scale, dark, transmission, near ? 9 : 7);
+                     .052f * scale, .031f * scale, dark, transmission, near ? 9 : 7);
                 const Vector3 groundedHoof(hoofPoint.X, deer.y + .060f * scale, hoofPoint.Z);
                 for(const float toeSide:{-.018f,.018f}) {
                     const Vector3 offset=right*(toeSide*scale);
@@ -373,10 +375,16 @@ namespace island
                          .032f*scale,.022f*scale,hoof,transmission,near?8:6);
                 }
             }
-            const Vector3 tailRoot = body - forward * (.77f * scale) + up * (.17f * scale);
-            const Vector3 tailTip = tailRoot - forward * (.31f * scale) + up * (.08f * scale);
-            Tube(out, tailRoot, tailTip, .085f * scale, .022f * scale, pale, transmission,
-                 near ? 10 : 8);
+            const Vector3 tailRoot = body - forward * (.73f * scale) + up * (.17f * scale);
+            const std::array<Vector3,5> tailStations{{
+                tailRoot,
+                tailRoot-forward*(.08f*scale)+up*(.035f*scale),
+                tailRoot-forward*(.18f*scale)+up*(.080f*scale),
+                tailRoot-forward*(.28f*scale)+up*(.100f*scale),
+                tailRoot-forward*(.35f*scale)+up*(.070f*scale)}};
+            const std::array<float,5> tailRadii{{.072f*scale,.090f*scale,.075f*scale,
+                                                 .045f*scale,.012f*scale}};
+            LoftTube(out,tailStations,tailRadii,right,pale,transmission,near?10:7);
             if (near) {
                 // Fitted oval patches replace the old double-sided triangles, which
                 // projected beyond the coat like small pale spikes. Each centre uses
@@ -459,6 +467,10 @@ namespace island
             "island-simulator: near deer use a continuous sectioned torso, slender shoulder-grown neck, compact tapered face, leaf-shaped ears, split hooves, and curved multi-tine antlers";
         std::cout << silhouetteDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(silhouetteDiagnostic);
+        constexpr auto contourDiagnostic =
+            "island-simulator: deer use ten-stage rounded rump and chest contours, fuller hock joints, and five-station tufted tails";
+        std::cout << contourDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(contourDiagnostic);
     }
 
     DeerRenderer::~DeerRenderer() = default;

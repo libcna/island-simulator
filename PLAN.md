@@ -23,6 +23,27 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest animal visual-audit implementation — rounded deer contour and tufted tail
+
+The resident/deer/boar comparison selected the deer: its detailed continuous torso still closed
+too abruptly at rump and chest, and its pale two-point tail read as a triangular rod. The same
+single body loft now uses ten longitudinal sections instead of eight, adding a transition at each
+end while retaining the waist, shoulder, underside, fitted spots and analytic lighting. The tail
+becomes a curved five-station loft with a broad tuft and compact tip. Slightly fuller knee-to-hock
+radii improve the lower-leg joint without moving any planted target, gait phase, hoof or terrain
+contact.
+
+The worst-case detailed antlered animal remains inside the unchanged 6,500-vertex guard; four
+agents, habitat, behaviour, LOD and one dynamic draw are unchanged. Deer-herd, core and all 103
+browser/capture harness tests pass. Inspected native baseline
+`20261016T214652.473297Z-deer` and accepted `20261016T215047.607532Z-deer` show a rounder closure
+and broader raised tail; the accepted frame passes at 256 colour bins, 33.59 luminance deviation
+and 135.43 spatial contrast. Focused Chrome/SwiftShader
+`20261016T215340.350634Z-chrome-deer` passes 60 finite positive intervals, GL error zero, a live
+context and kernel `[]`. Android arm64 assembly/lint pass without an emulator; the 24,748,819-byte
+APK has SHA-256 `04145df71064f41b53c7d9406cc5754b3d5e4ad6b373f82f2bb735f062cbcb91`
+and contains a 19,706,248-byte `libmain.so`. Physical Android runtime remains unqualified.
+
 ## Latest terrain visual-audit implementation — distance-stable coastal cliff strata
 
 The overview/headland/east comparison selected the low coastal cliff because its existing close

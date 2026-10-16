@@ -1,5 +1,29 @@
 # Inland deer
 
+## Rounded end contours, hock mass and tufted tail — 2026-10-16
+
+A renewed resident/deer/boar comparison selected the deer because its otherwise detailed model
+still closed the rump and chest abruptly, while the pale two-point tail read as a triangular rod.
+The continuous body loft now uses ten longitudinal sections instead of eight. Two extra transition
+stations round both end contours without returning to overlapping body volumes. Existing shoulder,
+waist, underside, spots and analytic normal lighting remain on the same continuous surface.
+
+The planted leg targets and gait are unchanged; only the visible knee-to-hock junction is fuller so
+the lower chain does not collapse into a uniform stick. The old straight tapered tail is replaced
+by a curved five-station loft that grows through a broad tuft and then closes to a small tip. The
+worst-case detailed antlered animal remains within the unchanged 6,500-vertex guard and all four
+animals remain in one dynamic draw.
+
+`IslandDeerHerdTests`, `IslandCoreTests` and all 103 browser/capture harness tests pass. Inspected
+native baseline `20261016T214652.473297Z-deer` and accepted
+`20261016T215047.607532Z-deer` show the rounder body closure and visibly broader raised tail; the
+accepted frame passes at 256 colour bins, 33.59 luminance deviation and 135.43 spatial contrast.
+Focused Chrome/SwiftShader evidence `20261016T215340.350634Z-chrome-deer` passes 60 finite positive
+intervals, GL error zero, a live context and kernel `[]`. Android arm64 assembly/lint pass without
+an emulator; the 24,748,819-byte debug APK has SHA-256
+`04145df71064f41b53c7d9406cc5754b3d5e4ad6b373f82f2bb735f062cbcb91` and contains a
+19,706,248-byte `libmain.so`. Physical Android appearance remains unqualified.
+
 Four deterministic peaceful feral deer occupy the east and west inland clearings. Their placement
 requires dry ground, more than 40 m of shore clearance, moderate slope and clearance from the
 shared static-world obstacle set. Each remains in a 13--15 m home. The bounded state machine

@@ -901,6 +901,7 @@ def validate_deer_report(report):
         or "near deer use vertex-blended ellipsoid light, curved tapered necks, articulated hocks, fitted muzzles, and smooth antler beams, with continuous five-ring necks, separate nasal pads, and surface-fitted oval coat spots" not in log
         or "deer use separated chest and haunch masses, muscle-profiled upper legs, and normal-driven dorsal-to-belly coat tone" not in log
         or "near deer use a continuous sectioned torso, slender shoulder-grown neck, compact tapered face, leaf-shaped ears, split hooves, and curved multi-tine antlers" not in log
+        or "deer use ten-stage rounded rump and chest contours, fuller hock joints, and five-station tufted tails" not in log
         or "deer QA camera frames one antlered clearing animal broadside" not in log
         or "fallback:" in log
         or not isinstance(frame, str) or not frame.endswith(".png")):

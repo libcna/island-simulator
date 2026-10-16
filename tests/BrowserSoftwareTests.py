@@ -133,6 +133,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             anatomy,
             "deer use separated chest and haunch masses, muscle-profiled upper legs, and normal-driven dorsal-to-belly coat tone",
             "near deer use a continuous sectioned torso, slender shoulder-grown neck, compact tapered face, leaf-shaped ears, split hooves, and curved multi-tine antlers",
+            "deer use ten-stage rounded rump and chest contours, fuller hock joints, and five-station tufted tails",
             "deer QA camera frames one antlered clearing animal broadside",
             "deer 2/4 visible, 1 draw"))
         def report():
