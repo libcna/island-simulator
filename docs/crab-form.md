@@ -196,3 +196,25 @@ luminance deviation, 204.90 spatial contrast and an empty kernel delta. The insp
 comparison keeps all five animals around their debris-linked burrow while restoring individually
 readable shells and limbs. This proves the bounded native route and one current composition, not
 physical-device performance or collision-free motion under every possible future controller.
+
+## Closed shallow underside (2026-10-16)
+
+A later small-fauna comparison retained the low eighteen-sided top shell, solid limbs and live
+colony separation but found that a crab turning its broad axis edge-on still exposed an open lower
+ring and read as a thin red card. The eighteen-point lower rim now closes around one shallow
+recessed abdominal centre with eighteen dark fixed-sun-shaded triangles. The accepted low crown,
+lateral corners, legs, claws, eyes and motion are unchanged.
+
+This adds 54 vertices / 18 triangles per visible near beach crab, raising the exact tier from
+1,338/446 to **1,392/464**. The conservative all-thirty-near capacity grows by only 25,920 bytes to
+668,160 bytes at the existing 16-byte vertex format. Coconut crabs reuse this base beneath their
+larger armor and rise from 2,538 to 2,592 vertices each. Population, 38 m LOD, culling, materials,
+simulation and the shared one-draw submission are unchanged.
+
+Inspected native `20261016T005728.064865Z-crabs` passes at 263 colour bins, 43.12 luminance
+deviation, 226.10 spatial contrast and an empty kernel delta. Independent coconut-crab guard
+`20261016T010220.118617Z-coconut-crabs` passes at 283/44.19/216.91 with an empty kernel delta,
+confirming its exact derived geometry remains valid. Focused Chrome/SwiftShader
+`20261016T005949.422541Z-chrome-crabs` passes two distinct inspected motion frames, 60 finite
+positive intervals, GL error zero, a live context, zero target-close timeouts and an empty final
+kernel delta. All 103 browser/capture harness tests pass.

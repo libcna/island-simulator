@@ -234,6 +234,26 @@ same-camera baseline `20261015T174806.814354Z-litter` and accepted current-binar
 showing five narrower dry leaves. The final 1280x720 frame passes with 196 colour bins, 17.95
 luminance deviation, 43.95 spatial contrast and an empty kernel delta.
 
+## Latest beach-crab volume pass — closed shallow underside
+
+The next small-fauna comparison retained the snakes' scaled head and the spiders' articulated
+silhouette, but selected beach crabs that still collapsed into thin red discs when their broad
+shell axis turned edge-on. The existing eighteen-point lower rim now closes around one shallow
+recessed abdominal centre with eighteen dark, fixed-sun-shaded triangles. This adds a visible lower
+edge without raising the accepted low top profile or changing legs, claws, eyes and motion.
+
+The near beach-crab inventory rises from 1,338 to 1,392 vertices (446 to 464 triangles); even the
+conservative all-thirty-near allocation grows only 25,920 bytes to 668,160 bytes. Coconut crabs
+reuse the closed base under their larger armor and rise from 2,538 to 2,592 vertices each. The
+thirty beach crabs, six coconut crabs, LODs, culling and shared single draw are unchanged.
+
+All 103 browser/capture harness tests pass. Inspected native
+`20261016T005728.064865Z-crabs` passes at 263 colour bins, 43.12 luminance deviation, 226.10
+spatial contrast and kernel `[]`; coconut guard `20261016T010220.118617Z-coconut-crabs` passes at
+283/44.19/216.91 and kernel `[]`. Focused Chrome/SwiftShader
+`20261016T005949.422541Z-chrome-crabs` passes two distinct inspected motion frames, 60 finite
+positive intervals, GL0, a live context, zero target-close timeouts and kernel `[]`.
+
 ## Latest crocodile silhouette pass — low trunk armor and tail keel
 
 The next multi-animal comparison retained the improved head and attached legs but selected the

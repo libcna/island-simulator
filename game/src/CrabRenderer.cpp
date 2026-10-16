@@ -36,13 +36,13 @@ namespace island
         constexpr float NearLodDistance = 38.0f;
         constexpr float TwoPi = 2.0f * std::numbers::pi_v<float>;
         constexpr int CarapaceSegments = 18;
-        constexpr int NearCrabVertexCount = 1338;
+        constexpr int NearCrabVertexCount = 1392;
         constexpr int FarCrabVertexCount = 12;
         constexpr int MaximumVerticesPerCrab = NearCrabVertexCount;
         constexpr int MaximumBurrowVertices = 1024;
         constexpr int MaximumHermitCrabVertices =
             static_cast<int>(HermitCrabGroup::Count) * 1024;
-        constexpr int CoconutCrabVertexCount = 2538;
+        constexpr int CoconutCrabVertexCount = 2592;
         constexpr int MaximumCoconutCrabVertices =
             static_cast<int>(CoconutCrabGroup::Count) * CoconutCrabVertexCount;
         constexpr int MaximumVertexCount = static_cast<int>(CrabColony::CrabCount)
@@ -58,6 +58,8 @@ namespace island
             "island-simulator: near crabs use eighteen-sided smooth-lit mottled carapaces and solid tapered legs";
         constexpr std::string_view CrabAnatomyDiagnostic =
             "island-simulator: near crabs use low broad shells with retained lateral carapace corners";
+        constexpr std::string_view CrabUndersideDiagnostic =
+            "island-simulator: near crab carapaces close around a shallow dark underside instead of ending at an open rim";
         constexpr std::string_view CrabHabitatDiagnostic =
             "island-simulator: six debris-linked crab colonies share visible sand burrows";
         constexpr std::string_view CrabSpacingDiagnostic =
@@ -533,6 +535,18 @@ namespace island
                 AddGradientQuad(vertices, rim[index], lower[index], lower[next], rim[next],
                                 rimColor, lowerColor, nextLowerColor, nextRimColor);
             }
+            // Close the shell below the lateral rim. The old open ring was hidden
+            // from above but collapsed into a paper-thin disc whenever a moving crab
+            // turned broadside. One shallow concave fan adds a darker abdominal plane
+            // without increasing the number of agents, materials or draw calls.
+            const Vector3 underside = LocalPoint(
+                centre, right, up, forward, 0.0f, 0.018f, -0.010f, scale);
+            const Color undersideColor = wildlife_render::ScaleColor(
+                palette.shellSide, .72f);
+            for (std::size_t index = 0; index < lower.size(); ++index) {
+                const std::size_t next = (index + 1U) % lower.size();
+                AddTriangle(vertices, lower[next], lower[index], underside, undersideColor);
+            }
 
             struct ShellMark
             {
@@ -883,6 +897,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(CrabSurfaceDiagnostic);
         std::cout << CrabAnatomyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CrabAnatomyDiagnostic);
+        std::cout << CrabUndersideDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(CrabUndersideDiagnostic);
         std::cout << CrabHabitatDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CrabHabitatDiagnostic);
         std::cout << CrabSpacingDiagnostic << '\n';
