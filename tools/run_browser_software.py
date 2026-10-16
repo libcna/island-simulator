@@ -668,7 +668,7 @@ def validate_cicada_report(report):
         or not all(isinstance(frame,str) and frame.endswith(".png") for frame in frames)
         or len(set(frames))!=2
         or "twelve cicadas rest, call, and make short flights from real broadleaf trunks in the shared small-fauna batch" not in log
-        or "close cicadas use broad heads, highlighted eyes, stout tapered bodies, six legs, and two veined roof-folded wings" not in log
+        or "close cicadas use continuous thorax and abdomen lofts, rounded compound eyes, short antennae, solid jointed legs, and two veined roof-folded wings" not in log
         or "cicada QA camera frames one trunk-resting animal broadside" not in log
         or not re.search(r"cicadas [1-9][0-9]*/12 visible in shared draw",log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",log,re.I)):

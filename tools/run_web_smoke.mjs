@@ -938,7 +938,7 @@ try {
               && log.includes("ant QA camera frames a visible worker on one inland soil trail")
               && /ants [1-9][0-9]*\/64 visible in shared draw/.test(log)))
             && (!focusedCicadaCheck || (log.includes("twelve cicadas rest, call, and make short flights from real broadleaf trunks in the shared small-fauna batch")
-              && log.includes("close cicadas use broad heads, highlighted eyes, stout tapered bodies, six legs, and two veined roof-folded wings")
+              && log.includes("close cicadas use continuous thorax and abdomen lofts, rounded compound eyes, short antennae, solid jointed legs, and two veined roof-folded wings")
               && log.includes("cicada QA camera frames one trunk-resting animal broadside")
               && /cicadas [1-9][0-9]*\/12 visible in shared draw/.test(log)))
             && (!focusedBeetleCheck || (log.includes("fifteen tropical ground beetles rest, forage, and hide in three inland leaf-litter colonies")

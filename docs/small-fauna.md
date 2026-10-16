@@ -48,6 +48,30 @@ draw, adding no renderer, GPU buffer, texture, material switch or draw call. Two
 procedural 1.4-second pulsed buzz clips use the existing positional wildlife voice. Scheduling is
 restricted to calling, non-dormant animals inside 48 m and uses a sparse deterministic cooldown.
 
+### Close-anatomy audit — 2026-10-16
+
+A later whole-animal comparison found that the close form still read as a robot assembled from
+diamond beads: three disconnected abdominal solids, broad triangular airplane-like wings, flat
+line legs and angular button eyes. The thorax and abdomen are now separate continuous multi-station
+lofts with a fitted pronotum mark and restrained abdominal bands. Two narrower swept wing polygons
+fold along the abdomen and carry four geometric veins apiece. Both compound eyes are closed
+three-station volumes with small highlights, and short solid antennae plus all twelve leg sections
+are tapered tubes rather than cards.
+
+One exact detailed cicada is 1,740 vertices inside a conservative 1,800-vertex slot. The twelve
+agents still share the existing small-fauna allocation and one draw; count, trunk attachment,
+rest/call/flight behavior, audio, culling and activation tiers are unchanged. The inspected
+exact-final native evidence is
+`build-consumer/software-captures/20261016T165113.792334Z-cicadas` (113 colour bins, 18.97
+luminance deviation and 74.62 spatial contrast). It shows the continuous body, roof silhouette,
+red-brown eyes, antennae and planted solid legs against the host trunk.
+Chrome/SwiftShader evidence
+`build/browser-software/20261016T165431.150995Z-chrome-cicadas` passes with 60 finite positive
+intervals, GL error zero, a live context and clean kernel monitoring; the matching frame was
+inspected. ARM64 assemble/lint passes without emulator/KVM (24,704,963-byte APK, SHA-256
+`94e2160855cc8db3ad2f4745e0e575ffaeb6d6b624c646ee5d44bfa9cec4c2d3`, 19,662,392-byte stripped
+`libmain.so`). Physical-device appearance remains unqualified.
+
 The dedicated CPU test runs three simulated minutes and covers exact count, determinism, finite
 normalized frames, actual host contact, rest/call/flight cycling, bounded excursion and all three
 distance tiers. Audio tests cover deterministic/distinct PCM with silent endpoints, scheduling,

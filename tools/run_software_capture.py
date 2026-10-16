@@ -1232,7 +1232,7 @@ def main():
             if args.viewpoint == "cicadas":
                 for marker in (
                     "twelve cicadas rest, call, and make short flights from real broadleaf trunks in the shared small-fauna batch",
-                    "close cicadas use broad heads, highlighted eyes, stout tapered bodies, six legs, and two veined roof-folded wings",
+                    "close cicadas use continuous thorax and abdomen lofts, rounded compound eyes, short antennae, solid jointed legs, and two veined roof-folded wings",
                     "cicada QA camera frames one trunk-resting animal broadside"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"cicada integration diagnostic missing: {marker}")

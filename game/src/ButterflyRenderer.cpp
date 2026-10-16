@@ -44,9 +44,9 @@ namespace island
         // fitted eyes, swept wings and six articulated solid legs.
         constexpr int MaximumFlyVertices = static_cast<int>(FlySwarms::Count) * 1400;
         constexpr int MaximumAntVertices = static_cast<int>(AntTrails::Count) * 360;
-        // A close cicada uses at most 684 vertices including the broad lofted head,
-        // segmented abdomen, wing veins and all six two-section legs.
-        constexpr int MaximumCicadaVertices = static_cast<int>(CicadaColony::Count) * 720;
+        // A close cicada uses 1,740 vertices including continuous body lofts,
+        // compound eyes, roof-folded wing veins, antennae and solid jointed legs.
+        constexpr int MaximumCicadaVertices = static_cast<int>(CicadaColony::Count) * 1800;
         constexpr int MaximumBeetleVertices = static_cast<int>(BeetlePopulation::Count) * 1200;
         constexpr int MaximumVertexCount = static_cast<int>(ButterflyMeadow::ButterflyCount)
             * MaximumVerticesPerButterfly + MaximumFlowerVertices + MaximumGeckoVertices
@@ -95,7 +95,7 @@ namespace island
         constexpr std::string_view CicadaDiagnostic =
             "island-simulator: twelve cicadas rest, call, and make short flights from real broadleaf trunks in the shared small-fauna batch";
         constexpr std::string_view CicadaAnatomyDiagnostic =
-            "island-simulator: close cicadas use broad heads, highlighted eyes, stout tapered bodies, six legs, and two veined roof-folded wings";
+            "island-simulator: close cicadas use continuous thorax and abdomen lofts, rounded compound eyes, short antennae, solid jointed legs, and two veined roof-folded wings";
         constexpr std::string_view BeetleDiagnostic =
             "island-simulator: fifteen tropical ground beetles rest, forage, and hide in three inland leaf-litter colonies";
         constexpr std::string_view BeetleAnatomyDiagnostic =
@@ -968,57 +968,90 @@ namespace island
             const Color wing = Color::Lerp(body, Color(133, 143, 94), .42f);
             const Color vein = Color::Lerp(body, Color(27, 31, 20), .61f);
             const Color legColor = Color::Lerp(body, Color(164, 142, 77), .20f);
-            const Color eye(54, 35, 24), glint(221, 194, 128);
+            const Color eye(119, 57, 39), glint(232, 197, 127);
             const Vector3 centre(cicada.x, cicada.y, cicada.z);
             const Vector3 thorax = centre + dorsal * (.34f * unit);
-            AppendAntBody(vertices, thorax, right, dorsal, forward,
-                .59f * unit, .45f * unit, .50f * unit,
-                Color::Lerp(body, Color(155, 132, 64), .14f), flank);
+            constexpr std::array<float,5> ThoraxStations={{-.50f,-.34f,-.10f,.24f,.47f}};
+            constexpr std::array<float,5> ThoraxWidths={{.20f,.52f,.62f,.54f,.20f}};
+            constexpr std::array<float,5> ThoraxHeights={{.18f,.38f,.46f,.38f,.16f}};
+            AppendGeckoLoft(vertices,thorax,right,dorsal,forward,ThoraxStations,
+                ThoraxWidths,ThoraxHeights,unit,
+                Color::Lerp(body,Color(155,132,64),.14f),flank,flank);
             const Vector3 head = thorax + forward * (.63f * unit);
-            constexpr std::array<float, 4> HeadStations = {{-.30f, -.10f, .18f, .34f}};
-            constexpr std::array<float, 4> HeadWidths = {{.37f, .50f, .48f, .27f}};
-            constexpr std::array<float, 4> HeadHeights = {{.23f, .32f, .30f, .16f}};
+            constexpr std::array<float, 4> HeadStations = {{-.30f, -.11f, .17f, .33f}};
+            constexpr std::array<float, 4> HeadWidths = {{.30f, .52f, .49f, .23f}};
+            constexpr std::array<float, 4> HeadHeights = {{.20f, .33f, .30f, .14f}};
             AppendGeckoLoft(vertices, head, right, dorsal, forward, HeadStations,
                             HeadWidths, HeadHeights, unit, body, flank, flank);
-            const std::array<float, 3> abdomenOffsets = {{-.48f, -.89f, -1.23f}};
-            const std::array<float, 3> abdomenWidths = {{.46f, .40f, .29f}};
-            for (std::size_t segment = 0; segment < abdomenOffsets.size(); ++segment) {
-                const Vector3 abdomen = thorax + forward * (abdomenOffsets[segment] * unit);
-                AppendAntBody(vertices, abdomen, right, dorsal, forward,
-                    abdomenWidths[segment] * unit,
-                    (.31f - .045f * static_cast<float>(segment)) * unit,
-                    .34f * unit,
-                    segment % 2U == 0U ? body : Color::Lerp(body, flank, .18f), flank);
+            const Vector3 abdomen=thorax-forward*(.78f*unit)-dorsal*(.035f*unit);
+            constexpr std::array<float,6> AbdomenStations={{-.65f,-.42f,-.15f,.13f,.40f,.58f}};
+            constexpr std::array<float,6> AbdomenWidths={{.12f,.26f,.37f,.44f,.42f,.20f}};
+            constexpr std::array<float,6> AbdomenHeights={{.11f,.22f,.28f,.31f,.28f,.14f}};
+            AppendGeckoLoft(vertices,abdomen,right,dorsal,forward,AbdomenStations,
+                AbdomenWidths,AbdomenHeights,unit,body,flank,
+                Color::Lerp(body,Color(166,151,94),.18f));
+            const Color marking=Color::Lerp(body,Color(32,29,20),.35f);
+            AppendGeckoSpot(vertices,thorax+dorsal*(.47f*unit)+forward*(.04f*unit),
+                right,forward,.23f*unit,.16f*unit,marking);
+            constexpr std::array<float,4> BandOffsets={{-.35f,-.10f,.15f,.38f}};
+            constexpr std::array<float,4> BandWidths={{.22f,.34f,.39f,.32f}};
+            constexpr std::array<float,4> BandHeights={{.22f,.28f,.31f,.27f}};
+            for(std::size_t band=0;band<BandOffsets.size();++band) {
+                const Vector3 bandCentre=abdomen+forward*(BandOffsets[band]*unit)
+                    +dorsal*((BandHeights[band]+.012f)*unit);
+                const Vector3 leftFront=bandCentre-right*(BandWidths[band]*unit)
+                    +forward*(.018f*unit);
+                const Vector3 rightFront=bandCentre+right*(BandWidths[band]*unit)
+                    +forward*(.018f*unit);
+                const Vector3 leftRear=bandCentre-right*(BandWidths[band]*unit)
+                    -forward*(.018f*unit);
+                const Vector3 rightRear=bandCentre+right*(BandWidths[band]*unit)
+                    -forward*(.018f*unit);
+                AddDoubleSidedTriangle(vertices,leftFront,rightFront,rightRear,marking);
+                AddDoubleSidedTriangle(vertices,leftFront,rightRear,leftRear,marking);
             }
 
             for (const float side : {-1.0f, 1.0f}) {
                 const float beat = cicada.behavior == CicadaBehavior::Flight
                     ? std::sin(cicada.wingPhase) * .35f : .08f;
-                const Vector3 root = thorax + right * (side * .28f * unit)
-                    + dorsal * (.31f * unit) - forward * (.04f * unit);
-                const Vector3 leading = root + right * (side * .48f * unit)
-                    - forward * (.18f * unit) + dorsal * (beat * unit);
-                const Vector3 tip = root + right * (side * .82f * unit)
-                    - forward * (1.48f * unit) + dorsal * (beat * .72f * unit);
-                const Vector3 trailing = root + right * (side * .18f * unit)
-                    - forward * (1.32f * unit) + dorsal * (.05f * unit);
-                AddDoubleSidedTriangle(vertices, root, leading, tip, wing);
-                AddDoubleSidedTriangle(vertices, root, tip, trailing,
-                                       Color::Lerp(wing, body, .18f));
+                const Vector3 root=thorax+right*(side*.22f*unit)
+                    +dorsal*(.31f*unit)-forward*(.02f*unit);
+                const Vector3 leading=root+right*(side*.24f*unit)
+                    +forward*(.11f*unit)+dorsal*(beat*unit);
+                const Vector3 outer=root+right*(side*.50f*unit)
+                    -forward*(.30f*unit)+dorsal*(beat*.90f*unit);
+                const Vector3 tip=root+right*(side*.38f*unit)
+                    -forward*(1.46f*unit)+dorsal*(beat*.70f*unit);
+                const Vector3 trailing=root+right*(side*.08f*unit)
+                    -forward*(1.25f*unit)+dorsal*(.04f*unit);
+                AddDoubleSidedTriangle(vertices,root,leading,outer,wing);
+                AddDoubleSidedTriangle(vertices,root,outer,tip,wing);
+                AddDoubleSidedTriangle(vertices,root,tip,trailing,
+                    Color::Lerp(wing,body,.20f));
                 AppendGeckoSegment(vertices, root, tip, .025f * unit, vein);
-                AppendGeckoSegment(vertices, leading, trailing, .018f * unit, vein);
-                AppendGeckoSegment(vertices,
-                    root + (leading - root) * .62f,
-                    root + (tip - root) * .76f, .014f * unit, vein);
+                AppendGeckoSegment(vertices,leading,tip,.018f*unit,vein);
+                AppendGeckoSegment(vertices,outer,trailing,.016f*unit,vein);
+                AppendGeckoSegment(vertices,root+(leading-root)*.58f,
+                    root+(tip-root)*.72f,.013f*unit,vein);
 
                 const Vector3 eyeCentre = head + forward * (.12f * unit)
                     + right * (side * .43f * unit) + dorsal * (.15f * unit);
-                AppendGeckoDiamond(vertices, eyeCentre, right, dorsal, forward,
-                    .095f * unit, .11f * unit, .085f * unit, eye, eye);
+                constexpr std::array<float,3> EyeStations={{-.09f,0.0f,.09f}};
+                constexpr std::array<float,3> EyeWidths={{.045f,.105f,.045f}};
+                constexpr std::array<float,3> EyeHeights={{.040f,.100f,.040f}};
+                AppendGeckoLoft(vertices,eyeCentre,forward,dorsal,right,EyeStations,
+                    EyeWidths,EyeHeights,unit,eye,eye,eye);
                 AddDoubleSidedTriangle(vertices,
                     eyeCentre + dorsal * (.115f * unit),
                     eyeCentre + forward * (.055f * unit),
                     eyeCentre + right * (side * .045f * unit), glint);
+
+                const Vector3 antennaRoot=head+forward*(.29f*unit)
+                    +right*(side*.18f*unit)+dorsal*(.11f*unit);
+                const Vector3 antennaTip=antennaRoot+forward*(.30f*unit)
+                    +right*(side*.13f*unit)+dorsal*(.05f*unit);
+                AppendGeckoTube(vertices,antennaRoot,antennaTip,.025f*unit,
+                    .010f*unit,legColor,5);
 
                 for (int legIndex = 0; legIndex < 3; ++legIndex) {
                     const float along = (.42f - .43f * static_cast<float>(legIndex)) * unit;
@@ -1031,8 +1064,10 @@ namespace island
                         * ((.54f - .58f * static_cast<float>(legIndex)) * unit)
                         + right * (side * (1.02f + .10f * legIndex) * unit)
                         - dorsal * (.02f * unit);
-                    AppendGeckoSegment(vertices, hip, knee, .075f * unit, legColor);
-                    AppendGeckoSegment(vertices, knee, foot, .052f * unit, legColor);
+                    AppendGeckoTube(vertices,hip,knee,.072f*unit,.050f*unit,
+                                    legColor,6);
+                    AppendGeckoTube(vertices,knee,foot,.050f*unit,.024f*unit,
+                                    legColor,6);
                 }
             }
         }

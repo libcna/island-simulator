@@ -2054,6 +2054,27 @@ emulator/KVM (24,191,747-byte APK, SHA-256
 `6d2ab4119a61b3b623337b82c9a02d6d8cf0bda0910bfa48364a3c78abde5fc1`, 19,149,176-byte stripped
 `libmain.so`); physical-device appearance remains unqualified.
 
+## Latest visual-audit implementation — connected cicada anatomy
+
+The next close-animal comparison selected the trunk cicada, whose disconnected diamond abdomen,
+broad triangular wings, flat line legs and button eyes still produced a robotic silhouette. Its
+thorax and abdomen are now continuous multi-station lofts with a restrained pronotum mark and
+abdominal bands. Narrower wings fold along the body and retain geometric veins; compound eyes are
+closed volumes with highlights, while the short antennae and all twelve leg sections are solid
+tapered tubes. The exact form is 1,740 vertices inside a 1,800-vertex slot. All twelve agents retain
+their trunk attachment, call/flight behavior, procedural audio, activation policy and shared one
+draw.
+
+Exact-final native evidence is
+`build-consumer/software-captures/20261016T165113.792334Z-cicadas` (113 colour bins, 18.97
+luminance deviation, 74.62 spatial contrast; inspected). Core tests and all 102 capture/browser
+harness tests pass. Chrome/SwiftShader evidence
+`build/browser-software/20261016T165431.150995Z-chrome-cicadas` passes with 60 finite positive
+intervals, GL0, a live context and clean kernel monitoring. ARM64 assemble/lint passes without
+emulator/KVM (24,704,963-byte APK, SHA-256
+`94e2160855cc8db3ad2f4745e0e575ffaeb6d6b624c646ee5d44bfa9cec4c2d3`, 19,662,392-byte stripped
+`libmain.so`). Remaining limits are in `docs/small-fauna.md`.
+
 ## Latest visual-audit implementation — ground fruit-dove anatomy
 
 The continuing animal audit selected the planted tropical fruit dove: its folded wings still read
