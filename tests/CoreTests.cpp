@@ -5180,6 +5180,8 @@ int main()
         .0001f, "stream mouth retains its broad authored connection");
     float positiveWidthVariation=0.0f,negativeWidthVariation=0.0f;
     float positiveMeander=0.0f,negativeMeander=0.0f;
+    float minimumLeftBankScale=1.0f,maximumLeftBankScale=1.0f;
+    float minimumRightBankScale=1.0f,maximumRightBankScale=1.0f;
     for(int along=0;along<=98;++along) {
         const float routeX=island::StreamRoute::SourceX-static_cast<float>(along);
         const float routeOffset=island::StreamRoute::CentreZ(routeX)-(-55.0f-.23f*routeX);
@@ -5190,15 +5192,32 @@ int main()
         const float baseline=std::lerp(.45f,1.5f,shaped);
         const float width=island::StreamRoute::HalfWidth(
             island::StreamRoute::SourceX-static_cast<float>(along));
+        const float leftScale=island::StreamRoute::BankWidthScale(
+            static_cast<float>(along),-1.0f);
+        const float rightScale=island::StreamRoute::BankWidthScale(
+            static_cast<float>(along),1.0f);
         Check(std::isfinite(width)&&width>=.45f&&width<=1.56f,
             "stream pools and pinches stay inside the authored width budget");
+        Check(std::isfinite(leftScale)&&std::isfinite(rightScale)
+                &&leftScale>=.78f&&leftScale<=1.22f
+                &&rightScale>=.78f&&rightScale<=1.22f,
+            "independent stream-bank width rhythms stay bounded");
         positiveWidthVariation=std::max(positiveWidthVariation,width-baseline);
         negativeWidthVariation=std::min(negativeWidthVariation,width-baseline);
+        minimumLeftBankScale=std::min(minimumLeftBankScale,leftScale);
+        maximumLeftBankScale=std::max(maximumLeftBankScale,leftScale);
+        minimumRightBankScale=std::min(minimumRightBankScale,rightScale);
+        maximumRightBankScale=std::max(maximumRightBankScale,rightScale);
     }
     Check(positiveWidthVariation>.16f&&negativeWidthVariation<-.31f,
         "stream profile contains material low-frequency pools and pinches");
     Check(positiveMeander>2.0f&&negativeMeander<-2.8f,
         "stream route contains broad visible bends on both sides of its valley axis");
+    Check(minimumLeftBankScale<.90f&&maximumLeftBankScale>1.09f
+              &&minimumRightBankScale<.91f&&maximumRightBankScale>1.08f
+              &&std::abs(island::StreamRoute::BankWidthScale(42.0f,-1.0f)
+                          -island::StreamRoute::BankWidthScale(42.0f,1.0f))>.02f,
+        "stream banks retain independent width rhythms instead of mirrored edges");
     const auto streamCentre=island::IslandEnvironmentField::SampleInland(
         streamX,streamZ,terrain.SignedShoreDistance(streamX,streamZ));
     const auto streamBank=island::IslandEnvironmentField::SampleInland(

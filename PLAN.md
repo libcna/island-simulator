@@ -224,6 +224,26 @@ Chrome/SwiftShader evidence `20261016T095519.559722Z-chrome-monkeys` retains the
 initial, four intermediate and final live poses with 60 finite positive intervals, GL error zero,
 a live context and kernel `[]`. Details are in `docs/monkey-face-profile.md`.
 
+## Latest stream visual pass — independently eroded banks
+
+The renewed environment matrix retained the wet microhabitat and animated water material but
+selected the lower stream's parallel bank edges. The centreline and shared pool/pinch width already
+varied, yet every local cross-section remained mirrored. One new deterministic function now gives
+the physical left and right banks separate low-frequency width rhythms. Its influence fades to
+zero at the source and mouth and stays within roughly ±21%. Both the collision-authoritative bed
+and the existing water ribbon consume the same side scale, so dry ledges and local widenings do
+not expose gaps or let water cross the bank.
+
+No water vertex, index, texture, attribute or draw was added: the surface remains 3,429 vertices /
+6,080 triangles in one transparent draw. Adaptive terrain compaction now retains 7,525 vertices /
+14,940 triangles instead of 7,580 / 15,050. The survey checks every water triangle against the
+actual bed, reports 14.4106 cm minimum visible depth and a bounded 0.685523 m deepest cut. Inspected
+native four-phase evidence `20261016T101848.725497Z-stream` passes at 373 colour bins, 53.92
+luminance deviation and 251.35 spatial contrast with an empty kernel delta. Three relevant native
+groups and all 97 browser/capture harness tests pass. Inspected Chrome/SwiftShader evidence
+`20261016T102312.904694Z-chrome-stream` passes two distinct moving frames, 60 finite positive
+intervals, GL error zero, a live context and kernel `[]`. Details are in `docs/stream-course.md`.
+
 ## Latest vegetation microhabitat pass — canopy trunk epiphytes
 
 The next vegetation audit accepted the connected crowns, bark and traversable forest floor but

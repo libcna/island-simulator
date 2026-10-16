@@ -669,6 +669,8 @@ def main():
                     raise RuntimeError("current irregular stream-width profile is missing")
                 if "stream route uses three broad valley-scale bends with fixed source and mouth" not in diagnostics:
                     raise RuntimeError("current broad stream-route meander is missing")
+                if "stream banks use independent bounded left-right width rhythms" not in diagnostics:
+                    raise RuntimeError("current asymmetric stream-bank profile is missing")
                 if not re.search(r"stream-bank stones (?:1[0-8]), non-solid existing rock variants beyond the carved bank", diagnostics):
                     raise RuntimeError("current stream-bank stone composition is missing")
                 if "stream terrain uses a compact incised profile and slope-limited exposed bank strata" not in diagnostics:

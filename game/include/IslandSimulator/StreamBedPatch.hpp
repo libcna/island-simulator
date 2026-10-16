@@ -73,11 +73,18 @@ public:
             const float centreX=std::lerp(routeA.x,routeB.x,t);
             const float centreZ=std::lerp(routeA.z,routeB.z,t);
             float along=std::lerp(routeA.distance,routeB.distance,t);
-            const float across=std::hypot(x-centreX,z-centreZ);
+            const float segmentX=routeB.x-routeA.x;
+            const float segmentZ=routeB.z-routeA.z;
+            const float segmentLength=std::hypot(segmentX,segmentZ);
+            const float normalX=segmentZ/segmentLength;
+            const float normalZ=-segmentX/segmentLength;
+            const float signedAcross=(x-centreX)*normalX+(z-centreZ)*normalZ;
+            const float across=std::abs(signedAcross);
             float height=base;
             if(along>0&&along<length+4) {
                 const float shapeT=std::clamp(t,0.0f,1.0f);
-                const float width=std::lerp(routeA.halfWidth,routeB.halfWidth,shapeT);
+                const float width=std::lerp(routeA.halfWidth,routeB.halfWidth,shapeT)
+                    * StreamRoute::BankWidthScale(along,signedAcross);
                 const float water=std::lerp(routeA.water,routeB.water,shapeT);
                 const float bed=std::lerp(routeA.bed,routeB.bed,shapeT);
                 if(across<width+BankBlendWidth) {

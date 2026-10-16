@@ -806,6 +806,7 @@ def validate_stream_report(report):
         or "stream water uses bank-edge sheen and broken shallow riffles" not in log
         or "stream water uses depth-graded colour and braided moving current threads" not in log
         or "stream channel uses shared low-frequency pools and pinches" not in log
+        or "stream banks use independent bounded left-right width rhythms" not in log
         or not re.search(r"stream-bank stones (?:1[0-8]), non-solid existing rock variants beyond the carved bank", log)
         or "stream terrain uses a compact incised profile and slope-limited exposed bank strata" not in log
         or "stream water first visible draw" not in log):

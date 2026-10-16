@@ -50,6 +50,22 @@ namespace island
             return base * (1.0f + variation);
         }
 
+        /** @brief Independent deterministic width modulation for each physical bank. */
+        [[nodiscard]] static float BankWidthScale(float along, float side) noexcept
+        {
+            if (!std::isfinite(along) || !std::isfinite(side)) return 1.0f;
+            const float envelope = Smooth(3.0f, 11.0f, along)
+                * (1.0f - Smooth(88.0f, NominalLength, along));
+            if (side < 0.0f) {
+                return 1.0f + envelope
+                    * (0.155f * std::sin(along * 0.143f + 0.2f)
+                       + 0.055f * std::sin(along * 0.047f + 1.1f));
+            }
+            return 1.0f + envelope
+                * (0.140f * std::sin(along * 0.131f + 2.2f)
+                   + 0.060f * std::sin(along * 0.063f - 0.5f));
+        }
+
     private:
         [[nodiscard]] static float Smooth(float low, float high, float value) noexcept
         {

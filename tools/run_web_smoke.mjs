@@ -1027,6 +1027,7 @@ try {
               && log.includes("stream water uses depth-graded colour and braided moving current threads")
               && log.includes("stream channel uses shared low-frequency pools and pinches")
               && log.includes("stream route uses three broad valley-scale bends with fixed source and mouth")
+              && log.includes("stream banks use independent bounded left-right width rhythms")
               && /stream-bank stones (?:1[0-8]), non-solid existing rock variants beyond the carved bank/.test(log)
               && log.includes("stream terrain uses a compact incised profile and slope-limited exposed bank strata")
               && log.includes("stream water first visible draw")))

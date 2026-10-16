@@ -35,7 +35,8 @@ struct StreamWaterMesh {
                 +.025f*std::sin(phase*.031f+2.3f));
             for(int side=0;side<acrossCount;++side) {
                 const float lateral=static_cast<float>(side)/4-1;
-                const float across=centreOffset+width*lateral;
+                const float bankScale=StreamRoute::BankWidthScale(distance,lateral);
+                const float across=centreOffset+width*bankScale*lateral;
                 const float px=x+normalX*across,pz=z+normalZ*across;
                 if(bed.SampleHeight(px,pz)>y-.015f)throw std::runtime_error("Stream water intersects bed");
                 const float edge=1-lateral*lateral;

@@ -1,5 +1,29 @@
 # Western stream course — live bed and first water pass
 
+## Independently eroded left and right banks — 2026-10-16
+
+The current ordinary-height environment comparison retained the wet-bank habitat, physical
+cross-section and animated flow, but selected the lower course's paired edges: centreline bends
+and shared pools/pinches still left every local cross-section mirrored. `StreamRoute` now exposes
+one deterministic bank-scale function with different incommensurate rhythms for the physical left
+and right sides. The effect fades completely at the source and mouth and remains within about
+±21%. `StreamBedPatch` measures signed distance along the local segment normal and applies the
+appropriate bank scale; `StreamWaterMesh` applies the same scale to its corresponding side. The
+result creates alternating dry ledges and locally fuller banks without separating water from the
+collision-authoritative bed.
+
+No water vertex, index, texture, attribute or draw was added: water remains 3,429 vertices / 6,080
+triangles in one transparent draw. The changed refinement footprint compacts the existing bed from
+7,580 vertices / 15,050 triangles to 7,525 / 14,940. `IslandStreamCourseSurvey` checks every water
+triangle against the actual bed, reports 14.4106 cm minimum visible depth and a bounded 0.685523 m
+deepest cut. Inspected four-phase native evidence `20261016T101848.725497Z-stream` passes at
+1280x720 with 373 colour bins, 53.92 luminance deviation, 251.35 spatial contrast and an empty
+kernel delta. Core, rendered-terrain, terrain-material and all 97 browser/capture harness tests
+pass. Inspected Chrome/SwiftShader evidence `20261016T102312.904694Z-chrome-stream` passes two
+different-time frames, 60 finite positive intervals, GL error zero, a live context and kernel
+`[]`. Physical Android appearance, longer free traversal and subjective stream-audio review remain
+open.
+
 ## Depth-graded water and broken current threads — 2026-10-14
 
 The environment audit found that the complete stream still read as a muted grey-green strip from
