@@ -235,6 +235,24 @@ world/core/capture tests pass. Inspected Chrome/SwiftShader
 `20261016T055151.536764Z-chrome-goats` shows four distinct current-habitat frames and passes 60
 finite intervals, GL0, a live context and kernel `[]`. Details are in `docs/goats.md`.
 
+## Latest resident visual pass — restrained nasal tip and separate lower lip
+
+The current animal/resident matrix retained the resident's shoulder silhouette, tapered neck,
+layered cheeks/jaw/eyes and foot-synchronised gait but selected the facial profile: a round nasal
+tip dominated the quarter view and the mouth ended in one dark upper chevron. The nasal tip and
+wings are now narrower and shallower while preserving bridge and nostrils. A new two-segment lower
+lip closes the existing peaked upper contour.
+
+The addition is 32 triangles, taking the body from 7,122 to 7,154 triangles under the unchanged
+40,000-vertex capacity. One peaceful actor, one body draw plus foot shadow, material atlas, route,
+gait and avoidance remain fixed. Five focused native groups and 41 browser/capture tests pass.
+Inspected native baseline `20261015T215422.757419Z-resident` and accepted eight-stage
+`20261016T072111.165937Z-resident` show the softer profile and separate lip contours; the accepted
+frame passes at 291 colour bins, 42.54 luminance deviation, 158.56 spatial contrast and kernel
+`[]`. Inspected Chrome/SwiftShader `20261016T072542.438718Z-chrome-resident` passes two distinct
+walking frames, 60 finite positive intervals, GL0, a live context, two draws and kernel `[]`.
+Details are in `docs/resident.md`.
+
 ## Latest crocodile visual pass — reticulated facet pigment
 
 The current twelve-species matrix selected the crocodile's large uniformly coloured flank and jaw

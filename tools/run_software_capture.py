@@ -766,6 +766,7 @@ def main():
                                "resident uses a shoulder-sloped woven tunic with open cap sleeves and anatomically tapered calves",
                                "resident uses buried deltoid shoulders, split hands, and layered facial anatomy",
                                "resident anatomy uses a tapered trapezius neck, rounded sleeve-deltoid transitions, shaped forearms, cheeks, jaw, eyelids, and nostril wings",
+                               "resident face uses a restrained nasal tip and separate upper and lower lip contours",
                                "resident woven clothing adds a bound V neckline and split thigh-following wrap",
                                "resident gait uses foot-synchronised thirty-degree arm counter-swing with relaxed elbows",
                                "resident QA camera frames and follows one peaceful adult",

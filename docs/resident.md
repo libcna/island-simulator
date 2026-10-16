@@ -1,5 +1,28 @@
 # Island resident — native and Web visual pass in progress
 
+## Restrained nasal tip and separate lower lip — 2026-10-16
+
+The renewed animal/resident comparison retained the ten-ring shoulder silhouette, tapered neck,
+cheeks, jaw, eyelids, nostril wings and gait but selected the facial profile: the round nasal tip
+still dominated the quarter view and the mouth ended as one dark upper chevron. The nasal tip and
+wings are now narrower and shallower while preserving the bridge and paired nostrils. A separate
+two-segment lower-lip contour sits beneath the existing peaked upper lip, producing a closed human
+mouth instead of one painted line.
+
+The lower lip adds 32 triangles, taking the body from 7,122 to 7,154 triangles beneath the unchanged
+40,000-vertex stream capacity. It shares the existing material atlas and single opaque body draw;
+the second draw remains the 24-triangle foot shadow. Exactly one peaceful resident, the route,
+terrain-fitted gait, arm counter-swing and player avoidance are unchanged.
+
+Five focused native groups and all 41 browser/capture harness tests pass. Same-camera native
+baseline `20261015T215422.757419Z-resident` and accepted eight-stage evidence
+`20261016T072111.165937Z-resident` were inspected side by side. The accepted 1280x720 frame passes
+at 291 colour bins, 42.54 luminance deviation, 158.56 spatial contrast and kernel `[]`; its quarter
+view shows the restrained profile and two lip contours without losing the facial silhouette.
+Inspected Chrome 155/SwiftShader
+`build/browser-software/20261016T072542.438718Z-chrome-resident` passes two distinct walking frames,
+60 finite positive intervals, GL error zero, a live context, two draws and kernel `[]`.
+
 ## Foot-synchronised arm swing and honest quarter-view audit — 2026-10-16
 
 The renewed nine-frame native audit showed that the existing ten-ring torso, trapezius neck,

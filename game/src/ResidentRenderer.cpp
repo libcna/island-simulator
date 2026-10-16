@@ -293,17 +293,17 @@ void BuildHuman(std::vector<VertexPositionColorTexture>& vertices,const Resident
     // A separate bridge, tip and nostrils make the face read in profile as well as head-on.
     mesh.Ellipsoid(head+up*.010f+forward*.091f,right,up,forward,.014f,.036f,.017f,Material::Skin,10,7);
     const Vector3 noseTip=head-up*.018f+forward*.105f;
-    mesh.Ellipsoid(noseTip,right,up,forward,.024f,.020f,.026f,Material::Skin,11,7);
+    mesh.Ellipsoid(noseTip,right,up,forward,.020f,.016f,.022f,Material::Skin,11,7);
     for(int side=-1;side<=1;side+=2)
-        mesh.Ellipsoid(noseTip+right*(side*.009f)-up*.006f+forward*.024f,
+        mesh.Ellipsoid(noseTip+right*(side*.008f)-up*.005f+forward*.021f,
             right,up,forward,.0042f,.0032f,.003f,Material::Hair,7,4);
     // Separate cheek pads, nostril wings and jaw corners make the face readable as
     // a human face in the close QA view rather than marks painted on one sphere.
     for(float sign:{-1.0f,1.0f}) {
         mesh.Ellipsoid(head+right*(sign*.051f)-up*.012f+forward*.077f,
             right,up,forward,.044f,.041f,.027f,Material::Skin,12,7);
-        mesh.Ellipsoid(noseTip+right*(sign*.017f)-up*.004f+forward*.006f,
-            right,up,forward,.012f,.010f,.013f,Material::Skin,10,6);
+        mesh.Ellipsoid(noseTip+right*(sign*.015f)-up*.003f+forward*.005f,
+            right,up,forward,.010f,.008f,.010f,Material::Skin,10,6);
         mesh.Ellipsoid(head+right*(sign*.044f)-up*.073f+forward*.054f,
             right,up,forward,.043f,.046f,.029f,Material::Skin,11,7);
     }
@@ -311,6 +311,11 @@ void BuildHuman(std::vector<VertexPositionColorTexture>& vertices,const Resident
     const Vector3 lipPeak=mouth+up*.0035f+forward*.002f;
     mesh.Tube(mouth-right*.027f,lipPeak,.0045f,.0040f,Material::Lip,8);
     mesh.Tube(lipPeak,mouth+right*.027f,.0040f,.0045f,Material::Lip,8);
+    // A softer lower contour closes the lips without painting one thick dark bar
+    // across the face. It follows the same head basis in every walking pose.
+    const Vector3 lowerLip=mouth-up*.009f+forward*.0025f;
+    mesh.Tube(mouth-right*.024f-up*.004f,lowerLip,.0034f,.0038f,Material::Lip,8);
+    mesh.Tube(lowerLip,mouth+right*.024f-up*.004f,.0038f,.0034f,Material::Lip,8);
     mesh.Ellipsoid(head-up*.102f+forward*.061f,right,up,forward,.038f,.022f,.025f,Material::Skin,10,6);
 
     for(std::size_t side=0;side<2;++side) {
@@ -394,6 +399,8 @@ ResidentRenderer::ResidentRenderer(GraphicsDevice& device,const CanopyLightField
     std::cout<<anatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(anatomy);
     const char* refinedAnatomy="island-simulator: resident anatomy uses a tapered trapezius neck, rounded sleeve-deltoid transitions, shaped forearms, cheeks, jaw, eyelids, and nostril wings";
     std::cout<<refinedAnatomy<<'\n';MirrorRuntimeDiagnosticToPlatformLog(refinedAnatomy);
+    const char* faceProfile="island-simulator: resident face uses a restrained nasal tip and separate upper and lower lip contours";
+    std::cout<<faceProfile<<'\n';MirrorRuntimeDiagnosticToPlatformLog(faceProfile);
     const char* garment="island-simulator: resident woven clothing adds a bound V neckline and split thigh-following wrap";
     std::cout<<garment<<'\n';MirrorRuntimeDiagnosticToPlatformLog(garment);
     const char* gait="island-simulator: resident gait uses foot-synchronised thirty-degree arm counter-swing with relaxed elbows";
