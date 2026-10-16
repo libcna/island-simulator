@@ -154,6 +154,7 @@ def validate_helicopter_report(report):
             or "lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands" not in log
             or "helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs" not in log
             or "helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench" not in log
+            or "helicopter rotor mast uses concentric tubular shafts, a flattened round swashplate, and a rounded gearbox housing" not in log
             or not re.search(r"helicopter 2 draw", log)
             or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
             raise RuntimeError("helicopter view lacks current glazing, bounded draws or clean graphics state")

@@ -842,6 +842,7 @@ try {
               && log.includes("lateral tail-rotor shaft carries four closed swept blades with visible chord, thickness, and muted tip bands")
               && log.includes("helicopter four open doorways use twin-rail tubular anti-slip entry steps instead of solid slabs")
               && log.includes("helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench")
+              && log.includes("helicopter rotor mast uses concentric tubular shafts, a flattened round swashplate, and a rounded gearbox housing")
               && /helicopter 2 draw/.test(log)))
             && (!focusedCampfireCheck || (log.includes("campfire first visible animated draw")
               && log.includes("campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke")

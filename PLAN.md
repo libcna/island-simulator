@@ -131,6 +131,26 @@ the latest animal repairs already exist and are not reopened merely because an o
 contains an unchecked or partial marker. Those stale markers should be normalized incrementally
 when their owning area is touched, without rewriting historical evidence.
 
+## Latest helicopter exterior pass — rounded rotor transmission
+
+The next same-camera exterior audit retained the recognisable cabin and open access but selected the
+oversized square mast column and box-shaped rotor gearbox as the weakest remaining mechanical
+silhouette. The parked head now rises on concentric eight-sided tubular shafts through a flattened
+round swashplate and a rounded twelve-sided gearbox housing. The rotor blade upper surfaces also use
+a restrained dark graphite rather than near-black olive, retaining an unmistakably stationary rotor
+while separating its chord from the sky and canopy.
+
+This replaces overlapping block geometry and adds 128 triangles, taking the complete helicopter
+from 5,202 to 5,330 triangles in the same opaque/glass two draws. Placement, stationary state,
+collision, floor support and all four entry corridors are unchanged. `IslandHelicopterLayoutTests`,
+`IslandCoreTests` and 103 browser/capture harness tests pass. Inspected native evidence
+`20261016T003232.123815Z-helicopter` passes at 319 colour bins, 54.74 luminance deviation, 232.21
+spatial contrast and kernel `[]`; interior guard `20261016T003246.179579Z-helicopter-inside`
+passes at 180/21.26/77.97 with kernel `[]`. The exterior comparison shows a narrower layered rotor
+transmission in place of the old dark rectangular tower. Focused Chrome/SwiftShader
+`20261016T003526.423226Z-chrome-helicopter` passes both inspected views with 60 finite positive
+intervals each, GL0, live contexts, zero target-close timeouts and kernel `[]`.
+
 ## Latest helicopter interior pass — rounded framed seating
 
 The renewed paired audit accepted the fuller canopy, open doors, rotors and controls but selected

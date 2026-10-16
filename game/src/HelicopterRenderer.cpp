@@ -661,9 +661,15 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         tube({side*.82f,.67f,1.18f},{side*1.24f,frontY,1.18f},.062f,metal,Surface::Metal);
     }
 
-    // Stationary mast, hub and four broad blades; there is deliberately no flight state.
-    beam({0,2.22f,-.12f},{0,2.98f,-.12f},.17f,metal,Surface::Metal);
-    box({-.25f,2.91f,-.37f},{.25f,3.08f,.13f},oliveDark);
+    // Stationary mast, swashplate, hub and four broad blades; there is deliberately
+    // no flight state. The earlier square drive column and box hub dominated the
+    // broadside silhouette. Concentric tubular shafts and flattened round housings
+    // preserve the same parked mechanism while reading as helicopter hardware.
+    tube({0,2.22f,-.12f},{0,2.82f,-.12f},.070f,metal,Surface::Metal);
+    ellipsoid({0,2.82f,-.12f},{.29f,.045f,.29f},3,16,
+              Color(77,82,76),Surface::Metal);
+    ellipsoid({0,2.995f,-.12f},{.25f,.095f,.25f},4,12,
+              oliveDark,Surface::Metal);
     constexpr int hubSegments=8;
     for(int segment=0;segment<hubSegments;++segment) {
         const float first=tau*segment/hubSegments,next=tau*(segment+1)/hubSegments;
@@ -718,14 +724,14 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         const float firstFraction=(firstJoint-.48f)/(HelicopterLayout::MainRotorRadius-.48f);
         const float secondFraction=(secondJoint-.48f)/(HelicopterLayout::MainRotorRadius-.48f);
         closedBlade(.48f,firstJoint,.155f,.145f,0,firstFraction,
-            blade%2?Color(62,67,60):Color(76,82,73),
-            blade%2?Color(42,46,42):Color(50,55,49));
+            blade%2?Color(80,84,77):Color(92,96,87),
+            blade%2?Color(48,52,48):Color(55,59,54));
         closedBlade(firstJoint,secondJoint,.145f,.128f,firstFraction,secondFraction,
-            blade%2?Color(62,67,60):Color(76,82,73),
-            blade%2?Color(42,46,42):Color(50,55,49));
+            blade%2?Color(80,84,77):Color(92,96,87),
+            blade%2?Color(48,52,48):Color(55,59,54));
         closedBlade(secondJoint,tipStart,.128f,.110f,secondFraction,tipFraction,
-            blade%2?Color(62,67,60):Color(76,82,73),
-            blade%2?Color(42,46,42):Color(50,55,49));
+            blade%2?Color(80,84,77):Color(92,96,87),
+            blade%2?Color(48,52,48):Color(55,59,54));
         // Muted yellow parked-blade tips improve scale/readability without suggesting
         // illuminated or moving rotors.
         closedBlade(tipStart,HelicopterLayout::MainRotorRadius,.110f,.098f,
@@ -802,6 +808,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<entrySteps<<'\n';MirrorRuntimeDiagnosticToPlatformLog(entrySteps);
     const std::string seating="island-simulator: helicopter cabin uses rounded closed pilot cushions on exposed metal frames and a seam-divided rear bench";
     std::cout<<seating<<'\n';MirrorRuntimeDiagnosticToPlatformLog(seating);
+    const std::string rotorMast="island-simulator: helicopter rotor mast uses concentric tubular shafts, a flattened round swashplate, and a rounded gearbox housing";
+    std::cout<<rotorMast<<'\n';MirrorRuntimeDiagnosticToPlatformLog(rotorMast);
 }
 
 HelicopterRenderer::~HelicopterRenderer()=default;

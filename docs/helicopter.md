@@ -1,5 +1,28 @@
 # Grounded helicopter
 
+## Rounded rotor transmission — 2026-10-16
+
+The next same-camera exterior review retained the fuller canopy, open access, tapered blades and
+correctly oriented tail rotor, but selected the main rotor's oversized square drive column and box
+gearbox as the weakest mechanical silhouette. The parked head now uses concentric eight-sided
+tubular shafts, a flattened round swashplate and a rounded twelve-sided gearbox housing. Upper
+blade surfaces move from near-black olive to restrained dark graphite, so their chord remains
+readable against sky and canopy without implying motion.
+
+The replacement removes overlapping blocks and adds 128 triangles, raising the complete procedural
+aircraft from 5,202 to 5,330 triangles in the unchanged opaque/glass two draws. Placement,
+collision, walkable floor, stationary/non-flying state and all four entry corridors are unchanged.
+`IslandHelicopterLayoutTests`, `IslandCoreTests` and all 103 browser/capture harness tests pass.
+
+Inspected native evidence is `20261016T003232.123815Z-helicopter` (319 colour bins, 54.74
+luminance deviation, 232.21 spatial contrast) and
+`20261016T003246.179579Z-helicopter-inside` (180 bins, 21.26 deviation, 77.97 contrast); both have
+empty kernel deltas. The exterior shows a narrow layered transmission instead of a single dark
+rectangular tower, and the interior confirms unchanged panel, controls, seating and exit sightlines.
+Focused Chrome/SwiftShader `20261016T003526.423226Z-chrome-helicopter` passes both inspected views
+with 60 finite positive intervals each, GL error zero, live contexts, zero target-close timeouts and
+an empty final kernel delta.
+
 ## Rounded framed cabin seating — 2026-10-16
 
 The next exterior/interior audit retained the recognisable airframe, glazing and avionics, but
