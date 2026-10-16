@@ -1060,6 +1060,8 @@ def main():
                     raise RuntimeError("current shark contrast and fin profile are missing; check for a stale executable")
                 if "shark skin pass preserves a dark dorsal and fin-edge silhouette with a raised pale lower flank after water tint" not in diagnostics:
                     raise RuntimeError("current shark skin contrast pass is missing; check for a stale executable")
+                if "shark readability pass deepens the dorsal gradient and widens five high-contrast swept gill slits" not in diagnostics:
+                    raise RuntimeError("current shark readability pass is missing; check for a stale executable")
                 if not re.search(r"shark visible activity \S+, 1 draw", diagnostics):
                     raise RuntimeError("shark capture did not submit the near detailed animal")
             if args.viewpoint == "dolphins":

@@ -188,6 +188,23 @@ spatial contrast and kernel `[]`. Inspected Chrome/SwiftShader
 `20261016T092424.885223Z-chrome-butterflies` passes two visibly distinct wing poses, 60 finite
 positive intervals, GL error zero, a live context and an empty kernel delta.
 
+## Latest shark visual pass — readable gill fan and stronger countershade
+
+The next monkey/shark/turtle comparison retained the monkey's furred quadrupedal form and the
+turtle's shell and flipper anatomy, but selected the shark because its five gill slits and lower
+flank still disappeared into the water veil at ordinary viewing distance. The existing pigments
+now begin from a deeper blue-charcoal dorsal and fin colour and a cleaner pale ventral colour. The
+same ten gill quads are wider, slightly longer and more evenly swept along both sides of the head;
+the fitted eye receives a darker pupil and brighter restrained glint.
+
+This changes only existing colours and coordinates. The exact 1,896/15 near/far inventory, single
+draw, occasional patrol, body wave, bank, habitat and LOD remain unchanged. Inspected native
+evidence `20261016T093357.068574Z-shark` passes at 318 colour bins, 29.65 luminance deviation and
+129.78 spatial contrast. Core, capture and all 97 browser/capture harness tests pass. Inspected
+Chrome/SwiftShader evidence `20261016T093607.963542Z-chrome-shark` retains the gill fan in two
+distinct moving frames and passes 60 finite positive intervals, GL error zero, a live context and
+kernel `[]`. Details are in `docs/shark-form.md`.
+
 ## Latest vegetation microhabitat pass — canopy trunk epiphytes
 
 The next vegetation audit accepted the connected crowns, bark and traversable forest floor but

@@ -129,3 +129,21 @@ draw, occasional patrol, body wave, banking, habitat and LOD remain unchanged. N
 129.81 spatial contrast and an empty kernel delta. Core, capture and all 41 browser/capture harness
 tests pass. Focused Chrome/SwiftShader `20261016T051153.378744Z-chrome-shark` passes two distinct
 animated frames, 60 finite positive intervals, GL error zero, a live context and kernel `[]`.
+
+## Readable gill fan and stronger countershade (2026-10-16)
+
+A later monkey/shark/turtle detail comparison selected the shark again, this time because its
+overall silhouette remained recognisable while the five paired gill slits and pale lower flank
+became too quiet behind the near-surface water veil. The source palette now starts with a deeper
+blue-charcoal back, flank and fin edge plus a cleaner pale belly. Each existing gill quad is a
+little wider and longer, with deliberate spacing and a restrained rear sweep; the fitted eye keeps
+its size but receives a darker pupil and brighter glint. The result remains integrated with the
+water rather than outlined against it.
+
+No vertices, buffers, draws or simulation work were added. The exact 1,896/15 near/far inventory,
+single occasional patrol, body wave, pitch, bank, habitat and LOD remain unchanged. Inspected
+native evidence `20261016T093357.068574Z-shark` passes at 1280x720 with 318 colour bins, 29.65
+luminance deviation, 129.78 spatial contrast and an empty kernel delta. Core, capture and all 97
+browser/capture harness tests pass. Focused Chrome/SwiftShader evidence
+`20261016T093607.963542Z-chrome-shark` passes with two inspected different live poses, 60 finite
+positive intervals, GL error zero, a live context and kernel `[]`.

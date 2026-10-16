@@ -338,6 +338,7 @@ def validate_shark_report(report):
         or "shark uses a long low spindle, reinforced caudal peduncle, and swept restrained fins" not in log
         or "shark profile pass uses charcoal flank contrast, a lower rear-swept dorsal, and shorter pectorals" not in log
         or "shark skin pass preserves a dark dorsal and fin-edge silhouette with a raised pale lower flank after water tint" not in log
+        or "shark readability pass deepens the dorsal gradient and widens five high-contrast swept gill slits" not in log
         or not re.search(r"shark visible activity \S+, 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("shark view lacks current anatomy, frames or clean graphics state")

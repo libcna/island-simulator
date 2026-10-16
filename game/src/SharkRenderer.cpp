@@ -76,6 +76,8 @@ namespace island
             "island-simulator: shark profile pass uses charcoal flank contrast, a lower rear-swept dorsal, and shorter pectorals";
         constexpr std::string_view SharkSkinDiagnostic =
             "island-simulator: shark skin pass preserves a dark dorsal and fin-edge silhouette with a raised pale lower flank after water tint";
+        constexpr std::string_view SharkReadabilityDiagnostic =
+            "island-simulator: shark readability pass deepens the dorsal gradient and widens five high-contrast swept gill slits";
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -204,16 +206,16 @@ namespace island
             const AquaticLightProfile waterLight = AquaticLightAt(
                 centre.X, centre.Y, centre.Z, timeSeconds);
             const Color body = wildlife_render::ApplyUnderwaterLight(
-                ActivityColor(Color(52, 70, 78, 255), shark.activity), waterLight);
+                ActivityColor(Color(39, 53, 60, 255), shark.activity), waterLight);
             const Color back = wildlife_render::ScaleColor(
                 wildlife_render::ApplyUnderwaterLight(
-                    ActivityColor(Color(12, 25, 33, 255), shark.activity), waterLight), .76f);
+                    ActivityColor(Color(5, 15, 22, 255), shark.activity), waterLight), .68f);
             const Color belly = wildlife_render::ScaleColor(
                 wildlife_render::ApplyUnderwaterLight(
-                    ActivityColor(Color(214, 211, 188, 255), shark.activity), waterLight), 1.08f);
+                    ActivityColor(Color(232, 225, 199, 255), shark.activity), waterLight), 1.11f);
             const Color fin = wildlife_render::ScaleColor(
                 wildlife_render::ApplyUnderwaterLight(
-                    ActivityColor(Color(20, 35, 43, 255), shark.activity), waterLight), .74f);
+                    ActivityColor(Color(7, 19, 27, 255), shark.activity), waterLight), .67f);
             const PoseAxes axes = MakePoseAxes(shark);
             const float scale = shark.scale;
             std::array<std::array<Vector3, BodySegments>, BodySections.size()> rings{};
@@ -338,9 +340,9 @@ namespace island
                             secondaryKnee, secondaryBack,
                             axes.right * (0.006f * scale), body, fin);
 
-            const Color eye = ActivityColor(Color(15, 24, 27, 255), shark.activity);
-            const Color eyeShine = ActivityColor(Color(116, 137, 139, 255), shark.activity);
-            const Color gill = ActivityColor(Color(43, 59, 64, 255), shark.activity);
+            const Color eye = ActivityColor(Color(3, 8, 10, 255), shark.activity);
+            const Color eyeShine = ActivityColor(Color(166, 177, 171, 255), shark.activity);
+            const Color gill = ActivityColor(Color(8, 20, 24, 255), shark.activity);
             for (const float side : {-1.0f, 1.0f}) {
                 const Vector3 eyeTop = LocalPoint(
                     centre, axes, side * 0.245f, 0.084f, 0.535f, scale);
@@ -363,15 +365,15 @@ namespace island
                     LocalPoint(centre, axes, side * 0.257f, 0.056f, 0.527f, scale), eyeShine);
 
                 for (int slit = 0; slit < 5; ++slit) {
-                    const float z = 0.335f - static_cast<float>(slit) * 0.057f;
+                    const float z = 0.350f - static_cast<float>(slit) * 0.064f;
                     const Vector3 topFront = LocalPoint(
-                        centre, axes, side * 0.316f, 0.064f, z + 0.010f, scale);
+                        centre, axes, side * 0.316f, 0.075f, z + 0.012f, scale);
                     const Vector3 topBack = LocalPoint(
-                        centre, axes, side * 0.319f, 0.057f, z - 0.010f, scale);
+                        centre, axes, side * 0.320f, 0.066f, z - 0.012f, scale);
                     const Vector3 bottomFront = LocalPoint(
-                        centre, axes, side * 0.319f, -0.030f, z - 0.020f, scale);
+                        centre, axes, side * 0.320f, -0.048f, z - 0.023f, scale);
                     const Vector3 bottomBack = LocalPoint(
-                        centre, axes, side * 0.321f, -0.037f, z - 0.040f, scale);
+                        centre, axes, side * 0.322f, -0.057f, z - 0.046f, scale);
                     if (side > 0.0f) {
                         AddTriangle(vertices, topFront, bottomFront, topBack, gill);
                         AddTriangle(vertices, topBack, bottomFront, bottomBack, gill);
@@ -463,6 +465,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(SharkProfileDiagnostic);
         std::cout << SharkSkinDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(SharkSkinDiagnostic);
+        std::cout << SharkReadabilityDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(SharkReadabilityDiagnostic);
     }
 
     SharkRenderer::~SharkRenderer() = default;
