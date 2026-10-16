@@ -269,6 +269,21 @@ flat flank replaced by irregular surface patches; the accepted image passes at 3
 `20261016T071135.535809Z-chrome-crocodiles` passes two distinct motion frames, 60 finite positive
 intervals, GL0, a live context, one draw and kernel `[]`. Details are in `docs/crocodiles.md`.
 
+## Latest bear visual pass — fitted curved horn claws
+
+The renewed eight-angle bear audit accepted the heavy torso, directional coat and broad planted
+paws but selected their long pure-black straight claw tubes: in close views they read as detached
+needles. All five claws on each near paw now begin with a broad root buried in the toe and bend
+through a short second segment to a narrow downward tip. A muted dark-horn material replaces pure
+black. The change adds only 120 body triangles, from 5,914 to 6,034, while the far tier, texture,
+behavior, collision, shadow and existing two draws remain unchanged.
+
+Five focused native groups and all 41 browser/capture harness tests pass. Inspected eight-stage
+native evidence `20261016T073246.246240Z-bear` passes at 205 colour bins, 35.51 luminance
+deviation, 167.05 spatial contrast and kernel `[]`. Inspected Chrome/SwiftShader
+`20261016T073448.696330Z-chrome-bear` supplies two distinct frames and passes 60 finite positive
+intervals, GL0, a live context and kernel `[]`. Details are in `docs/bear.md`.
+
 ## Latest terrain overview pass — second far-silhouette material fade
 
 The renewed current overview found that the previous 0.30 aerial endpoints still became repeated

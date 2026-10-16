@@ -1003,6 +1003,7 @@ try {
               && log.includes("near bear uses twenty-two body-envelope fur wedges without another draw")
               && log.includes("near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes")
               && log.includes("bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws")
+              && log.includes("near bear paws use short two-segment horn claws with buried roots and downward tips")
               && log.includes("bear torso uses a continuous rump-to-neck loft without overlapping body shells")
               && log.includes("near bear uses a broader rounded skull, fitted brow volumes, larger rounded ears, and a short wide muzzle")
               && /bear 1\/1 visible, 2 draws, [1-9][0-9]* body triangles/.test(log)))

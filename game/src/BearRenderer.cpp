@@ -39,7 +39,7 @@ namespace island {
 namespace {
 constexpr int VertexCapacity=36000,ShadowCapacity=180;
 constexpr float Pi=std::numbers::pi_v<float>;
-enum class Material:std::uint8_t {Fur,DarkFur,Muzzle,Nose,Bare,EyeHighlight};
+enum class Material:std::uint8_t {Fur,DarkFur,Muzzle,Nose,Bare,Claw,EyeHighlight};
 
 Vector3 Point(BearPoint p){return {p.x,p.y,p.z};}
 BearPoint Point(Vector3 p){return {p.X,p.Y,p.Z};}
@@ -61,6 +61,7 @@ Color BaseColor(Material material) {
     case Material::Muzzle:return Color(222,211,198);
     case Material::Nose:return Color(39,34,30);
     case Material::Bare:return Color(15,13,12);
+    case Material::Claw:return Color(82,68,49);
     case Material::EyeHighlight:return Color(184,168,142);
     }
     return Color::White;
@@ -299,9 +300,14 @@ void BuildBear(std::vector<VertexPositionColorTexture>& vertices,const BearState
         const Vector3 paw=sole+pawUp*.075f+pawForward*.055f;
         mesh.Ellipsoid(paw,pawRight,pawUp,pawForward,.145f,.082f,.225f,Material::Fur,near?14:8,near?7:5);
         if(near)for(int claw=-2;claw<=2;++claw) {
-            const Vector3 base=paw+pawRight*(claw*.048f)+pawForward*.195f-pawUp*.025f;
-            const float length=.068f-.004f*std::abs(claw);
-            mesh.Tube(base,base+pawForward*length-pawUp*.018f,.012f,.003f,Material::Bare,7);
+            // Bury a broad horn-coloured root in the toe and bend the short tip
+            // down. The previous single black needle read as a detached spike.
+            const Vector3 base=paw+pawRight*(claw*.048f)+pawForward*.184f-pawUp*.018f;
+            const float length=.052f-.003f*std::abs(claw);
+            const Vector3 joint=base+pawForward*(length*.62f)-pawUp*.006f;
+            const Vector3 tip=base+pawForward*length-pawUp*.022f;
+            mesh.Tube(base,joint,.014f,.0085f,Material::Claw,5);
+            mesh.Tube(joint,tip,.0088f,.0025f,Material::Claw,5);
         }
     }
     if(near) {
@@ -360,6 +366,8 @@ BearRenderer::BearRenderer(GraphicsDevice& device,const CanopyLightField& canopy
     std::cout<<furDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(furDiagnostic);
     const char* limbDiagnostic="island-simulator: bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws";
     std::cout<<limbDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(limbDiagnostic);
+    const char* clawDiagnostic="island-simulator: near bear paws use short two-segment horn claws with buried roots and downward tips";
+    std::cout<<clawDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(clawDiagnostic);
     const char* torsoDiagnostic="island-simulator: bear torso uses a continuous rump-to-neck loft without overlapping body shells";
     std::cout<<torsoDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(torsoDiagnostic);
     const char* headDiagnostic="island-simulator: near bear uses a broader rounded skull, fitted brow volumes, larger rounded ears, and a short wide muzzle";

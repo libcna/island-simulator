@@ -12,9 +12,25 @@ raised shoulders, neck, short tail, muzzle, nose, restrained eyes, rounded outer
 four jointed legs, broad paws and five claws per paw. The second visual pass replaces the pale cylindrical
 snout with two overlapping tapered muzzle volumes, a smaller volumetric nose, paired nostrils,
 a shallow philtrum/divided mouth crease and highlighted inset eyes. The latest head pass broadens
-the skull and muzzle, separates larger rounded ears and adds fitted brow volumes. A 55m near tier uses 5,914
+the skull and muzzle, separates larger rounded ears and adds fitted brow volumes. A 55m near tier uses 6,034
 triangles; the cheaper far tier omits face/claw detail. Body and one 18-triangle terrain shadow
 remain two bounded draws.
+
+## Fitted curved claws — 2026-10-16
+
+The renewed eight-angle audit accepted the heavy torso, directional coat and broad paws but found
+that their long, black, straight claw tubes read as detached needles. Each close paw now has five
+short two-segment claws: a broader root begins inside the toe, the narrower second segment bends
+down, and a muted dark-horn material replaces pure black. The change adds only 120 body triangles,
+taking the near form from 5,914 to 6,034; the far tier, texture allocation, behavior, collision,
+shadow and two-draw contract do not change.
+
+Inspected native evidence `20261016T073246.246240Z-bear` covers eight moving views and passes at
+205 colour bins, 35.51 luminance deviation and 167.05 spatial contrast with an empty kernel delta.
+The focused Chrome/SwiftShader run `20261016T073448.696330Z-chrome-bear` supplies two distinct
+inspected frames and passes 60 finite positive intervals, `glError=0`, a live context and an empty
+kernel delta. Five focused native groups and all 41 browser/capture harness tests pass. This is a
+bounded close-detail improvement, not a claim of final photorealism or physical-device acceptance.
 
 ## Broader head anatomy — 2026-10-14
 

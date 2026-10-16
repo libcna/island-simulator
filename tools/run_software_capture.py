@@ -784,6 +784,7 @@ def main():
                                "near bear uses twenty-two body-envelope fur wedges without another draw",
                                "near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes",
                                "bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws",
+                               "near bear paws use short two-segment horn claws with buried roots and downward tips",
                                "bear torso uses a continuous rump-to-neck loft without overlapping body shells",
                                "near bear uses a broader rounded skull, fitted brow volumes, larger rounded ears, and a short wide muzzle",
                                "bear capture visible 1; draws 2"):

@@ -831,6 +831,8 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn('focusedBearCheck ? ["bear"]', source)
         self.assertIn('bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws',
                       source)
+        self.assertIn('near bear paws use short two-segment horn claws with buried roots and downward tips',
+                      source)
         self.assertIn('bear torso uses a continuous rump-to-neck loft without overlapping body shells',
                       source)
         self.assertIn('near bear uses a broader rounded skull, fitted brow volumes, larger rounded ears, and a short wide muzzle',
@@ -840,6 +842,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                "near bear uses twenty-two body-envelope fur wedges without another draw\n"
                "near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes\n"
                "bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws\n"
+               "near bear paws use short two-segment horn claws with buried roots and downward tips\n"
                "bear torso uses a continuous rump-to-neck loft without overlapping body shells\n"
                "near bear uses a broader rounded skull, fitted brow volumes, larger rounded ears, and a short wide muzzle\n"
                "bear 1/1 visible, 2 draws, 5914 body triangles")
