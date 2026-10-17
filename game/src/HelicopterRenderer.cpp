@@ -445,11 +445,19 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
                   {.105f,.075f,(door.second-door.first)*.5f+.045f},3,12,
                   oliveLight);
     }
+    // A rounded belly and paired lower sills restore the continuous load-bearing
+    // fuselage below the four open doors. The former perfectly flat floor edge made
+    // the aircraft resemble a framed cabin sitting independently on skid rails.
+    ellipsoid({0,.28f,-.10f},{.80f,.16f,1.92f},4,18,oliveDark);
+    for(const float side:{-1.0f,1.0f})
+        ellipsoid({side*.83f,.47f,-.10f},{.15f,.13f,1.90f},4,18,
+                  ScaleColor(olive,.84f));
 
     // Four visibly open doors explain the otherwise skeletal side openings. Pilot
     // panels hinge forward and rear panels hinge aft, leaving the tested perpendicular
     // entry corridors unobstructed. Glass shares the existing depth-read second draw.
     const auto openDoor=[&](const float side,const float hingeZ,const float farZ) {
+        const Color doorFrame=ScaleColor(olive,.72f);
         const Vector3 hingeLow(side*.99f,.49f,hingeZ),farLow(side*1.62f,.49f,farZ);
         const auto point=[&](const float across,const float y) {
             return Vector3::Lerp(hingeLow,farLow,across)+Vector3(0,y-.49f,0);
@@ -459,12 +467,12 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         quad(point(0,1.91f),point(.82f,1.98f),point(1,2.04f),point(0,2.08f),oliveLight);
         quad(point(.12f,1.03f),point(.88f,1.00f),point(.80f,1.82f),point(.18f,1.88f),
              glass,Surface::Glass);
-        beam(point(0,.49f),point(0,2.08f),.065f,oliveDark);
-        beam(point(1,.49f),point(1,1.82f),.065f,oliveDark);
-        beam(point(1,1.82f),point(.82f,1.98f),.065f,oliveDark);
-        beam(point(.82f,1.98f),point(0,1.91f),.065f,oliveDark);
-        beam(point(0,.49f),point(1,.49f),.065f,oliveDark);
-        beam(point(.10f,1.01f),point(.90f,.98f),.052f,oliveDark);
+        beam(point(0,.49f),point(0,2.08f),.052f,doorFrame);
+        beam(point(1,.49f),point(1,1.82f),.052f,doorFrame);
+        beam(point(1,1.82f),point(.82f,1.98f),.052f,doorFrame);
+        beam(point(.82f,1.98f),point(0,1.91f),.052f,doorFrame);
+        beam(point(0,.49f),point(1,.49f),.052f,doorFrame);
+        beam(point(.10f,1.01f),point(.90f,.98f),.042f,doorFrame);
         beam(point(.70f,1.12f),point(.87f,1.12f),.034f,metal,Surface::Metal);
         // A shallow inset lower skin panel breaks up the former featureless slab
         // while keeping the complete door in the shared mesh.
@@ -849,7 +857,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     // These are purely static mechanical detail and do not imply a flight state.
     tube({0,2.74f,-.12f},{0,3.17f,-.12f},.075f,metal,Surface::Metal);
     for(int blade=0;blade<4;++blade) {
-        const float angle=.18f+blade*std::numbers::pi_v<float>*.5f;
+        const float angle=.50f+blade*std::numbers::pi_v<float>*.5f;
         const Vector3 radial(std::cos(angle),0,std::sin(angle));
         const Vector3 perpendicular(-radial.Z,0,radial.X);
         beam(rotorCentre+radial*.18f,rotorCentre+radial*.53f,.13f,
@@ -866,7 +874,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         const auto closedBlade=[&](const float innerDistance,const float outerDistance,
             const float innerHalf,const float outerHalf,const float innerFraction,
             const float outerFraction,const Color& upper,const Color& lower) {
-            constexpr float halfDepth=.034f;
+            constexpr float halfDepth=.040f;
             const Vector3 inner=bladePoint(innerDistance,innerFraction);
             const Vector3 outer=bladePoint(outerDistance,outerFraction);
             const Vector3 lift(0,halfDepth,0);
@@ -901,14 +909,14 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         constexpr float secondJoint=3.70f;
         const float firstFraction=(firstJoint-.48f)/(HelicopterLayout::MainRotorRadius-.48f);
         const float secondFraction=(secondJoint-.48f)/(HelicopterLayout::MainRotorRadius-.48f);
-        closedBlade(.48f,firstJoint,.155f,.145f,0,firstFraction,
-            blade%2?Color(80,84,77):Color(92,96,87),
+        closedBlade(.48f,firstJoint,.175f,.160f,0,firstFraction,
+            blade%2?Color(88,92,84):Color(101,105,95),
             blade%2?Color(48,52,48):Color(55,59,54));
-        closedBlade(firstJoint,secondJoint,.145f,.128f,firstFraction,secondFraction,
-            blade%2?Color(80,84,77):Color(92,96,87),
+        closedBlade(firstJoint,secondJoint,.160f,.138f,firstFraction,secondFraction,
+            blade%2?Color(88,92,84):Color(101,105,95),
             blade%2?Color(48,52,48):Color(55,59,54));
-        closedBlade(secondJoint,tipStart,.128f,.110f,secondFraction,tipFraction,
-            blade%2?Color(80,84,77):Color(92,96,87),
+        closedBlade(secondJoint,tipStart,.138f,.116f,secondFraction,tipFraction,
+            blade%2?Color(88,92,84):Color(101,105,95),
             blade%2?Color(48,52,48):Color(55,59,54));
         // Muted yellow parked-blade tips improve scale/readability without suggesting
         // illuminated or moving rotors.
@@ -933,7 +941,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     box({-.08f,.30f,.92f},{.08f,.39f,1.08f},Color(221,211,161),Surface::Emissive);
 
     const auto totalVertices=mesh.size()+glassMesh.size();
-    if(mesh.empty()||glassMesh.empty()||totalVertices>18000)
+    if(mesh.empty()||glassMesh.empty()||totalVertices>19000)
         throw std::runtime_error("Helicopter mesh exceeds budget: "
             +std::to_string(totalVertices)+" vertices");
     Vector3 low(std::numeric_limits<float>::max()),high(std::numeric_limits<float>::lowest());
@@ -1004,6 +1012,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<seating<<'\n';MirrorRuntimeDiagnosticToPlatformLog(seating);
     const std::string rotorMast="island-simulator: helicopter rotor mast uses concentric tubular shafts, a flattened round swashplate, and a rounded gearbox housing";
     std::cout<<rotorMast<<'\n';MirrorRuntimeDiagnosticToPlatformLog(rotorMast);
+    const std::string lowerShell="island-simulator: helicopter open cabin is carried by a rounded belly and continuous lower sill fairings";
+    std::cout<<lowerShell<<'\n';MirrorRuntimeDiagnosticToPlatformLog(lowerShell);
 }
 
 HelicopterRenderer::~HelicopterRenderer()=default;

@@ -608,10 +608,14 @@ existing two-worker limit remains suitable.
   procedural renderer; CNA capability is not the blocker. Validate ordinary player-side views as
   well as the focused QA camera. A first corrective pass replaces polygon-alternating cowling/tail
   colours with continuous weathered-paint variation, neutralises the plastic-blue glazing, and adds
-  inset door skins plus cowling access seams at 5,984 triangles/two draws. Native exterior/interior
-  captures `20261017T123304.256833Z-helicopter` and
-  `20261017T123336.098433Z-helicopter-inside` pass; broader silhouette refinement and portable
-  validation remain open.
+  inset door skins plus cowling access seams. A second silhouette pass now adds a continuous rounded
+  belly and lower sill fairings under the four real openings, reduces and lightens the previously
+  cage-like open-door frames, and turns the parked rotor to expose its slightly wider cambered chord,
+  droop and yellow tip markings in the ordinary player-side view. The complete static asset remains
+  two draws and rises modestly from 5,984 to 6,308 triangles. Inspected native exterior/interior
+  captures `20261017T133538.847983Z-helicopter` and
+  `20261017T133704.978924Z-helicopter-inside` pass with the doorway, controls and footwell still
+  open. Ordinary unscripted approach plus Web/Android validation remain open.
 
 - [x] Clean obsolete generated screenshots and image captures from all project `build*`
   directories. Preserve source assets, every artifact still cited by `PLAN.md`/documentation,
