@@ -220,9 +220,9 @@ corners, nostril wings and upper eyelids augment the existing bridge, tip, eyes,
 chin. One peaceful actor, the deterministic route, grounded gait, pauses/yielding and two-draw
 body/shadow contract are unchanged.
 
-Relocating the campfire to the southern beach changes the generated safe tour, not its movement
-rules: the current route has32 simplified points and901.845m total length, with an inland-safe
-approach behind the fire and woodpile.
+Relocating the campfire back to the east inland clearing changes the generated safe tour, not its
+movement rules: the current route has24 simplified points and692.043m total length, with a safe
+approach around the fire and woodpile.
 
 The current body is7122 triangles and remains under the fixed40000-vertex stream allocation.
 Inspected llvmpipe evidence `20261014T004313.678113Z-resident` passes all eight ordered gait

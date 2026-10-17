@@ -547,6 +547,10 @@ existing two-worker limit remains suitable.
   This 2026-10-17 instruction supersedes the earlier corrected request that explicitly placed it on
   the beach. Preserve the fire, woodpile, collision, audio/light behavior and safe player access;
   update layout tests, help/diagnostics and native/Web/Android visual evidence for the new site.
+  The shared site now occupies the east clearing at `(43,-18)` with its woodpile 6m away;
+  placement/collision/resident-route tests, WorldReport and inspected native close/wide captures
+  `20261017T123726.385229Z-campfire` / `20261017T123801.490843Z-campfire-wide` pass.
+  Web/Android runtime validation remains.
 - [~] Fix the operator-observed absence of goat bleating. Reproduce the current build with a goat
   nearby, distinguish scheduler/playback from effective audible gain and ambient masking, and make
   the bleat clearly recognizable without becoming loud or repetitive. Revalidate mute/resume,

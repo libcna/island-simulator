@@ -656,7 +656,7 @@ def main():
                                "1992 solid triangles, 42 flame/smoke/spark triangles",
                                "campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke",
                                "campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal",
-                               "campfire and stored firewood stand on qualified broad dry-sand beach"):
+                               "campfire and stored firewood stand in the qualified east inland clearing"):
                     if marker not in diagnostics:raise RuntimeError(f"campfire integration diagnostic missing: {marker}")
             if args.viewpoint == "stream":
                 metadata["stream_stages"]=validate_stream_stages(log)

@@ -861,7 +861,7 @@ try {
             && (!focusedCampfireCheck || (log.includes("campfire first visible animated draw")
               && log.includes("campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke")
               && log.includes("campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal")
-              && log.includes("campfire and stored firewood stand on qualified broad dry-sand beach")
+              && log.includes("campfire and stored firewood stand in the qualified east inland clearing")
               && log.includes("campfire 1992 solid triangles, 42 flame/smoke/spark triangles in two culled draws")))
             && (!focusedCaveCheck || (log.includes(`cave QA camera ${mode === "cave-inside" ? "inside" : "outside"}`)
               && log.includes("cave rock first visible draw")

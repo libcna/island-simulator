@@ -1096,7 +1096,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                "campfire 1992 solid triangles, 42 flame/smoke/spark triangles in two culled draws\n"
                "campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke\n"
                "campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal\n"
-               "campfire and stored firewood stand on qualified broad dry-sand beach\n"
+               "campfire and stored firewood stand in the qualified east inland clearing\n"
                "campfire first visible animated draw")
         report = {"passed":True,"views":[{"mode":"campfire","passed":True,"glError":0,
             "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,

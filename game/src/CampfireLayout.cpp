@@ -23,9 +23,10 @@ CampfireLayout::CampfireLayout(const IslandTerrain& terrain) {
     woodCentre_={CampfireSite::WoodX,ground.Sample(CampfireSite::WoodX,CampfireSite::WoodZ).height,CampfireSite::WoodZ};
     for(const auto point:{centre_,woodCentre_}) {
         const auto sample=terrain.Sample(point.x,point.z);
-        if(sample.surface!=TerrainSurface::DrySand||sample.signedShoreDistance<7.0f
-            ||sample.signedShoreDistance>23.0f||sample.beachSuitability<.70f)
-            throw std::runtime_error("Campfire site is not on qualified dry beach sand");
+        if((sample.surface!=TerrainSurface::InteriorGround
+                &&sample.surface!=TerrainSurface::CoastalGround)
+            ||sample.signedShoreDistance<55.0f||sample.normal.y<.975f)
+            throw std::runtime_error("Campfire site is not on qualified level inland ground");
     }
     obstacles_={CircularObstacle{centre_.x,centre_.z,CampfireSite::PitRadius},
                 CircularObstacle{woodCentre_.x,woodCentre_.z,CampfireSite::WoodRadius}};

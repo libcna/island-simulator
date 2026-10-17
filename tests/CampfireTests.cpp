@@ -20,10 +20,10 @@ int main() {
     const auto centre=fire.Centre(),wood=fire.WoodCentre();
     for(const auto point:{centre,wood}) {
         const auto sample=terrain.Sample(point.x,point.z);
-        Check(sample.surface==TerrainSurface::DrySand
-            &&sample.signedShoreDistance>=7&&sample.signedShoreDistance<=23
-            &&sample.beachSuitability>.70f&&point.y>.25f,
-            "fire or stored wood is not on qualified dry beach sand");
+        Check((sample.surface==TerrainSurface::InteriorGround
+                ||sample.surface==TerrainSurface::CoastalGround)
+            &&sample.signedShoreDistance>=55&&sample.normal.y>.975f&&point.y>1.2f,
+            "fire or stored wood is not on qualified level inland ground");
     }
     Check(std::hypot(wood.x-centre.x,wood.z-centre.z)>5.5f,"stored firewood is too close to flames");
     Check(StreamSoundField::Sample(centre.x,centre.z).distance>58,"fire/stream audible regions overlap");
@@ -64,7 +64,7 @@ int main() {
               && !fireSolids.IntersectsCircle(VegetationLayout::PlayerSpawnX,
                                               VegetationLayout::PlayerSpawnZ + 1.0f,
                                               PlayerMotion::CapsuleRadius),
-          "beach campfire or woodpile blocks the player spawn corridor");
+          "inland campfire or woodpile blocks the player spawn corridor");
     for(const auto obstacle:fire.Obstacles()) {
         PlayerMotion player;
         player.SetPosition(terrain,obstacle.x-4,obstacle.z);

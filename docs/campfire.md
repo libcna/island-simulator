@@ -1,8 +1,8 @@
-# Broad-beach campfire — native first pass
+# Inland-clearing campfire
 
-One continuously burning fire is placed at `(-6.52,1.03898,-223.35)` on the broad southern
-dry-sand beach. A separate stack of11 gathered logs is at `(-0.62,1.02629,-223.45)`, about5.90m
-away. Twelve irregular stones surround five burning logs, a layered ash bed, four bright
+One continuously burning fire is placed at `(43,24.6174,-18)` in the east inland clearing.
+A separate stack of11 gathered logs is at `(49,25.2661,-18)`, 6m away. Twelve irregular
+stones surround five burning logs, a layered ash bed, four bright
 embers and six darker charcoal chunks.
 The woodpile's log ends follow the actual rendered slope, rather than hovering on a
 horizontal shelf. No fuel/crafting controls or damage system are introduced.
@@ -41,7 +41,7 @@ An original19s mono PCM16 loop combines soft ember hiss, lower fire noise and173
 wood crackles/pops. It is generated at22050Hz, mean centred and loop checked. It adds
 837900 PCM bytes; the current audio inventory is32 clips/5576444 bytes. No new playing voice is
 added: fire, stream and player-water playback share the fourth persistent slot. This
-beach lies beyond the stream's audible region. Swimming takes priority, and fire
+clearing lies beyond the stream's audible region. Swimming takes priority, and fire
 audibility uses a bounded3D24m distance with smoothed gain and transition hysteresis.
 Spatial mode is configured before the first Play, preserving the prior dropout fix.
 
@@ -125,12 +125,10 @@ GL0, intact context and empty live/final kernel reports; the final image was ins
 core/campfire tests and88 focused Python gate tests pass. The deterministic world fingerprint is
 `0ecd98ad6f56b15b`.
 
-## Dry-beach relocation and visual audit — 2026-10-14
+## Dry-beach relocation and visual audit — 2026-10-14 (superseded)
 
-The fire and stored wood were moved from the inland eastern clearing to the broad southern
-beach. Construction now fails closed unless both centres sample `DrySand`, lie 7–23m inside
-the shoreline and retain beach suitability above0.70. The shared vegetation/grass reserve,
-collision proxies, crackle emitter and the resident's nearby tour approach follow the new site.
+This historical pass moved the fire from the inland eastern clearing to the broad southern
+beach. The 2026-10-17 user request below supersedes that placement.
 The wide llvmpipe evidence `20261014T003928.816157Z-campfire-wide` was inspected: shoreline,
 shallow water, fire ring and separate wood stack are simultaneously visible on sand. It passes
 at1280x720 with412 colour bins,18.46 luminance deviation and125.23 spatial contrast.
@@ -138,11 +136,19 @@ The rebuilt world report records the new centres and fingerprint `a33aa6c2913b57
 
 ## Player-start corridor correction — 2026-10-15
 
-The beach relocation put the stored-wood collision proxy only about 1.73 m ahead of the historical
+The now-superseded beach relocation put the stored-wood collision proxy only about 1.73 m ahead of the historical
 player start `(0,-225)`. Forward motion therefore resolved correctly but was rejected by the solid
-woodpile. The campfire and woodpile remain unchanged on dry beach sand; the player starts four
-metres to the east at `(4,-225)`, still inside the original 17 m vegetation/prop reserve and facing
-the island. The named spawn coordinates are shared by game initialization and placement tests.
+woodpile. The player still starts four metres to the east at `(4,-225)` for compatibility. The
+named spawn coordinates are shared by game initialization and placement tests.
 `CampfireTests` rejects any future fire or wood proxy that overlaps the spawn capsule or its first
-forward metre. Current Firefox evidence advances roughly 7.5 m from this start and emits the first
-land-footstep marker; native core/campfire tests and the complete 72-test active range pass.
+forward metre.
+
+## Inland-clearing relocation — 2026-10-17
+
+The fire and stored wood now occupy the east clearing at least55m inside the shoreline. Both
+positions must be level interior/coastal ground; all geometry, collision, lighting and positional
+audio follow the shared `CampfireSite`. The resident's deterministic route rebuilds around both
+collision proxies. Native focused captures `20261017T123726.385229Z-campfire` and
+`20261017T123801.490843Z-campfire-wide` pass and were inspected; the wider view establishes that
+the landmark is surrounded by inland grass, animals and jungle rather than beach. Campfire and
+resident tests pass, and WorldReport validates fingerprint `c4be22fb2b05ce89`.
