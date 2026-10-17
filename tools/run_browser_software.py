@@ -919,7 +919,7 @@ def validate_hut_report(report):
         raise RuntimeError("hut report lacks both successful views")
     for view in views:
         log = view.get("result", {}).get("output", "")
-        # Counts are after frustum culling: the close camera sees six of seven patches.
+        # Open shutters widen the close bounds; both cameras now retain all seven patches.
         if (not view.get("passed") or view.get("glError") != 0 or view.get("contextLost") is not False
             or "hut beam-aligned weathered grain and filtered thatch fibres" not in log
             or "hut timber material uses coarse warped grain, recessed dark fibres, knot bands, and sun-bleached board variation" not in log
@@ -927,8 +927,9 @@ def validate_hut_report(report):
             or "hut raised veranda uses full-height outer posts, split rails, fascia, and three steps" not in log
             or "hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports" not in log
             or "hut wall boards meet edge-to-edge on all four sides and both gables without see-through gaps" not in log
+            or "hut uses unequal fitted wall boards, overlapping ridge-cap bundles, joint lashings, and attached open shutters" not in log
             or "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in log
-            or f"hut 1 draw, {7 if view['mode'] == 'hut' else 6} contact patches" not in log
+            or "hut 1 draw, 7 contact patches" not in log
             or "material fallback:" in log):
             raise RuntimeError("hut view lacks qualified material, draw or graphics state")
     return [v["mode"] for v in views]

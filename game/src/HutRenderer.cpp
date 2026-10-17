@@ -89,28 +89,50 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
     }
     for(float x:{-2.1f,2.1f}) beam({x,2.2f,-1.8f},{x,2.2f,1.8f},0.16f,0.16f,dark);
     for(float z:{-1.7f,1.7f}) beam({-2.18f,2.2f,z},{2.18f,2.2f,z},0.16f,0.16f,dark);
-    // Edge-joined rear wall and front facade. The old 0.16--0.18 m boards were
-    // spaced on a roughly 0.21 m pitch, exposing regular see-through stripes.
-    constexpr float EndWallBoardWidth=4.0f/19.0f;
+    // Edge-joined rear wall and front facade. Unequal normalized widths preserve
+    // complete coverage while avoiding the corrugated fence rhythm of identical
+    // boards; tiny depth offsets catch light without reopening see-through stripes.
+    constexpr std::array<float,20> EndBoardWeight{
+        .92f,1.08f,.97f,1.13f,.89f,1.04f,.95f,1.10f,.91f,1.01f,
+        1.07f,.90f,1.12f,.96f,1.03f,.88f,1.09f,.94f,1.05f,.93f};
+    float endWeightTotal=0.0f;
+    for(const float weight:EndBoardWeight) endWeightTotal+=weight;
+    float endBoardEdge=-2.0f;
     for(int i=0;i<20;++i) {
-        const float x=-2.0f+static_cast<float>(i)*4.0f/19;
-        beam({x,0.08f,-1.7f},{x,1.8f,-1.7f},EndWallBoardWidth,0.055f,
+        const float boardWidth=4.0f*EndBoardWeight[static_cast<std::size_t>(i)]/endWeightTotal;
+        const float x=endBoardEdge+boardWidth*.5f;
+        endBoardEdge+=boardWidth;
+        const float lean=(static_cast<float>((i*7)%5)-2.0f)*.004f;
+        const float rearDepth=-1.7f+(static_cast<float>((i*3)%4)-1.5f)*.006f;
+        beam({x,0.08f,rearDepth},{x+lean,1.8f,rearDepth},boardWidth*1.01f,0.055f,
              timber+Vector3(static_cast<float>(i%4)*5));
         const float ax=std::abs(x);
         if(ax<0.53f) continue;
+        const float frontDepth=1.7f+(static_cast<float>((i*5)%4)-1.5f)*.006f;
         if(ax>0.82f&&ax<1.72f) {
-            beam({x,0.08f,1.7f},{x,0.55f,1.7f},EndWallBoardWidth,0.055f,timber);
-            beam({x,1.35f,1.7f},{x,1.8f,1.7f},EndWallBoardWidth,0.055f,timber);
-        } else beam({x,0.08f,1.7f},{x,1.8f,1.7f},EndWallBoardWidth,0.055f,timber);
+            beam({x,0.08f,frontDepth},{x+lean*.32f,0.55f,frontDepth},boardWidth*1.01f,0.055f,timber);
+            beam({x+lean*.77f,1.35f,frontDepth},{x+lean,1.8f,frontDepth},boardWidth*1.01f,0.055f,timber);
+        } else beam({x,0.08f,frontDepth},{x+lean,1.8f,frontDepth},boardWidth*1.01f,0.055f,timber);
     }
-    constexpr float SideWallBoardWidth=3.2f/15.0f;
-    for(float x:{-2.1f,2.1f}) for(int i=0;i<16;++i) {
-        const float z=-1.6f+static_cast<float>(i)*3.2f/15;
+    constexpr std::array<float,16> SideBoardWeight{
+        .94f,1.08f,.91f,1.04f,.97f,1.11f,.89f,1.02f,
+        1.07f,.93f,1.05f,.90f,1.09f,.96f,1.03f,.92f};
+    float sideWeightTotal=0.0f;
+    for(const float weight:SideBoardWeight) sideWeightTotal+=weight;
+    for(float x:{-2.1f,2.1f}) {
+      float sideBoardEdge=-1.6f;
+      for(int i=0;i<16;++i) {
+        const float boardWidth=3.2f*SideBoardWeight[static_cast<std::size_t>(i)]/sideWeightTotal;
+        const float z=sideBoardEdge+boardWidth*.5f;
+        sideBoardEdge+=boardWidth;
+        const float outward=std::copysign((static_cast<float>((i*5)%4)-1.5f)*.005f,x);
+        const float lean=(static_cast<float>((i*3)%5)-2.0f)*.004f;
         // Vertical beam cross-sections use local X for width and local Z for depth.
         // On an X-constant side wall those roles must be swapped: X is wall
         // thickness and Z is the board coverage direction.
-        beam({x,0.08f,z},{x,1.8f,z},0.055f,SideWallBoardWidth,
+        beam({x+outward,0.08f,z},{x+outward,1.8f,z+lean},0.055f,boardWidth*1.01f,
              timber+Vector3(static_cast<float>(i%3)*5));
+      }
     }
     // Muted opaque glazing gives the facade readable windows without a sorted
     // transparency pass. Timber mullions sit slightly forward of the glass.
@@ -125,6 +147,21 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
         beam({x-.51f,1.40f,1.73f},{x+.51f,1.40f,1.73f},.09f,.09f,dark);
         beam({x,.53f,1.79f},{x,1.37f,1.79f},.055f,.055f,dark);
         beam({x-.44f,.95f,1.79f},{x+.44f,.95f,1.79f},.055f,.055f,dark);
+    }
+    // A pair of outward-open shutters adds real depth and a practical tropical
+    // ventilation detail. Each remains visibly attached at the outer window jamb
+    // and uses three unequal vertical boards plus two simple back braces.
+    for(const float side:{-1.0f,1.0f}) {
+        const float hingeX=side*1.73f;
+        for(int board=0;board<3;++board) {
+            const float z=1.80f+(static_cast<float>(board)+.5f)*.39f/3.0f;
+            const float bottom=.54f+.008f*static_cast<float>((board+1)%3);
+            const float top=1.36f-.006f*static_cast<float>((board*2)%3);
+            beam({hingeX,bottom,z},{hingeX+side*.006f*static_cast<float>(board-1),top,z},
+                 .055f,.138f,timber+Vector3(static_cast<float>(board)*5.0f));
+        }
+        for(const float y:{.69f,1.22f})
+            beam({hingeX,y,1.82f},{hingeX,y,2.16f},.052f,.052f,dark);
     }
     // A closed plank door suits the decorative, uninhabited building contract.
     for(int i=0;i<5;++i) {
@@ -186,6 +223,13 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
     beam({ 2.04f,1.72f,2.24f},{ 1.48f,2.18f,1.78f},.075f,.075f,timber);
     beam({-2.04f,1.72f,2.24f},{-2.04f,2.18f,1.78f},.075f,.075f,dark);
     beam({ 2.04f,1.72f,2.24f},{ 2.04f,2.18f,1.78f},.075f,.075f,dark);
+    // Four sparse fibre ties make the most exposed veranda joints read as
+    // assembled connections rather than beams terminating inside one another.
+    const Vector3 lashing(117,91,57);
+    beam({-2.12f,1.77f,2.22f},{-1.94f,1.77f,2.22f},.045f,.045f,lashing);
+    beam({ 1.94f,1.77f,2.22f},{ 2.12f,1.77f,2.22f},.045f,.045f,lashing);
+    beam({-2.12f,2.12f,1.80f},{-1.94f,2.12f,1.80f},.045f,.045f,lashing);
+    beam({ 1.94f,2.12f,1.80f},{ 2.12f,2.12f,1.80f},.045f,.045f,lashing);
     // Exposed rafters and overlapping narrow thatch bundles, not a single roof pyramid.
     beam({0,3.55f,-2.3f},{0,3.55f,2.3f},0.16f,0.16f,dark);
     for(float side:{-1.0f,1.0f}) {
@@ -212,7 +256,24 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
             }
         }
     }
-    if(mesh.empty()||mesh.size()>32400) throw std::runtime_error("Hut mesh exceeds budget");
+    // Overlapping folded cap bundles cover the artificial roof seam and explain
+    // how the two thatch slopes are secured over the ridge pole. They remain one
+    // surface layer in the existing batch, with restrained deterministic variation.
+    for(int bundle=0;bundle<24;++bundle) {
+        const float z=-2.22f+(static_cast<float>(bundle)+.5f)*4.44f/24.0f;
+        const float halfSpan=.108f+.010f*static_cast<float>((bundle*5)%4);
+        const float crown=3.635f+.008f*static_cast<float>((bundle*7)%3);
+        const float shoulder=3.385f-.008f*static_cast<float>((bundle*3)%4);
+        grainOrigin={0.0f,crown,z-halfSpan};
+        grainAcross={0,0,1}; grainAlong={1,0,0}; materialTag=224;
+        const Vector3 pigment=Vector3(172,157,124)
+            +Vector3(static_cast<float>(bundle%5)*2.2f);
+        quad({-.48f,shoulder,z-halfSpan},{0,crown,z-halfSpan},
+             {0,crown,z+halfSpan},{-.48f,shoulder,z+halfSpan},pigment);
+        quad({0,crown,z-halfSpan},{.48f,shoulder,z-halfSpan},
+             {.48f,shoulder,z+halfSpan},{0,crown,z+halfSpan},pigment);
+    }
+    if(mesh.empty()||mesh.size()>33000) throw std::runtime_error("Hut mesh exceeds budget");
     Vector3 low(std::numeric_limits<float>::max()),high(std::numeric_limits<float>::lowest());
     for(const auto& vertex:mesh) {
         if(!std::isfinite(vertex.TextureCoordinate.X)||!std::isfinite(vertex.TextureCoordinate.Y))
@@ -271,6 +332,8 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
         std::cout<<structureMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(structureMessage);
         const char* wallMessage="island-simulator: hut wall boards meet edge-to-edge on all four sides and both gables without see-through gaps";
         std::cout<<wallMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(wallMessage);
+        const char* craftMessage="island-simulator: hut uses unequal fitted wall boards, overlapping ridge-cap bundles, joint lashings, and attached open shutters";
+        std::cout<<craftMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(craftMessage);
     } catch(const std::exception& error) {
         material_.reset();
         const std::string message=std::string("island-simulator: hut material fallback: ")+error.what();

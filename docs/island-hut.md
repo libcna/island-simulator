@@ -288,6 +288,28 @@ execution of this new textured shader remains pending. All owned jobs terminal.
 Subsequent actual Web `20261011T232507.842729Z-chrome-hut` now PASS: both overview and
 material views complete60intervals, GLerror0/contextLost=false, texture/material
 markers and exact7/6visible contact patches; parent validation passes, kernel-final[].
+
+## Handcrafted wall, ridge and shutter pass — 2026-10-17
+
+The existing inland placement, dimensions, collision and single static batch remain unchanged.
+End and side walls now use normalized unequal board widths, restrained lean and millimetre-scale
+depth offsets while retaining slight overlap, so the earlier see-through-stripe defect does not
+return. Twenty-four overlapping folded thatch caps cover the geometric roof seam over the ridge
+pole. Four sparse fibre ties clarify the exposed veranda joints. Both front windows gain attached
+outward-open, three-board shutters with simple back braces.
+
+The mesh grows from 31,950 vertices / 10,650 triangles to 32,814 vertices / 10,938 triangles in
+the same one draw, with no new texture, material, collision or simulation. Core and all 103
+capture/browser harness tests pass. Inspected native evidence is
+`20261017T082220.989663Z-hut-material` (301 colour bins, 53.96 luminance deviation, 234.04 spatial
+contrast) and `20261017T082419.567929Z-hut` (269/41.24/214.63), both with empty kernel deltas.
+The first Web run rendered both views but correctly reported seven rather than the obsolete six
+detail-view contact patches after the shutters enlarged the bounds. The updated contract passes in
+inspected Chrome/SwiftShader `20261017T083237.792242Z-chrome-hut`, with 60 finite intervals per
+view, GL0, live contexts and kernel `[]`. Android ARM64 assemble/lint pass without an emulator;
+the 24,770,275-byte APK has SHA-256
+`e75ae1d9d7d899dd359b415b03b80c1843dfa1334c89c666af4a80e2ff1e322b` and packages a
+19,727,704-byte `libmain.so`.
 Initial and final images actually inspected (final side-by-side review retained).
 Pale fibrous material agrees with native/Android; this does not qualify camera-motion
 aliasing, directional roof shading, global input traversal or hardware performance.

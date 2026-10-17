@@ -65,7 +65,9 @@ and positional water sound; see [stream evidence](docs/stream-course.md).
 A raised timber hut stands in a reserved western-interior jungle clearing, safely inland
 and about57m from the stream. It has a layered palm-fibre roof, plank walls, framed windows
 and door, a railed three-step veranda, an enclosed slatted gable with a four-pane attic light,
-visible rafters and knee-braced posts. Its supports and contact patches follow rendered terrain;
+visible rafters and knee-braced posts. Unequal fitted wall boards, overlapping ridge-cap bundles,
+sparse fibre lashings and attached outward-open shutters strengthen its handmade construction.
+Its supports and contact patches follow rendered terrain;
 see [hut evidence](docs/island-hut.md) for exact placement and remaining route/Android review.
 A stone-ringed campfire burns in the eastern clearing, with animated flames, a pale
 mottled ash bed, mixed glowing charcoal, subtle smoke/sparks, nearby flickering light

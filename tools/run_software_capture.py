@@ -686,6 +686,7 @@ def main():
                 for marker in ("hut raised veranda uses full-height outer posts, split rails, fascia, and three steps",
                                "hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports",
                                "hut wall boards meet edge-to-edge on all four sides and both gables without see-through gaps",
+                               "hut uses unequal fitted wall boards, overlapping ridge-cap bundles, joint lashings, and attached open shutters",
                                "hut timber material uses coarse warped grain, recessed dark fibres, knot bands, and sun-bleached board variation",
                                "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes"):
                     if marker not in diagnostics:

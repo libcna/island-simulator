@@ -457,13 +457,13 @@ class BrowserSoftwareTests(unittest.TestCase):
                           (ROOT / "tools/web_smoke.html.in").read_text())
         def report():
             return {"passed":True,"views":[{"mode":mode,"passed":True,"glError":0,"contextLost":False,
-                "result":{"output":f"hut beam-aligned weathered grain and filtered thatch fibres\nhut timber material uses coarse warped grain, recessed dark fibres, knot bands, and sun-bleached board variation\nhut four-pane muted glazing and braced plank door\nhut raised veranda uses full-height outer posts, split rails, fascia, and three steps\nhut enclosed slatted gable, framed attic light, and four knee-braced veranda supports\nhut wall boards meet edge-to-edge on all four sides and both gables without see-through gaps\nhut 1 draw, {7 if mode == 'hut' else 6} contact patches\nhut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes"}}
+                "result":{"output":f"hut beam-aligned weathered grain and filtered thatch fibres\nhut timber material uses coarse warped grain, recessed dark fibres, knot bands, and sun-bleached board variation\nhut four-pane muted glazing and braced plank door\nhut raised veranda uses full-height outer posts, split rails, fascia, and three steps\nhut enclosed slatted gable, framed attic light, and four knee-braced veranda supports\nhut wall boards meet edge-to-edge on all four sides and both gables without see-through gaps\nhut uses unequal fitted wall boards, overlapping ridge-cap bundles, joint lashings, and attached open shutters\nhut 1 draw, 7 contact patches\nhut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes"}}
                 for mode in ("hut","hut-material")]}
         self.assertEqual(gate.validate_hut_report(report()),["hut","hut-material"])
         missing_texture=report()
         missing_texture["views"][0]["result"]["output"]=missing_texture["views"][0]["result"]["output"].split("\nhut palm fibre")[0]
         with self.assertRaises(RuntimeError): gate.validate_hut_report(missing_texture)
-        for index,wrong_count in ((0,6),(1,7),(1,0)):
+        for index,wrong_count in ((0,6),(1,6),(1,0)):
             bad=report()
             bad["views"][index]["result"]["output"] = (
                 "hut beam-aligned weathered grain and filtered thatch fibres\n"
@@ -472,6 +472,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                 "hut raised veranda uses full-height outer posts, split rails, fascia, and three steps\n"
                 "hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports\n"
                 "hut wall boards meet edge-to-edge on all four sides and both gables without see-through gaps\n"
+                "hut uses unequal fitted wall boards, overlapping ridge-cap bundles, joint lashings, and attached open shutters\n"
                 f"hut 1 draw, {wrong_count} contact patches\n"
                 "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes")
             with self.assertRaises(RuntimeError): gate.validate_hut_report(bad)
@@ -485,6 +486,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                      "hut raised veranda uses full-height outer posts, split rails, fascia, and three steps",
                      "hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports",
                      "hut wall boards meet edge-to-edge on all four sides and both gables without see-through gaps",
+                     "hut uses unequal fitted wall boards, overlapping ridge-cap bundles, joint lashings, and attached open shutters",
                      report()["views"][0]["result"]["output"]+"\nhut material fallback: failed"):
             bad=report();bad["views"][0]["result"]["output"]=text
             with self.assertRaises(RuntimeError): gate.validate_hut_report(bad)

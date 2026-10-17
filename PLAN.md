@@ -23,6 +23,27 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest hut visual pass — handcrafted walls, ridge and shutters
+
+The requested hut audit retained its inland placement, dimensions, collision and one-batch renderer.
+Twenty end-wall and sixteen side-wall boards now use normalized unequal widths, restrained lean and
+millimetre-scale depth offsets while overlapping enough to preserve the earlier no-gap repair.
+Twenty-four overlapping folded thatch caps cover the artificial roof seam over the existing ridge
+pole. Four fibre ties clarify exposed veranda joints, and three-board outward-open shutters with
+back braces remain visibly attached to the outer jambs of both front windows.
+
+Geometry rises from 10,650 to 10,938 triangles in the same one draw; no texture, material, collision,
+layout or simulation is added. Core and all 103 capture/browser harness tests pass. Inspected native
+rear/detail `20261017T082220.989663Z-hut-material` and front
+`20261017T082419.567929Z-hut` pass at 301/269 colour bins. The first WebGL audit rendered both views
+cleanly but was rejected because open shutters legitimately widened the detail culling bounds from
+six to seven visible contact patches. The corrected contract and unchanged package pass in inspected
+Chrome/SwiftShader `20261017T083237.792242Z-chrome-hut`: both views have 60 finite intervals, GL0,
+live contexts and kernel `[]`. Android ARM64 assemble/lint pass without an emulator; the
+24,770,275-byte APK has SHA-256
+`e75ae1d9d7d899dd359b415b03b80c1843dfa1334c89c666af4a80e2ff1e322b` and contains a
+19,727,704-byte `libmain.so`. Physical Android and hardware-GPU appearance remain unqualified.
+
 ## Latest shipwreck visual pass — separated deck and structural fracture
 
 The renewed wreck audit selected its overly continuous decks and clean central division. Each deck
