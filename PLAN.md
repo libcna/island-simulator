@@ -23,6 +23,34 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest bear facial-anatomy pass — continuous skull-to-muzzle wedge
+
+The renewed bear/cave audit retained the bear's heavy continuous torso, shoulder mass, rounded
+limbs, broad planted paws, restrained claws, directional fur and existing locomotion, but selected
+the face as the weaker result: the broad pale mask, separate nose, widely spaced dot eyes and round
+cheeks still read as a plush toy at player distance. The crown is now lower and broader, and a
+single four-ring fur-covered facial loft carries it into a short fitted two-volume muzzle. This
+continuous, downward-tapering wedge replaces separate cheek blobs and keeps the lighter muzzle
+material on the distal face. Compact ears, broader brows, recessed dark sockets, smaller inset eyes,
+a restrained nose and refitted nostrils/mouth complete the stronger brown-bear profile.
+
+The bear count, location, peaceful AI, sound, terrain following, articulated pose, animation state,
+texture, buffer, draw count and gameplay role are unchanged. The new facial bridge reuses the
+existing bounded loft builder and actually removes the two dense close-detail cheek shells; detail
+is concentrated in silhouette rather than a new subsystem. Inspected native baseline
+`20261017T104732.226294Z-bear`, rejected intermediate `20261017T105044.763466Z-bear` and accepted
+`20261017T105146.690171Z-bear` document the iteration; the accepted 1280x720 frame passes at 205
+colour bins, 35.42 luminance deviation and 167.69 spatial contrast. Core, bear-motion,
+capture-validator, software-preflight and all 48 browser-software tests pass with at most three
+workers. The WebGL2 package builds, and inspected Chrome/SwiftShader evidence
+`20261017T105312.603782Z-chrome-bear` passes two separated-time views, 60 finite positive intervals,
+GL0, a live context and an empty kernel delta. Android ARM64 assemble/lint pass through the
+two-worker wrapper without emulator/KVM. The 24,797,747-byte APK has SHA-256
+`3d0a4c58ff84b5d90b01e86863072a182716a2222af235761a3adf089797ad6a` and contains the
+19,755,176-byte stripped `libmain.so` (SHA-256
+`b19e8dce05f4b3d1f27595a5562532d123c1894f46a1875510a140489c073d24`). Physical Android and
+hardware-GPU appearance remain unqualified.
+
 ## Latest fish facial pass — fitted bilateral mouth creases
 
 The renewed close aquatic audit retained the four established fish body families, rounded heads,

@@ -809,7 +809,7 @@ def main():
                                "bear legs use rounded shoulder-to-wrist lofts and five-clawed broad paws",
                                "near bear paws use short two-segment horn claws with buried roots and downward tips",
                                "bear torso uses a continuous rump-to-neck loft without overlapping body shells",
-                               "near bear uses a broader rounded skull, fitted brow volumes, larger rounded ears, and a short wide muzzle",
+                               "near bear uses a flattened broad skull, compact rounded ears, a continuous tapered facial bridge, recessed eye sockets, and a short fitted muzzle",
                                "bear capture visible 1; draws 2"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"bear integration diagnostic missing: {marker}")

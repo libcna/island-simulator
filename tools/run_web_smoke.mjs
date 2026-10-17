@@ -1036,7 +1036,7 @@ try {
               && log.includes("bear legs use rounded shoulder-to-wrist lofts and five-clawed broad paws")
               && log.includes("near bear paws use short two-segment horn claws with buried roots and downward tips")
               && log.includes("bear torso uses a continuous rump-to-neck loft without overlapping body shells")
-              && log.includes("near bear uses a broader rounded skull, fitted brow volumes, larger rounded ears, and a short wide muzzle")
+              && log.includes("near bear uses a flattened broad skull, compact rounded ears, a continuous tapered facial bridge, recessed eye sockets, and a short fitted muzzle")
               && /bear 1\/1 visible, 2 draws, [1-9][0-9]* body triangles/.test(log)))
             && (!focusedResidentCheck || (log.includes("resident QA camera frames and follows one peaceful adult")
               && log.includes("resident uses a shoulder-sloped woven tunic with open cap sleeves and anatomically tapered calves")
