@@ -555,11 +555,17 @@ existing two-worker limit remains suitable.
   nearby, distinguish scheduler/playback from effective audible gain and ambient masking, and make
   the bleat clearly recognizable without becoming loud or repetitive. Revalidate mute/resume,
   positional attenuation, shared source budget and native/Web/Android packaging; automated PCM or
-  Playing-state evidence alone does not replace the requested listening outcome.
+  Playing-state evidence alone does not replace the requested listening outcome. Scheduler priority,
+  range, cadence and gain are strengthened; native disk-backend mute/resume evidence
+  `software-goat-audio/20261017T124359.797646Z` passes with 204,800 nonzero resumed bytes.
+  Speaker listening plus Web/Android validation remain.
 - [~] Fix the operator-observed absence of audible boar grunting. Reproduce ordinary close approach,
   audit shared transient-voice priority, call cadence, attenuation and masking, and ensure a nearby
   boar produces an unmistakable restrained grunt often enough to be discovered during normal play.
-  Preserve positional playback, mute/resume behavior and the bounded audio-source budget.
+  Preserve positional playback, mute/resume behavior and the bounded audio-source budget. Scheduler
+  priority, range, cadence and gain are strengthened; native disk-backend mute/resume evidence
+  `software-boar-audio/20261017T124318.950530Z` passes with 221,184 nonzero resumed bytes.
+  Speaker listening plus Web/Android validation remain.
 - [~] Increase the population to exactly 1000 large, recognisable charcoal-black tropical ground
   spiders and make them genuinely discoverable in ordinary play. This 2026-10-17 instruction supersedes the former
   200-spider target and permits a believable large-jungle-spider leg span. Verify that habitat

@@ -521,6 +521,11 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 keys("m", "soundscape unmuted")
                 previous = muted[-1][2]
                 wait(lambda: samples()[-1][2] > previous, "boar playback after unmute")
+                resumed_sample_start=len(samples())
+                wait(lambda: len(samples())>=resumed_sample_start+4,
+                     "boar resumed audio pipeline drain")
+                wait(lambda: recording.stat().st_size>=end+4096,
+                     "boar resumed disk-audio flush")
                 if any(s[3] > 6 for s in samples()):
                     raise RuntimeError("audio source budget exceeded")
                 if not re.search(r"Writing to file .*format=(?:F32|S16|S32).*channels=2 freq=", log()):
@@ -559,6 +564,11 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 keys("m","soundscape unmuted")
                 previous=muted[-1][5]
                 wait(lambda:samples()[-1][5]>previous,"snake hiss playback after unmute")
+                resumed_sample_start=len(samples())
+                wait(lambda:len(samples())>=resumed_sample_start+4,
+                     "snake resumed audio pipeline drain")
+                wait(lambda:recording.stat().st_size>=end+4096,
+                     "snake resumed disk-audio flush")
                 if any(s[3]>6 for s in samples()):
                     raise RuntimeError("audio source budget exceeded")
                 if not re.search(r"Writing to file .*format=(?:F32|S16|S32).*channels=2 freq=",log()):
@@ -596,6 +606,11 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 keys("m","soundscape unmuted")
                 previous=muted[-1][6]
                 wait(lambda:samples()[-1][6]>previous,"goat playback after unmute")
+                resumed_sample_start=len(samples())
+                wait(lambda:len(samples())>=resumed_sample_start+4,
+                     "goat resumed audio pipeline drain")
+                wait(lambda:recording.stat().st_size>=end+4096,
+                     "goat resumed disk-audio flush")
                 if any(s[3]>6 for s in samples()):
                     raise RuntimeError("audio source budget exceeded")
                 if not re.search(r"Writing to file .*format=(?:F32|S16|S32).*channels=2 freq=",log()):
