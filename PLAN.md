@@ -287,12 +287,17 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
-- [ ] Clean obsolete generated screenshots and image captures from all project `build*`
+- [x] Clean obsolete generated screenshots and image captures from all project `build*`
   directories. Preserve source assets, every artifact still cited by `PLAN.md`/documentation,
   the newest accepted evidence for each active viewpoint/platform and files required by automated
   validators. Inventory and review an explicit deletion manifest before removal; record reclaimed
   space and do not use a broad recursive delete. The operator specifically called out stale copies
-  such as an approximately nine-day-old `island-browser-beach.png`.
+  such as an approximately nine-day-old `island-browser-beach.png`. The reviewed explicit manifest
+  removed 2,439 old generated PNG/PPM/JPEG files from `build`, `build-consumer` and `build-probe`,
+  reclaiming 3,126,329,436 bytes (2.912 GiB). It excluded source/dependency content, symlinks,
+  today's evidence, every documentation-referenced timestamp and the newest remaining evidence per
+  platform/viewpoint family. A post-delete audit found zero surviving manifest targets and retained
+  the current shipwreck, hut, crocodile and Chrome fly evidence.
 - [~] Correct the goat vocal synthesis: the current bleat was perceived as fly-like buzzing.
   Rework its voiced pitch/formant/envelope structure, retain restrained positional attenuation and
   cooldowns, export measurable previews, and verify actual in-game scheduling/mute behavior. Do not
