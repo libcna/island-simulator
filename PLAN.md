@@ -23,6 +23,26 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest shipwreck visual pass — separated deck and structural fracture
+
+The renewed wreck audit selected its overly continuous decks and clean central division. Each deck
+section now consists of seven narrow, slightly misaligned board lanes with genuine omissions beside
+the break. Three splintered beams and two collapsed boards occupy the centre without reconnecting
+the hull halves. A bounded piece-local roll and sink settles the halves independently while carrying
+their attached ribs, fittings, rails and masts; a restrained shader cue adds pale sand staining to
+the lowest wet timber without a second terrain surface.
+
+The one-draw batch grows only from 5,712 to 6,048 triangles. Layout, twelve debris placements, six
+collision proxies and texture inventory remain unchanged. Core and all 103 browser/capture harness
+tests pass. Inspected native evidence `20261017T081439.676307Z-shipwreck` passes at 233 colour bins,
+39.65 luminance deviation and 168.82 spatial contrast with an empty kernel delta. The first Chrome
+attempt was rejected after a transient WebAssembly import-initialization failure; the unchanged
+retry `20261017T081707.890858Z-chrome-shipwreck` passes 60 finite intervals, two inspected frames,
+GL0, live context and kernel `[]`. Android ARM64 assemble/lint pass without an emulator; the
+24,765,619-byte APK has SHA-256
+`fa86221e28c9d739812a31d8c509cde4700446faf8683bac1645f66f9a3d8e88` and contains a
+19,723,048-byte `libmain.so`. Physical Android and hardware-GPU runtime remain unqualified.
+
 ## Latest landmark visual-audit implementation — articulated bunker access and generator cage
 
 The current landmark matrix selected the underground bunker ahead of the already rounded helicopter,
@@ -182,6 +202,35 @@ or fewer workers, bound nested tool workers, and serialize builds. Where tools u
 internal threads, restrict the build process tree to at most three allowed logical
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
+
+- [ ] Clean obsolete generated screenshots and image captures from all project `build*`
+  directories. Preserve source assets, every artifact still cited by `PLAN.md`/documentation,
+  the newest accepted evidence for each active viewpoint/platform and files required by automated
+  validators. Inventory and review an explicit deletion manifest before removal; record reclaimed
+  space and do not use a broad recursive delete. The operator specifically called out stale copies
+  such as an approximately nine-day-old `island-browser-beach.png`.
+- [ ] Correct the goat vocal synthesis: the current bleat is perceived as fly-like buzzing.
+  Rework its voiced pitch/formant/envelope structure, retain restrained positional attenuation and
+  cooldowns, export measurable previews, and verify actual in-game scheduling/mute behavior. Do not
+  accept the change solely from compilation or numerical loudness.
+- [ ] Ensure flies are present as an integrated island species and emit localized, restrained buzzing.
+  The existing 24-agent visual population may be reused if its habitat/motion remain valid; audit
+  whether a distinct fly audio path exists before adding another simulation or sound source. Preserve
+  the shared voice budget and avoid constant island-wide buzz.
+- [ ] Update the F1 diagnostics so the wildlife inventory includes newly added animal families that
+  are currently omitted. Prefer compact grouped rows over unreadable overflow; retain population,
+  visibility and relevant state information where useful on 1280x720, Web and Android layouts.
+- [ ] After the current shipwreck pass, substantially refine the existing tropical hut without
+  replacing its renderer or changing its location, scale, purpose or one-batch budget. Prioritize
+  layered irregular thatch and a constructed ridge, load-bearing post/beam/rafter connections,
+  varied handmade wall boards, framed door/windows, grounded porch steps and restrained lashings,
+  weathering, disturbed soil/path vegetation and a few signs of occupation. Validate front, rear,
+  side, elevated, close and medium native views, then WebGL and the Android build.
+- [ ] Then substantially refine the existing crocodiles in their current wildlife architecture.
+  Prioritize a broad flat wedge skull and separate jaws, low wide torso, continuous muscular tail,
+  splayed jointed legs/feet, organized dorsal scutes, restrained material variation and weighty
+  land/swim motion. Preserve three non-hostile estuary animals and existing AI/habitat behavior;
+  validate close multi-angle native views, WebGL and the Android build.
 
 ## Current significant unfinished work — 2026-10-15
 

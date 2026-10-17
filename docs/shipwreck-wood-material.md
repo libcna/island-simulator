@@ -182,3 +182,23 @@ capture `20261015T174534.505199Z-shipwreck` passes at 1280x720 with 238 colour b
 luminance deviation, 167.75 spatial contrast and an empty kernel delta. The foreground now shows
 actual gaps and buried irregular ends instead of long floating construction timber. Physical
 Android/AMD appearance and subjective free-walk collision feel remain open.
+
+## Separated deck and structural fracture — 2026-10-17
+
+The broad continuous deck strips are now seven narrow, slightly misaligned board lanes per hull
+section. Selected lanes beside both broken ends are genuinely absent, and three splintered beams
+plus two collapsed boards occupy the central void without reconnecting it. A small piece-local roll
+and sink lets the two hull halves settle independently while every attached rib, fitting, rail and
+mast follows its own section. The lowest wet timbers gain restrained procedural sand staining
+instead of another terrain-dependent surface.
+
+Geometry rises from 5,712 to 6,048 triangles in the same static buffer and one draw. Placement,
+the twelve debris records, six collision proxies and texture inventory are unchanged. Native
+evidence `20261017T081439.676307Z-shipwreck` passes at 233 colour bins, 39.65 luminance deviation,
+168.82 spatial contrast and an empty kernel delta. Focused Chrome/SwiftShader evidence
+`20261017T081707.890858Z-chrome-shipwreck` passes 60 finite intervals, two inspected frames, GL0,
+a live context and kernel `[]`; an immediately preceding WebAssembly-import initialization failure
+was rejected rather than counted. Android ARM64 assemble/lint pass without an emulator. The
+24,765,619-byte APK has SHA-256
+`fa86221e28c9d739812a31d8c509cde4700446faf8683bac1645f66f9a3d8e88` and packages a
+19,723,048-byte `libmain.so`.

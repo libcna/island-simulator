@@ -69,6 +69,8 @@ namespace island
             "island-simulator: shipwreck stern deckhouse uses separated broken roof planks and framed window bays";
         constexpr std::string_view SettledDebrisDiagnostic =
             "island-simulator: shipwreck beach debris uses buried ends, restrained warp, unequal settling, and five genuinely split long planks";
+        constexpr std::string_view BrokenDeckDiagnostic =
+            "island-simulator: shipwreck uses separated deck planks, open fracture gaps, and collapsed break timbers";
         constexpr int AgedWoodMaterial = 48;
         constexpr int InnerWoodMaterial = 80;
         constexpr int FreshBreakMaterial = 176;
@@ -175,6 +177,15 @@ void main()
         * vec3(0.77, 0.91, 0.79), submerged * 0.24);
     materialColor = mix(materialColor, wetColor, wetBand * (0.74 + 0.18 * detailFade));
 
+    // Years of wave wash leave the lowest timbers stained and partly packed with
+    // pale lagoon sand. This remains a bounded material cue rather than a second
+    // seabed surface that could float when terrain placement changes.
+    float sandField = 0.5 + 0.5 * sin(along * 2.37 + across * 3.11
+        + sin(along * 0.83 - across * 1.29) * 1.2);
+    float sandBurial = (1.0 - smoothstep(-0.70, -0.24, vWorld.y))
+        * smoothstep(0.32, 0.78, sandField) * (1.0 - metal) * detailFade;
+    materialColor = mix(materialColor, vec3(0.43, 0.36, 0.25), sandBurial * 0.34);
+
     float saltLine = exp(-abs(vWorld.y - 0.18) * 13.0) * detailFade
         * (1.0 - freshBreak) * (1.0 - metal * 0.72) * (0.68 + 0.32 * fineGrain);
     materialColor = mix(materialColor,
@@ -261,8 +272,20 @@ void main()
         [[nodiscard]] Vector3 ShipPoint(const ShipwreckPlacement& ship, const Axes& axes,
                                         const float x, const float y, const float z)
         {
-            return Vector3(ship.x, ship.y, ship.z) + axes.right * x + axes.up * y
-                + axes.forward * z;
+            // The two wreck halves have settled independently after the keel failed.
+            // Apply a very small piece-local roll and sink here so every attached rib,
+            // fitting, mast and rail follows its own hull instead of floating away.
+            // The open fracture contains the smooth hand-off, where only broken debris
+            // spans the discontinuity.
+            const float pieceBlend = std::clamp((z + 0.78f) / 1.56f, 0.0f, 1.0f);
+            const float localRoll = -0.018f + pieceBlend * 0.046f;
+            const float localSink = 0.025f - pieceBlend * 0.105f;
+            const float cosine = std::cos(localRoll);
+            const float sine = std::sin(localRoll);
+            const float settledX = x * cosine - y * sine;
+            const float settledY = x * sine + y * cosine + localSink;
+            return Vector3(ship.x, ship.y, ship.z) + axes.right * settledX
+                + axes.up * settledY + axes.forward * z;
         }
 
         [[nodiscard]] Color ScaleColor(const Color& color, const float scale)
@@ -616,9 +639,42 @@ void main()
                     ship, axes, nextWidth, 1.16f + HullSheer(sectionZ[section + 1U]),
                     sectionZ[section + 1U]
                         + HullEndRake(sectionZ[section + 1U], 1.16f));
-                AddQuad(vertices, deckFirstLeft, deckFirstRight, deckNextRight,
-                        deckNextLeft, section % 2U == 0U ? InnerWood : OuterWood,
-                        GrainAxis::AlongAD);
+                // Keep the deck walkable-looking but no longer cast it as one pristine
+                // sheet. Seven unequal lanes leave real dark seams and a few missing
+                // boards beside each torn centre section. Small deterministic lifts
+                // make the warped planks catch light individually from elevated views.
+                constexpr std::size_t DeckLaneCount = 7U;
+                const bool fractureSection = capFirst
+                    ? section + 2U >= sectionZ.size()
+                    : section < 2U;
+                for (std::size_t lane = 0U; lane < DeckLaneCount; ++lane) {
+                    const bool missingLane = fractureSection
+                        && ((capFirst && (lane == 1U || lane == 5U))
+                            || (!capFirst && (lane == 2U || lane == 6U)));
+                    if (missingLane) continue;
+                    const float firstFraction =
+                        (static_cast<float>(lane) + 0.055f) / static_cast<float>(DeckLaneCount);
+                    const float secondFraction =
+                        (static_cast<float>(lane) + 0.945f) / static_cast<float>(DeckLaneCount);
+                    const auto interpolate = [](const Vector3& a, const Vector3& b,
+                                                const float amount) {
+                        return a + (b - a) * amount;
+                    };
+                    const float lift = 0.006f
+                        * static_cast<float>((section * 5U + lane * 3U) % 4U);
+                    const Vector3 boardFirstLeft = interpolate(
+                        deckFirstLeft, deckFirstRight, firstFraction) + axes.up * lift;
+                    const Vector3 boardFirstRight = interpolate(
+                        deckFirstLeft, deckFirstRight, secondFraction) + axes.up * lift;
+                    const Vector3 boardNextLeft = interpolate(
+                        deckNextLeft, deckNextRight, firstFraction) + axes.up * lift;
+                    const Vector3 boardNextRight = interpolate(
+                        deckNextLeft, deckNextRight, secondFraction) + axes.up * lift;
+                    const Color deckColor = (section + lane) % 5U == 0U
+                        ? InnerWood : ((section + lane) % 2U == 0U ? OuterWood : DarkWood);
+                    AddQuad(vertices, boardFirstLeft, boardFirstRight, boardNextRight,
+                            boardNextLeft, deckColor, GrainAxis::AlongAD);
+                }
 
                 const float centreZ = (sectionZ[section] + sectionZ[section + 1U]) * 0.5f;
                 const float halfLength = (sectionZ[section + 1U] - sectionZ[section]) * 0.5f;
@@ -758,6 +814,31 @@ void main()
             AppendRib(vertices, ship, axes, -3.18f, 0.06f);
             AppendRib(vertices, ship, axes, 4.04f, -0.05f);
             AppendRib(vertices, ship, axes, 6.92f, 0.04f);
+
+            // The two hull halves were once one vessel. Broken deck beams now reach
+            // into the fracture at unequal heights, with a few collapsed boards below
+            // them, so the centre reads as structural failure rather than a clean gap.
+            AppendTaperedBeam(
+                vertices, ShipPoint(ship, axes, -1.42f, 1.31f, -0.92f),
+                ShipPoint(ship, axes, -0.62f, 0.46f, 0.22f),
+                0.12f, 0.045f, FreshBreak);
+            AppendTaperedBeam(
+                vertices, ShipPoint(ship, axes, 0.58f, 1.27f, -0.89f),
+                ShipPoint(ship, axes, 1.12f, 0.71f, 0.48f),
+                0.105f, 0.040f, FreshBreak);
+            AppendTaperedBeam(
+                vertices, ShipPoint(ship, axes, -0.15f, 1.22f, 1.13f),
+                ShipPoint(ship, axes, 0.34f, 0.30f, -0.12f),
+                0.11f, 0.038f, FreshBreak);
+            const Axes fallenDeckAxes{
+                Vector3::Normalize(axes.right + axes.forward * 0.18f), axes.up,
+                Vector3::Normalize(axes.forward - axes.right * 0.18f)};
+            AppendBrokenPlank(
+                vertices, ShipPoint(ship, axes, -0.70f, 0.56f, -0.12f),
+                fallenDeckAxes, 0.20f, 0.055f, 0.68f, InnerWood, 401U, 0.028f);
+            AppendBrokenPlank(
+                vertices, ShipPoint(ship, axes, 0.42f, 0.30f, 0.16f),
+                fallenDeckAxes, 0.18f, 0.050f, 0.55f, FreshBreak, 402U, 0.022f);
 
             AppendTaperedBeam(
                 vertices, ShipPoint(ship, axes, 0.0f, -1.42f + HullSheer(-9.55f), -9.55f),
@@ -1073,6 +1154,7 @@ void main()
         std::cout << PlankThicknessDiagnostic << '\n';
         std::cout << DeckhouseDamageDiagnostic << '\n';
         std::cout << SettledDebrisDiagnostic << '\n';
+        std::cout << BrokenDeckDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(
             "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast");
@@ -1083,6 +1165,7 @@ void main()
         MirrorRuntimeDiagnosticToPlatformLog(PlankThicknessDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(DeckhouseDamageDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(SettledDebrisDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(BrokenDeckDiagnostic);
     }
 
     ShipwreckRenderer::~ShipwreckRenderer() = default;

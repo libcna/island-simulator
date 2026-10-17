@@ -306,7 +306,8 @@ class BrowserSoftwareTests(unittest.TestCase):
             "shipwreck missing plank bays expose eleven-centimetre inner edges",
             "shipwreck stern deckhouse uses separated broken roof planks and framed window bays",
             "shipwreck beach debris uses buried ends, restrained warp, unequal settling, and five genuinely split long planks",
-            "shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 5712 triangles",
+            "shipwreck uses separated deck planks, open fracture gaps, and collapsed break timbers",
+            "shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 6048 triangles",
             "shipwreck visible, 12 debris, 1 draw",
         ))
         def report():
