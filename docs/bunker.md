@@ -22,7 +22,7 @@ ordinary vegetation reserve the entrance and facility footprint.
 
 ## Visual construction
 
-The current static mesh is 6,328 triangles in two culled draws. It includes:
+The current static mesh is 7,264 triangles in two culled draws. It includes:
 
 - a rock-concealed reinforced portal, open blast door, jamb bolts and drainage threshold;
 - repeated structural corridor bays, slope-fitted recessed access panels, safety stripe, cable
@@ -30,7 +30,8 @@ The current static mesh is 6,328 triangles in two culled draws. It includes:
   ceiling-light pools;
 - four active computer desks with keyboards and chairs, eight server cabinets, a wall
   situation display, tiled floor and cable details;
-- a complete service-room shell with cabinets, workbench and amber task lighting;
+- a complete service-room shell with cabinets, workbench, amber task lighting and a framed wall
+  distribution board with gauges, switch banks, status lamps and paired conduits;
 - a cyan fictional generator core, open tubular containment hoops, radial braces, luminous core
   bands, support posts, control cabinets, pipes and caution markings;
 - a reinforced sealed end bulkhead that replaces the former view beyond the facility, now with a
@@ -129,7 +130,8 @@ replaced by open sixteen-section tubular hoops with radial braces, two luminous 
 machinery plinth. A lower caution band and centre seam add scale to the sealed end door without changing
 its collision or reopening the terrain leak.
 
-The mesh rises from 4,508 to 6,328 triangles, remains inside the unchanged 24,000-vertex construction
+The access/cage mesh first rose from 4,508 to 6,328 triangles; the subsequent wall-mounted service
+board brings the current total to 7,264 triangles. It remains inside the unchanged 24,000-vertex construction
 guard and still uses one opaque plus one glow draw. Native layout/core tests and the 55 capture harness
 tests pass. Inspected native evidence is:
 
@@ -148,3 +150,16 @@ assemble/lint pass without starting an emulator; the 24,756,019-byte APK has SHA
 `2758207cda2deae9d28c0dba9265db3e848231097218a2a07d9d8244ca523bfd` and contains a
 19,713,448-byte `libmain.so`. Physical Android appearance and hardware-GPU performance remain
 unqualified.
+
+The service-room baseline is the corresponding Chrome frame inside
+`20261017T072701.009087Z-chrome-bunker`. Accepted native evidence
+`20261017T074338.301184Z-bunker-service` replaces the blank centre wall and passes the scene gate at
+82 colour bins, 37.68 luminance deviation and 126.18 spatial contrast. The first functional version
+used only cyan/amber switch colours and was visually accepted but failed the generic 64-bin scene
+threshold at 51; the retained version uses restrained instrument-family colours and illuminated status
+lamps rather than weakening the common image gate. Refreshed WebGL and inspected Chrome/SwiftShader
+evidence `20261017T074905.016618Z-chrome-bunker` pass all six views with twelve positive intervals,
+GL error zero, live contexts and an empty kernel delta. Android ARM64 assemble/lint pass without an
+emulator; the 24,760,563-byte APK has SHA-256
+`4a8419f1579e52cf28459b4de3b25b3bcab2ef7e971f853a963215b029e5133e` and contains a
+19,717,992-byte `libmain.so`.

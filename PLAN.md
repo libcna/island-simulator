@@ -35,7 +35,9 @@ details remain outside the player capsule corridor and do not alter the floor or
 The fictional generator's solid discs are replaced by four open sixteen-section tubular containment
 hoops, radial braces and two restrained luminous core bands over a raised machinery plinth. The sealed
 maintenance bulkhead also gains a central panel seam and lower caution plates; it continues to hide the
-island underside. The complete bunker grows from 4,508 to 6,328 triangles, remains below its existing
+island underside. A follow-up fills the formerly blank service-room wall with a framed distribution
+board, three round gauges, colour-coded switch banks, status lamps and paired conduits, all wall-mounted
+outside the walking aisle. The complete bunker grows from 4,508 to 7,264 triangles, remains below its existing
 24,000-vertex construction guard and still renders in two static draws.
 
 Native layout/core tests and all 55 capture harness tests pass. Inspected same-camera corridor evidence
@@ -50,6 +52,16 @@ views with twelve positive intervals each, GL error zero, live contexts and kern
 assemble/lint pass without an emulator; the 24,756,019-byte APK has SHA-256
 `2758207cda2deae9d28c0dba9265db3e848231097218a2a07d9d8244ca523bfd` and contains a
 19,713,448-byte `libmain.so`. Physical Android and hardware-GPU runtime remain unqualified.
+
+The inspected service-room baseline is the Chrome frame in
+`20261017T072701.009087Z-chrome-bunker`; accepted native evidence
+`20261017T074338.301184Z-bunker-service` replaces its blank centre wall and passes at 82 colour bins,
+37.68 luminance deviation and 126.18 spatial contrast. The refreshed WebGL build and inspected
+Chrome/SwiftShader `20261017T074905.016618Z-chrome-bunker` pass all six views, twelve positive
+intervals each, GL0/live contexts and kernel `[]`. Android ARM64 assemble/lint pass without an
+emulator; the 24,760,563-byte APK has SHA-256
+`4a8419f1579e52cf28459b4de3b25b3bcab2ef7e971f853a963215b029e5133e` and contains a
+19,717,992-byte `libmain.so`.
 
 ## Latest animal visual-audit implementation — rounded deer contour and tufted tail
 

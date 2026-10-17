@@ -162,6 +162,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             "bunker end bulkhead uses a round six-spoke handwheel, central hub, eight perimeter bolts, and a lower caution band",
             "bunker access passage uses recessed ramp panels, paired ceiling conduits, transverse floor joints, and housed lights",
             "bunker generator containment uses open tubular hoops, radial braces, luminous core bands, and a raised machinery plinth",
+            "bunker service room adds a framed distribution board, three round gauges, paired conduits, and labeled switch banks",
         ))
         def report():
             return {"passed": True, "views": [{"mode": mode, "passed": True,

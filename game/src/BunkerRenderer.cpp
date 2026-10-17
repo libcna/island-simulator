@@ -540,6 +540,51 @@ BunkerRenderer::BunkerRenderer(GraphicsDevice& device,const BunkerLayout& layout
         box({2.25f,roomCeiling-.06f,depth-.72f},{5.95f,roomCeiling-.01f,depth+.72f},
             Color(227,188,113),true);
     box({1.12f,roomFloor+.10f,26.0f},{1.24f,roomFloor+.26f,35.3f},Color(107,82,51));
+    // A compact wall-mounted distribution board gives the service room a readable
+    // purpose without placing non-colliding clutter in its walkable centre aisle.
+    box({6.84f,roomFloor+.40f,29.92f},{7.04f,roomFloor+2.38f,32.92f},steelDark);
+    box({6.80f,roomFloor+.34f,29.84f},{6.87f,roomFloor+2.45f,29.96f},steel);
+    box({6.80f,roomFloor+.34f,32.88f},{6.87f,roomFloor+2.45f,33.00f},steel);
+    box({6.80f,roomFloor+2.34f,29.88f},{6.87f,roomFloor+2.45f,32.96f},steel);
+    const std::array<Color,3> dialFaces{{Color(21,36,37),Color(38,33,23),Color(28,31,45)}};
+    const std::array<float,3> dialDepths{{30.48f,31.42f,32.36f}};
+    for(std::size_t dial=0;dial<dialDepths.size();++dial) {
+        const float depth=dialDepths[dial];
+        const Vector3 centre(6.78f,roomFloor+1.88f,depth);
+        constexpr int dialSegments=12;
+        for(int segment=0;segment<dialSegments;++segment) {
+            const float a=tau*segment/dialSegments,b=tau*(segment+1)/dialSegments;
+            const Vector3 p0=centre+Vector3(0,std::sin(a)*.19f,std::cos(a)*.19f);
+            const Vector3 p1=centre+Vector3(0,std::sin(b)*.19f,std::cos(b)*.19f);
+            triangle(centre,p1,p0,shade(dialFaces[dial],.86f+.035f*segment));
+            tube(p0,p1,.018f,6,Color(132,139,132),false);
+        }
+        tube(centre-Vector3(.025f,0,0),
+             centre+Vector3(-.025f,.105f,-.065f),.014f,6,Color(214,174,65));
+    }
+    const std::array<Color,6> switchColors{{Color(58,159,143),Color(195,145,43),
+        Color(177,67,48),Color(61,126,174),Color(176,184,146),Color(112,87,153)}};
+    for(int bank=0;bank<3;++bank) {
+        const float y=roomFloor+.62f+bank*.30f;
+        box({6.76f,y,30.16f},{6.81f,y+.14f,32.66f},Color(42,49,49));
+        for(int toggle=0;toggle<6;++toggle) {
+            const float z=30.34f+toggle*.42f;
+            box({6.72f,y+.035f,z-.065f},{6.77f,y+.11f,z+.065f},
+                switchColors[static_cast<std::size_t>((toggle+bank*2)%6)]);
+        }
+    }
+    for(std::size_t lamp=0;lamp<switchColors.size();++lamp) {
+        const float z=30.25f+static_cast<float>(lamp)*.46f;
+        const Color source=switchColors[lamp];
+        box({6.70f,roomFloor+2.18f,z-.07f},{6.76f,roomFloor+2.29f,z+.07f},
+            Color(static_cast<int>(source.getRProperty()),
+                  static_cast<int>(source.getGProperty()),
+                  static_cast<int>(source.getBProperty()),220),true);
+    }
+    tube({6.82f,roomFloor+2.42f,30.48f},{6.82f,roomCeiling-.12f,30.48f},
+         .033f,6,Color(64,121,125),false);
+    tube({6.82f,roomFloor+2.42f,32.36f},{6.82f,roomCeiling-.12f,32.36f},
+         .033f,6,Color(132,91,53),false);
 
     if(opaque.empty()||glow.empty()||opaque.size()+glow.size()>24000)
         throw std::runtime_error("Bunker mesh exceeds bounded static budget");
@@ -598,6 +643,8 @@ BunkerRenderer::BunkerRenderer(GraphicsDevice& device,const BunkerLayout& layout
     std::cout<<access<<'\n';MirrorRuntimeDiagnosticToPlatformLog(access);
     const char* generator="island-simulator: bunker generator containment uses open tubular hoops, radial braces, luminous core bands, and a raised machinery plinth";
     std::cout<<generator<<'\n';MirrorRuntimeDiagnosticToPlatformLog(generator);
+    const char* service="island-simulator: bunker service room adds a framed distribution board, three round gauges, paired conduits, and labeled switch banks";
+    std::cout<<service<<'\n';MirrorRuntimeDiagnosticToPlatformLog(service);
 }
 
 BunkerRenderer::~BunkerRenderer()=default;

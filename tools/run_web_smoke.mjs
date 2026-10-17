@@ -879,6 +879,7 @@ try {
               && log.includes("bunker end bulkhead uses a round six-spoke handwheel, central hub, eight perimeter bolts, and a lower caution band")
               && log.includes("bunker access passage uses recessed ramp panels, paired ceiling conduits, transverse floor joints, and housed lights")
               && log.includes("bunker generator containment uses open tubular hoops, radial braces, luminous core bands, and a raised machinery plinth")
+              && log.includes("bunker service room adds a framed distribution board, three round gauges, paired conduits, and labeled switch banks")
               && !log.includes("bunker material fallback:")))
             && (!focusedTurtleCheck || (log.includes("near turtles use staggered scutes and closed tapered-volume paddles")
               && log.includes("near turtles use compact integrated heads, narrower hydrodynamic paddles, and restrained shell seams")
