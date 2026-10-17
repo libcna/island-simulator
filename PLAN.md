@@ -23,6 +23,30 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest dolphin visual pass — compact rostrum and fitted lower jaw
+
+The fish/shark/dolphin comparison selected the dolphin face: its long broad single-volume beak
+read as a flat spear from the close inspection view, while the body, dorsal contour and flippers
+already carried the intended stylized cetacean silhouette. The near model now uses a shorter,
+narrower and vertically tapered upper rostrum plus a separately modelled fitted lower jaw. The
+small six-facet oval eyes, melon, body, fins, palettes, pod simulation, animation, far LOD and draw
+structure remain unchanged.
+
+The lower jaw adds 90 vertices per near animal, raising the conservative near-animal ceiling from
+3,300 to 3,390 vertices (at most 360 additional vertices for the four-dolphin pod). Inspected native
+baseline `20261017T100310.962182Z-dolphins` and accepted
+`20261017T100653.138263Z-dolphins` show a recognizably shorter beak with a distinct lighter lower
+jaw; the accepted frame passes at 152 colour bins, 45.41 luminance deviation and 214.29 spatial
+contrast. Core, dolphin-pod, capture-validator and all 48 browser-software tests pass with at most
+three workers. The WebGL2 package builds, and inspected Chrome/SwiftShader evidence
+`20261017T100927.731049Z-chrome-dolphins` passes 60 finite positive frame intervals, GL0, a live
+context and an empty kernel delta. Android ARM64 assemble/lint pass through the two-worker wrapper
+without emulator/KVM. The 24,790,307-byte APK has SHA-256
+`cd82288bcdd06b2483df39e77ffdc3fb597ce13fb1c68cd1599bbdb96d9f9127` and contains the
+19,747,736-byte stripped `libmain.so` (SHA-256
+`cd4225569de9c80f95ba18785903e74a5c4179f0a10e7c4d6e9928a8d7406297`). Physical Android and
+hardware-GPU appearance remain unqualified.
+
 ## Latest shore-material audit — close wet-sand wash and mineral grain
 
 The grass/wet-sand/current comparison selected the broad tide-darkened foreground: forest soil and

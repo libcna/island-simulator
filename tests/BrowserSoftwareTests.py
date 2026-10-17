@@ -875,14 +875,14 @@ class BrowserSoftwareTests(unittest.TestCase):
         silhouette = "near dolphins use a nineteen-station closed melon profile, twenty-four-sided body, and vertex-blended countershading"
         stroke = "dolphin tail stock bends vertically through horizontal fluke strokes"
         profile = "near dolphins use an extended fitted rostrum, lower swept fins, and readable grey countershading"
-        face = "dolphin facial pass uses a stout tapered rostrum and small six-facet oval eyes instead of flat diamond marks"
+        face = "dolphin facial pass uses a compact tapered upper rostrum, fitted lower jaw, and small six-facet oval eyes"
         skin = "dolphin skin pass uses continuous axial pigment, a pale swept lower flank, restrained tonal variation, a longer rounded rostrum, and softer swept fins"
         proportions = "near dolphins use a slimmer fusiform midbody, narrower bottlenose rostrum, stronger countershading, a taller falcate dorsal, and root-thickened tapered fins and flukes"
         pectorals = "near dolphins use narrow curved-back pectorals and a restrained fitted lower-jaw mouth seam"
         silhouette_polish = "dolphin silhouette pass uses a ten-point falcate dorsal, nine-point curved pectorals, eight-point forked flukes, and brighter swept ventral countershading"
         streamline = "near dolphins use a lean tapered peduncle-to-melon trunk and compact rear-swept pectorals"
         pigment = "dolphin pigment pass retains a dark dorsal cape and swept pale flanks under underwater light"
-        geometry = "dolphin near/far geometry 3300/15 vertices, closed fins and CPU faceted daylight"
+        geometry = "dolphin near/far geometry 3390/15 vertices, closed fins and CPU faceted daylight"
         def report():
             return {"passed": True, "views": [{"mode": "dolphins", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",

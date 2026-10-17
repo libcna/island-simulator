@@ -310,14 +310,14 @@ def validate_dolphin_report(report):
         or "near dolphins use a nineteen-station closed melon profile, twenty-four-sided body, and vertex-blended countershading" not in log
         or "dolphin tail stock bends vertically through horizontal fluke strokes" not in log
         or "near dolphins use an extended fitted rostrum, lower swept fins, and readable grey countershading" not in log
-        or "dolphin facial pass uses a stout tapered rostrum and small six-facet oval eyes instead of flat diamond marks" not in log
+        or "dolphin facial pass uses a compact tapered upper rostrum, fitted lower jaw, and small six-facet oval eyes" not in log
         or "dolphin skin pass uses continuous axial pigment, a pale swept lower flank, restrained tonal variation, a longer rounded rostrum, and softer swept fins" not in log
         or "near dolphins use a slimmer fusiform midbody, narrower bottlenose rostrum, stronger countershading, a taller falcate dorsal, and root-thickened tapered fins and flukes" not in log
         or "near dolphins use narrow curved-back pectorals and a restrained fitted lower-jaw mouth seam" not in log
         or "dolphin silhouette pass uses a ten-point falcate dorsal, nine-point curved pectorals, eight-point forked flukes, and brighter swept ventral countershading" not in log
         or "near dolphins use a lean tapered peduncle-to-melon trunk and compact rear-swept pectorals" not in log
         or "dolphin pigment pass retains a dark dorsal cape and swept pale flanks under underwater light" not in log
-        or "dolphin near/far geometry 3300/15 vertices, closed fins and CPU faceted daylight" not in log
+        or "dolphin near/far geometry 3390/15 vertices, closed fins and CPU faceted daylight" not in log
         or not re.search(r"dolphins [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("dolphin view lacks current anatomy, frames or clean graphics state")

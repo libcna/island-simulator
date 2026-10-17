@@ -1102,7 +1102,7 @@ def main():
                     raise RuntimeError("current species-appropriate dolphin tail stroke is missing")
                 if "near dolphins use an extended fitted rostrum, lower swept fins, and readable grey countershading" not in diagnostics:
                     raise RuntimeError("current dolphin broadside profile is missing; check for a stale executable")
-                if "dolphin facial pass uses a stout tapered rostrum and small six-facet oval eyes instead of flat diamond marks" not in diagnostics:
+                if "dolphin facial pass uses a compact tapered upper rostrum, fitted lower jaw, and small six-facet oval eyes" not in diagnostics:
                     raise RuntimeError("current dolphin facial profile is missing; check for a stale executable")
                 if "dolphin skin pass uses continuous axial pigment, a pale swept lower flank, restrained tonal variation, a longer rounded rostrum, and softer swept fins" not in diagnostics:
                     raise RuntimeError("current dolphin skin and silhouette pass is missing; check for a stale executable")
@@ -1116,7 +1116,7 @@ def main():
                     raise RuntimeError("current streamlined dolphin proportions are missing; check for a stale executable")
                 if "dolphin pigment pass retains a dark dorsal cape and swept pale flanks under underwater light" not in diagnostics:
                     raise RuntimeError("current dolphin pigment separation is missing; check for a stale executable")
-                if "dolphin near/far geometry 3300/15 vertices, closed fins and CPU faceted daylight" not in diagnostics:
+                if "dolphin near/far geometry 3390/15 vertices, closed fins and CPU faceted daylight" not in diagnostics:
                     raise RuntimeError("current dolphin geometry inventory is missing; check for a stale executable")
                 if not re.search(r"dolphins [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw", diagnostics):
                     raise RuntimeError("dolphin capture did not submit a near detailed animal")

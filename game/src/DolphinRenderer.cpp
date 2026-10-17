@@ -224,20 +224,21 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
                      SmoothBodyColor(colors, axes, nextAngle, Body.back().z,
                                      dolphin.colorVariant));
   }
-  // A stout closed rostrum grows out of the lower forehead. Earlier radii made the
-  // beak collapse into a paper-thin plate in the authored broadside camera.
+  // A compact upper rostrum grows from beneath the melon.  Keep it narrow and shorter
+  // than the former spear-like wedge; a fitted lower jaw below supplies the bottlenose
+  // step and mouth silhouette without relying on a flat dark decal alone.
   constexpr int RostrumSegments = 12;
   std::array<Vector3, RostrumSegments> rostrumBase{};
   std::array<Vector3, RostrumSegments> rostrumTip{};
   for (int segment = 0; segment < RostrumSegments; ++segment) {
     const float angle = 2.0f * std::numbers::pi_v<float>
         * static_cast<float>(segment) / static_cast<float>(RostrumSegments);
-    rostrumBase[segment] = Point(centre, axes, .096f * std::cos(angle),
-        -.033f + .068f * std::sin(angle), .890f, scale);
-    rostrumTip[segment] = Point(centre, axes, .046f * std::cos(angle),
-        -.044f + .042f * std::sin(angle), 1.420f, scale);
+    rostrumBase[segment] = Point(centre, axes, .086f * std::cos(angle),
+        -.010f + .055f * std::sin(angle), .925f, scale);
+    rostrumTip[segment] = Point(centre, axes, .038f * std::cos(angle),
+        -.020f + .035f * std::sin(angle), 1.310f, scale);
   }
-  const auto rostrumCap = Point(centre, axes, 0, -.044f, 1.475f, scale);
+  const auto rostrumCap = Point(centre, axes, 0, -.020f, 1.355f, scale);
   for (int segment = 0; segment < RostrumSegments; ++segment) {
     const int next = (segment + 1) % RostrumSegments;
     const float angle = 2.0f * std::numbers::pi_v<float>
@@ -255,6 +256,29 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
                      color, nextColor, nextColor);
     GradientTriangle(out, rostrumCap, rostrumTip[next], rostrumTip[segment],
                      capColor, nextColor, color);
+  }
+  constexpr int JawSegments = 10;
+  std::array<Vector3, JawSegments> jawBase{};
+  std::array<Vector3, JawSegments> jawTip{};
+  for (int segment = 0; segment < JawSegments; ++segment) {
+    const float angle = 2.0f * std::numbers::pi_v<float>
+        * static_cast<float>(segment) / static_cast<float>(JawSegments);
+    jawBase[segment] = Point(centre, axes, .078f * std::cos(angle),
+        -.075f + .028f * std::sin(angle), .920f, scale);
+    jawTip[segment] = Point(centre, axes, .034f * std::cos(angle),
+        -.074f + .018f * std::sin(angle), 1.320f, scale);
+  }
+  const auto jawCap = Point(centre, axes, 0, -.074f, 1.347f, scale);
+  const Color jawBaseColor = Color::Lerp(colors[0], colors[2], .58f);
+  const Color jawTipColor = Color::Lerp(colors[0], colors[2], .70f);
+  for (int segment = 0; segment < JawSegments; ++segment) {
+    const int next = (segment + 1) % JawSegments;
+    GradientTriangle(out, jawBase[segment], jawTip[segment], jawTip[next],
+                     jawBaseColor, jawTipColor, jawTipColor);
+    GradientTriangle(out, jawBase[segment], jawTip[next], jawBase[next],
+                     jawBaseColor, jawTipColor, jawBaseColor);
+    GradientTriangle(out, jawCap, jawTip[next], jawTip[segment],
+                     jawTipColor, jawTipColor, jawTipColor);
   }
   // A thin closed swept-back dorsal retains the falcate profile without vanishing
   // edge-on like the former coincident sheet.
@@ -411,7 +435,7 @@ DolphinRenderer::DolphinRenderer(GraphicsDevice &device,
   std::cout << pectoralProfile << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(pectoralProfile);
   const char *face =
-      "island-simulator: dolphin facial pass uses a stout tapered rostrum and small six-facet oval eyes instead of flat diamond marks";
+      "island-simulator: dolphin facial pass uses a compact tapered upper rostrum, fitted lower jaw, and small six-facet oval eyes";
   std::cout << face << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(face);
   const char *skin =
