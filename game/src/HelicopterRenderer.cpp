@@ -521,8 +521,42 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         quad(panelFront[edge],panelBack[edge],panelBack[next],panelFront[next],
              Color(48,54,49),Surface::Cabin);
     }
-    // The central pedestal and glareshield break up the panel into real cockpit volumes.
-    box({-.17f,.47f,.87f},{.17f,1.02f,1.28f},Color(52,59,53),Surface::Cabin);
+    // A low tapered centre pedestal rises into the panel instead of blocking the
+    // footwell as one tall rectangular crate.  Its aft end stays narrow between the
+    // cyclics and its sloping crown carries a small, readable switch console.
+    const Vector3 pedestalAftLeft(-.14f,.47f,.87f);
+    const Vector3 pedestalAftRight(.14f,.47f,.87f);
+    const Vector3 pedestalForwardLeft(-.18f,.47f,1.27f);
+    const Vector3 pedestalForwardRight(.18f,.47f,1.27f);
+    const Vector3 pedestalCrownAftLeft(-.11f,.82f,1.02f);
+    const Vector3 pedestalCrownAftRight(.11f,.82f,1.02f);
+    const Vector3 pedestalCrownForwardLeft(-.17f,1.02f,1.27f);
+    const Vector3 pedestalCrownForwardRight(.17f,1.02f,1.27f);
+    const Color pedestalSide(49,56,50);
+    quad(pedestalAftLeft,pedestalAftRight,pedestalCrownAftRight,
+         pedestalCrownAftLeft,pedestalSide,Surface::Cabin);
+    quad(pedestalForwardRight,pedestalForwardLeft,pedestalCrownForwardLeft,
+         pedestalCrownForwardRight,pedestalSide,Surface::Cabin);
+    quad(pedestalAftLeft,pedestalCrownAftLeft,pedestalCrownForwardLeft,
+         pedestalForwardLeft,Color(46,53,48),Surface::Cabin);
+    quad(pedestalAftRight,pedestalForwardRight,pedestalCrownForwardRight,
+         pedestalCrownAftRight,Color(55,62,56),Surface::Cabin);
+    quad(pedestalAftLeft,pedestalForwardLeft,pedestalForwardRight,
+         pedestalAftRight,Color(42,48,44),Surface::Cabin);
+    quad(pedestalCrownAftLeft,pedestalCrownAftRight,pedestalCrownForwardRight,
+         pedestalCrownForwardLeft,Color(60,67,60),Surface::Cabin);
+    // The plate follows the same crown slope so it cannot float above the pedestal.
+    quad({-.088f,.865f,1.069f},{.088f,.865f,1.069f},
+         {.126f,.975f,1.207f},{-.126f,.975f,1.207f},
+         Color(27,32,29),Surface::Rubber);
+    for(int control=0;control<3;++control) {
+        const float x=-.060f+control*.060f;
+        const Color controlColor=control==0?Color(184,154,67):
+            (control==1?Color(74,139,96):Color(171,74,57));
+        quad({x-.015f,.884f,1.091f},{x+.015f,.884f,1.091f},
+             {x+.019f,.914f,1.129f},{x-.019f,.914f,1.129f},
+             controlColor,Surface::Emissive);
+    }
     quad({-.73f,1.38f,1.33f},{.73f,1.38f,1.33f},{.61f,1.48f,1.15f},
          {-.61f,1.48f,1.15f},Color(46,52,47),Surface::Cabin);
     box({-.29f,1.91f,.42f},{.29f,1.99f,1.03f},Color(62,69,61),Surface::Cabin);

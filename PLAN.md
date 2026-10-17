@@ -23,6 +23,33 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest helicopter interior pass — tapered centre pedestal and switch console
+
+The renewed exterior/interior audit kept the established rounded canopy, open doors, connected
+skids, rotor assembly, tail, seats and instrument panel, but selected the centre pedestal: from
+the pilot view it was still a tall rectangular crate occupying the footwell. The same procedural
+helicopter batch now uses a closed tapered wedge that stays narrow between the cyclics, rises into
+the lower panel and presents a sloped crown. A fitted recessed plate with three restrained coloured
+controls gives the volume a deliberate cockpit purpose. No subsystem, texture, buffer, draw,
+collision, location, entry corridor or interaction changes.
+
+Inspected native baseline `20261017T102340.549302Z-helicopter-inside` and accepted
+`20261017T102656.046991Z-helicopter-inside` show the cube replaced by the lower connected console;
+the accepted frame passes at 188 colour bins, 21.40 luminance deviation and 66.32 spatial contrast.
+Exterior guard `20261017T102537.261693Z-helicopter` preserves the aircraft silhouette and passes at
+314 bins. Core, helicopter-layout, capture-validator, software-preflight and all 48 browser-software
+tests pass with at most three workers, and the WebGL2 package builds. Both Chrome/SwiftShader
+attempts reached an inner focused-helicopter PASS with 60 CPU-rendered intervals and produced
+inspected exterior/interior frames; the second evidence directory
+`20261017T103241.881661Z-chrome-helicopter` has an empty final kernel delta, but its outer capture
+supervisor timed out before emitting the final report, so clean browser-suite completion is not
+claimed. Android ARM64 assemble/lint pass through the two-worker wrapper without emulator/KVM.
+The 24,792,163-byte APK has SHA-256
+`1d96cb664a788f0962bab0aa7da116096dd86784e84b6cfd00a755cb819aeaf1` and contains the
+19,749,592-byte stripped `libmain.so` (SHA-256
+`bdfc97b9ca80b8321493974444d2c7fc81994f5a01b7947ca2e18609407a617d`). Physical Android and
+hardware-GPU appearance remain unqualified.
+
 ## Latest resident proportion pass — joined neck and restrained head mass
 
 The current vegetation/boar/resident comparison selected the resident again: foliage and the boar
