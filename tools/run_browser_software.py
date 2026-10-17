@@ -101,7 +101,9 @@ def validate_bunker_report(report):
         "bunker computer room has four desks and terminals, keyboard consoles, eight server cabinets, and a separate generator control bank",
         "bunker concrete and metal use portable world-space mottling, restrained age variation, and baked face shading",
         "bunker deep spine ends at a sealed maintenance bulkhead and the service branch has a complete lit shell",
-        "bunker end bulkhead uses a round six-spoke handwheel, central hub, and eight perimeter bolts",
+        "bunker end bulkhead uses a round six-spoke handwheel, central hub, eight perimeter bolts, and a lower caution band",
+        "bunker access passage uses recessed ramp panels, paired ceiling conduits, transverse floor joints, and housed lights",
+        "bunker generator containment uses open tubular hoops, radial braces, luminous core bands, and a raised machinery plinth",
     )
     for view in views:
         result = view.get("result", {})

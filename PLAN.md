@@ -23,6 +23,34 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest landmark visual-audit implementation — articulated bunker access and generator cage
+
+The current landmark matrix selected the underground bunker ahead of the already rounded helicopter,
+hut, cave and campfire. Its descending entrance still read as one uninterrupted concrete wedge, and
+the generator core was hidden behind four solid grey discs. The access ramp now continues the deep
+corridor's authored rhythm with slope-fitted recessed panels, paired colour-coded ceiling conduits,
+transverse floor joints, framed fasteners and opaque housings around the luminous fixtures. These
+details remain outside the player capsule corridor and do not alter the floor or collision contract.
+
+The fictional generator's solid discs are replaced by four open sixteen-section tubular containment
+hoops, radial braces and two restrained luminous core bands over a raised machinery plinth. The sealed
+maintenance bulkhead also gains a central panel seam and lower caution plates; it continues to hide the
+island underside. The complete bunker grows from 4,508 to 6,328 triangles, remains below its existing
+24,000-vertex construction guard and still renders in two static draws.
+
+Native layout/core tests and all 55 capture harness tests pass. Inspected same-camera corridor evidence
+`20261017T070528.433880Z-bunker-corridor` / `20261017T071038.551081Z-bunker-corridor` shows the
+formerly blank ramp replaced by readable structural bays. Reactor baseline
+`20261017T071215.535551Z-bunker-reactor` failed the generic colour-bin art threshold at 58 bins; the
+accepted open-cage result `20261017T071556.777512Z-bunker-reactor` passes at 75 bins, 64.01 luminance
+deviation and 213.41 spatial contrast. Current sealed-end evidence
+`20261017T072043.709398Z-bunker-end` passes at 72 bins with no exposed terrain underside. WebGL builds;
+inspected Chrome 155/SwiftShader `20261017T072701.009087Z-chrome-bunker` passes all six current bunker
+views with twelve positive intervals each, GL error zero, live contexts and kernel `[]`. Android ARM64
+assemble/lint pass without an emulator; the 24,756,019-byte APK has SHA-256
+`2758207cda2deae9d28c0dba9265db3e848231097218a2a07d9d8244ca523bfd` and contains a
+19,713,448-byte `libmain.so`. Physical Android and hardware-GPU runtime remain unqualified.
+
 ## Latest animal visual-audit implementation — rounded deer contour and tufted tail
 
 The resident/deer/boar comparison selected the deer: its detailed continuous torso still closed

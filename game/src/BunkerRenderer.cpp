@@ -125,7 +125,7 @@ BunkerRenderer::BunkerRenderer(GraphicsDevice& device,const BunkerLayout& layout
         }
     };
     const auto tube=[&](const Vector3& a,const Vector3& b,float radius,int segments,
-                        const Color& color,bool capEnds=true) {
+                        const Color& color,bool capEnds=true,bool lit=false) {
         Vector3 axis=b-a;
         if(axis.LengthSquared()<1.0e-8f)return;
         axis.Normalize();
@@ -139,10 +139,10 @@ BunkerRenderer::BunkerRenderer(GraphicsDevice& device,const BunkerLayout& layout
             const float facet=.77f+.25f*std::max(0.0f,
                 Vector3::Dot((radial0+radial1)*.5f,Vector3(.62f,.71f,-.32f)));
             quad(a+radial0*radius,a+radial1*radius,b+radial1*radius,b+radial0*radius,
-                 shade(color,facet));
+                 shade(color,facet),lit);
             if(capEnds) {
-                triangle(a,a+radial1*radius,a+radial0*radius,shade(color,.72f));
-                triangle(b,b+radial0*radius,b+radial1*radius,shade(color,1.04f));
+                triangle(a,a+radial1*radius,a+radial0*radius,shade(color,.72f),lit);
+                triangle(b,b+radial0*radius,b+radial1*radius,shade(color,1.04f),lit);
             }
         }
     };
@@ -245,10 +245,57 @@ BunkerRenderer::BunkerRenderer(GraphicsDevice& device,const BunkerLayout& layout
     }
     for(float depth:{3.0f,8.0f,13.5f,21.5f,28.0f,34.0f}) {
         const float y=layout.FloorRelative(depth)+2.70f;
+        box({-.58f,y-.085f,depth-.38f},{.58f,y-.035f,depth+.38f},steelDark);
         box({-.48f,y-.045f,depth-.28f},{.48f,y+.01f,depth+.28f},warm,true);
         quad({-1.12f,y-.08f,depth-.72f},{1.12f,y-.08f,depth-.72f},
              {1.12f,y-.08f,depth+.72f},{-1.12f,y-.08f,depth+.72f},
              Color(214,199,151,70),true);
+    }
+    // The descending access used to be a long unbroken concrete wedge in first-person
+    // view. Recessed framed panels follow its actual sloping floor and ceiling, while
+    // paired conduits and expansion joints carry the authored corridor rhythm all the
+    // way to the entrance rather than beginning only after the ramp.
+    const auto rampPanel=[&](float d0,float d1) {
+        const float f0=layout.FloorRelative(d0),f1=layout.FloorRelative(d1);
+        const float c0=corridorCeiling(d0),c1=corridorCeiling(d1);
+        for(float side:{-1.0f,1.0f}) {
+            const float face=side*1.345f;
+            const float trim=side*1.337f;
+            const auto panelQuad=[&](float low0,float low1,float high0,float high1,
+                                     const Color& color,float x) {
+                quad({x,low0,d0},{x,high0,d0},{x,high1,d1},{x,low1,d1},color);
+            };
+            panelQuad(f0+.43f,f1+.43f,c0-.43f,c1-.43f,Color(46,52,51),face);
+            panelQuad(f0+.36f,f1+.36f,f0+.43f,f1+.43f,steel,trim);
+            panelQuad(c0-.43f,c1-.43f,c0-.36f,c1-.36f,steel,trim);
+            const float edge=.065f;
+            const auto upright=[&](float depth,float floorAt,float ceilingAt) {
+                quad({trim,floorAt+.36f,depth-edge},{trim,ceilingAt-.36f,depth-edge},
+                     {trim,ceilingAt-.36f,depth+edge},{trim,floorAt+.36f,depth+edge},steel);
+            };
+            upright(d0,f0,c0);upright(d1,f1,c1);
+            const float mid=(d0+d1)*.5f;
+            const float floorMid=layout.FloorRelative(mid);
+            for(float yOffset:{.54f,1.72f})
+                box({std::min(face,trim)-.012f,floorMid+yOffset-.035f,mid-.045f},
+                    {std::max(face,trim)+.012f,floorMid+yOffset+.035f,mid+.045f},
+                    Color(118,124,117));
+        }
+    };
+    rampPanel(.72f,2.62f);rampPanel(3.02f,5.28f);
+    rampPanel(5.68f,7.72f);rampPanel(8.10f,9.72f);
+    tube({-1.04f,corridorCeiling(.55f)-.21f,.55f},
+         {-1.04f,corridorCeiling(9.78f)-.21f,9.78f},.038f,7,Color(54,91,96),false);
+    tube({1.04f,corridorCeiling(.55f)-.21f,.55f},
+         {1.04f,corridorCeiling(9.78f)-.21f,9.78f},.038f,7,Color(122,91,54),false);
+    for(float depth:{2.5f,5.0f,7.5f,9.75f}) {
+        const float d0=depth-.025f,d1=depth+.025f;
+        const float f0=layout.FloorRelative(d0),f1=layout.FloorRelative(d1);
+        quad({-1.30f,f0+.006f,d0},{1.30f,f0+.006f,d0},
+             {1.30f,f1+.006f,d1},{-1.30f,f1+.006f,d1},Color(31,36,36));
+        const float ceiling=corridorCeiling(depth);
+        box({-1.12f,ceiling-.27f,depth-.045f},{-0.96f,ceiling-.14f,depth+.045f},steelDark);
+        box({.96f,ceiling-.27f,depth-.045f},{1.12f,ceiling-.14f,depth+.045f},steelDark);
     }
     // Repeated structural bays, base rails, utility pipes and a centre safety stripe
     // give the corridor scale and rhythm without extra draw calls.
@@ -322,6 +369,12 @@ BunkerRenderer::BunkerRenderer(GraphicsDevice& device,const BunkerLayout& layout
             IndicatorColors[static_cast<std::size_t>(indicator)],true);
     }
     box({-.52f,roomCeiling-.42f,35.80f},{.52f,roomCeiling-.27f,35.89f},Color(160,55,43),true);
+    box({-.028f,roomFloor+.18f,35.765f},{.028f,roomCeiling-.20f,35.79f},Color(47,54,54));
+    for(int plate=0;plate<10;++plate) {
+        const float x0=-1.04f+static_cast<float>(plate)*.208f;
+        box({x0,roomFloor+.20f,35.755f},{x0+.174f,roomFloor+.32f,35.78f},
+            plate%2==0?Color(185,144,40):Color(31,36,36));
+    }
     // Near-ramp ribs and cable trays make the first descent as authored as the
     // deep spine; these sit against the shell and do not narrow capsule clearance.
     for(float depth:{2.0f,5.0f,8.0f}) {
@@ -409,8 +462,34 @@ BunkerRenderer::BunkerRenderer(GraphicsDevice& device,const BunkerLayout& layout
         const float x=-5.55f+std::cos(angle)*1.42f,z=29.5f+std::sin(angle)*1.42f;
         box({x-.065f,roomFloor+.12f,z-.065f},{x+.065f,roomFloor+2.67f,z+.065f},steelDark);
     }
-    for(float y:{roomFloor+.28f,roomFloor+.91f,roomFloor+1.54f,roomFloor+2.31f})
-        verticalCylinder({-5.55f,y,29.5f},1.72f,.12f,20,Color(119,126,118),steel);
+    // Open tubular containment hoops replace the former solid pancake-like discs.
+    // They keep the luminous core visible while the vertical posts and radial braces
+    // now read as one plausible protective cage from every walkable side.
+    const auto containmentRing=[&](float y,float radius,float thickness,
+                                   const Color& color,bool lit=false) {
+        constexpr int ringSegments=16;
+        for(int segment=0;segment<ringSegments;++segment) {
+            const float a=tau*segment/ringSegments,b=tau*(segment+1)/ringSegments;
+            const Vector3 p0(-5.55f+std::cos(a)*radius,y,29.5f+std::sin(a)*radius);
+            const Vector3 p1(-5.55f+std::cos(b)*radius,y,29.5f+std::sin(b)*radius);
+            tube(p0,p1,thickness,6,color,false,lit);
+        }
+    };
+    for(float y:{roomFloor+.34f,roomFloor+.98f,roomFloor+1.62f,roomFloor+2.34f})
+        containmentRing(y,1.72f,.075f,Color(121,130,124));
+    for(float y:{roomFloor+.82f,roomFloor+1.92f})
+        containmentRing(y,.945f,.025f,Color(108,225,226,185),true);
+    for(float y:{roomFloor+.98f,roomFloor+1.62f}) {
+        for(int brace=0;brace<8;++brace) {
+            const float angle=tau*(static_cast<float>(brace)+.5f)/8.0f;
+            const Vector3 direction(std::cos(angle),0,std::sin(angle));
+            tube(Vector3(-5.55f,y,29.5f)+direction*.98f,
+                 Vector3(-5.55f,y,29.5f)+direction*1.62f,
+                 .035f,6,Color(91,100,98),false);
+        }
+    }
+    verticalCylinder({-5.55f,roomFloor+.08f,29.5f},1.10f,.18f,20,
+                     Color(82,90,88),steel);
     // Alternating floor caution bars remain outside the solid containment radius.
     for(int stripe=0;stripe<7;++stripe) {
         const float z=26.0f+stripe*.42f;
@@ -513,8 +592,12 @@ BunkerRenderer::BunkerRenderer(GraphicsDevice& device,const BunkerLayout& layout
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
     const char* closure="island-simulator: bunker deep spine ends at a sealed maintenance bulkhead and the service branch has a complete lit shell";
     std::cout<<closure<<'\n';MirrorRuntimeDiagnosticToPlatformLog(closure);
-    const char* bulkhead="island-simulator: bunker end bulkhead uses a round six-spoke handwheel, central hub, and eight perimeter bolts";
+    const char* bulkhead="island-simulator: bunker end bulkhead uses a round six-spoke handwheel, central hub, eight perimeter bolts, and a lower caution band";
     std::cout<<bulkhead<<'\n';MirrorRuntimeDiagnosticToPlatformLog(bulkhead);
+    const char* access="island-simulator: bunker access passage uses recessed ramp panels, paired ceiling conduits, transverse floor joints, and housed lights";
+    std::cout<<access<<'\n';MirrorRuntimeDiagnosticToPlatformLog(access);
+    const char* generator="island-simulator: bunker generator containment uses open tubular hoops, radial braces, luminous core bands, and a raised machinery plinth";
+    std::cout<<generator<<'\n';MirrorRuntimeDiagnosticToPlatformLog(generator);
 }
 
 BunkerRenderer::~BunkerRenderer()=default;
