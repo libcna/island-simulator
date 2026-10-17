@@ -92,7 +92,7 @@ struct Builder {
             if(hairs&&row>0&&row<rows-1&&row%2==1&&side%2==0) {
                 // Starts at an actual tessellation vertex, not the outer analytic
                 // ellipse, so the short bristle cannot float above the body mesh.
-                Tube(a.position,Add(a.position,Mul(a.normal,.0024f)),.00018f,0,3,
+                Tube(a.position,Add(a.position,Mul(a.normal,.00312f)),.000234f,0,3,
                     SpiderPart::Hair,SpiderMaterial::Hair);
             }
         }
@@ -110,15 +110,15 @@ SpiderMesh BuildSpiderMesh(const std::array<SpiderLegPose,SpiderPose::LegCount>&
     b.Ellipsoid(SpiderPose::AbdomenCentre,SpiderPose::AbdomenRadii,rows,sides,
         SpiderPart::Abdomen,SpiderMaterial::Cuticle,detailed);
     for(const auto& leg:legs) {
-        b.Tube(leg.root,leg.hip,.0038f,.0032f,limbSides,SpiderPart::Leg,SpiderMaterial::Cuticle,detailed);
-        b.Tube(leg.hip,leg.knee,.0032f,.0023f,limbSides,SpiderPart::Leg,SpiderMaterial::Cuticle,detailed);
+        b.Tube(leg.root,leg.hip,.00494f,.00416f,limbSides,SpiderPart::Leg,SpiderMaterial::Cuticle,detailed);
+        b.Tube(leg.hip,leg.knee,.00416f,.00299f,limbSides,SpiderPart::Leg,SpiderMaterial::Cuticle,detailed);
         // Point contact: no cylindrical cap extends below a foot planted on y=0.
-        b.Tube(leg.knee,leg.foot,.0023f,0,limbSides,SpiderPart::Leg,SpiderMaterial::Cuticle,detailed);
+        b.Tube(leg.knee,leg.foot,.00299f,0,limbSides,SpiderPart::Leg,SpiderMaterial::Cuticle,detailed);
     }
     for(float side:{-1.0f,1.0f}) {
-        const SpiderPoint root{side*.008f,.029f,.037f},elbow{side*.014f,.023f,.049f};
-        b.Tube(root,elbow,.0026f,.002f,limbSides,SpiderPart::Palp,SpiderMaterial::Cuticle,detailed);
-        b.Tube(elbow,{side*.011f,.015f,.057f},.002f,.0007f,limbSides,SpiderPart::Palp,SpiderMaterial::Cuticle,detailed);
+        const SpiderPoint root{side*.0104f,.0377f,.0481f},elbow{side*.0182f,.0299f,.0637f};
+        b.Tube(root,elbow,.00338f,.0026f,limbSides,SpiderPart::Palp,SpiderMaterial::Cuticle,detailed);
+        b.Tube(elbow,{side*.0143f,.0195f,.0741f},.0026f,.00091f,limbSides,SpiderPart::Palp,SpiderMaterial::Cuticle,detailed);
     }
     if(detailed) {
         // A wolf-spider-like tiered cluster: four small anterior eyes, a prominent
@@ -127,10 +127,10 @@ SpiderMesh BuildSpiderMesh(const std::array<SpiderLegPose,SpiderPose::LegCount>&
         // upper-forward highlight while remaining embedded in the carapace.
         struct EyeSpec {float x,y,radius;};
         constexpr std::array<EyeSpec,8> eyes{{
-            {-.0095f,.0360f,.00110f},{-.0032f,.0355f,.00100f},
-            { .0032f,.0355f,.00100f},{ .0095f,.0360f,.00110f},
-            {-.0053f,.0445f,.00185f},{ .0053f,.0445f,.00185f},
-            {-.0122f,.0420f,.00125f},{ .0122f,.0420f,.00125f}
+            {-.01235f,.04680f,.00143f},{-.00416f,.04615f,.00130f},
+            { .00416f,.04615f,.00130f},{ .01235f,.04680f,.00143f},
+            {-.00689f,.05785f,.002405f},{ .00689f,.05785f,.002405f},
+            {-.01586f,.05460f,.001625f},{ .01586f,.05460f,.001625f}
         }};
         for(const auto eye:eyes) {
             const float x=eye.x,y=eye.y;
@@ -150,7 +150,7 @@ SpiderMesh BuildSpiderMesh(const std::array<SpiderLegPose,SpiderPose::LegCount>&
                     z=std::max(z,a.position.z+u*d.z+v*e.z);
             }
             if(z<0)throw std::runtime_error("Spider eye has no polygon support");
-            b.Ellipsoid({x,y,z-.00045f},{eye.radius,eye.radius,eye.radius*1.18f},4,6,
+            b.Ellipsoid({x,y,z-.000585f},{eye.radius,eye.radius,eye.radius*1.18f},4,6,
                 SpiderPart::Eye,SpiderMaterial::Eye);
         }
     }

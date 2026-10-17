@@ -1981,7 +1981,7 @@ int main()
             : island::BoarCallKind::Grunt;
         boarBounds = boarBounds && (call.kind == expected || call.kind == island::BoarCallKind::Grunt)
             && step - previousHerdCall >= 10
-            && step - previousBoarCall[i] >= 24 && call.volume > 0.0f && call.volume <= 0.40f
+            && step - previousBoarCall[i] >= 24 && call.volume > 0.0f && call.volume <= 0.56f
             && call.pitch >= -0.07f && call.pitch <= 0.07f && call.variant < 2U
             && call.source.available && call.source.x == audioBoars[i].x
             && std::abs(call.source.y - 0.55f) < 0.0001f;
@@ -2045,7 +2045,7 @@ int main()
         const auto far = farBoar.Update(0.25f, 20.0f, 1.72f, 0.0f, loneBoar, true);
         (void)heldBoar.Update(0.25f, 0.0f, 1.72f, 0.0f, loneBoar, false);
         if (near.kind != island::BoarCallKind::None) {
-            quieterAtDistance = far.kind == near.kind && far.volume < near.volume * 0.3f;
+            quieterAtDistance = far.kind == near.kind && far.volume < near.volume * 0.40f;
         }
     }
     Check(quieterAtDistance, "boar volume attenuates with listener distance");
@@ -2083,7 +2083,7 @@ int main()
                 "goat bleat regressed toward a high narrow-band insect buzz");
         }
         Check(island::GoatCallVolume(kind,0)>island::GoatCallVolume(kind,5)
-            &&island::GoatCallVolume(kind,60)==0&&island::GoatCallVolume(kind,-1)==0
+            &&island::GoatCallVolume(kind,70)==0&&island::GoatCallVolume(kind,-1)==0
             &&island::GoatCallVolume(kind,std::numeric_limits<float>::quiet_NaN())==0,
             "goat attenuation is bounded and rejects invalid distances");
     }
@@ -2108,7 +2108,7 @@ int main()
             &&call.volume==repeated.volume&&call.pitch==repeated.pitch;
         if(call.kind==island::GoatCallKind::None)continue;
         goatBounds=goatBounds&&call.animalIndex<audioGoats.size()
-            &&step-previousGoatCall>=11&&call.volume>0&&call.volume<=.40f
+            &&step-previousGoatCall>=11&&call.volume>0&&call.volume<=.56f
             &&call.pitch>=-.07f&&call.pitch<=.08f&&call.variant<2U
             &&call.source.available&&call.source.x==audioGoats[call.animalIndex].x;
         previousGoatCall=step;++goatCounts[call.animalIndex];

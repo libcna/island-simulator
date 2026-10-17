@@ -1118,11 +1118,11 @@ namespace island
     float BoarCallVolume(const BoarCallKind kind, const float distance) noexcept
     {
         if (!std::isfinite(distance) || distance < 0.0f) return 0.0f;
-        const float radius = kind == BoarCallKind::Breath ? 9.0f
-            : kind == BoarCallKind::Snuffle ? 23.0f : kind == BoarCallKind::Grunt ? 42.0f : 0.0f;
+        const float radius = kind == BoarCallKind::Breath ? 10.0f
+            : kind == BoarCallKind::Snuffle ? 25.0f : kind == BoarCallKind::Grunt ? 48.0f : 0.0f;
         if (distance >= radius) return 0.0f;
-        const float base = kind == BoarCallKind::Breath ? 0.14f
-            : kind == BoarCallKind::Snuffle ? 0.29f : 0.40f;
+        const float base = kind == BoarCallKind::Breath ? 0.18f
+            : kind == BoarCallKind::Snuffle ? 0.34f : 0.56f;
         const float fade = 1.0f - distance / radius;
         return base * fade * fade;
     }
@@ -1138,11 +1138,11 @@ namespace island
     void BoarCallScheduler::Reset() noexcept
     {
         randomState_ = 0xb0a45eedU;
-        herdCooldown_ = 2.0f;
+        herdCooldown_ = 0.8f;
         nextAnimal_ = 0;
         callPhases_.fill(0);
         for (float& cooldown : cooldowns_) {
-            cooldown = 3.0f + 8.0f * NextUnit();
+            cooldown = 0.9f + 3.2f * NextUnit();
         }
     }
 
@@ -1193,7 +1193,7 @@ namespace island
             request.kind = kind;
             request.animalIndex = index;
             request.variant = static_cast<std::uint8_t>(NextUnit() >= 0.5f);
-            request.volume = volume * (0.86f + 0.14f * NextUnit());
+            request.volume = volume * (0.92f + 0.08f * NextUnit());
             request.pitch = -0.07f + 0.14f * NextUnit();
             request.source = {true, boar.x, sourceY, boar.z};
             cooldowns_[index] = interval + 9.0f * NextUnit();
@@ -1280,12 +1280,12 @@ namespace island
     float GoatCallVolume(const GoatCallKind kind, const float distance) noexcept
     {
         if (!std::isfinite(distance) || distance < 0.0f) return 0.0f;
-        const float radius = kind == GoatCallKind::Breath ? 10.0f
+        const float radius = kind == GoatCallKind::Breath ? 11.0f
             : kind == GoatCallKind::Hoof ? 20.0f
-            : kind == GoatCallKind::Bleat ? 55.0f : 0.0f;
+            : kind == GoatCallKind::Bleat ? 65.0f : 0.0f;
         if (distance >= radius) return 0.0f;
-        const float base = kind == GoatCallKind::Breath ? .15f
-            : kind == GoatCallKind::Hoof ? .21f : .40f;
+        const float base = kind == GoatCallKind::Breath ? .18f
+            : kind == GoatCallKind::Hoof ? .25f : .56f;
         const float fade = 1.0f - distance / radius;
         return base * fade * fade;
     }
@@ -1301,10 +1301,10 @@ namespace island
     void GoatCallScheduler::Reset() noexcept
     {
         randomState_ = 0x60a7b1eaU;
-        herdCooldown_ = 1.5f;
+        herdCooldown_ = .7f;
         nextAnimal_ = 0U;
         callPhases_.fill(0U);
-        for (float& cooldown : cooldowns_) cooldown = 2.0f + 6.0f * NextUnit();
+        for (float& cooldown : cooldowns_) cooldown = .8f + 3.0f * NextUnit();
     }
 
     GoatCallRequest GoatCallScheduler::Update(const float deltaSeconds,
@@ -1351,7 +1351,7 @@ namespace island
             request.kind = kind;
             request.animalIndex = index;
             request.variant = static_cast<std::uint8_t>(NextUnit() >= .5f);
-            request.volume = volume * (.86f + .14f * NextUnit());
+            request.volume = volume * (.92f + .08f * NextUnit());
             request.pitch = -.07f + .15f * NextUnit();
             request.source = {true, goat.x, sourceY, goat.z};
             cooldowns_[index] = interval + 8.0f * NextUnit();

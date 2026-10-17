@@ -23,7 +23,7 @@ from gpu_incident_qualification import (
     contained_command, artifact_identity,
 )
 
-SPIDER_POPULATION = 200
+SPIDER_POPULATION = 1000
 
 
 def validate_campfire_stages(log):
@@ -243,7 +243,7 @@ def validate_goat_motion_stages(text):
 
 def validate_spider_render_log(text):
     count = r"(?:[1-9]|[1-9][0-9]|1[0-9]{2}|200)"
-    if not re.search(rf"spider render proof: spiders {count}/200 visible, 2 draw; contact-shadows={count}(?:\s|$)", text):
+    if not re.search(rf"spider render proof: spiders {count}/1000 visible, 2 draw; contact-shadows={count}(?:\s|$)", text):
         raise RuntimeError("spider capture lacks a live population or grounding shadows")
     if "spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in text:
         raise RuntimeError("spider capture lacks the setae albedo")
@@ -313,11 +313,11 @@ def validate_spider_motion_stages(text):
             h, s, t = map(float, (heading, speed, elapsed))
             feet = [tuple(map(float, point.split(','))) for point in encoded.rstrip(';').split(';')]
             valid = (int(updates) == expected and math.isclose(t, expected*.1, abs_tol=1e-5)
-                     and 1 <= int(visible) <= 12 and len(p) == 3 and all(map(math.isfinite, p))
+                     and 1 <= int(visible) <= 24 and len(p) == 3 and all(map(math.isfinite, p))
                      and all(map(math.isfinite, (h, s, t))) and abs(h) <= math.pi+1e-5 and 0 <= s <= .069
                      and len(feet) == 8 and all(len(f) == 4 and all(map(math.isfinite, f)) and f[3] in (0, 1) for f in feet)
                      and sum(f[3] for f in feet) >= 6
-                     and all(math.hypot(f[0]-p[0], f[2]-p[2]) <= .1401 for f in feet)
+                     and all(math.hypot(f[0]-p[0], f[2]-p[2]) <= .1901 for f in feet)
                      and len({f[:3] for f in feet}) == 8)
         except ValueError:
             valid = False
@@ -864,13 +864,13 @@ def main():
                 side = "inside" if args.viewpoint == "cave-inside" else "outside"
                 for marker in (f"cave QA camera {side}", "cave ground replacement",
                                "cave rock first visible draw",
-                               "cave rock 2857 triangles in one culled draw; 20m walkable interior",
+                               "cave rock 2875 triangles in one culled draw; 20m walkable interior",
                                "cave compact asymmetric mouth uses normal-lit fractured stone and restrained moss",
                                "cave narrow eroded lip grows into an irregular closed rock mantle",
                                "cave connected shell strips share smooth lighting normals while portal breaks stay sharp",
                                "cave adds six high-clearance eroded ceiling pendants in the existing draw",
                                "cave mouth is embedded in a rising inland mountain slope",
-                               "cave crown is concealed from above by blended earth and 369 irregular three-blade tufts in the existing draw",
+                               "cave crown is concealed from above by blended earth and 375 irregular three-blade tufts in the existing draw",
                                "cave portal uses five offset partly buried rock outcrops outside the walkable opening",
                                "cave terrain shoulders use an irregular rock apron around the open corridor",
                                "cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling"):

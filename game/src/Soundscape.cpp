@@ -1006,11 +1006,24 @@ namespace island
                             birds, monkeys);
         const bool wildlifeSlotAvailable = available_ && !muted_ && wildlifeCallsEnabled_
             && !wildlifeInstance_ && !waveInstance_ && !waterTransitionInstance_;
-        WildlifeCallRequest wildlifeCall = wildlifeScheduler_.Update(
-            safeDelta, swimming, signedShoreDistance, listenerState.x, listenerState.y,
-            listenerState.z, nearestBirdSource_, nearestMonkeySource_, wildlifeSlotAvailable);
-        // Due birds/monkeys get first refusal. The single bear, a nearby retreating snake,
-        // goats and boars then share the same transient voice without raising the six-source limit.
+        // Nearby herd voices are encounter feedback, so let a due goat/boar call
+        // claim the one transient channel before non-local birds and monkeys. They
+        // still share the same voice and never raise the six-source device budget.
+        WildlifeCallRequest wildlifeCall{};
+        const GoatCallRequest goatCall = goatScheduler_.Update(safeDelta,
+            listenerState.x,listenerState.y,listenerState.z,goats,
+            wildlifeSlotAvailable);
+        if (goatCall.kind != GoatCallKind::None) {
+            wildlifeCall = {WildlifeCallType::Goat,goatCall.variant,
+                goatCall.volume,goatCall.pitch,goatCall.source};
+        }
+        const BoarCallRequest boarCall = boarScheduler_.Update(safeDelta,
+            listenerState.x, listenerState.y, listenerState.z, boars,
+            wildlifeSlotAvailable && wildlifeCall.type == WildlifeCallType::None);
+        if (boarCall.kind != BoarCallKind::None) {
+            wildlifeCall = {WildlifeCallType::Boar, boarCall.variant,
+                boarCall.volume, boarCall.pitch, boarCall.source};
+        }
         const BearCallRequest bearCall=bear?bearCallScheduler_.Update(safeDelta,listenerState.x,
             listenerState.y,listenerState.z,*bear,
             wildlifeSlotAvailable&&wildlifeCall.type==WildlifeCallType::None):BearCallRequest{};
@@ -1023,19 +1036,14 @@ namespace island
             wildlifeCall = {WildlifeCallType::Snake,snakeHiss.variant,
                 snakeHiss.volume,snakeHiss.pitch,snakeHiss.source};
         }
-        const GoatCallRequest goatCall = goatScheduler_.Update(safeDelta,
-            listenerState.x,listenerState.y,listenerState.z,goats,
-            wildlifeSlotAvailable && wildlifeCall.type == WildlifeCallType::None);
-        if (goatCall.kind != GoatCallKind::None) {
-            wildlifeCall = {WildlifeCallType::Goat,goatCall.variant,
-                goatCall.volume,goatCall.pitch,goatCall.source};
-        }
-        const BoarCallRequest boarCall = boarScheduler_.Update(safeDelta,
-            listenerState.x, listenerState.y, listenerState.z, boars,
-            wildlifeSlotAvailable && wildlifeCall.type == WildlifeCallType::None);
-        if (boarCall.kind != BoarCallKind::None) {
-            wildlifeCall = {WildlifeCallType::Boar, boarCall.variant,
-                boarCall.volume, boarCall.pitch, boarCall.source};
+        if (wildlifeCall.type == WildlifeCallType::None) {
+            wildlifeCall = wildlifeScheduler_.Update(
+                safeDelta, swimming, signedShoreDistance, listenerState.x, listenerState.y,
+                listenerState.z, nearestBirdSource_, nearestMonkeySource_, wildlifeSlotAvailable);
+        } else {
+            (void)wildlifeScheduler_.Update(safeDelta, swimming, signedShoreDistance,
+                listenerState.x, listenerState.y, listenerState.z, nearestBirdSource_,
+                nearestMonkeySource_, false);
         }
         const FrogCallRequest frogCall = frogCallScheduler_.Update(safeDelta,
             listenerState.x, listenerState.y, listenerState.z, frogs,

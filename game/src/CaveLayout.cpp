@@ -141,6 +141,25 @@ CaveLayout::CaveLayout(const IslandTerrain& terrain) {
                 Floor(outerDepth)-.75f+outerHeight*arc,rimDepth);
         }
     }
+    // Fit each crown ring to one terrain-derived centre height. Applying the same
+    // row offset through a smooth arch weight preserves the ring topology; fitting
+    // every vertex independently followed small heightfield noise and produced
+    // folded strips before it ever concealed the obvious tube from overhead.
+    for(int row=0;row<=DepthSegments;++row) {
+        const float outerDepth=OuterLength*static_cast<float>(row)/DepthSegments;
+        const int crownSlice=ArchSegments/2;
+        const auto& innerCrown=inner[row][crownSlice];
+        const auto& outerCrown=outer[row][crownSlice];
+        const float terrainTop=terrain.Height(outerCrown.x,outerCrown.z)+.035f;
+        const float target=std::max(terrainTop,innerCrown.y+.70f);
+        const float rowOffset=std::clamp(target-outerCrown.y,-3.0f,3.0f);
+        const float inlandBlend=Smooth((outerDepth-.20f)/2.65f);
+        for(int slice=1;slice<ArchSegments;++slice) {
+            const float theta=std::numbers::pi_v<float>*static_cast<float>(slice)/ArchSegments;
+            const float archBlend=Smooth((std::sin(theta)-.08f)/.58f);
+            outer[row][slice].y+=rowOffset*archBlend*inlandBlend*.94f;
+        }
+    }
     const auto add=[&](CavePoint a,CavePoint b,CavePoint c,V desired,CaveSurface surface) {
         auto normal=Cross(Vec(b)-Vec(a),Vec(c)-Vec(a));
         if(Dot(normal,desired)<0) {std::swap(b,c);normal=normal*-1;}
@@ -202,7 +221,26 @@ float CaveLayout::GroundTarget(float x,float z,float original) const noexcept {
     // replacement-mesh boundary.  The cavity interpolation below wins inside.
     const float shoulder=Smooth((p.z+4)/5)*(1-Smooth((p.z-Length)/5))
         *(1-Smooth((across-3.5f)/3))*Smooth((across-Width(p.z))/1.5f);
-    return std::lerp(original+1.15f*shoulder,entrance_.y+Floor(p.z),influence);
+    // Build the neighbouring soil bank up to the buried shell flanks. The old
+    // fixed 1.15 m lift left a long isolated tunnel-shaped hump when seen from
+    // above. This broad elliptical target meets the side mass, then returns to
+    // unchanged terrain before the replacement-patch boundary.
+    const float bankDepth=Smooth((p.z+.5f)/4.5f)
+        *(1-Smooth((p.z-(OuterLength-1.0f))/4.0f));
+    const float approximateWidth=4.95f+.22f*std::sin(p.z*.31f+.4f);
+    const float bankOuter=8.8f+.35f*std::sin(p.z*.23f+.7f);
+    const float sideRatio=std::clamp(across/approximateWidth,0.0f,1.0f);
+    const float shellSide=entrance_.y+Floor(p.z)-.72f
+        +5.10f*std::sqrt(std::max(0.0f,1.0f-sideRatio*sideRatio));
+    const float mantleRatio=std::clamp(across/bankOuter,0.0f,1.0f);
+    const float soilMantle=entrance_.y+Floor(p.z)-.42f
+        +5.15f*std::pow(std::max(0.0f,1.0f-mantleRatio*mantleRatio),.72f);
+    const float bankAcross=Smooth((across-Width(p.z))/1.1f)
+        *(1-Smooth((across-(bankOuter-1.1f))/1.1f));
+    const float bankTarget=std::max(original,std::max(shellSide-.06f,soilMantle));
+    const float buried=std::lerp(original+1.15f*shoulder,bankTarget,
+        std::clamp(bankDepth*bankAcross,0.0f,1.0f));
+    return std::lerp(buried,entrance_.y+Floor(p.z),influence);
 }
 bool CaveLayout::ReservesHabitat(float x,float z,float margin) const noexcept {
     return CaveSite::Reserves(x,z,margin);

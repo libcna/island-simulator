@@ -113,7 +113,7 @@ int main() {
     check(std::equal(high.Spiders().begin(),high.Spiders().end(),invalid.Spiders().begin()),"high/invalid observer affected ground colony");
     check(std::equal(sleepingInitial.begin(),sleepingInitial.end(),high.Spiders().begin()),
         "invisible dormant spiders ran detailed gait simulation");
-    // Every one of the 200 residents must wake immediately when approached, with
+    // Every resident must wake immediately when approached, with
     // the retained terrain-safe feet and only one tick's travel (no dormant backlog).
     for(std::size_t i=0;i<SpiderHabitat::GroundCount;++i) {
         const auto old=high.Spiders()[i];

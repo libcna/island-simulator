@@ -174,12 +174,12 @@ class SoftwareCaptureTests(unittest.TestCase):
 
     def test_spider_bright_camera_selects_existing_habitat(self):
         rows = ''.join(f"spider habitat candidate={i} transmission={0.9 if i in (4, 7) else 0.1}\n"
-                       for i in range(200))
+                       for i in range(1000))
         good = rows + "spider habitat selected=4\n"
         self.assertEqual(validate_spider_habitat_selection(good)["subject"], 4)
         for bad in ("", good.replace("selected=4", "selected=7"),
-                    good.replace("selected=4", "selected=200"), good+"spider habitat selected=4\n",
-                    good.replace("candidate=199", "candidate=198"),
+                    good.replace("selected=4", "selected=1000"), good+"spider habitat selected=4\n",
+                    good.replace("candidate=999", "candidate=998"),
                     good.replace("transmission=0.1", "transmission=nan", 1),
                     good.replace("transmission=0.1", "transmission=1.1", 1),
                     good.replace("transmission=0.1", "transmission=bad", 1)):
@@ -203,12 +203,12 @@ class SoftwareCaptureTests(unittest.TestCase):
                 validate_spider_lighting(bad)
 
     def test_spider_render_requires_grounding(self):
-        good = ("island-simulator: spider render proof: spiders 1/200 visible, 2 draw; contact-shadows=1\n"
+        good = ("island-simulator: spider render proof: spiders 1/1000 visible, 2 draw; contact-shadows=1\n"
                 "spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes\n"
                 "near spiders use tiered fitted eyes with upper-forward catchlights\n"
                 "near spider abdomens use a tapered muted dorsal lance in the existing setae draw\n")
         validate_spider_render_log(good)
-        for bad in ("", good.replace("1/200", "0/200"), good.replace("1/200", "201/200"),
+        for bad in ("", good.replace("1/1000", "0/1000"), good.replace("1/1000", "1001/1000"),
                     good.replace("2 draw", "0 draw"), good.replace("contact-shadows=1", "contact-shadows=0"),
                     good.replace("contact-shadows=1", "contact-shadows=201"),
                     good.replace(" contact-shadows=1", ""), good.replace("spider setae loaded", "missing"),

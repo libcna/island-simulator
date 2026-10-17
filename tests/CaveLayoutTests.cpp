@@ -94,6 +94,9 @@ int main() {
     std::map<std::array<Point,2>,std::pair<int,int>> edges;
     std::array<int,5> parts{};
     double volume=0;
+    double crownDifferenceSum=0;
+    float crownDifferenceMaximum=0;
+    int crownSamples=0;
     float leftMouthTop=-INFINITY,rightMouthTop=-INFINITY;
     float innerMouthExtent=0,outerMouthExtent=0,nearMantleExtent=0;
     for(const auto& triangle:cave.Triangles()) {
@@ -109,6 +112,13 @@ int main() {
                 outerMouthExtent=std::max(outerMouthExtent,std::abs(local.x));
             if(triangle.surface==CaveSurface::Exterior&&local.z>3&&local.z<5)
                 nearMantleExtent=std::max(nearMantleExtent,std::abs(local.x));
+            if(triangle.surface==CaveSurface::Exterior&&std::abs(local.x)<.55f
+                &&local.z>4&&local.z<18) {
+                const float difference=std::abs(p.y-terrain.Height(p.x,p.z));
+                crownDifferenceSum+=difference;
+                crownDifferenceMaximum=std::max(crownDifferenceMaximum,difference);
+                ++crownSamples;
+            }
         }
         ++parts[static_cast<int>(triangle.surface)];
         const auto a=triangle.points[0],b=triangle.points[1],c=triangle.points[2],n=triangle.normal;
@@ -140,6 +150,9 @@ int main() {
           "cave entrance no longer has a restrained eroded rock lip");
     Check(nearMantleExtent>outerMouthExtent+.25f,
           "cave lip no longer grows into its wider inland mantle");
+    Check(crownSamples>20,"cave crown terrain-fit audit lacks samples");
+    std::cout<<"cave crown terrain difference mean "<<crownDifferenceSum/crownSamples
+             <<" maximum "<<crownDifferenceMaximum<<'\n';
     constexpr float radius=PlayerMotion::CapsuleRadius,height=1.9f;
     for(int step=-30;step<=195;++step) {
         const float depth=step*.1f;
@@ -208,7 +221,8 @@ int main() {
     SnakePopulation snakes(terrain,jungle,solids);
     SpiderColony spiders(terrain,jungle,solids);
     Check(goats.Goats().size()==6&&boars.Boars().size()==6&&snakes.Snakes().size()==50
-        &&spiders.Spiders().size()==200,"cave reservation reduced a requested animal population");
+        &&spiders.Spiders().size()==SpiderHabitat::GroundCount,
+        "cave reservation reduced a requested animal population");
     for(int step=0;step<180;++step) {
         const auto observer=cave.World(step%2?9.0f:-9.0f,1.7f,static_cast<float>(step%24)-2);
         goats.Update(.1f,{observer.x,observer.y,observer.z});

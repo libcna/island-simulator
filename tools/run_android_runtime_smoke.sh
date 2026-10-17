@@ -464,7 +464,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
                  --viewpoint,goats)
                      grep -Eq "goat render proof: goats [1-6]/6 visible, 2 draw;" "$LOG_FILE" ;;
                  --viewpoint,spiders)
-                     grep -Eq "spider render proof: spiders ([1-9]|[1-9][0-9]|1[0-9][0-9]|200)/200 visible, 2 draw; contact-shadows=([1-9]|[1-9][0-9]|1[0-9][0-9]|200)([[:space:]]|$)" "$LOG_FILE" ;;
+                     grep -Eq "spider render proof: spiders ([1-9]|[1-9][0-9]{1,2}|1000)/1000 visible, 2 draw; contact-shadows=([1-9]|[1-9][0-9]{1,2}|1000)([[:space:]]|$)" "$LOG_FILE" ;;
                  *) true ;;
              esac; } \
         && [ "$AUDIO_QUALIFIED" -eq 1 ]; then

@@ -45,7 +45,7 @@ int main() {
             Check(std::hypot(p.x,p.z)<=SpiderHabitat::BodyRadius,"mesh exceeds habitat envelope");
             if(v.part==SpiderPart::Leg) {
                 bool withinEnvelope=false;
-                constexpr std::array<float,4> radii{.0038f,.0032f,.0023f,0};
+                constexpr std::array<float,4> radii{.00494f,.00416f,.00299f,0};
                 for(const auto& leg:legs) {
                     const std::array<SpiderPoint,4> joints{leg.root,leg.hip,leg.knee,leg.foot};
                     for(std::size_t segment=0;segment<3;++segment) {

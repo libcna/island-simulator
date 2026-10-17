@@ -9,7 +9,7 @@ CaveGroundPatch::CaveGroundPatch(const CaveLayout& cave,const RenderedTerrainSur
     float minX=INFINITY,minZ=INFINITY,maxX=-INFINITY,maxZ=-INFINITY;
     // One metre of unchanged terrain around the complete influence rectangle joins
     // the original mesh at its actual rounded grid coordinates, including corners.
-    for(float across:{-7.0f,7.0f}) for(float depth:{-7.0f,CaveLayout::OuterLength+4.0f}) {
+    for(float across:{-10.5f,10.5f}) for(float depth:{-7.0f,CaveLayout::OuterLength+4.0f}) {
         const auto p=cave.World(across,0,depth);
         minX=std::min(minX,p.x);maxX=std::max(maxX,p.x);
         minZ=std::min(minZ,p.z);maxZ=std::max(maxZ,p.z);

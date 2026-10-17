@@ -15,8 +15,8 @@ struct SpiderGroundHome {
 // Ground-spider placement foundation. Web anchors and live animals are separate work.
 class SpiderHabitat final {
 public:
-    static constexpr std::size_t GroundCount=200;
-    static constexpr float BodyRadius=.14f,PatrolRadius=.60f,MinimumSeparation=4.5f;
+    static constexpr std::size_t GroundCount=1000;
+    static constexpr float BodyRadius=.19f,PatrolRadius=.70f,MinimumSeparation=1.45f;
     static constexpr std::uint32_t Seed=0x73706964U;
     [[nodiscard]] static bool AcceptsPatch(const IslandTerrain& terrain,
         const RenderedTerrainSurface& surface,const JungleLayout& jungle,

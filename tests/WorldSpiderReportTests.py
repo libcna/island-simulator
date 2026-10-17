@@ -38,7 +38,7 @@ def validate(report):
         assert sum(p[1] for p in rest)/3 >= 2
         assert all(distance(rest[i], rest[(i+1)%3]) >= .299 for i in range(3))
     spiders = population["spiders"]
-    assert report["wildlife"]["groundSpiders"] == len(spiders) == 200
+    assert report["wildlife"]["groundSpiders"] == len(spiders) == 1000
     seen = []
     for spider in spiders:
         position, home = point(spider["position"]), point(spider["home"])

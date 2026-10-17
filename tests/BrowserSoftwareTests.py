@@ -501,12 +501,12 @@ class BrowserSoftwareTests(unittest.TestCase):
             self.assertIn(f'["{mode}", ["--viewpoint", "{mode}", "--debug-overlay"]]', page)
         markers = (
             "cave rock first visible draw",
-            "cave rock 2857 triangles in one culled draw; 20m walkable interior",
+            "cave rock 2875 triangles in one culled draw; 20m walkable interior",
             "cave terrain shoulders use an irregular rock apron around the open corridor",
             "cave connected shell strips share smooth lighting normals while portal breaks stay sharp",
             "cave adds six high-clearance eroded ceiling pendants in the existing draw",
             "cave mouth is embedded in a rising inland mountain slope",
-            "cave crown is concealed from above by blended earth and 369 irregular three-blade tufts in the existing draw",
+            "cave crown is concealed from above by blended earth and 375 irregular three-blade tufts in the existing draw",
             "cave portal uses five offset partly buried rock outcrops outside the walkable opening",
             "cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling")
         def report():
@@ -1169,7 +1169,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             return {"passed": True, "views": [{"mode": "spiders", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
                 "intervals": [16.7]*60, "spiderMotionFrames": [f"pose-{i}.png" for i in range(4)],
-                "result": {"output": "spider render proof: spiders 1/200 visible, 2 draw; contact-shadows=1\n"
+                "result": {"output": "spider render proof: spiders 1/1000 visible, 2 draw; contact-shadows=1\n"
                     "spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes\n"
                     "near spiders use tiered fitted eyes with upper-forward catchlights\n"
                     "near spider abdomens use a tapered muted dorsal lance in the existing setae draw\n"
@@ -1185,7 +1185,7 @@ class BrowserSoftwareTests(unittest.TestCase):
                            ("spiderMotionFrames", ["../escape.png", "a.png", "b.png", "c.png"])):
             bad=report(); bad["views"][0][key]=value
             with self.subTest(key=key), self.assertRaises(RuntimeError): gate.validate_spider_report(bad)
-        for old, new in (("1/200", "0/200"), ("2 draw", "1 draw"), ("contact-shadows=1", "contact-shadows=0"),
+        for old, new in (("1/1000", "0/1000"), ("2 draw", "1 draw"), ("contact-shadows=1", "contact-shadows=0"),
                          ("setae loaded", "missing"), ("tiered fitted eyes", "uniform eyes"),
                          ("tapered muted dorsal lance", "plain abdomen"),
                          ("body-tint=0.46", "body-tint=0.25"),

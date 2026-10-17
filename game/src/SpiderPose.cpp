@@ -15,8 +15,8 @@ void CheckLeg(std::size_t leg) {
 }
 SpiderPoint SpiderPose::NeutralFoot(std::size_t leg) {
     CheckLeg(leg);
-    constexpr std::array<float,4> x{.080f,.112f,.114f,.083f};
-    constexpr std::array<float,4> z{.100f,.053f,-.021f,-.089f};
+    constexpr std::array<float,4> x{.104f,.1456f,.1482f,.1079f};
+    constexpr std::array<float,4> z{.130f,.0689f,-.0273f,-.1157f};
     return {x[leg%4]*(leg<4?-1.0f:1.0f),0,z[leg%4]};
 }
 SpiderLegPose SpiderPose::Solve(std::size_t leg,SpiderPoint target) {
@@ -24,10 +24,10 @@ SpiderLegPose SpiderPose::Solve(std::size_t leg,SpiderPoint target) {
     if(!std::isfinite(target.x)||!std::isfinite(target.y)||!std::isfinite(target.z))
         throw std::invalid_argument("Nonfinite spider foot target");
     const float side=leg<4?-1.0f:1.0f;
-    constexpr std::array<float,4> rootX{.011f,.017f,.017f,.012f};
-    constexpr std::array<float,4> rootZ{.035f,.026f,.012f,.002f};
+    constexpr std::array<float,4> rootX{.0143f,.0221f,.0221f,.0156f};
+    constexpr std::array<float,4> rootZ{.0455f,.0338f,.0156f,.0026f};
     SpiderLegPose result{};
-    result.root={side*rootX[leg%4],.036f,rootZ[leg%4]};
+    result.root={side*rootX[leg%4],.0468f,rootZ[leg%4]};
     // Coxa points toward the nominal foot. Keep its attachment and length stable
     // while the distal chain reaches an independently retained stance target.
     auto radial=Sub(NeutralFoot(leg),result.root);radial.y=0;

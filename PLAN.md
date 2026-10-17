@@ -538,6 +538,47 @@ internal threads, restrict the build process tree to at most three allowed logic
 CPUs. This supersedes older uncapped and four-worker guidance; the Android wrapper's
 existing two-worker limit remains suitable.
 
+- [~] Reduce abrupt close-observer turning across terrestrial wildlife. Animals must retain
+  non-hostile avoidance and safe retreat, but should rotate with believable species-specific
+  angular acceleration and turn-rate limits instead of rapidly snapping toward or away from the
+  approaching player. Audit at least goats, boars, deer, bear, crocodiles, monkeys and snakes in
+  actual close approach, and guard against body/foot sliding introduced by slower heading changes.
+- [~] Relocate the campfire and its stored firewood from the beach to a plausible inland clearing.
+  This 2026-10-17 instruction supersedes the earlier corrected request that explicitly placed it on
+  the beach. Preserve the fire, woodpile, collision, audio/light behavior and safe player access;
+  update layout tests, help/diagnostics and native/Web/Android visual evidence for the new site.
+- [~] Fix the operator-observed absence of goat bleating. Reproduce the current build with a goat
+  nearby, distinguish scheduler/playback from effective audible gain and ambient masking, and make
+  the bleat clearly recognizable without becoming loud or repetitive. Revalidate mute/resume,
+  positional attenuation, shared source budget and native/Web/Android packaging; automated PCM or
+  Playing-state evidence alone does not replace the requested listening outcome.
+- [~] Fix the operator-observed absence of audible boar grunting. Reproduce ordinary close approach,
+  audit shared transient-voice priority, call cadence, attenuation and masking, and ensure a nearby
+  boar produces an unmistakable restrained grunt often enough to be discovered during normal play.
+  Preserve positional playback, mute/resume behavior and the bounded audio-source budget.
+- [~] Increase the population to exactly 1000 large, recognisable charcoal-black tropical ground
+  spiders and make them genuinely discoverable in ordinary play. This 2026-10-17 instruction supersedes the former
+  200-spider target and permits a believable large-jungle-spider leg span. Verify that habitat
+  clustering, canopy shade, grass occlusion and the render distance do not make the population
+  functionally invisible; use restrained lighter joint/dorsal accents so the black silhouette stays
+  legible in brown-green litter, and retain a strict nearby render cap and dormant simulation so
+  the former performance loss does not return. The 1000-agent habitat/pose/mesh/colony tests and
+  native charcoal-material capture `20261017T121744.473306Z-spiders-bright` pass; a natural player
+  route plus Web/Android evidence remain. Validate a natural player route as well as focused
+  native/Web/Android evidence.
+- [~] Reopen the cave-overhead integration after operator review. The focused capture passed, but
+  the ordinary overhead view still exposes an artificial cave shell/trench instead of a continuous
+  hill with a convincing topsoil mantle. Rework the actual terrain/soil cap and its grass blend,
+  then validate broad overhead and oblique approach views, not only the framed entrance camera.
+  The widened terrain-replacement mantle, row-coherent crown fit, collision test and native
+  exterior/interior captures `20261017T122310.969540Z-cave` and
+  `20261017T122327.778450Z-cave-inside` pass; ordinary free-flight, Web and Android views remain.
+- [~] Reopen the helicopter exterior finish after operator review. Its construction is recognisable
+  and enterable, but broad surfaces still read as flat prototype geometry. Improve fuselage surface
+  shaping, normals and restrained painted-metal/glass/panel value variation within the current
+  procedural renderer; CNA capability is not the blocker. Validate ordinary player-side views as
+  well as the focused QA camera.
+
 - [x] Clean obsolete generated screenshots and image captures from all project `build*`
   directories. Preserve source assets, every artifact still cited by `PLAN.md`/documentation,
   the newest accepted evidence for each active viewpoint/platform and files required by automated

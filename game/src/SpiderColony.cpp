@@ -45,7 +45,7 @@ bool SpiderColony::Valid(const SpiderGroundPose& pose) const {
     for(const auto& leg:pose.legs) {
         if(leg.reachLimited)return false;
         const std::array<SpiderPoint,4> joints{leg.root,leg.hip,leg.knee,leg.foot};
-        constexpr std::array<float,4> radii{.0038f,.0032f,.0023f,0};
+        constexpr std::array<float,4> radii{.00494f,.00416f,.00299f,0};
         for(std::size_t segment=0;segment<3;++segment)for(int step=0;step<=4;++step) {
             const float t=static_cast<float>(step)/4;
             const auto p=pose.ToWorld(Add(Mul(joints[segment],1-t),Mul(joints[segment+1],t)));
@@ -83,13 +83,13 @@ void SpiderColony::AdvanceFeet(std::size_t index,float dt) {
         const float t=foot.progress,u=t*t*(3-2*t),arch=std::sin(Pi*t);
         foot.position=Add(Mul(foot.start,1-u),Mul(foot.target,u));
         foot.position.y=std::max(foot.position.y,surface_.Sample(foot.position.x,foot.position.z).height+Contact)
-            +.008f*arch*arch;
+            +.0104f*arch*arch;
         foot.swinging=t<1;
         if(Valid(Pose(state,trial)))feet=trial;
     }
     const auto frame=Frame(state.x,state.z,state.heading);
     const auto active=std::count_if(feet.begin(),feet.end(),[](const auto& f){return f.swinging;});
-    std::size_t selected=8;float largest=.0035f;
+    std::size_t selected=8;float largest=.00455f;
     if(active<2)for(std::size_t leg=0;leg<8;++leg)if(!feet[leg].swinging) {
         const auto neutral=SpiderPose::NeutralFoot(leg);
         const auto local=frame.ToLocal(feet[leg].position);
@@ -103,7 +103,7 @@ void SpiderColony::AdvanceFeet(std::size_t index,float dt) {
     if(selected<8) {
         auto trial=feet;auto& foot=trial[selected];
         auto local=SpiderPose::NeutralFoot(selected);
-        if(state.behavior!=SpiderBehavior::Rest)local.z+=.012f;
+        if(state.behavior!=SpiderBehavior::Rest)local.z+=.0156f;
         foot.target=frame.ToWorld(local);
         foot.target.y=surface_.Sample(foot.target.x,foot.target.z).height+Contact;
         auto landing=trial;landing[selected].position=foot.target;
@@ -161,7 +161,7 @@ void SpiderColony::Update(float dt,SpiderPoint observer) {
         state.tier=WildlifeActivationPolicy::Classify(distance,18.0f,48.0f);
         // Outside the visible habitat keep the exact planted pose, without accruing
         // catch-up work. Replaying up to fifteen IK steps for every dormant spider
-        // made aerial views pay for all 200 ground animals even when none was drawn.
+        // made aerial views pay for every ground animal even when none was drawn.
         if(state.tier==WildlifeSimulationTier::Dormant) {
             accumulatedSeconds_[i]=0;
             state.speed=0;

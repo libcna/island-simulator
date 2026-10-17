@@ -31,15 +31,26 @@ namespace island {
 namespace {
 constexpr int Capacity=static_cast<int>(SpiderRenderer::MaximumVisibleCount*SpiderMesh::MaximumVertices);
 Vector3 Point(SpiderPoint p){return {p.x,p.y,p.z};}
-const std::array<Color,6> Materials{Color(220,211,195),Color(255,247,223),
-    Color(12,10,8),Color(126,111,84),Color(87,71,51),Color(184,151,103)};
+// A jungle tarantula reads best as charcoal rather than leaf-litter brown. Keep
+// the raised markings light enough to preserve its silhouette under the canopy.
+const std::array<Color,6> Materials{Color(49,51,54),Color(91,94,92),
+    Color(4,5,6),Color(218,210,192),Color(27,28,30),Color(116,105,86)};
 }
 SpiderRenderer::SpiderRenderer(GraphicsDevice& device,const CanopyLightField& canopy)
     :device_(device),canopy_(canopy),effect_(std::make_unique<BasicEffect>(device)),
      buffer_(std::make_unique<DynamicVertexBuffer>(device,VertexPositionColorTexture::getVertexDeclarationStatic(),Capacity,BufferUsage::WriteOnly)) {
     vertices_.reserve(Capacity);solid_.reserve(Capacity);
     constexpr int size=GeneratedTextureBudget::SpiderSetaeSize;
-    const auto levels=LoadOpaqueImageMips(device_,"Content/wildlife/spider-setae.png",size);
+    auto levels=LoadOpaqueImageMips(device_,"Content/wildlife/spider-setae.png",size);
+    // The source study contains useful directional setae detail but a warm brown
+    // albedo. Neutralise that hue at upload time so the authored value variation
+    // remains visible on the requested charcoal-black animal.
+    for(auto& level:levels)for(auto& pixel:level.pixels) {
+        const int value=(2*pixel[0]+5*pixel[1]+pixel[2])/8;
+        pixel[0]=static_cast<std::uint8_t>(std::clamp(value-3,0,255));
+        pixel[1]=static_cast<std::uint8_t>(std::clamp(value-1,0,255));
+        pixel[2]=static_cast<std::uint8_t>(std::clamp(value+2,0,255));
+    }
     setae_=std::make_unique<Texture2D>(device_,size,size,true,SurfaceFormat::Color);
     for(std::size_t level=0;level<levels.size();++level) {
         const auto& pixels=levels[level].pixels;
@@ -51,6 +62,8 @@ SpiderRenderer::SpiderRenderer(GraphicsDevice& device,const CanopyLightField& ca
     std::cout<<eyeMessage<<std::endl;MirrorRuntimeDiagnosticToPlatformLog(eyeMessage);
     const char* abdomenMessage="island-simulator: near spider abdomens use a tapered muted dorsal lance in the existing setae draw";
     std::cout<<abdomenMessage<<std::endl;MirrorRuntimeDiagnosticToPlatformLog(abdomenMessage);
+    const char* materialMessage="island-simulator: jungle spiders use charcoal-black cuticle with restrained raised markings";
+    std::cout<<materialMessage<<std::endl;MirrorRuntimeDiagnosticToPlatformLog(materialMessage);
     effect_->setVertexColorEnabledProperty(true);effect_->setLightingEnabledProperty(false);
     effect_->setTextureEnabledProperty(false);effect_->setFogEnabledProperty(true);
     effect_->setFogColorProperty(Vector3(environment::FogColorRed,environment::FogColorGreen,environment::FogColorBlue));
@@ -66,7 +79,7 @@ void SpiderRenderer::Draw(const Matrix& view,const Matrix& projection,const Vect
     for(const auto& spider:spiders) {
         const Vector3 centre(spider.x,spider.y+.04f,spider.z);
         const float distance=Vector3::DistanceSquared(centre,camera);
-        if(distance>18*18||!frustum.Intersects(BoundingSphere(centre,.16f)))continue;
+        if(distance>24*24||!frustum.Intersects(BoundingSphere(centre,.21f)))continue;
         candidates.emplace_back(distance,&spider);
     }
     std::sort(candidates.begin(),candidates.end(),[](const auto& a,const auto& b){return a.first<b.first;});
@@ -75,7 +88,7 @@ void SpiderRenderer::Draw(const Matrix& view,const Matrix& projection,const Vect
         const auto distance=candidate.first;
         const auto& spider=*candidate.second;
         const auto& pose=spider.pose;
-        const auto mesh=BuildSpiderMesh(pose.legs,distance<4*4);
+        const auto mesh=BuildSpiderMesh(pose.legs,distance<5*5);
         for(const auto& vertex:mesh.vertices) {
             const auto p=Point(pose.ToWorld(vertex.position));
             const auto n=Vector3::Normalize(Point(pose.right)*vertex.normal.x+Point(pose.up)*vertex.normal.y+Point(pose.forward)*vertex.normal.z);

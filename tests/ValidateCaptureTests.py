@@ -50,6 +50,7 @@ class CaptureValidatorTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_capture(image, profile="unknown")
         self.assertEqual(profile_for_viewpoint("litter"), "shaded-detail")
+        self.assertEqual(profile_for_viewpoint("spiders"), "close-natural-detail")
         self.assertEqual(profile_for_viewpoint("spiders-bright"), "close-natural-detail")
         self.assertEqual(profile_for_viewpoint("snake-head"), "close-natural-detail")
         self.assertEqual(profile_for_viewpoint("snakes"), "close-natural-detail")
