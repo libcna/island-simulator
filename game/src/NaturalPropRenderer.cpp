@@ -70,6 +70,8 @@ namespace island
             "island-simulator: near fallen logs use irregular broken end contours";
         constexpr std::string_view FallenLogCrackDiagnostic =
             "island-simulator: near fallen-log end grain uses restrained radial cracks";
+        constexpr std::string_view FallenLogSilhouetteDiagnostic =
+            "island-simulator: near fallen logs use tapered twelve-sided trunks, broken branch stubs, and separated moss islands";
         constexpr std::string_view DriftwoodBranchDiagnostic =
             "island-simulator: all near driftwood variants use tapered three-dimensional branches";
         constexpr std::string_view DriftwoodEndDiagnostic =
@@ -632,21 +634,25 @@ void main()
         [[nodiscard]] PropGeometry CreateLogGeometry(const int variant, const bool farMesh)
         {
             PropGeometry geometry;
-            const int sections = farMesh ? 2 : 5;
-            const int sides = farMesh ? 6 : 9;
-            geometry.vertices.reserve(static_cast<std::size_t>((sections + 1) * sides + sides * 2 + 5));
-            geometry.indices.reserve(static_cast<std::size_t>(sections * sides * 6 + sides * 6 + 12));
+            const int sections = farMesh ? 2 : 7;
+            const int sides = farMesh ? 6 : 12;
+            geometry.vertices.reserve(static_cast<std::size_t>((sections + 1) * sides + sides * 2 + 64));
+            geometry.indices.reserve(static_cast<std::size_t>(sections * sides * 6 + sides * 6 + 180));
             const int barkMaterial = farMesh ? 255 : 128;
             const Color bark = variant == 0 ? Color(101, 69, 42, barkMaterial)
                 : (variant == 1 ? Color(87, 67, 45, barkMaterial)
                                 : Color(112, 77, 44, barkMaterial));
-            const auto ringRadius = [variant](const int section, const int side,
-                                               const int sideCount) {
+            const auto ringRadius = [variant, sections](const int section, const int side,
+                                                        const int sideCount) {
                 const float angle = 2.0f * std::numbers::pi_v<float>
                     * static_cast<float>(side) / static_cast<float>(sideCount);
-                return 0.92f + 0.07f
+                const float t = static_cast<float>(section) / static_cast<float>(sections);
+                const float taper = 1.03f - 0.09f * t
+                    + 0.025f * std::sin(t * std::numbers::pi_v<float>
+                        + static_cast<float>(variant) * 0.73f);
+                return taper * (0.92f + 0.07f
                     * std::sin(angle * (2.0f + static_cast<float>(variant))
-                               + static_cast<float>(section) * 1.7f);
+                               + static_cast<float>(section) * 1.7f));
             };
             const auto brokenEndOffset = [farMesh, variant, sections, sides](
                                              const int section, const int side) {
@@ -728,6 +734,61 @@ void main()
                 }
             }
 
+            if (!farMesh) {
+                // Two short remnants interrupt the manufactured pole silhouette.  Their roots
+                // begin inside the parent ring, so the shared surface remains visually joined;
+                // the small open broken tips are dark bark rather than bright sawn timber.
+                const float handedness = variant == 1 ? -1.0f : 1.0f;
+                const auto appendStub = [&](const Vector3& root, const Vector3& tip,
+                                            const float rootRadius, const float tipRadius) {
+                    constexpr int StubSides = 7;
+                    const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+                    const Vector3 axis = Vector3::Normalize(tip - root);
+                    const Vector3 around = Vector3::Normalize(
+                        Vector3::Cross(axis, Vector3::Right));
+                    for (int ring = 0; ring < 2; ++ring) {
+                        const Vector3 centre = ring == 0 ? root : tip;
+                        const float radialRadius = ring == 0 ? rootRadius : tipRadius;
+                        // Instance X is scaled by log length while Y/Z use log radius.
+                        // Counter that anisotropy here so a branch ring stays compact instead
+                        // of becoming a metre-wide fin on long clearing landmarks.
+                        const float alongRadius = ring == 0 ? 0.014f : 0.007f;
+                        for (int side = 0; side < StubSides; ++side) {
+                            const float angle = 2.0f * std::numbers::pi_v<float>
+                                * static_cast<float>(side) / static_cast<float>(StubSides);
+                            geometry.vertices.emplace_back(centre
+                                + Vector3::Right * (std::cos(angle) * alongRadius)
+                                + around * (std::sin(angle) * radialRadius),
+                                ShadeColor(bark, 0.92f));
+                            geometry.albedos.push_back(ShadeColor(bark, 0.92f));
+                        }
+                    }
+                    for (int side = 0; side < StubSides; ++side) {
+                        const int next = (side + 1) % StubSides;
+                        const auto lower = static_cast<std::uint16_t>(base + side);
+                        const auto lowerNext = static_cast<std::uint16_t>(base + next);
+                        const auto upper = static_cast<std::uint16_t>(base + StubSides + side);
+                        const auto upperNext = static_cast<std::uint16_t>(
+                            base + StubSides + next);
+                        geometry.indices.insert(geometry.indices.end(),
+                            {lower, upper, lowerNext, lowerNext, upper, upperNext});
+                    }
+                    const auto centre = static_cast<std::uint16_t>(geometry.vertices.size());
+                    geometry.vertices.emplace_back(tip, ShadeColor(bark, 0.68f));
+                    geometry.albedos.push_back(ShadeColor(bark, 0.68f));
+                    for (int side = 0; side < StubSides; ++side) {
+                        const auto first = static_cast<std::uint16_t>(base + StubSides + side);
+                        const auto next = static_cast<std::uint16_t>(
+                            base + StubSides + (side + 1) % StubSides);
+                        geometry.indices.insert(geometry.indices.end(), {centre, first, next});
+                    }
+                };
+                appendStub(Vector3(-0.22f, 0.54f, handedness * 0.58f),
+                           Vector3(-0.22f, 1.68f, handedness * 0.91f), 0.24f, 0.10f);
+                appendStub(Vector3(0.27f, 0.66f, -handedness * 0.48f),
+                           Vector3(0.27f, 1.34f, -handedness * 0.72f), 0.18f, 0.078f);
+            }
+
             BuildWoodNormals(geometry);
             // Cap rims have independent vertices; their normal must face away from the log.
             const std::size_t caps = (sections + 1) * sides;
@@ -739,18 +800,39 @@ void main()
                 }
             }
 
-            const auto mossBase = static_cast<std::uint16_t>(geometry.vertices.size());
             const Color moss(54, 94 + variant * 5, 43, 255);
-            geometry.vertices.emplace_back(Vector3(-0.42f, 0.87f, -0.28f), moss);
-            geometry.vertices.emplace_back(Vector3(0.42f, 0.87f, -0.28f), moss);
-            geometry.vertices.emplace_back(Vector3(-0.42f, 0.87f, 0.28f), ShadeColor(moss, 1.12f));
-            geometry.vertices.emplace_back(Vector3(0.42f, 0.87f, 0.28f), ShadeColor(moss, 1.12f));
-            geometry.indices.insert(geometry.indices.end(),
-                                    {mossBase, static_cast<std::uint16_t>(mossBase + 1U),
-                                     static_cast<std::uint16_t>(mossBase + 2U),
-                                     static_cast<std::uint16_t>(mossBase + 2U),
-                                     static_cast<std::uint16_t>(mossBase + 1U),
-                                     static_cast<std::uint16_t>(mossBase + 3U)});
+            if (!farMesh) {
+                // Separate, slightly skewed islands avoid the old six-metre rectangular strip
+                // that visually flattened the entire top of a long clearing landmark.
+                const std::array<Vector3, 3> Centres{
+                    Vector3(-0.29f, 0.935f, -0.10f),
+                    Vector3(0.01f, 0.952f, 0.14f),
+                    Vector3(0.31f, 0.915f, -0.16f)};
+                const std::array<Vector3, 3> HalfSizes{
+                    Vector3(0.065f, 0.0f, 0.20f),
+                    Vector3(0.085f, 0.0f, 0.16f),
+                    Vector3(0.055f, 0.0f, 0.18f)};
+                for (std::size_t patch = 0; patch < Centres.size(); ++patch) {
+                    const Vector3 centre = Centres[patch];
+                    const Vector3 half = HalfSizes[patch];
+                    const float skew = patch == 1 ? 0.025f : -0.018f;
+                    const auto mossBase = static_cast<std::uint16_t>(geometry.vertices.size());
+                    geometry.vertices.emplace_back(
+                        centre + Vector3(-half.X, 0, -half.Z + skew), moss);
+                    geometry.vertices.emplace_back(
+                        centre + Vector3(half.X, 0, -half.Z - skew), moss);
+                    geometry.vertices.emplace_back(
+                        centre + Vector3(-half.X * 0.82f, 0, half.Z), ShadeColor(moss, 1.12f));
+                    geometry.vertices.emplace_back(
+                        centre + Vector3(half.X * 0.91f, 0, half.Z), ShadeColor(moss, 1.12f));
+                    geometry.indices.insert(geometry.indices.end(),
+                        {mossBase, static_cast<std::uint16_t>(mossBase + 1U),
+                         static_cast<std::uint16_t>(mossBase + 2U),
+                         static_cast<std::uint16_t>(mossBase + 2U),
+                         static_cast<std::uint16_t>(mossBase + 1U),
+                         static_cast<std::uint16_t>(mossBase + 3U)});
+                }
+            }
 
             const auto contactBase = static_cast<std::uint16_t>(geometry.vertices.size());
             const Color contact(37, 57, 34, 255);
@@ -1413,6 +1495,8 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(FallenLogEndDiagnostic);
             std::cout << FallenLogCrackDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(FallenLogCrackDiagnostic);
+            std::cout << FallenLogSilhouetteDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(FallenLogSilhouetteDiagnostic);
             std::cout << "island-simulator: near driftwood uses faded sun-bleached longitudinal grain\n";
             std::cout << "island-simulator: near driftwood variant 2 uses three tapered fork limbs\n";
             std::cout << DriftwoodBranchDiagnostic << '\n';

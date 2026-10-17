@@ -23,6 +23,28 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest natural-prop audit — fallen-log silhouette and surface breakup
+
+The water/palms/props comparison selected the close clearing log: despite its existing bark shader
+and irregular cut ends, the nine-sided constant-width body and one nearly full-length rectangular
+moss strip still read as a plank. Near logs now use seven tapered longitudinal stations and twelve
+sides, two compact mechanically joined broken branch stubs, and three separated skewed moss
+islands. The first branch prototype exposed non-uniform instance-scale distortion and was rejected;
+the accepted rings explicitly counter the long X scale so they remain compact on every log length.
+
+The three stored near meshes add 246 vertices in total (prop inventory 4,824 to 5,070 vertices, or
+6,888 bytes); far meshes, twelve placements, collision footprints, contact shadows, culling,
+materials, buffers and shared draw count are unchanged. Inspected native baseline
+`20261017T093731.152334Z-props` and accepted `20261017T094346.487014Z-props` show the same grounded
+landmark with tapered bark, a readable snapped limb and non-continuous moss; the accepted frame
+passes at 419 colour bins, 59.68 luminance deviation and 252.76 spatial contrast. Core, asset,
+capture-validator and software-preflight tests pass with three workers. The WebGL2 package builds;
+the broader Chrome materials supervisor reached two passing 60-interval views but timed out before
+the props view, so it is not claimed as runtime evidence for this change. Android ARM64
+assemble/lint pass through the two-worker wrapper without emulator/KVM. The 24,787,811-byte APK
+has SHA-256 `90185104228c21e0c5b651dd27d9ee32db7c9b980442df8c59d35fed62bf2731`
+and contains the 19,745,240-byte stripped `libmain.so`.
+
 ## Latest terrain/lighting audit — broken highland outcrops and readable canopy shade
 
 The refreshed overview/east/jungle audit selected the exposed inland slopes: their rock coverage
