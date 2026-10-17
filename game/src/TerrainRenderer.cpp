@@ -665,6 +665,19 @@ void main()
         color = mix(color, mix(tinted, turf * vGroundLight, 0.35), turfWeight);
     }
 
+    // Wind-exposed upper ridges carry a sparse sun-cured turf transition between the
+    // dark interior humus and bare rock. This broad, footprint-filtered field remains
+    // legible in overview without adding grass instances or painting one uniform cap.
+    float highlandPatch = smoothstep(-0.18, 0.27,
+        broad * 0.72 + landMiddle * 0.43 + medium * 0.15);
+    float highlandTurf = smoothstep(13.0, 29.0, vWorld.y)
+        * (1.0 - smoothstep(0.20, 0.50, slopeRadians)) * interior
+        * (0.28 + highlandPatch * 0.72);
+    vec3 highlandColor = mix(vec3(0.285, 0.285, 0.105),
+        vec3(0.390, 0.355, 0.145), clamp(0.5 + broad * 0.85, 0.0, 1.0))
+        * vGroundLight;
+    color = mix(color, highlandColor, highlandTurf * 0.34);
+
     // Thin soil on steep ridge faces exposes weathered rock instead of the old
     // featureless green vertex palette. Existing filtered fields break the edge.
     float ridgeRock = smoothstep(0.27, 0.54,
@@ -726,9 +739,26 @@ void main()
             + sin(faceAcross * 0.11 + projectedMottle * 1.4) * 0.30;
         // Thin soil leaves connected but irregular outcrops, rather than tinting an entire
         // inland hillside as one dark muddy curtain. Low coastal cliffs remain more exposed.
-        float outcropField = projectedMacro * 0.62 + projectedMottle * 0.60
-            + sin(beddingPhase * 0.47 + faceAcross * 0.035) * 0.12;
-        float outcropBreakup = smoothstep(-0.02, 0.30, outcropField);
+        // Macro colour may span tens of metres, so it must only bias exposure.  Let the
+        // three-metre mottle and broken bedding define the actual boundary; otherwise a
+        // modest slope turns into one soft, dark oval that resembles a painted stain.
+        float outcropField = projectedMacro * 0.18 + projectedMottle * 0.72
+            + sin(beddingPhase * 0.47 + faceAcross * 0.035) * 0.16;
+        // Coverage is read most often from above, where face-projected fields alone form
+        // smooth oval islands. Two footprint-filtered ground-plane fields notch those rims
+        // and leave small soil shelves across otherwise exposed faces. They affect only the
+        // rock/soil boundary; bedding and joints retain the correct face projection.
+        float outcropEdgeFilter = 1.0 - smoothstep(0.18, 0.50,
+            groundPixelWidth * 0.085);
+        float outcropEdge = valueNoise(p * 0.085 + vec2(18.7, -23.4))
+            * outcropEdgeFilter;
+        float outcropShelf = valueNoise(p * 0.205 + vec2(-7.2, 31.6))
+            * (1.0 - smoothstep(0.18, 0.50, groundPixelWidth * 0.205));
+        float outcropBreakup = smoothstep(0.075, 0.39,
+            outcropField + outcropEdge * 0.30 + outcropShelf * 0.12);
+        float soilShelf = smoothstep(0.14, 0.42,
+            -outcropShelf + outcropEdge * 0.22) * (1.0 - coastalCliff);
+        outcropBreakup *= 1.0 - soilShelf * 0.34;
         // The coastal ground field keeps salt-worn headlands continuously mineral; only
         // inland ridge soil breaks strongly between exposed rock patches.
         float minimumExposure = mix(0.045, 0.88, coastField.x);
@@ -762,6 +792,11 @@ void main()
         weatheredRock *= 1.0 + rockGrain * 0.24 + projectedMottle * 0.18
             + bedding * 0.055 - beddingSeam * 0.085 - verticalJoint * 0.075
             - fracture * 0.06 * (1.0 - smoothstep(0.10, 0.35, groundPixelWidth * 0.19));
+        // Aerial rock still receives open sky. This small distance-only lift prevents the
+        // remaining broken patches from collapsing into near-black spots without bleaching
+        // their close mineral contrast or changing coverage.
+        weatheredRock += vec3(0.028, 0.030, 0.028)
+            * smoothstep(150.0, 330.0, distanceToCamera) * (1.0 - coastalCliff * 0.45);
     }
     vec3 litRidgeRock = weatheredRock * vGroundLight;
     float ridgeSkyFill = 1.0 - smoothstep(0.38, 0.72, vGroundLight);

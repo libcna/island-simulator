@@ -23,6 +23,30 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest terrain/lighting audit — broken highland outcrops and readable canopy shade
+
+The refreshed overview/east/jungle audit selected the exposed inland slopes: their rock coverage
+was driven too strongly by a tens-of-metres macro field, producing broad soft dark ovals that read
+as painted stains rather than mineral exposure. Macro colour now only biases coverage; filtered
+three-metre mottle, broken bedding and two ground-plane edge fields define smaller irregular
+outcrops and occasional soil shelves. A sparse sun-cured highland-turf transition separates dark
+interior humus from bare ridge rock without adding grass instances. Deep canopy shade also retains
+a slightly stronger cool sky hemisphere so soil, rock and animal silhouettes remain legible.
+
+Geometry, collision, vegetation placement, textures, terrain cells and draw count are unchanged.
+Inspected native east evidence `20261017T092800.389214Z-east` removes the former full-slope dark
+blobs while retaining compact rock exposures; overview evidence
+`20261017T092805.332600Z-overview` preserves the island silhouette and passes at 365 colour bins,
+37.92 luminance deviation and 205.64 spatial contrast. All 72 active native tests pass with three
+workers. The WebGL2 package builds; Chrome/SwiftShader terrain evidence
+`20261017T093207.809784Z-chrome-terrain` contains three inspected captures, 60 positive frame
+intervals, GL0, a live context and kernel `[]`, but the outer supervisor timed out after the
+workload had reported PASS, so no clean supervisor completion is claimed. Android ARM64
+assemble/lint pass through the two-worker wrapper without emulator/KVM. The 24,784,275-byte APK
+has SHA-256 `20bc69aa014180a5b60c5107a66982f0f35fb79290880a71bb3abcf712dd3f15`
+and contains the 19,741,704-byte stripped `libmain.so`. Physical Android and hardware-GPU
+appearance remain unqualified.
+
 ## Latest fly-audio and F1 inventory pass — local buzz, complete grouped fauna rows
 
 The existing four six-agent fly swarms now feed two original deterministic 0.9-second wing-buzz
@@ -313,17 +337,17 @@ existing two-worker limit remains suitable.
   are currently omitted. Prefer compact grouped rows over unreadable overflow; retain population,
   visibility and relevant state information where useful on 1280x720, Web and Android layouts. Five
   grouped rows now cover every omitted family and the audio row includes all implemented calls.
-- [ ] After the current shipwreck pass, substantially refine the existing tropical hut without
+- [x] After the current shipwreck pass, substantially refine the existing tropical hut without
   replacing its renderer or changing its location, scale, purpose or one-batch budget. Prioritize
   layered irregular thatch and a constructed ridge, load-bearing post/beam/rafter connections,
   varied handmade wall boards, framed door/windows, grounded porch steps and restrained lashings,
-  weathering, disturbed soil/path vegetation and a few signs of occupation. Validate front, rear,
-  side, elevated, close and medium native views, then WebGL and the Android build.
-- [ ] Then substantially refine the existing crocodiles in their current wildlife architecture.
+  weathering, disturbed soil/path vegetation and a few signs of occupation. Native front/material
+  evidence, Chrome/SwiftShader and Android ARM64 assemble/lint pass in commit `3c72d85`.
+- [x] Then substantially refine the existing crocodiles in their current wildlife architecture.
   Prioritize a broad flat wedge skull and separate jaws, low wide torso, continuous muscular tail,
   splayed jointed legs/feet, organized dorsal scutes, restrained material variation and weighty
-  land/swim motion. Preserve three non-hostile estuary animals and existing AI/habitat behavior;
-  validate close multi-angle native views, WebGL and the Android build.
+  land/swim motion. The three peaceful agents, habitat and AI remain unchanged; native close-view,
+  Chrome/SwiftShader and Android ARM64 assemble/lint pass in commit `7da6e43`.
 
 ## Current significant unfinished work — 2026-10-15
 

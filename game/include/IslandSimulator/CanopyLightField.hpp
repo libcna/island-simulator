@@ -11,7 +11,11 @@
 namespace island
 {
     struct CanopyLightTint { float red, green, blue; };
-    inline constexpr CanopyLightTint CanopyAmbientTint{0.46f, 0.53f, 0.62f};
+    // Dense tropical shade still receives a broad blue-sky hemisphere.  The former floor
+    // was dark enough that overlapping crowns became near-black oval stains on open slopes,
+    // especially in the elevated island view.  Retain a cool cast and strong sun/shade read
+    // while keeping soil, rock and animal silhouettes legible beneath the canopy.
+    inline constexpr CanopyLightTint CanopyAmbientTint{0.54f, 0.60f, 0.67f};
     [[nodiscard]] CanopyLightTint CanopyTransmissionTint(float transmission) noexcept;
     /** @brief Porous upright ellipsoid approximating one foliage lobe, not a solid mesh shadow. */
     struct CanopyOccluder
