@@ -3321,7 +3321,7 @@ namespace island
             birdFlock_.Birds(), monkeyTroop_.Monkeys(), boarHerd_.Boars(),
             goats_->Goats(),snakes_->Snakes(),&bear_->State(),
             flightMotion_.IsActive()?0.0f:playerMotion_.SubmergedDepth(),
-            frogPopulation_.Frogs(), cicadaColony_.Cicadas());
+            frogPopulation_.Frogs(), cicadaColony_.Cicadas(), flySwarms_.Flies());
     }
 
     bool IslandGame::IsDebugFreeCameraActive() const noexcept
@@ -4210,6 +4210,44 @@ namespace island
             overlayState.totalSnakes = static_cast<int>(snakes_->Snakes().size()+snakes_->TreeSnakes().size());
             overlayState.snakeShadows = contactShadowRenderer_->VisibleSnakeShadowCount();
             overlayState.snakeDraws = snakeRenderer_->DrawCallCount();
+            overlayState.visibleFruitBats = fruitBatRenderer_->VisibleCount();
+            overlayState.totalFruitBats = static_cast<int>(fruitBatColony_.Bats().size());
+            overlayState.visibleGeckos = butterflyRenderer_->VisibleGeckoCount();
+            overlayState.totalGeckos = static_cast<int>(geckoPopulation_.Geckos().size());
+            overlayState.visibleSkinks = butterflyRenderer_->VisibleSkinkCount();
+            overlayState.totalSkinks = static_cast<int>(skinkPopulation_.Skinks().size());
+            overlayState.visibleDragonflies = butterflyRenderer_->VisibleDragonflyCount();
+            overlayState.totalDragonflies = static_cast<int>(dragonflySwarm_.Dragonflies().size());
+            overlayState.visibleFrogs = butterflyRenderer_->VisibleFrogCount();
+            overlayState.totalFrogs = static_cast<int>(frogPopulation_.Frogs().size());
+            overlayState.visibleMice = butterflyRenderer_->VisibleMouseCount();
+            overlayState.totalMice = static_cast<int>(RodentPopulation::MouseCount);
+            overlayState.visibleRats = butterflyRenderer_->VisibleRatCount();
+            overlayState.totalRats = static_cast<int>(RodentPopulation::RatCount);
+            overlayState.visibleFlies = butterflyRenderer_->VisibleFlyCount();
+            overlayState.totalFlies = static_cast<int>(FlySwarms::Count);
+            overlayState.visibleAnts = butterflyRenderer_->VisibleAntCount();
+            overlayState.totalAnts = static_cast<int>(AntTrails::Count);
+            overlayState.visibleCicadas = butterflyRenderer_->VisibleCicadaCount();
+            overlayState.totalCicadas = static_cast<int>(CicadaColony::Count);
+            overlayState.visibleBeetles = butterflyRenderer_->VisibleBeetleCount();
+            overlayState.totalBeetles = static_cast<int>(BeetlePopulation::Count);
+            overlayState.visibleHermitCrabs = crabRenderer_->VisibleHermitCrabCount();
+            overlayState.totalHermitCrabs = static_cast<int>(hermitCrabGroup_.Crabs().size());
+            overlayState.visibleCoconutCrabs = crabRenderer_->VisibleCoconutCrabCount();
+            overlayState.totalCoconutCrabs = static_cast<int>(coconutCrabGroup_.Crabs().size());
+            overlayState.visibleDeer = deerRenderer_->VisibleCount();
+            overlayState.totalDeer = static_cast<int>(deer_->Deer().size());
+            overlayState.visibleResident = residentRenderer_->VisibleCount();
+            overlayState.totalResident = 1;
+            overlayState.visibleBear = bearRenderer_->VisibleCount();
+            overlayState.totalBear = 1;
+            overlayState.visibleCrocodiles = crocodileRenderer_->VisibleCount();
+            overlayState.totalCrocodiles = static_cast<int>(crocodileGroup_.Crocodiles().size());
+            overlayState.visibleStingrays = stingrayRenderer_->VisibleCount();
+            overlayState.totalStingrays = static_cast<int>(stingrayGroup_.Stingrays().size());
+            overlayState.visibleOctopuses = octopusRenderer_->VisibleCount();
+            overlayState.totalOctopuses = static_cast<int>(octopusGroup_.Octopuses().size());
             overlayState.totalCrabs = static_cast<int>(crabColony_.Crabs().size());
             overlayState.nearCrabs = crabRenderer_->VisibleNearCrabCount();
             overlayState.farCrabs = crabRenderer_->VisibleFarCrabCount();
@@ -4313,6 +4351,10 @@ namespace island
                 overlayState.playedBoarCalls = soundscape_->PlayedBoarCallCount();
                 overlayState.playedGoatCalls = soundscape_->PlayedGoatCallCount();
                 overlayState.playedSnakeHisses = soundscape_->PlayedSnakeHissCount();
+                overlayState.playedBearCalls = soundscape_->PlayedBearCallCount();
+                overlayState.playedFrogCalls = soundscape_->PlayedFrogCallCount();
+                overlayState.playedCicadaCalls = soundscape_->PlayedCicadaCallCount();
+                overlayState.playedFlyBuzzes = soundscape_->PlayedFlyBuzzCount();
                 overlayState.wildlifeCallActive = soundscape_->IsWildlifeCallActive();
                 const SoundscapeDebugState soundscapeDebug = soundscape_->DebugState();
                 overlayState.playingAudioSources = soundscapeDebug.playingSourceCount;

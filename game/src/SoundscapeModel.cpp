@@ -725,6 +725,42 @@ namespace island
         return Quantize(samples, 0.52f);
     }
 
+    AmbientLoop GenerateFlyBuzz(const std::uint8_t variant)
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(
+            AmbientSampleRate * 9 / 10);
+        const std::vector<float> texture = CircularSmooth(Noise(
+            0xf17b0221U ^ static_cast<std::uint32_t>(variant) * 0x9e3779b9U,
+            frameCount), 3U);
+        std::vector<float> samples(frameCount, 0.0f);
+        double phaseA = 0.0;
+        double phaseB = 0.0;
+        for (std::size_t index = 0; index < frameCount; ++index) {
+            const float seconds = static_cast<float>(index)
+                / static_cast<float>(AmbientSampleRate);
+            const float unit = static_cast<float>(index)
+                / static_cast<float>(frameCount - 1U);
+            const float edge = std::min(1.0f, std::min(unit, 1.0f - unit) * 18.0f);
+            const float drift = 5.0f * std::sin(TwoPi * 3.1f * seconds)
+                + 2.4f * texture[index];
+            const float baseA = (variant % 2U == 0U ? 178.0f : 194.0f) + drift;
+            const float baseB = (variant % 2U == 0U ? 213.0f : 231.0f)
+                - .55f * drift;
+            phaseA += TwoPi * static_cast<double>(baseA)
+                / static_cast<double>(AmbientSampleRate);
+            phaseB += TwoPi * static_cast<double>(baseB)
+                / static_cast<double>(AmbientSampleRate);
+            const float flutter = .72f + .28f * std::max(0.0f,
+                std::sin(TwoPi * (variant % 2U == 0U ? 8.2f : 9.4f) * seconds));
+            samples[index] = edge * flutter * static_cast<float>(
+                .48 * std::sin(phaseA) + .31 * std::sin(phaseB)
+                + .12 * std::sin(2.0 * phaseA) + .06 * texture[index]);
+        }
+        samples.front() = 0.0f;
+        samples.back() = 0.0f;
+        return Quantize(samples, 0.52f);
+    }
+
     AmbientLoop GenerateMonkeyCall()
     {
         constexpr std::size_t frameCount = static_cast<std::size_t>(
@@ -1615,6 +1651,62 @@ namespace island
         request.source = {true, cicada.x, cicada.y, cicada.z};
         nextAnimal_ = (bestIndex + 1U) % cicadas.size();
         cooldown_ = 5.0f + NextUnit() * 6.0f;
+        return request;
+    }
+
+    void FlyBuzzScheduler::Reset() noexcept
+    {
+        randomState_ = 0xf17b0221U;
+        cooldown_ = .35f + NextUnit() * .45f;
+        nextAnimal_ = 0U;
+    }
+
+    float FlyBuzzScheduler::NextUnit() noexcept
+    {
+        randomState_ ^= randomState_ << 13U;
+        randomState_ ^= randomState_ >> 17U;
+        randomState_ ^= randomState_ << 5U;
+        return static_cast<float>(randomState_ & 0x00ffffffU)
+            / static_cast<float>(0x01000000U);
+    }
+
+    FlyBuzzRequest FlyBuzzScheduler::Update(
+        const float deltaSeconds, const float listenerX, const float listenerY,
+        const float listenerZ, const std::span<const FlyState> flies,
+        const bool playbackSlotAvailable) noexcept
+    {
+        cooldown_ -= SafeDeltaSeconds(deltaSeconds);
+        if (cooldown_ > 0.0f || !playbackSlotAvailable || flies.empty()
+            || !std::isfinite(listenerX) || !std::isfinite(listenerY)
+            || !std::isfinite(listenerZ)) return {};
+
+        float bestDistance = std::numeric_limits<float>::infinity();
+        std::size_t bestIndex = flies.size();
+        for (std::size_t step = 0; step < flies.size(); ++step) {
+            const std::size_t index = (nextAnimal_ + step) % flies.size();
+            const FlyState& fly = flies[index];
+            if (fly.simulationTier == WildlifeSimulationTier::Dormant) continue;
+            const float distance = std::hypot(std::hypot(
+                fly.x - listenerX, fly.z - listenerZ), fly.y - listenerY);
+            if (std::isfinite(distance) && distance < bestDistance && distance <= 12.0f) {
+                bestDistance = distance;
+                bestIndex = index;
+            }
+        }
+        if (bestIndex == flies.size()) {
+            cooldown_ = .5f + NextUnit() * .75f;
+            return {};
+        }
+        const FlyState& fly = flies[bestIndex];
+        FlyBuzzRequest request;
+        request.trigger = true;
+        request.variant = static_cast<std::uint8_t>(NextUnit() >= .5f);
+        request.animalIndex = bestIndex;
+        request.volume = std::clamp(.15f * (1.0f - bestDistance / 14.0f), .018f, .13f);
+        request.pitch = -.04f + NextUnit() * .09f;
+        request.source = {true, fly.x, fly.y, fly.z};
+        nextAnimal_ = (bestIndex + 1U) % flies.size();
+        cooldown_ = 2.1f + NextUnit() * 2.0f;
         return request;
     }
 

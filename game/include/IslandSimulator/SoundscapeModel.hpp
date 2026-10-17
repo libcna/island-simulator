@@ -11,6 +11,7 @@
 #include "IslandSimulator/SnakePopulation.hpp"
 #include "IslandSimulator/FrogPopulation.hpp"
 #include "IslandSimulator/CicadaColony.hpp"
+#include "IslandSimulator/FlySwarms.hpp"
 
 namespace island
 {
@@ -272,7 +273,8 @@ namespace island
         Bear,
         Goat,
         Frog,
-        Cicada
+        Cicada,
+        Fly
     };
 
     /** @brief Nearest currently eligible world-space source for one wildlife species. */
@@ -337,6 +339,34 @@ namespace island
     private:
         [[nodiscard]] float NextUnit() noexcept;
         std::uint32_t randomState_ = 0xc1cada17U;
+        float cooldown_ = 0.0f;
+        std::size_t nextAnimal_ = 0U;
+    };
+
+    /** @brief Short restrained close-range wing buzz for one fly swarm. */
+    [[nodiscard]] AmbientLoop GenerateFlyBuzz(std::uint8_t variant);
+
+    struct FlyBuzzRequest
+    {
+        bool trigger = false;
+        std::uint8_t variant = 0U;
+        std::size_t animalIndex = 0U;
+        float volume = 0.0f;
+        float pitch = 0.0f;
+        WildlifeAudioSource source;
+    };
+
+    /** @brief Intermittent swarm-local buzz sharing the bounded wildlife voice. */
+    class FlyBuzzScheduler final
+    {
+    public:
+        void Reset() noexcept;
+        [[nodiscard]] FlyBuzzRequest Update(float deltaSeconds, float listenerX,
+            float listenerY, float listenerZ, std::span<const FlyState> flies,
+            bool playbackSlotAvailable) noexcept;
+    private:
+        [[nodiscard]] float NextUnit() noexcept;
+        std::uint32_t randomState_ = 0xf17b0221U;
         float cooldown_ = 0.0f;
         std::size_t nextAnimal_ = 0U;
     };

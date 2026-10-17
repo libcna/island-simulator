@@ -81,7 +81,8 @@ namespace island
                     const BearState* bear=nullptr,
                     float submergedDepth=0.0f,
                     std::span<const FrogState> frogs={},
-                    std::span<const CicadaState> cicadas={}) noexcept;
+                    std::span<const CicadaState> cicadas={},
+                    std::span<const FlyState> flies={}) noexcept;
 
         /** @brief Refreshes diagnostic emitter candidates even when audio playback is disabled. */
         void RefreshDebugSources(float listenerX, float listenerY, float listenerZ,
@@ -139,6 +140,7 @@ namespace island
         [[nodiscard]] int PlayedBearCallCount() const noexcept{return playedBearCallCount_;}
         [[nodiscard]] int PlayedFrogCallCount() const noexcept{return playedFrogCallCount_;}
         [[nodiscard]] int PlayedCicadaCallCount() const noexcept{return playedCicadaCallCount_;}
+        [[nodiscard]] int PlayedFlyBuzzCount() const noexcept{return playedFlyBuzzCount_;}
         [[nodiscard]] bool IsWildlifeCallActive() const noexcept
         {
             return wildlifeSecondsRemaining_ > 0.0f;
@@ -163,18 +165,21 @@ namespace island
         BearCallScheduler bearCallScheduler_;
         FrogCallScheduler frogCallScheduler_;
         CicadaCallScheduler cicadaCallScheduler_;
+        FlyBuzzScheduler flyBuzzScheduler_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 6> boarEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 6> goatEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 2> snakeHissEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>,6> bearEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>,2> frogEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>,2> cicadaEffects_;
+        std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>,2> flyBuzzEffects_;
         BoarCallRequest activeBoarCall_;
         GoatCallRequest activeGoatCall_;
         SnakeHissRequest activeSnakeHiss_;
         BearCallRequest activeBearCall_;
         FrogCallRequest activeFrogCall_;
         CicadaCallRequest activeCicadaCall_;
+        FlyBuzzRequest activeFlyBuzz_;
         float boarVoiceGain_ = 1.0f;
         float goatVoiceGain_ = 1.0f;
         float snakeVoiceGain_ = 1.0f;
@@ -265,6 +270,7 @@ namespace island
         int playedBearCallCount_=0;
         int playedFrogCallCount_=0;
         int playedCicadaCallCount_=0;
+        int playedFlyBuzzCount_=0;
         float shipwreckX_ = 0.0f;
         float shipwreckY_ = 0.0f;
         float shipwreckZ_ = 0.0f;

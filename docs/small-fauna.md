@@ -168,6 +168,20 @@ and draw; the stage adds no renderer, texture, material switch or draw call. The
 test covers the exact 4x6 layout, bounded swarm motion, all three behaviours, repeatability and
 non-finite input containment.
 
+Two original deterministic 0.9-second buzz phrases now reuse the shared positional wildlife voice.
+Only a non-dormant animal within 12m may trigger one, at restrained distance-scaled gain with a
+2.1--4.1-second cooldown, so the four habitats do not become a constant island-wide drone. The
+implementation adds no persistent loop or audio source. PCM/scheduler tests, WAV export validation
+and real-CNA runtime playback, range, mute and six-source-budget checks pass; subjective listening
+on ordinary speakers/headphones remains open.
+
+The refreshed portable package passes Chrome 155/SwiftShader at
+`build/browser-software/20261017T091206.256152Z-chrome-flies` with 60 finite positive intervals,
+GL error zero, live context, two distinct inspected fly frames and no kernel fault. Android ARM64
+assemble/lint also passes; the 24,781,939-byte APK has SHA-256
+`a752527ae19bf66f45ee07056c111e8b5dd9e3972e8da79773804835f0f488f7` and contains a
+19,739,368-byte native library.
+
 The first native capture was rejected because triangular propeller-like wings, oversized diamond
 eyes and a dark wetland composition made the insect read poorly. The corrected exact-final native
 llvmpipe evidence is `build-consumer/software-captures/20261015T091929.300514Z-flies`: 265 colour

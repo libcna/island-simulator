@@ -378,6 +378,8 @@ breathing/snuffling/huffs, and low falling vowel-like goat bleats plus breathing
 wildlife voice. Calls follow the moving animal, attenuate by distance, vary deterministically and
 respect mute without expanding the six-source ceiling. These are original synthesized prototypes;
 the remaining headphone/speaker naturalness and portable lifecycle review is tracked separately.
+The same shared voice also carries intermittent, restrained buzzing from the existing fly swarms,
+but only when the listener is within 12m; it is not a global ambient loop.
 Distance-scheduled player footsteps select paired dry-sand or interior-soil textures from actual
 resolved travel, vary pitch/pan/gain, and remain silent while swimming or blocked.
 All audio is generated without external sound files. The
@@ -474,7 +476,10 @@ Press F1 to toggle the developer overlay with frame timing, player/water state, 
 and the actual logical backbuffer size,
 culling counts, contact-shadow class/draw statistics, vegetation draw statistics, ambient mix
 levels, grass-interaction strength, player-ripple and transition-burst intensity/phase, player-water
-gain, wave/splash counts, undertow cue strength, and positional bird/monkey call activity.
+gain, wave/splash counts, undertow cue strength, and positional wildlife-call activity. Detailed
+major-fauna rows are complemented by compact visible/total groups covering deer, resident, bear,
+crocodiles, bats, small reptiles/amphibians, insects, rodents, specialist crabs, stingrays and
+octopuses, so every implemented animal family is represented without one row per tiny species.
 The wave counter is joined by a separate wreck-creak count; sparse positional hull creaks reuse
 the stronger-wave transient voice only near the grounded ship and never add a persistent source.
 While F1 is visible, F2 toggles an x-ray world diagnostic: the authoritative shoreline and three

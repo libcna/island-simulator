@@ -1097,6 +1097,8 @@ int main()
     const island::AmbientLoop cicadaCall = island::GenerateCicadaCall(0U);
     const island::AmbientLoop cicadaCallAlternate = island::GenerateCicadaCall(1U);
     const island::AmbientLoop repeatedCicadaCall = island::GenerateCicadaCall(0U);
+    const island::AmbientLoop flyBuzz = island::GenerateFlyBuzz(0U);
+    const island::AmbientLoop flyBuzzAlternate = island::GenerateFlyBuzz(1U);
     Check(surfLoop.sampleRate == 22050 && breezeLoop.sampleRate == 22050,
           "procedural ambience uses the intended portable sample rate");
     Check(frogCall.sampleRate==22050&&frogCall.samples.size()==24255U
@@ -1114,6 +1116,40 @@ int main()
               &&cicadaCall.samples.front()==0&&cicadaCall.samples.back()==0
               &&cicadaCallAlternate.samples.front()==0&&cicadaCallAlternate.samples.back()==0,
           "cicada buzzes are deterministic, distinct and have bounded silent endpoints");
+    Check(flyBuzz.sampleRate==22050&&flyBuzz.samples.size()==19845U
+              &&flyBuzzAlternate.sampleRate==22050&&flyBuzzAlternate.samples.size()==19845U
+              &&flyBuzz.samples!=flyBuzzAlternate.samples
+              &&flyBuzz.samples==island::GenerateFlyBuzz(0U).samples
+              &&flyBuzz.samples.front()==0&&flyBuzz.samples.back()==0
+              &&flyBuzzAlternate.samples.front()==0&&flyBuzzAlternate.samples.back()==0,
+          "fly buzzes are deterministic, distinct and have bounded silent endpoints");
+    std::array<island::FlyState,2> audioFlies{};
+    audioFlies[0].x=1.0f;audioFlies[0].y=.7f;
+    audioFlies[1].x=2.0f;audioFlies[1].y=.9f;
+    for(auto& fly:audioFlies)fly.simulationTier=island::WildlifeSimulationTier::Full;
+    island::FlyBuzzScheduler flyScheduler,repeatedFlyScheduler;
+    flyScheduler.Reset();repeatedFlyScheduler.Reset();
+    int flyCalls=0;bool flyScheduleDeterministic=true,flyScheduleBounded=true;
+    for(int step=0;step<240;++step) {
+        const auto call=flyScheduler.Update(.25f,0,1.72f,0,audioFlies,true);
+        const auto repeated=repeatedFlyScheduler.Update(.25f,0,1.72f,0,audioFlies,true);
+        flyScheduleDeterministic=flyScheduleDeterministic&&call.trigger==repeated.trigger
+            &&call.animalIndex==repeated.animalIndex&&call.variant==repeated.variant
+            &&call.volume==repeated.volume&&call.pitch==repeated.pitch;
+        if(!call.trigger)continue;
+        ++flyCalls;
+        flyScheduleBounded=flyScheduleBounded&&call.animalIndex<audioFlies.size()
+            &&call.variant<2U&&call.volume>=.018f&&call.volume<=.13f
+            &&call.pitch>=-.04f&&call.pitch<=.05f&&call.source.available;
+    }
+    Check(flyCalls>8&&flyScheduleDeterministic&&flyScheduleBounded,
+        "fly buzz scheduling is deterministic, local, varied and bounded");
+    island::FlyBuzzScheduler distantFlyScheduler;distantFlyScheduler.Reset();
+    bool distantFlySilent=true;
+    for(int step=0;step<120;++step)
+        distantFlySilent=distantFlySilent&&!distantFlyScheduler.Update(
+            .25f,40,1.72f,0,audioFlies,true).trigger;
+    Check(distantFlySilent,"fly buzz leaked beyond its close-range habitat");
     Check(surfLoop.samples.size() == 220500U && breezeLoop.samples.size() == 242550U,
           "procedural ambient loops have their intended staggered portable lengths");
     Check(jungleLoop.sampleRate == 22050 && jungleLoop.samples.size() == 639450U,

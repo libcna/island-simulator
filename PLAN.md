@@ -23,6 +23,28 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest fly-audio and F1 inventory pass — local buzz, complete grouped fauna rows
+
+The existing four six-agent fly swarms now feed two original deterministic 0.9-second wing-buzz
+variants through the already bounded positional wildlife voice. Only a non-dormant fly within 12m
+is eligible; 2.1--4.1-second cooldowns, a 0.13 maximum request gain and distance attenuation prevent
+an island-wide constant drone. No population, simulation, renderer, draw call or audio-source limit
+changed. Core PCM/scheduler tests, the expanded 43-clip report and WAV validator, and real-CNA dummy
+runtime playback/range/mute/source-budget coverage pass. Subjective speaker/headphone naturalness
+remains an acceptance check. The two exported phrases measure 395.56/426.67 zero crossings per
+second, 0.2007/0.1964 RMS and 0.52 peak. Chrome/SwiftShader evidence
+`20261017T091206.256152Z-chrome-flies` passes 60 finite positive frame intervals, GL error zero,
+live context, two distinct inspected frames and an empty kernel delta. Web output is 11,861,791
+bytes Wasm, 2,230,701 bytes data and 283,329 bytes JavaScript.
+
+F1 now adds five compact grouped population rows for every previously omitted family: deer,
+resident, bear, crocodiles, fruit bats, geckos, skinks, frogs, dragonflies, flies, ants, cicadas,
+beetles, mice, rats, hermit and coconut crabs, stingrays and octopuses. The positional-call row also
+reports bear, frog, cicada and fly playback counts. Existing detailed rows remain unchanged.
+Android ARM64 assemble/lint passes with the wrapper's two-worker ceiling. The 24,781,939-byte APK
+has SHA-256 `a752527ae19bf66f45ee07056c111e8b5dd9e3972e8da79773804835f0f488f7`
+and packages a 19,739,368-byte `libmain.so`.
+
 ## Latest goat-audio pass — falling vowel-like bleats instead of insect buzz
 
 The operator identified the existing goat bleats as fly-like buzzing. The old 218--238 Hz carrier
@@ -277,13 +299,15 @@ existing two-worker limit remains suitable.
   accept the change solely from compilation or numerical loudness. The falling low-harmonic pass,
   previews and native SDL disk playback/mute evidence are complete; subjective speaker/headphone
   listening remains open.
-- [ ] Ensure flies are present as an integrated island species and emit localized, restrained buzzing.
+- [~] Ensure flies are present as an integrated island species and emit localized, restrained buzzing.
   The existing 24-agent visual population may be reused if its habitat/motion remain valid; audit
   whether a distinct fly audio path exists before adding another simulation or sound source. Preserve
-  the shared voice budget and avoid constant island-wide buzz.
-- [ ] Update the F1 diagnostics so the wildlife inventory includes newly added animal families that
+  the shared voice budget and avoid constant island-wide buzz. The local generated sound path and
+  automated runtime coverage are complete; subjective listening remains open.
+- [x] Update the F1 diagnostics so the wildlife inventory includes newly added animal families that
   are currently omitted. Prefer compact grouped rows over unreadable overflow; retain population,
-  visibility and relevant state information where useful on 1280x720, Web and Android layouts.
+  visibility and relevant state information where useful on 1280x720, Web and Android layouts. Five
+  grouped rows now cover every omitted family and the audio row includes all implemented calls.
 - [ ] After the current shipwreck pass, substantially refine the existing tropical hut without
   replacing its renderer or changing its location, scale, purpose or one-batch budget. Prioritize
   layered irregular thatch and a constructed ridge, load-bearing post/beam/rafter connections,

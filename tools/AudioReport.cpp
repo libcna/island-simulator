@@ -163,7 +163,7 @@ namespace
     [[nodiscard]] std::vector<AudioClip> GenerateClips()
     {
         std::vector<AudioClip> clips;
-        clips.reserve(41U);
+        clips.reserve(43U);
         clips.push_back({"shoreline surf", "surf.wav", true, 220500U,
                          island::GenerateSurfLoop()});
         clips.push_back({"canopy breeze", "breeze.wav", true, 242550U,
@@ -246,6 +246,10 @@ namespace
                          island::GenerateBearCall(island::BearCallKind::Huff,0)});
         clips.push_back({"bear huff B","bear-huff-b.wav",false,35280U,
                          island::GenerateBearCall(island::BearCallKind::Huff,1)});
+        clips.push_back({"fly buzz A", "fly-buzz-a.wav", false, 19845U,
+                         island::GenerateFlyBuzz(0U)});
+        clips.push_back({"fly buzz B", "fly-buzz-b.wav", false, 19845U,
+                         island::GenerateFlyBuzz(1U)});
         return clips;
     }
 }

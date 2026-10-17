@@ -226,6 +226,40 @@ void ExerciseCicadaVoice() {
     Check(sound.PlayedCicadaCallCount()==audible,
         "Out-of-range cicada created actual playback");
 }
+void ExerciseFlyVoice() {
+    using namespace island;
+    Soundscape sound;
+    std::array<FlyState,1> flies{};
+    flies[0].x=0.0f;flies[0].y=.75f;flies[0].z=0.0f;
+    flies[0].behavior=FlyBehavior::Orbit;
+    flies[0].simulationTier=WildlifeSimulationTier::Full;
+    SoundscapeListenerState listener;listener.x=1.5f;listener.y=1.72f;listener.z=0.0f;
+    Check(sound.Start(80,false,0,0,0,.5f,listener.x,listener.z),
+        "Fly dummy audio startup failed: "+sound.Error());
+    bool active=false;
+    for(int tick=0;tick<720;++tick) {
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,
+            {},{},{},{},{},nullptr,0.0f,{},{},flies);
+        active|=sound.IsWildlifeCallActive();
+        Check(sound.IsAvailable()&&sound.Error().empty(),"Fly buzz disabled the soundscape");
+        Check(sound.DebugState().playingSourceCount>=4&&sound.DebugState().playingSourceCount<=6,
+            "Fly buzz exceeded the shared six-source budget");
+    }
+    Check(active&&sound.PlayedFlyBuzzCount()>0,
+        "Nearby active fly never entered actual playback");
+    const int audible=sound.PlayedFlyBuzzCount();sound.SetMuted(true);
+    for(int tick=0;tick<180;++tick)
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,
+            {},{},{},{},{},nullptr,0.0f,{},{},flies);
+    Check(sound.PlayedFlyBuzzCount()==audible&&!sound.IsWildlifeCallActive(),
+        "Muted fly voice retained or created transient playback");
+    sound.SetMuted(false);listener.x=40.0f;
+    for(int tick=0;tick<720;++tick)
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,
+            {},{},{},{},{},nullptr,0.0f,{},{},flies);
+    Check(sound.PlayedFlyBuzzCount()==audible,
+        "Out-of-range fly created actual playback");
+}
 void ExerciseShipwreckCreak() {
     using namespace island;
     Soundscape sound;
@@ -278,6 +312,7 @@ int main(int argc, char** argv) {
         ExerciseGoatVoice();
         ExerciseFrogVoice();
         ExerciseCicadaVoice();
+        ExerciseFlyVoice();
         ExerciseShipwreckCreak();
         std::cout << "Soundscape stream startup/entry/swim/mute runtime regression passed\n";
         return 0;

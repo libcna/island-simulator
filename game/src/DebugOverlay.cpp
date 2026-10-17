@@ -429,6 +429,44 @@ namespace island
                << "  SHADOWS " << state.snakeShadows << "  DRAWS " << state.snakeDraws;
         lines.push_back(snakes.str());
 
+        auto otherLand = DiagnosticLine();
+        otherLand << "OTHER LAND  DEER " << state.visibleDeer << '/' << state.totalDeer
+                  << " RESIDENT " << state.visibleResident << '/' << state.totalResident
+                  << " BEAR " << state.visibleBear << '/' << state.totalBear
+                  << " CROCS " << state.visibleCrocodiles << '/' << state.totalCrocodiles;
+        lines.push_back(otherLand.str());
+
+        auto smallVertebrates = DiagnosticLine();
+        smallVertebrates << "SMALL VERTEBRATES  BATS " << state.visibleFruitBats << '/'
+                         << state.totalFruitBats << " GECKOS " << state.visibleGeckos << '/'
+                         << state.totalGeckos << " SKINKS " << state.visibleSkinks << '/'
+                         << state.totalSkinks << " FROGS " << state.visibleFrogs << '/'
+                         << state.totalFrogs;
+        lines.push_back(smallVertebrates.str());
+
+        auto smallInsects = DiagnosticLine();
+        smallInsects << "SMALL INSECTS  DRAGONFLIES " << state.visibleDragonflies << '/'
+                     << state.totalDragonflies << " FLIES " << state.visibleFlies << '/'
+                     << state.totalFlies << " ANTS " << state.visibleAnts << '/'
+                     << state.totalAnts << " CICADAS " << state.visibleCicadas << '/'
+                     << state.totalCicadas << " BEETLES " << state.visibleBeetles << '/'
+                     << state.totalBeetles;
+        lines.push_back(smallInsects.str());
+
+        auto rodentsAndCrabs = DiagnosticLine();
+        rodentsAndCrabs << "RODENTS/COAST  MICE " << state.visibleMice << '/' << state.totalMice
+                        << " RATS " << state.visibleRats << '/' << state.totalRats
+                        << " HERMIT " << state.visibleHermitCrabs << '/'
+                        << state.totalHermitCrabs << " COCONUT "
+                        << state.visibleCoconutCrabs << '/' << state.totalCoconutCrabs;
+        lines.push_back(rodentsAndCrabs.str());
+
+        auto reefWildlife = DiagnosticLine();
+        reefWildlife << "REEF WILDLIFE  STINGRAYS " << state.visibleStingrays << '/'
+                     << state.totalStingrays << " OCTOPUSES " << state.visibleOctopuses << '/'
+                     << state.totalOctopuses;
+        lines.push_back(reefWildlife.str());
+
         auto fish = DiagnosticLine();
         fish << "FISH " << state.visibleFish << '/' << state.totalFish
              << "  NEAR " << state.nearFish << " FAR " << state.farFish
@@ -502,6 +540,10 @@ namespace island
                       << " BOAR " << state.playedBoarCalls
                       << " GOAT " << state.playedGoatCalls
                       << " SNAKE " << state.playedSnakeHisses
+                      << " BEAR " << state.playedBearCalls
+                      << " FROG " << state.playedFrogCalls
+                      << " CICADA " << state.playedCicadaCalls
+                      << " FLY " << state.playedFlyBuzzes
                       << "  VOICE " << (state.wildlifeCallActive ? "ACTIVE" : "IDLE")
                       << "  SOURCES " << state.playingAudioSources << '/'
                       << state.audioSourceBudget;
