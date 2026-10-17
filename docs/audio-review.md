@@ -108,6 +108,34 @@ Listen first to each source alone:
    In game, verify direction and falloff while circling the wreck and ensure intervals remain
    unobtrusive beneath surf on both headphones and ordinary speakers.
 
+## Revised goat bleats — 2026-10-17
+
+The operator reported that the procedural bleat sounded like fly buzzing. The former 218--238 Hz
+carrier retained strong second, third and fifth harmonics under a nearly stationary contour. The
+two deterministic replacements start at 151/166 Hz, fall to 118/132 Hz and use restrained irregular
+laryngeal warble plus a broad low-harmonic vowel spectrum. The breath contribution is much quieter.
+Variant A remains one long call and B remains a two-phrase contact call; duration, 0.60 normalized
+peak, silent endpoints, scheduler, pitch randomization, attenuation, moving emitter and voice budget
+are unchanged.
+
+Exported report measurements change as follows:
+
+| Variant | Zero crossings/s before → after | Maximum sample step before → after | RMS after |
+| --- | ---: | ---: | ---: |
+| A | 331.67 → 246.67 | 0.11838 → 0.07077 | 0.26410 |
+| B | 336.67 → 273.33 | 0.12363 → 0.07755 | 0.23517 |
+
+Core synthesis/scheduler tests, the 41-clip audio report, independent WAV export validation and
+real-CNA soundscape runtime tests pass. Native SDL disk-device evidence
+`build-consumer/software-goat-audio/20261017T085924.928071Z` records three calls, stays within five
+of six sources, writes 1,007,616 exact-zero bytes while muted and 278,528 nonzero bytes after resume,
+and has an empty kernel delta. This proves the revised PCM reaches actual playback and obeys mute;
+it does not replace the outstanding subjective headphone/speaker check.
+WebGL2 also builds successfully. Android assemble/lint passes with two Gradle workers; the resulting
+24,771,379-byte debug APK has SHA-256
+`670fa62e8a9e07c70c8f0bc568dd6391ff18d590800ed56eb73ed48686c16f6e` and packages the
+19,728,808-byte ARM64 native library.
+
 ## Sparse shipwreck creaks (2026-10-12)
 
 Two original deterministic 1.8-second mono clips model low loaded-timber strain with swept

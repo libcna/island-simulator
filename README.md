@@ -374,7 +374,7 @@ before PCM quantization, avoiding long-lived DC bias without altering one-shot s
 Stream and player-water playback share one active voice, so no more than four ambient loops run
 concurrently.
 Behaviour-aware boar grunts/snuffles/breathing, close retreating-snake hisses, peaceful bear
-breathing/snuffling/huffs, and goat bleats/breathing/hoof detail reuse the same bounded positional
+breathing/snuffling/huffs, and low falling vowel-like goat bleats plus breathing/hoof detail reuse the same bounded positional
 wildlife voice. Calls follow the moving animal, attenuate by distance, vary deterministically and
 respect mute without expanding the six-source ceiling. These are original synthesized prototypes;
 the remaining headphone/speaker naturalness and portable lifecycle review is tracked separately.

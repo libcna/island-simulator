@@ -23,6 +23,26 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest goat-audio pass — falling vowel-like bleats instead of insect buzz
+
+The operator identified the existing goat bleats as fly-like buzzing. The old 218--238 Hz carrier
+held strong second, third and fifth harmonics under a nearly stationary envelope. Both deterministic
+variants now begin at 151/166 Hz, fall to 118/132 Hz, carry only restrained irregular laryngeal
+warble and use a broad low-harmonic vowel spectrum with a much quieter breath component. The
+single-phrase and two-phrase identities, 1.2-second duration, 0.60 peak, scheduler, attenuation,
+moving emitter, cooldowns and shared six-source ceiling remain unchanged.
+
+Bleat A falls from 331.67 to 246.67 zero crossings/second and its maximum sample step from 0.1184
+to 0.0708; variant B falls from 336.67 to 273.33 and 0.1236 to 0.0775. A new core guard rejects a
+return to the old narrow high-frequency range. Core, audio report, WAV export validation and real-CNA
+runtime tests pass. Native SDL disk-device evidence
+`20261017T085924.928071Z` records three goat calls, 1,007,616 exact-zero muted bytes and 278,528
+nonzero resumed bytes inside five of six sources, with kernel `[]`. This proves the revised PCM and
+playback/mute path, not subjective speaker/headphone naturalness; that listening check remains open.
+The WebGL2 build and Android assemble/lint also pass under the bounded worker policy. The debug APK
+is 24,771,379 bytes with SHA-256 `670fa62e8a9e07c70c8f0bc568dd6391ff18d590800ed56eb73ed48686c16f6e`
+and contains the 19,728,808-byte ARM64 `libmain.so`.
+
 ## Latest crocodile visual pass — low barrel, muscular tail root and substantial feet
 
 The requested crocodile audit retained all three peaceful estuary agents, habitat, AI, gait/swim
@@ -251,10 +271,12 @@ existing two-worker limit remains suitable.
   validators. Inventory and review an explicit deletion manifest before removal; record reclaimed
   space and do not use a broad recursive delete. The operator specifically called out stale copies
   such as an approximately nine-day-old `island-browser-beach.png`.
-- [ ] Correct the goat vocal synthesis: the current bleat is perceived as fly-like buzzing.
+- [~] Correct the goat vocal synthesis: the current bleat was perceived as fly-like buzzing.
   Rework its voiced pitch/formant/envelope structure, retain restrained positional attenuation and
   cooldowns, export measurable previews, and verify actual in-game scheduling/mute behavior. Do not
-  accept the change solely from compilation or numerical loudness.
+  accept the change solely from compilation or numerical loudness. The falling low-harmonic pass,
+  previews and native SDL disk playback/mute evidence are complete; subjective speaker/headphone
+  listening remains open.
 - [ ] Ensure flies are present as an integrated island species and emit localized, restrained buzzing.
   The existing 24-agent visual population may be reused if its habitat/motion remain valid; audit
   whether a distinct fly audio path exists before adding another simulation or sound source. Preserve

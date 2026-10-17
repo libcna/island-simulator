@@ -1192,18 +1192,28 @@ namespace island
             float sample = 0.0f;
             if (kind == GoatCallKind::Bleat) {
                 const float envelope = alternate
-                    ? pulse(t, .07f, .36f) + .88f * pulse(t, .52f, .48f)
-                    : pulse(t, .08f, .88f);
-                const float base = (alternate ? 238.0f : 218.0f)
-                    + 18.0f * std::sin(t * (alternate ? 34.0f : 29.0f))
-                    - 22.0f * t + 5.0f * slowNoise;
+                    ? pulse(t, .06f, .39f) + .82f * pulse(t, .50f, .50f)
+                    : pulse(t, .06f, .94f);
+                // A goat's call is a low, falling, vowel-like voiced sound. The
+                // former 218--238 Hz carrier with strong upper harmonics formed an
+                // almost stationary insect-like buzz. Start lower, fall through the
+                // phrase and retain only restrained irregular laryngeal warble.
+                const float phrase = std::clamp((t-.06f)/.94f,0.0f,1.0f);
+                const float base = std::lerp(alternate ? 166.0f : 151.0f,
+                                             alternate ? 132.0f : 118.0f,phrase)
+                    + 4.8f*std::sin(t*(alternate ? 31.0f : 27.0f)+.45f*slowNoise)
+                    + 2.2f*std::sin(t*11.0f+.8f)+2.5f*slowNoise;
                 phase += 2.0 * std::numbers::pi * static_cast<double>(base)
                     / static_cast<double>(AmbientSampleRate);
-                const float voice = static_cast<float>(std::sin(phase)
-                    + .64 * std::sin(2.0 * phase) + .31 * std::sin(3.0 * phase)
-                    + .17 * std::sin(5.0 * phase));
-                sample = envelope * (voice * (.72f + .12f * slowNoise)
-                    + (lowNoise - slowNoise) * .34f);
+                // Broad low harmonics suggest an open "maa" vocal tract without
+                // the narrow-band high partial that made the old clip resemble a fly.
+                const float voice = static_cast<float>(
+                    .88*std::sin(phase)+.30*std::sin(2.0*phase)
+                    +.15*std::sin(3.0*phase)+.075*std::sin(4.0*phase)
+                    +.045*std::sin(6.0*phase));
+                const float tremor=.91f+.09f*std::sin(t*29.0f+.35f*std::sin(t*7.0f));
+                sample=envelope*(voice*tremor*(.78f+.08f*slowNoise)
+                    +(lowNoise-slowNoise)*.11f);
             } else if (kind == GoatCallKind::Breath) {
                 const float envelope = pulse(t, alternate ? .15f : .09f,
                     alternate ? .70f : .84f);

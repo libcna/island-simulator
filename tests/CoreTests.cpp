@@ -2037,6 +2037,14 @@ int main()
                     ||(a.samples[sample-1]>0&&a.samples[sample]<=0);
             Check(zeroCrossings<4000,
                 "goat breath synthesis regressed into high-frequency hiss");
+        } else if(kind==island::GoatCallKind::Bleat) {
+            int zeroCrossings=0;
+            for(std::size_t sample=1;sample<a.samples.size();++sample)
+                zeroCrossings+=(a.samples[sample-1]<0&&a.samples[sample]>=0)
+                    ||(a.samples[sample-1]>0&&a.samples[sample]<=0);
+            const float crossingsPerSecond=static_cast<float>(zeroCrossings)/1.2f;
+            Check(crossingsPerSecond>150.0f&&crossingsPerSecond<290.0f,
+                "goat bleat regressed toward a high narrow-band insect buzz");
         }
         Check(island::GoatCallVolume(kind,0)>island::GoatCallVolume(kind,5)
             &&island::GoatCallVolume(kind,60)==0&&island::GoatCallVolume(kind,-1)==0
