@@ -47,6 +47,25 @@ readonly packaged_files=(
     share/island-simulator/ASSET_LICENSES.md
     share/island-simulator/dependencies.lock
     share/island-simulator/assets/presentation/island-overview.png
+    share/island-simulator/assets/presentation/gallery/overview.png
+    share/island-simulator/assets/presentation/gallery/hut.png
+    share/island-simulator/assets/presentation/gallery/stream.png
+    share/island-simulator/assets/presentation/gallery/helicopter.png
+    share/island-simulator/assets/presentation/gallery/campfire.png
+    share/island-simulator/assets/presentation/gallery/shipwreck.png
+    share/island-simulator/assets/presentation/gallery/ocean.png
+    share/island-simulator/assets/presentation/gallery/cave.png
+    share/island-simulator/assets/presentation/gallery/bunker-entrance.png
+    share/island-simulator/assets/presentation/gallery/bunker-reactor.png
+    share/island-simulator/assets/presentation/gallery/bear.png
+    share/island-simulator/assets/presentation/gallery/crocodiles.png
+    share/island-simulator/assets/presentation/gallery/monkeys.png
+    share/island-simulator/assets/presentation/gallery/dolphins.png
+    share/island-simulator/assets/presentation/gallery/turtle.png
+    share/island-simulator/assets/presentation/gallery/goats.png
+    share/island-simulator/assets/presentation/gallery/boars.png
+    share/island-simulator/assets/presentation/gallery/fish.png
+    share/island-simulator/assets/presentation/gallery/resident.png
     share/island-simulator/licenses/CNA/LICENSE
     share/island-simulator/licenses/CNA/NOTICE.md
     share/island-simulator/licenses/Sharp-Runtime/LICENSE

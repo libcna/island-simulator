@@ -910,6 +910,11 @@ if(ISLAND_BUILD_GAME)
             "${CMAKE_CURRENT_SOURCE_DIR}/assets/presentation/island-overview.png"
             DESTINATION share/island-simulator/assets/presentation
             COMPONENT Runtime)
+        install(DIRECTORY
+            "${CMAKE_CURRENT_SOURCE_DIR}/assets/presentation/gallery"
+            DESTINATION share/island-simulator/assets/presentation
+            COMPONENT Runtime
+            FILES_MATCHING PATTERN "*.png")
         install(FILES "${CNA_ROOT_DIR}/LICENSE"
             DESTINATION share/island-simulator/licenses/CNA
             COMPONENT Runtime)

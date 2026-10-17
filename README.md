@@ -21,7 +21,33 @@ The command preserves its image, logs and kernel delta under `build/software-cap
 at most eight llvmpipe workers, hides host GPU device nodes, and never clears the separate
 hardware qualification failure latch.
 
-![A sunny overview of the complete procedural tropical island](assets/presentation/island-overview.png)
+![A sunny overview of the complete procedural tropical island](assets/presentation/gallery/overview.png)
+
+## Island gallery
+
+These current native software-rendered captures show the playable world and its deliberately
+stylized low-poly detail. They document appearance and scene coverage, not hardware-GPU
+performance or resolution parity on every target.
+
+### Places and landmarks
+
+| Tropical hut | Fresh-water stream | Grounded utility helicopter |
+|---|---|---|
+| ![Hand-built tropical hut in its inland clearing](assets/presentation/gallery/hut.png) | ![Fresh-water stream crossing the wet interior habitat](assets/presentation/gallery/stream.png) | ![Grounded enterable utility helicopter](assets/presentation/gallery/helicopter.png) |
+| Inland campfire | Shallow-water shipwreck | Beach and ocean |
+| ![Stone-ringed campfire and gathered firewood in a clearing](assets/presentation/gallery/campfire.png) | ![Broken wooden sailing ship settled in tropical shallows](assets/presentation/gallery/shipwreck.png) | ![Clear shallow ocean looking toward a palm-lined beach](assets/presentation/gallery/ocean.png) |
+| Mountain cave | Secret bunker entrance | Reactor-generator room |
+| ![Natural cave entrance embedded in a forested mountain slope](assets/presentation/gallery/cave.png) | ![Rock-concealed entrance to the underground bunker](assets/presentation/gallery/bunker-entrance.png) | ![Lit fictional reactor-generator room inside the bunker](assets/presentation/gallery/bunker-reactor.png) |
+
+### Wildlife and island resident
+
+| Brown bear | Crocodile | Monkeys |
+|---|---|---|
+| ![Large stylized brown bear in the inland habitat](assets/presentation/gallery/bear.png) | ![Low armored crocodile beside shallow water](assets/presentation/gallery/crocodiles.png) | ![Animated monkeys moving through the jungle](assets/presentation/gallery/monkeys.png) |
+| Dolphins | Sea turtle | Reef fish |
+| ![Dolphins swimming below the tropical water surface](assets/presentation/gallery/dolphins.png) | ![Sea turtle cruising through shallow water](assets/presentation/gallery/turtle.png) | ![A shallow-water school of tropical fish](assets/presentation/gallery/fish.png) |
+| Goats | Wild boars | Island resident |
+| ![Goats on an open inland slope](assets/presentation/gallery/goats.png) | ![Wild boar moving through dense ground vegetation](assets/presentation/gallery/boars.png) | ![The peaceful island resident walking near the campfire](assets/presentation/gallery/resident.png) |
 
 The project remains under an active long-form development and polish campaign. The full
 rendering profile requests 4x geometric-edge antialiasing on Linux/Web and 2x on Android through

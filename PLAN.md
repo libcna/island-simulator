@@ -20,6 +20,22 @@ Status markers:
 - `[~]` in progress
 - `[!]` blocked or degraded, with the reason written next to the item
 
+## Latest README gallery pass — current world, landmarks and wildlife
+
+The release-facing README now uses a current 2026-10-17 overview and two compact galleries rather
+than relying on one old overview image. Nine place/landmark frames cover the hut, stream,
+helicopter, campfire, shipwreck, ocean/beach, mountain cave, concealed bunker entrance and lit
+reactor-generator room. Nine character/wildlife frames cover the bear, crocodile, monkeys,
+dolphins, turtle, fish, goats, boars and the peaceful resident. Every source was freshly captured
+from the same accepted native llvmpipe build through its deterministic QA viewpoint and passed the
+capture gate before visual curation.
+
+The committed derivatives are 960x540 metadata-free, palette-compressed PNGs totaling about
+3.2MiB. They are original project captures, individually hash-gated in `assets/manifest.json`,
+attributed in `ASSET_LICENSES.md`, and installed into the Linux release beside the README. The
+gallery explicitly describes software-rendered appearance evidence and does not imply hardware-GPU
+performance or platform-resolution parity.
+
 ## Latest cave termination repair — continuous narrowing instead of a stone plate
 
 The operator accepted the overhead soil repair, then correctly identified the remaining flat
@@ -11866,9 +11882,9 @@ after the same experience remains available.
 ## Documentation deliverables
 
 - [~] `README.md`: concept, controls, quick start, and honest status exist. A current hash-gated
-  native overview now provides the first actual release-facing screenshot and is packaged beside
-  the README; a restrained first-person gallery and final release copy-edit remain.
-  - [ ] Capture, curate, version and embed a broad current gallery covering representative animals,
+  native overview and two curated native galleries are packaged beside the README; final release
+  copy-edit remains.
+  - [x] Capture, curate, version and embed a broad current gallery covering representative animals,
     hut, stream, helicopter, campfire, beach, ocean, trees/jungle, cave and secret bunker. Generate
     these only from the accepted current build, keep captions honest about platform/viewpoint, and
     do not revive obsolete QA screenshots merely to increase image count.

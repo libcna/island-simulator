@@ -169,6 +169,120 @@
       "path": "assets/presentation/island-overview.png",
       "sha256": "3d96b5697d7d80b7b0c1fe65d2fcb1e7d668a5429286e46dfcaf0dd409851f05",
       "licenseRecord": "Native island overview screenshot"
+    },
+    {
+      "name": "readme-gallery-overview",
+      "path": "assets/presentation/gallery/overview.png",
+      "sha256": "58b37b3a6a26c2c6a3287110c88e9a4b77256d7146a5272f47c7a04f2c92e55d",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-hut",
+      "path": "assets/presentation/gallery/hut.png",
+      "sha256": "4746188660cafd27c9399680e889759b0964d3c2e75bd6f66695da502df481cf",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-stream",
+      "path": "assets/presentation/gallery/stream.png",
+      "sha256": "ad6e56492fe1b1c5b98e229664a1fd2b8a72c4fffd8e5ff6f489118ea2208708",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-helicopter",
+      "path": "assets/presentation/gallery/helicopter.png",
+      "sha256": "8c3dc05ba96b69a26aab80f0aaab5000c27d03c6cd1db0e132bcbdee9f96703a",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-campfire",
+      "path": "assets/presentation/gallery/campfire.png",
+      "sha256": "f4685361ce4d83b4ee31ff8e24acf43d9f1d5df3432ff5ec1285eb8ad35589d7",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-shipwreck",
+      "path": "assets/presentation/gallery/shipwreck.png",
+      "sha256": "8e41a9de71062163299f52a015daa0b540d2b031b763c20091eb39b5b3cd22b2",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-ocean",
+      "path": "assets/presentation/gallery/ocean.png",
+      "sha256": "ff6ca18a7304264212c848902edfe55591e0521bb7813a7952f15b503ca71428",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-cave",
+      "path": "assets/presentation/gallery/cave.png",
+      "sha256": "0dc063c9f256f2942a5375702f1af8e373d8c07f265282b8cfa42d9675098a56",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-bunker-entrance",
+      "path": "assets/presentation/gallery/bunker-entrance.png",
+      "sha256": "aa720770a130a654a9ebb850f53b73cff075babd840fd648f95b71c168723a9d",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-bunker-reactor",
+      "path": "assets/presentation/gallery/bunker-reactor.png",
+      "sha256": "bfda518b1cda3c89012a082921a07266f66730396e0fe3f81d40faa653d90cd0",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-bear",
+      "path": "assets/presentation/gallery/bear.png",
+      "sha256": "938d8569c29fe873644c06f17dd4daea1d3be27dbcff40d776d71ce16ab03a46",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-crocodiles",
+      "path": "assets/presentation/gallery/crocodiles.png",
+      "sha256": "78457e8b90057e1a966373e4b9a97b15d1b6d7895c7b5b19df894458735b1053",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-monkeys",
+      "path": "assets/presentation/gallery/monkeys.png",
+      "sha256": "c3fd3d838aff5935fc5876e7cdb9469f7640de3bc29135a6c31395d74a7ba2d5",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-dolphins",
+      "path": "assets/presentation/gallery/dolphins.png",
+      "sha256": "9540731de17a0451e23767c84378d7bcc1fb57d4db3bb0a9145bbe160fc0cc08",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-turtle",
+      "path": "assets/presentation/gallery/turtle.png",
+      "sha256": "198fdbfac43a07b49fd0f28d7fd6887659118d37d981591c78f182e5e16a2dc9",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-goats",
+      "path": "assets/presentation/gallery/goats.png",
+      "sha256": "28360a04eb2ad6e7b339bf746e62bf2596359c113016643851fcc159b17ed305",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-boars",
+      "path": "assets/presentation/gallery/boars.png",
+      "sha256": "8cfdb6e681d7871bec7ef9b42a0bf8f2a032e09dcf36218b2b2b590cfcd908d8",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-fish",
+      "path": "assets/presentation/gallery/fish.png",
+      "sha256": "80cc45a3d50b8b63f6c857032a8cf5de8adab6d0ed10115ccb107f2c0bd1344f",
+      "licenseRecord": "Native README gallery screenshots"
+    },
+    {
+      "name": "readme-gallery-resident",
+      "path": "assets/presentation/gallery/resident.png",
+      "sha256": "cf913b3260852d6d88ef2ecf2ad0600b518e8755861b6dc8de1d4cf42567e88b",
+      "licenseRecord": "Native README gallery screenshots"
     }
   ],
   "proceduralGenerators": [
