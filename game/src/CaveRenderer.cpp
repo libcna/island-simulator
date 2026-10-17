@@ -101,13 +101,21 @@ void main(){
     float mossMask=smoothstep(.56,.78,noise(local*.29+vec3(11.2,4.0,1.8)))
         *upward*exterior;
     stone=mix(stone,vec3(.245,.31,.19),mossMask*.42);
-    // The cave is inside the hill: upward outer mantle becomes an earth/grass cap,
-    // while the portal lip and steep side rock remain exposed and readable.
-    float cap=exterior*smoothstep(-.05,.38,normal.y)*smoothstep(-.35,1.35,local.z);
+    // The cave is inside the hill: the portal stays exposed rock, then the complete
+    // outer mantle transitions into earth rather than retaining a green stone tube.
+    // Past the portal lip the shell is buried on every outward face; otherwise its
+    // curved flanks remain visible from a steep flight camera as two green rails.
+    // The normal only modulates a little exposed mineral, not whether soil exists.
+    float cap=exterior*smoothstep(.20,1.85,local.z)
+        *mix(.92,1.0,smoothstep(-.25,.20,normal.y));
     float earthNoise=noise(local*vec3(.38,.24,.41)+vec3(4.2,1.7,8.3));
-    vec3 earth=mix(vec3(.265,.235,.125),vec3(.335,.295,.160),earthNoise);
-    float turf=smoothstep(.47,.69,noise(local*.52+vec3(9.1,3.0,2.4)));
-    vec3 covered=mix(earth,vec3(.215,.295,.085),.22+turf*.43);
+    vec3 earth=mix(vec3(.225,.188,.090),vec3(.385,.325,.175),earthNoise);
+    // Soil dominates the overhead read. Sparse broad turf stains break it up without
+    // turning the entire roof into the long uniform green strip of the old shell cap.
+    float turf=smoothstep(.59,.76,noise(local*.36+vec3(9.1,3.0,2.4)));
+    float soilMottle=noise(local*vec3(.21,.17,.24)+vec3(14.0,5.0,7.0));
+    earth*=.91+.15*soilMottle;
+    vec3 covered=mix(earth,vec3(.205,.285,.080),turf*.36);
     stone=mix(stone,covered,cap*.985);
     if(grassBlade>0.5)
         stone=mix(vec3(.13,.225,.055),vec3(.225,.345,.085),
@@ -172,7 +180,7 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
     }
     // Dense, irregular three-way tufts conceal the mathematical arch silhouette from
     // above. They reuse this draw/shader and sit only on upward outer-shell triangles.
-    int capCandidate=0,grassTuftCount=0;
+    int capCandidate=0,grassTuftCount=0,fernClusterCount=0;
     for(const auto& triangle:cave.Triangles()) {
         if(triangle.surface!=CaveSurface::Exterior||triangle.normal.y<.46f)continue;
         CavePoint centre{};
@@ -200,6 +208,32 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
         };
         blade(first,.35f);blade(second,-.25f);
         blade(Vector3::Normalize(first+second)*halfWidth,.18f);
+        if(capCandidate%8==3&&local.z>2.0f) {
+            const Vector3 root=c+Vector3::Up*.025f;
+            const auto leafTriangle=[&](Vector3 a,Vector3 b,Vector3 d) {
+                Vector3 normal=Vector3::Cross(b-a,d-a);
+                if(normal.Y<0.0f) {std::swap(b,d);normal*=-1.0f;}
+                normal.Normalize();
+                for(const auto& p:{a,b,d}) {
+                    const auto l=cave.Local({p.X,p.Y,p.Z});
+                    vertices.push_back({{p.X,p.Y,p.Z},{normal.X,normal.Y,normal.Z},
+                        {l.x,l.y,l.z,2.0f}});
+                }
+            };
+            for(int leaf=0;leaf<7;++leaf) {
+                const float leafAngle=angle+static_cast<float>(leaf)*
+                    (2.0f*std::numbers::pi_v<float>/7.0f);
+                const Vector3 direction(std::cos(leafAngle),0,std::sin(leafAngle));
+                const Vector3 side(-direction.Z,0,direction.X);
+                const float length=.26f+.08f*(.5f+.5f*std::sin(phase*.63f+leaf*1.7f));
+                const float width=.045f+.012f*static_cast<float>((leaf+capCandidate)%3);
+                const Vector3 middle=root+direction*(length*.58f)+Vector3::Up*(.10f+.018f*(leaf%2));
+                const Vector3 tip=root+direction*length+Vector3::Up*.035f;
+                leafTriangle(root,middle-side*width,tip);
+                leafTriangle(root,tip,middle+side*width);
+            }
+            ++fernClusterCount;
+        }
         ++grassTuftCount;
     }
     // Shallow eroded ceiling pendants break the otherwise continuous tunnel arch.
@@ -329,7 +363,8 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
         }
     }
     const auto bounds=cave.Bounds();
-    bounds_=BoundingBox(Vector3(bounds[0].x,bounds[0].y,bounds[0].z),Vector3(bounds[1].x,bounds[1].y,bounds[1].z));
+    bounds_=BoundingBox(Vector3(bounds[0].x-1.0f,bounds[0].y-.1f,bounds[0].z-1.0f),
+        Vector3(bounds[1].x+1.0f,bounds[1].y+.2f,bounds[1].z+1.0f));
     count_=static_cast<int>(vertices.size());
     vertices_=std::make_unique<VertexBuffer>(device,CaveDeclaration(),count_,BufferUsage::WriteOnly);
     vertices_->SetData(vertices.data(),count_);
@@ -341,6 +376,8 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
     std::cout<<"island-simulator: cave mouth is embedded in a rising inland mountain slope\n";
     std::cout<<"island-simulator: cave crown is concealed from above by blended earth and "
              <<grassTuftCount<<" irregular three-blade tufts in the existing draw\n";
+    std::cout<<"island-simulator: cave crown adds "<<fernClusterCount
+             <<" low fern fans to break its overhead outline in the existing draw\n";
     std::cout<<"island-simulator: cave portal uses five offset partly buried rock outcrops outside the walkable opening\n";
     const char* material="island-simulator: cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling";
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);

@@ -25,6 +25,7 @@ class CaptureValidatorTests(unittest.TestCase):
                 (["--viewpoint", "snake-head"], "close-natural-detail"),
                 (["--viewpoint", "snakes"], "close-natural-detail"),
                 (["--viewpoint", "tree-snakes"], "close-natural-detail"),
+                (["--viewpoint", "cave-top"], "close-natural-detail"),
                 (["--viewpoint", "litter", "--overview"], "scene"),
                 (["--overview", "--viewpoint", "litter"], "shaded-detail"),
                 (["--viewpoint", "litter", "--viewpoint", "grass"], "scene")):

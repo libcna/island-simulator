@@ -916,16 +916,27 @@ void main()
     float caveGrain=valueNoise(vWorld.xz*4.0)*.65+valueNoise(vWorld.xz*17.0)*.35;
     vec3 caveStone=mix(vec3(.24,.25,.24),vec3(.34,.32,.28),caveGrain);
     caveStone*=mix(.85,.24,smoothstep(0.0,14.0,caveDepth));
-    // Weathered stone continues onto the real replacement terrain around the portal,
-    // avoiding a hard grey-shell/green-soil seam without adding a decal or draw.
+    // Weathered stone is confined to the eroded portal shoulders. Extending this apron
+    // through the full tunnel length made the buried cave read as a grey excavated
+    // trench from above instead of ordinary soil continuing over a hillside opening.
     float caveAxis=abs(caveAcross-.22*sin(caveDepth*.31));
     float apronNoise=broad*.72+medium*.35;
     float caveApron=smoothstep(-5.5,-2.0,caveDepth)
-        *(1.0-smoothstep(8.0,15.0,caveDepth))
+        *(1.0-smoothstep(1.8,5.2,caveDepth))
         *smoothstep(caveWidth-.30+apronNoise*.22,caveWidth+.72+apronNoise*.22,caveAxis)
         *(1.0-smoothstep(6.1+apronNoise*.55,7.45+apronNoise*.55,caveAxis));
     vec3 apronStone=mix(vec3(.265,.27,.245),vec3(.405,.37,.30),
         clamp(caveGrain*.72+.18+medium*.18,0.0,1.0))*vGroundLight;
+    // Soil excavated from the cavity covers the steep replacement-mesh shoulders.
+    // Keeping the normal biome tint here produced two saturated green rails that
+    // outlined the buried shell from the air even though its crown was earthy.
+    float caveBuriedShoulder=smoothstep(-.5,2.0,caveDepth)
+        *(1.0-smoothstep(18.0,22.0,caveDepth))
+        *smoothstep(caveWidth-.18,caveWidth+.42,caveAxis)
+        *(1.0-smoothstep(7.15,8.55,caveAxis));
+    vec3 shoulderEarth=mix(vec3(.225,.19,.095),vec3(.37,.305,.16),
+        clamp(caveGrain*.74+medium*.26,0.0,1.0))*vGroundLight;
+    color=mix(color,shoulderEarth,caveBuriedShoulder*.84);
     color=mix(color,apronStone,caveApron*.86);
     color=mix(color,caveStone,caveFloor);
     color=applyCampfireLight(color,vWorld);
@@ -1257,8 +1268,10 @@ void main()
         caveIndices_->SetData(caveIndices.data(),static_cast<int>(caveIndices.size()));
         std::cout<<"island-simulator: cave ground replacement "<<caveVertexCount_<<" vertices, "
             <<cavePrimitiveCount_<<" triangles; original covered terrain removed\n";
-        const char* caveApron="island-simulator: cave terrain shoulders use an irregular rock apron around the open corridor";
+        const char* caveApron="island-simulator: cave terrain shoulders confine the irregular rock apron to the eroded portal";
         std::cout<<caveApron<<'\n';MirrorRuntimeDiagnosticToPlatformLog(caveApron);
+        const char* caveSoil="island-simulator: cave replacement shoulders use excavated earth instead of bright biome rails";
+        std::cout<<caveSoil<<'\n';MirrorRuntimeDiagnosticToPlatformLog(caveSoil);
     }
 
     void TerrainRenderer::DrawGeometry(const int firstIndex, const int primitiveCount)

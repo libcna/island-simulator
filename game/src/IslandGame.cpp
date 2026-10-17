@@ -114,6 +114,7 @@ namespace island
             case FixedViewpoint::TidePoolDetail: return "tide-pools";
             case FixedViewpoint::TurtleNestDetail: return "turtle-nest";
             case FixedViewpoint::CaveExterior: return "cave";
+            case FixedViewpoint::CaveOverhead: return "cave-top";
             case FixedViewpoint::CaveInterior: return "cave-inside";
             case FixedViewpoint::BunkerExterior: return "bunker";
             case FixedViewpoint::BunkerCorridor: return "bunker-corridor";
@@ -400,16 +401,21 @@ namespace island
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
             std::cout<<"island-simulator: helicopter QA camera frames "
                 <<(inside?"centre aisle across cockpit controls and accessible footwell":"grounded exterior and open doors")<<'\n';
-        } else if (viewpoint_ == FixedViewpoint::CaveExterior || viewpoint_ == FixedViewpoint::CaveInterior) {
+        } else if (viewpoint_ == FixedViewpoint::CaveExterior
+                   || viewpoint_ == FixedViewpoint::CaveOverhead
+                   || viewpoint_ == FixedViewpoint::CaveInterior) {
             const CaveLayout cave(terrain_);
             const bool inside=viewpoint_==FixedViewpoint::CaveInterior;
+            const bool overhead=viewpoint_==FixedViewpoint::CaveOverhead;
             const auto p=inside?cave.World(.6f,CaveLayout::Floor(12)+PlayerMotion::EyeHeight,12)
-                :cave.World(12,8,-24);
-            const auto target=inside?cave.World(0,1.6f,-3):cave.World(0,2.1f,7);
+                :overhead?cave.World(7.0f,18.0f,-6.0f):cave.World(12,8,-24);
+            const auto target=inside?cave.World(0,1.6f,-3)
+                :overhead?cave.World(0,2.0f,8.0f):cave.World(0,2.1f,7);
             cameraPosition_=Vector3(p.x,p.y,p.z);
             yaw_=std::atan2(target.x-p.x,target.z-p.z);
             pitch_=std::atan2(target.y-p.y,std::hypot(target.x-p.x,target.z-p.z));
-            std::cout<<"island-simulator: cave QA camera "<<(inside?"inside":"outside")<<'\n';
+            std::cout<<"island-simulator: cave QA camera "
+                <<(inside?"inside":overhead?"overhead":"outside")<<'\n';
         } else if(viewpoint_==FixedViewpoint::BunkerExterior
                   ||viewpoint_==FixedViewpoint::BunkerCorridor
                   ||viewpoint_==FixedViewpoint::BunkerComputerRoom

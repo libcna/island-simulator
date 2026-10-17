@@ -127,6 +127,7 @@ namespace island
         TidePoolDetail,
         TurtleNestDetail,
         CaveExterior,
+        CaveOverhead,
         CaveInterior,
         BunkerExterior,
         BunkerCorridor,

@@ -593,7 +593,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "deer", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "tree-snakes", "geckos", "skinks", "dragonflies", "frogs", "mice", "rats", "flies", "ants", "cicadas", "beetles", "hermit-crabs", "coconut-crabs", "canopy", "monkey-tree", "monkey-climb", "ground-doves"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-top", "cave-inside", "bunker", "bunker-corridor", "bunker-computers", "bunker-reactor", "bunker-service", "bunker-end", "stream", "wetland", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "deer", "spiders", "spiders-bright", "spider-web", "snakes", "snake-head", "tree-snakes", "geckos", "skinks", "dragonflies", "frogs", "mice", "rats", "flies", "ants", "cicadas", "beetles", "hermit-crabs", "coconut-crabs", "canopy", "monkey-tree", "monkey-climb", "ground-doves"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -860,19 +860,21 @@ def main():
                     raise RuntimeError("turtle nesting trace geometry is missing")
                 if "turtle-nest QA camera follows paired tracks from disturbed dry sand toward the sea" not in diagnostics:
                     raise RuntimeError("turtle nesting trace camera did not select its target")
-            if args.viewpoint in {"cave", "cave-inside"}:
-                side = "inside" if args.viewpoint == "cave-inside" else "outside"
+            if args.viewpoint in {"cave", "cave-top", "cave-inside"}:
+                side = "inside" if args.viewpoint == "cave-inside" else ("overhead" if args.viewpoint == "cave-top" else "outside")
                 for marker in (f"cave QA camera {side}", "cave ground replacement",
                                "cave rock first visible draw",
-                               "cave rock 2875 triangles in one culled draw; 20m walkable interior",
+                               "cave rock 3491 triangles in one culled draw; 20m walkable interior",
                                "cave compact asymmetric mouth uses normal-lit fractured stone and restrained moss",
                                "cave narrow eroded lip grows into an irregular closed rock mantle",
                                "cave connected shell strips share smooth lighting normals while portal breaks stay sharp",
                                "cave adds six high-clearance eroded ceiling pendants in the existing draw",
                                "cave mouth is embedded in a rising inland mountain slope",
                                "cave crown is concealed from above by blended earth and 375 irregular three-blade tufts in the existing draw",
+                               "cave crown adds 44 low fern fans to break its overhead outline in the existing draw",
                                "cave portal uses five offset partly buried rock outcrops outside the walkable opening",
-                               "cave terrain shoulders use an irregular rock apron around the open corridor",
+                               "cave terrain shoulders confine the irregular rock apron to the eroded portal",
+                               "cave replacement shoulders use excavated earth instead of bright biome rails",
                                "cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"cave integration diagnostic missing: {marker}")

@@ -592,7 +592,16 @@ existing two-worker limit remains suitable.
   then validate broad overhead and oblique approach views, not only the framed entrance camera.
   The widened terrain-replacement mantle, row-coherent crown fit, collision test and native
   exterior/interior captures `20261017T122310.969540Z-cave` and
-  `20261017T122327.778450Z-cave-inside` pass; ordinary free-flight, Web and Android views remain.
+  `20261017T122327.778450Z-cave-inside` pass. A new permanent `cave-top` QA camera then reproduced
+  the operator's complaint: the old 2.5 m excavation fade exposed two bright biome-coloured rails
+  beside an otherwise earthy roof. The fade now ends at 2.15 m inside the outer flank, the
+  replacement shoulders receive excavated-earth colour instead of saturated slope green, the
+  rocky apron is confined to the portal, and 44 low fern fans join the 375 grass tufts in the same
+  draw. The renderer remains one draw at 3,491 triangles. Inspected native elevated-overhead,
+  approach and interior evidence `20261017T132159.924008Z-cave-top`,
+  `20261017T132240.416913Z-cave` and `20261017T132322.976770Z-cave-inside` passes; the top is now
+  visibly soil/vegetation-covered while the rock portal and 20 m passage remain readable. Ordinary
+  free-flight plus Web and Android views remain before closure.
 - [~] Reopen the helicopter exterior finish after operator review. Its construction is recognisable
   and enterable, but broad surfaces still read as flat prototype geometry. Improve fuselage surface
   shaping, normals and restrained painted-metal/glass/panel value variation within the current

@@ -211,7 +211,10 @@ float CaveLayout::GroundTarget(float x,float z,float original) const noexcept {
     // replacement-grid vertices.  On a real mountain slope, beginning the fade at
     // the exact portal/back planes lets steep original ground bleed through the
     // interpolated floor and can seal the otherwise valid walkable centreline.
-    const float influence=(1-Smooth((across-Width(p.z))/2.5f))*Smooth((p.z+6)/4.5f)
+    // End the excavation inside the rock mantle. The former 2.5 m lateral fade
+    // reached its outer flank and exposed two long rails from above; a moderated
+    // 2.15 m transition preserves collision clearance without reaching the outer flank.
+    const float influence=(1-Smooth((across-Width(p.z))/2.15f))*Smooth((p.z+6)/4.5f)
         *(1-Smooth((p.z-(Length+1.5f))/3));
     // A modest buried shoulder ties the broad outcrop into the hill. The cavity stays
     // excavated, while all patch-border samples remain exactly the original terrain.
