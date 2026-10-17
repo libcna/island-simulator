@@ -72,6 +72,8 @@ namespace island
             "island-simulator: wet sand uses a broader tide-darkened band with cool grazing sky sheen";
         constexpr std::string_view WetSandDrainageDiagnostic =
             "island-simulator: wet sand adds filtered shore-normal drainage threads and a warm shallow-film response";
+        constexpr std::string_view WetSandMineralDiagnostic =
+            "island-simulator: close wet sand retains filtered wash bands and two-scale mineral grain";
         constexpr std::string_view ReefMacroDiagnostic =
             "island-simulator: reef substrate separates pale lagoon, shared habitat patches, crest, sand channels, and deep drop-off";
         constexpr std::string_view SubstrateDistanceDiagnostic =
@@ -858,6 +860,20 @@ void main()
     vec3 wetMineral = vec3(0.355, 0.300, 0.190) * vGroundLight;
     wetSand = mix(wetSand, wetMineral,
         0.12 + clamp(-medium * 0.13 + broad * 0.045, 0.0, 0.12));
+    // The water film compresses contrast, but close wet sand must not become one olive slab.
+    // Two footprint-filtered mineral scales retain broad wash variation and decimetre grains;
+    // both disappear before they can shimmer in distant shoreline views.
+    float wetMottleVisibility = 1.0 - smoothstep(0.18, 0.50,
+        groundPixelWidth * 0.72);
+    float wetGrainVisibility = 1.0 - smoothstep(0.18, 0.50,
+        groundPixelWidth * 9.5);
+    float wetMottle = valueNoise(p * 0.72 + vec2(-24.3, 8.7)) * wetMottleVisibility;
+    float wetGrain = valueNoise(p * 9.5 + vec2(17.8, -31.2)) * wetGrainVisibility;
+    float wetWash = sin(signedShoreDistance * 1.85 + broad * 1.4
+        + wetMottle * 0.72) * wetMottleVisibility;
+    wetSand *= vec3(1.0 + wetMottle * 0.145 + wetGrain * 0.064 + wetWash * 0.036,
+                    1.0 + wetMottle * 0.108 + wetGrain * 0.050 + wetWash * 0.027,
+                    1.0 + wetMottle * 0.068 + wetGrain * 0.031 + wetWash * 0.016);
     color = mix(color, wetSand, wetEdge * 0.80);
     if (wetEdge > 0.001) {
         vec3 wetNormal = terrainSurfaceNormal(cross(worldDx, worldDy));
@@ -873,12 +889,14 @@ void main()
         // than another isotropic mottled texture. Footprint fading prevents distant shimmer.
         vec2 coastArc = p / max(length(p), 1.0) * 250.0;
         float drainageNoise = valueNoise(coastArc * 0.16 + vec2(12.7, -8.1));
+        float drainageFork = valueNoise(coastArc * 0.37 + vec2(-19.4, 27.2));
         float drainageVisibility = 1.0 - smoothstep(0.12, 0.42, groundPixelWidth);
-        float drainageThread = (1.0 - smoothstep(0.045, 0.135, abs(drainageNoise)))
+        float drainageThread = (1.0 - smoothstep(0.055, 0.205,
+            abs(drainageNoise + drainageFork * 0.16)))
             * drainageVisibility * (0.72 + 0.28 * sin(signedShoreDistance * 0.83
                 + broad * 2.1));
         color = mix(color, color * vec3(0.72, 0.77, 0.73),
-                    wetEdge * drainageThread * 0.34);
+                    wetEdge * drainageThread * 0.42);
         float wetSheen = wetEdge * (sunSheen * 0.48 + grazingSheen * 0.135)
             * (1.0 + drainageThread * 0.22);
         color += vec3(0.14, 0.20, 0.21) * wetSheen;
@@ -1055,6 +1073,8 @@ void main()
                     MirrorRuntimeDiagnosticToPlatformLog(WetSandBandDiagnostic);
                     std::cout << WetSandDrainageDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(WetSandDrainageDiagnostic);
+                    std::cout << WetSandMineralDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(WetSandMineralDiagnostic);
                     std::cout << ReefMacroDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(ReefMacroDiagnostic);
                     std::cout << SubstrateDistanceDiagnostic << '\n';

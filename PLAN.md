@@ -23,6 +23,25 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest shore-material audit — close wet-sand wash and mineral grain
+
+The grass/wet-sand/current comparison selected the broad tide-darkened foreground: forest soil and
+water motion were already layered, while the shallow film compressed the beach into a nearly
+uniform olive plane. The existing wet branch now adds footprint-filtered metre-scale mineral
+mottle, decimetre grain and gently warped shore-distance wash bands. A second along-coast field
+forks and widens the restrained drainage threads. All added detail fades before its screen
+frequency can shimmer; no texture, varying, mesh, water simulation or draw is added.
+
+Inspected native baseline `20261017T095252.697734Z-wet-sand` and accepted
+`20261017T095703.193534Z-wet-sand` retain a smooth water film while adding visible low-contrast
+surface breakup; the accepted frame passes at 340 colour bins, 28.82 luminance deviation and
+121.45 spatial contrast. Core, terrain-material, rendered-terrain and capture-validator tests pass
+with three workers, and the WebGL2 package builds. Android ARM64 assemble/lint pass through the
+two-worker wrapper without emulator/KVM. The 24,789,139-byte APK has SHA-256
+`658e26a3319ec2434632c43f41f209a03208fef0aa6272d74448da53263870e4` and contains the
+19,746,568-byte stripped `libmain.so`. Browser runtime and physical-device appearance remain
+unqualified for this incremental pass.
+
 ## Latest natural-prop audit — fallen-log silhouette and surface breakup
 
 The water/palms/props comparison selected the close clearing log: despite its existing bark shader
