@@ -23,6 +23,27 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest crocodile visual pass — low barrel, muscular tail root and substantial feet
+
+The requested crocodile audit retained all three peaceful estuary agents, habitat, AI, gait/swim
+state, palettes, LOD and single dynamic draw. The near model now has a wider, flatter barrel and
+shoulder mass, broader lower skull and independently tapered jaws, and a significantly thicker tail
+root whose nonlinear width taper remains muscular through the first half. Lower limbs return inward
+from the splayed elbow instead of continuing outward like lizard stilts. Each wrist now supports a
+flat two-ring foot volume and three wider-fanned toes. Trunk and tail osteoderm peaks are lower so
+they read as armor plates rather than a dinosaur saw edge.
+
+Only the four near foot volumes add geometry: 384 vertices / 128 triangles per visible near animal.
+The optional mouth state remains 6,732--6,738 vertices below a corrected per-animal 7,000-vertex
+guard; the three-agent dynamic buffer grows by only 24,000 bytes. Core and all 103 browser/capture
+harness tests pass. Inspected native evidence `20261017T084322.862001Z-crocodiles` passes at 320
+colour bins, 39.41 luminance deviation and 154.04 spatial contrast with kernel `[]`. Inspected
+Chrome/SwiftShader `20261017T084630.921996Z-chrome-crocodiles` passes two distinct motion frames,
+60 finite intervals, GL0, a live context and kernel `[]`. Android ARM64 assemble/lint pass without
+an emulator; the final 24,771,027-byte APK has SHA-256
+`2c229612e227fbaad85d7a74ff7b1d73899cd2a3b1ee25507831154b90e7025e` and contains a
+19,728,456-byte `libmain.so`. Physical Android and hardware-GPU appearance remain unqualified.
+
 ## Latest hut visual pass — handcrafted walls, ridge and shutters
 
 The requested hut audit retained its inland placement, dimensions, collision and one-batch renderer.

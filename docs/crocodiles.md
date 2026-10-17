@@ -14,6 +14,28 @@ lower jaw, mouth, teeth, embedded lateral eyes, pupils and nostrils, paired dors
 splayed articulated legs with toes. Land gait alternates the feet; swimming increases the tail
 wave and lowers the body toward the water. Beyond 86 m a reduced long-body silhouette is used.
 
+### Low barrel, muscular tail root and substantial feet — 2026-10-17
+
+The fresh close audit retained the recognizable head and restrained reticulated pigment but found
+the torso too rounded, the tail root too narrow and the feet reduced to dark tapered sticks. The
+near barrel and shoulder masses are now wider and vertically flatter. Skull and both jaw lofts are
+broader without changing their four-station construction. The twelve-section tail begins at a
+substantially wider root and uses a nonlinear width taper, while its armor follows the revised
+centreline. Limb geometry now splays to the elbow and returns inward to the wrist; every wrist
+supports a flat two-ring foot volume and three wider-fanned toes. Lower trunk and tail plate peaks
+remove the remaining saw-toothed silhouette.
+
+Only four near foot volumes add geometry: 384 vertices / 128 triangles per visible near animal.
+The optional mouth state uses 6,732--6,738 vertices under a corrected per-animal 7,000-vertex guard;
+the three-agent buffer grows by 24,000 bytes. AI, placement, population, LOD, draw count and far mesh
+are unchanged. Native `20261017T084322.862001Z-crocodiles` passes at 320 colour bins, 39.41
+luminance deviation and 154.04 spatial contrast with kernel `[]`. Inspected Chrome/SwiftShader
+`20261017T084630.921996Z-chrome-crocodiles` passes two distinct frames, 60 finite intervals, GL0,
+a live context and kernel `[]`. Android ARM64 assemble/lint pass without an emulator; the
+final 24,771,027-byte APK has SHA-256
+`2c229612e227fbaad85d7a74ff7b1d73899cd2a3b1ee25507831154b90e7025e` and packages a
+19,728,456-byte `libmain.so`.
+
 ### Finer primary body surfaces — 2026-10-16
 
 The next ground-animal comparison retained the crocodile's silhouette, armor, pigment and motion,

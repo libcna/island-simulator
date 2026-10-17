@@ -36,7 +36,7 @@ namespace island
         constexpr float NearLodDistance = 86.0f;
         // Rounded multi-station jaws and the low articulated armor stay bounded but
         // need deterministic headroom beyond the former wedge-based 5,200 budget.
-        constexpr int MaximumVerticesPerCrocodile = 6500;
+        constexpr int MaximumVerticesPerCrocodile = 7000;
         constexpr int MaximumVertexCount = static_cast<int>(CrocodileGroup::CrocodileCount)
             * MaximumVerticesPerCrocodile;
         constexpr std::string_view FormDiagnostic =
@@ -49,6 +49,8 @@ namespace island
             "island-simulator: near crocodile torso, tail, skull, jaw, and limb roots use bounded reticulated facet pigment";
         constexpr std::string_view SurfaceDiagnostic =
             "island-simulator: near crocodiles use finer rounded torso, shoulder, skull, and nasal surfaces within the same draw";
+        constexpr std::string_view AnatomyDiagnostic =
+            "island-simulator: crocodiles use broad low barrels, continuous heavy tail roots, returning splayed forearms, and flat substantial feet";
 
         struct Palette
         {
@@ -207,27 +209,28 @@ namespace island
         void AppendNearCrocodile(std::vector<VertexPositionColor>& vertices,
                                  const CrocodileState& crocodile)
         {
+            const std::size_t firstVertex=vertices.size();
             const Palette& palette=Palettes[crocodile.colorVariant%Palettes.size()];
             const Axes axes=MakeAxes(crocodile);
             const Vector3 centre(crocodile.x,crocodile.y-.04f*crocodile.submerged,crocodile.z);
             const float scale=crocodile.scale;
             // Low barrel torso and heavy shoulder mass.
             AppendEllipsoid(vertices,Local(centre,axes,0,.34f,-.18f,scale),axes,scale,
-                            .68f,.37f,1.28f,palette.back,palette.belly,8,18,.12f,3);
+                            .74f,.32f,1.34f,palette.back,palette.belly,8,18,.12f,3);
             AppendEllipsoid(vertices,Local(centre,axes,0,.35f,.72f,scale),axes,scale,
-                            .63f,.32f,.72f,palette.back,palette.side,5,16,.10f,11);
+                            .68f,.29f,.74f,palette.back,palette.side,5,16,.10f,11);
 
             // The tapering tail bends visibly during swimming instead of reading as a rigid cone.
-            Vector3 previous=Local(centre,axes,0,.27f,-1.18f,scale);
-            float previousWidth=.48f*scale,previousHeight=.29f*scale;
+            Vector3 previous=Local(centre,axes,0,.27f,-1.12f,scale);
+            float previousWidth=.57f*scale,previousHeight=.30f*scale;
             for(int section=1;section<=12;++section) {
                 const float t=static_cast<float>(section)/12.0f;
                 const float wave=std::sin(t*4.2f+crocodile.gaitPhase)*crocodile.bodyWave
                     *t*t*.55f;
                 const Vector3 next=Local(centre,axes,wave,.22f-.17f*t,
-                                         -1.10f-2.55f*t,scale);
-                const float width=(.47f*(1.0f-t)+.025f)*scale;
-                const float height=(.28f*(1.0f-t)+.018f)*scale;
+                                         -1.04f-2.66f*t,scale);
+                const float width=(.56f*std::pow(1.0f-t,.78f)+.022f)*scale;
+                const float height=(.30f*(1.0f-t)+.020f)*scale;
                 AppendTailSegment(vertices,previous,next,axes,previousWidth,previousHeight,
                                   width,height,palette.side,.10f,section);
                 previous=next;previousWidth=width;previousHeight=height;
@@ -235,15 +238,15 @@ namespace island
 
             // Broad, shallow saltwater-crocodile skull and independently opening lower jaw.
             const Vector3 skull=Local(centre,axes,0,.39f,1.25f,scale);
-            AppendEllipsoid(vertices,skull,axes,scale,.58f,.29f,.70f,
+            AppendEllipsoid(vertices,skull,axes,scale,.64f,.255f,.72f,
                             palette.back,palette.jaw,6,18,.10f,17);
             // Four shallow elliptical stations replace the old rectangular upper
             // wedge. They keep the broad saltwater-crocodile proportions while
             // rounding the cheek-to-muzzle transition and tapering the nasal tip.
             constexpr std::array<float,4> upperZ{{1.30f,1.68f,2.08f,2.45f}};
             constexpr std::array<float,4> upperY{{.40f,.405f,.39f,.365f}};
-            constexpr std::array<float,4> upperWidth{{.51f,.49f,.43f,.35f}};
-            constexpr std::array<float,4> upperHeight{{.20f,.18f,.15f,.115f}};
+            constexpr std::array<float,4> upperWidth{{.56f,.53f,.46f,.37f}};
+            constexpr std::array<float,4> upperHeight{{.18f,.165f,.14f,.105f}};
             for(std::size_t section=0;section+1<upperZ.size();++section) {
                 AppendTailSegment(vertices,
                     Local(centre,axes,0,upperY[section],upperZ[section],scale),
@@ -259,8 +262,8 @@ namespace island
             const Vector3 lowerJawCentre=centre-axes.up*(gape*.18f*scale);
             constexpr std::array<float,4> jawZ{{1.20f,1.62f,2.06f,2.43f}};
             constexpr std::array<float,4> jawY{{.205f,.205f,.195f,.185f}};
-            constexpr std::array<float,4> jawWidth{{.48f,.46f,.41f,.345f}};
-            constexpr std::array<float,4> jawHeight{{.105f,.10f,.087f,.072f}};
+            constexpr std::array<float,4> jawWidth{{.53f,.50f,.44f,.36f}};
+            constexpr std::array<float,4> jawHeight{{.095f,.090f,.080f,.066f}};
             for(std::size_t section=0;section+1<jawZ.size();++section) {
                 AppendTailSegment(vertices,
                     Local(lowerJawCentre,jawAxes,0,jawY[section],jawZ[section],scale),
@@ -325,7 +328,7 @@ namespace island
                     const Vector3 rearRight=Local(centre,axes,x+.070f,backY,z-.075f,scale);
                     const Vector3 frontRight=Local(centre,axes,x+.064f,backY,z+.075f,scale);
                     const Vector3 frontLeft=Local(centre,axes,x-.064f,backY,z+.075f,scale);
-                    const Vector3 peak=Local(centre,axes,x,backY+.066f,z+.006f,scale);
+                    const Vector3 peak=Local(centre,axes,x,backY+.042f,z+.006f,scale);
                     AddTriangle(vertices,rearLeft,rearRight,peak,palette.scute);
                     AddTriangle(vertices,rearRight,frontRight,peak,palette.scute);
                     AddTriangle(vertices,frontRight,frontLeft,peak,palette.scute);
@@ -336,11 +339,11 @@ namespace island
             // keel which follows the exact same animated tail wave as the volume.
             for(int row=0;row<8;++row) {
                 const float t=(static_cast<float>(row)+.65f)/9.0f;
-                const float z=-1.10f-2.55f*t;
+                const float z=-1.04f-2.66f*t;
                 const float wave=std::sin(t*4.2f+crocodile.gaitPhase)*crocodile.bodyWave
                     *t*t*.55f;
                 const float centreY=.22f-.17f*t;
-                const float tailHeight=.28f*(1.0f-t)+.018f;
+                const float tailHeight=.30f*(1.0f-t)+.020f;
                 const float halfWidth=std::lerp(.070f,.018f,t);
                 const float halfLength=std::lerp(.090f,.038f,t);
                 const float baseY=centreY+tailHeight*.88f;
@@ -348,7 +351,7 @@ namespace island
                 const Vector3 right=Local(centre,axes,wave+halfWidth,baseY,z,scale);
                 const Vector3 front=Local(centre,axes,wave,baseY,z+halfLength,scale);
                 const Vector3 left=Local(centre,axes,wave-halfWidth,baseY,z,scale);
-                const Vector3 peak=Local(centre,axes,wave,baseY+.055f*(1.0f-.65f*t),z,scale);
+                const Vector3 peak=Local(centre,axes,wave,baseY+.040f*(1.0f-.65f*t),z,scale);
                 AddTriangle(vertices,rear,right,peak,palette.scute);
                 AddTriangle(vertices,right,front,peak,palette.scute);
                 AddTriangle(vertices,front,left,peak,palette.scute);
@@ -365,7 +368,7 @@ namespace island
                         *(1.0f-crocodile.submerged);
                     const Vector3 shoulder=Local(centre,axes,side*.52f,.34f,rootZ,scale);
                     const Vector3 elbow=Local(centre,axes,side*.83f,.18f,rootZ+stride,scale);
-                    const Vector3 wrist=Local(centre,axes,side*.91f,.02f,rootZ+.24f+stride,scale);
+                    const Vector3 wrist=Local(centre,axes,side*.78f,.025f,rootZ+.24f+stride,scale);
                     // A low pectoral/hip mass hides the old tube-to-barrel seam and
                     // gives the splayed limb a muscular crocodilian root. It remains
                     // centred on the existing animated joint and adds no simulation state.
@@ -377,18 +380,22 @@ namespace island
                                     41+pair*2+(sideIndex>0?1:0));
                     AppendTaperedSegment(vertices,shoulder,elbow,.17f*scale,.125f*scale,palette.side,8);
                     AppendTaperedSegment(vertices,elbow,wrist,.125f*scale,.075f*scale,palette.side,8);
+                    const Vector3 foot=wrist+axes.forward*(.075f*scale)+axes.up*(.018f*scale);
+                    AppendEllipsoid(vertices,foot,axes,1.0f,.14f*scale,.045f*scale,
+                                    .18f*scale,palette.side,palette.belly,2,8,.06f,
+                                    53+pair*2+(sideIndex>0?1:0));
                     for(int toe=0;toe<3;++toe) {
-                        const float toeSide=(static_cast<float>(toe)-1.0f)*.075f;
-                        const Vector3 toeTip=wrist+axes.forward*(.25f*scale)
+                        const float toeSide=(static_cast<float>(toe)-1.0f)*.095f;
+                        const Vector3 toeTip=foot+axes.forward*((.22f+.018f*toe)*scale)
                             +axes.right*(toeSide*scale)+axes.up*(.015f*scale);
-                        AppendTaperedSegment(vertices,wrist,toeTip,.035f*scale,.012f*scale,
+                        AppendTaperedSegment(vertices,foot,toeTip,.032f*scale,.010f*scale,
                                              palette.scute,5);
                     }
                 }
             }
 
-            if(static_cast<int>(vertices.size())>MaximumVertexCount)
-                throw std::logic_error("Crocodile geometry exceeded its shared vertex budget");
+            if(vertices.size()-firstVertex>static_cast<std::size_t>(MaximumVerticesPerCrocodile))
+                throw std::logic_error("Crocodile geometry exceeded its per-animal vertex budget");
         }
 
         void AppendFarCrocodile(std::vector<VertexPositionColor>& vertices,
@@ -428,12 +435,13 @@ namespace island
         effect_->setFogEndProperty(260.0f);
         stagingVertices_.reserve(MaximumVertexCount);
         std::cout<<FormDiagnostic<<'\n'<<DetailDiagnostic<<'\n'<<ArmorDiagnostic<<'\n'
-                 <<SkinDiagnostic<<'\n'<<SurfaceDiagnostic<<'\n';
+                 <<SkinDiagnostic<<'\n'<<SurfaceDiagnostic<<'\n'<<AnatomyDiagnostic<<'\n';
         MirrorRuntimeDiagnosticToPlatformLog(FormDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(DetailDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(ArmorDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(SkinDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(SurfaceDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(AnatomyDiagnostic);
     }
 
     CrocodileRenderer::~CrocodileRenderer()=default;

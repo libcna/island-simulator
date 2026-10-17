@@ -1264,6 +1264,8 @@ def main():
             if args.viewpoint == "crocodiles":
                 if "near crocodiles use finer rounded torso, shoulder, skull, and nasal surfaces within the same draw" not in diagnostics:
                     raise RuntimeError("current crocodile rounded surface pass is missing")
+                if "crocodiles use broad low barrels, continuous heavy tail roots, returning splayed forearms, and flat substantial feet" not in diagnostics:
+                    raise RuntimeError("current crocodile low-body and foot anatomy pass is missing")
             if args.viewpoint == "hermit-crabs":
                 if "ten sheltered-beach hermit crabs pause, forage, and retreat in the shared crab batch" not in diagnostics:
                     raise RuntimeError("current hermit-crab renderer is missing; check for a stale executable")

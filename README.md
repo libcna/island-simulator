@@ -313,8 +313,9 @@ near/far batch. See the
 Three non-hostile saltwater crocodiles occupy the stream's mangrove estuary. Two begin basking
 on qualified low banks and one begins in shallow water; their deterministic live simulation
 cycles through basking, crawling and swimming, while a nearby player makes them retreat into the
-water. The one-draw near/far renderer uses a long low armored body, broad jawed head, eyes,
-nostrils, teeth, dorsal osteoderms, four splayed articulated legs and an animated tapering tail.
+water. The one-draw near/far renderer uses a broad low armored barrel, wide independently shaped
+jaws, raised lateral eyes and nostrils, teeth, low dorsal osteoderms, four muscular limbs that
+splay at the elbow and return to flat three-toed feet, and an animated heavy-rooted tapering tail.
 Use `--viewpoint crocodiles` for the close inspection camera; current scope and qualification
 status are recorded in [the crocodile implementation notes](docs/crocodiles.md).
 Eighteen butterflies occupy three sunny clearing-edge habitats, alternate rest, flutter, and

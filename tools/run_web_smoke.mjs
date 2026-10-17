@@ -958,6 +958,7 @@ try {
               && log.includes("crocodile armor uses low paired trunk scutes that merge into a diminishing articulated tail keel")
               && log.includes("near crocodile torso, tail, skull, jaw, and limb roots use bounded reticulated facet pigment")
               && log.includes("near crocodiles use finer rounded torso, shoulder, skull, and nasal surfaces within the same draw")
+              && log.includes("crocodiles use broad low barrels, continuous heavy tail roots, returning splayed forearms, and flat substantial feet")
               && log.includes("crocodile QA camera frames an estuary animal broadside")
               && /crocodiles [1-3]\/3 visible \(near [1-3], far [0-3]\), 1 draw/.test(log)))
             && (!focusedFishCheck || (log.includes("near fish use eleven-station sixteen-sided bodies, closed swept fins, and fitted highlighted eyes")
