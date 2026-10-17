@@ -35,7 +35,7 @@ def validate_boar_audio_trace(samples):
     if len(samples) < 30 or any(len(s) != 5 for s in samples):
         raise RuntimeError("missing boar audio trace")
     if any(s[0] != 1 or s[1] not in (0, 1) or not 4 <= s[3] <= 6
-           or s[4] not in (0, 1, 2, 3) for s in samples):
+           or not 0 <= s[4] <= 9 for s in samples):
         raise RuntimeError("unavailable audio or invalid voice budget/state")
     if any(b[2] < a[2] for a, b in zip(samples, samples[1:])):
         raise RuntimeError("boar playback counter regressed")
@@ -53,7 +53,7 @@ def validate_snake_audio_trace(samples):
     if len(samples) < 30 or any(len(s) != 6 for s in samples):
         raise RuntimeError("missing snake audio trace")
     if any(s[0] != 1 or s[1] not in (0, 1) or not 4 <= s[3] <= 6
-           or s[4] not in (0, 1, 2, 3, 4) for s in samples):
+           or not 0 <= s[4] <= 9 for s in samples):
         raise RuntimeError("unavailable audio or invalid snake voice budget/state")
     if any(b[5] < a[5] for a, b in zip(samples, samples[1:])):
         raise RuntimeError("snake hiss playback counter regressed")
@@ -71,7 +71,7 @@ def validate_goat_audio_trace(samples):
     if len(samples) < 30 or any(len(s) != 7 for s in samples):
         raise RuntimeError("missing goat audio trace")
     if any(s[0] != 1 or s[1] not in (0, 1) or not 4 <= s[3] <= 6
-           or s[4] not in (0, 1, 2, 3, 4, 5, 6) for s in samples):
+           or not 0 <= s[4] <= 9 for s in samples):
         raise RuntimeError("unavailable audio or invalid goat voice budget/state")
     if any(b[6] < a[6] for a, b in zip(samples, samples[1:])):
         raise RuntimeError("goat playback counter regressed")

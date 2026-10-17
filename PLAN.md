@@ -652,29 +652,52 @@ existing two-worker limit remains suitable.
   placement/collision/resident-route tests, WorldReport and inspected native close/wide captures
   `20261017T123726.385229Z-campfire` / `20261017T123801.490843Z-campfire-wide` pass.
   Web/Android runtime validation remains.
-- [ ] Extend the existing campfire smoke into a clearly visible, naturally rising plume that can
+- [~] Extend the existing campfire smoke into a clearly visible, naturally rising plume that can
   be read high above the inland clearing instead of disappearing immediately over the flames.
   Keep it restrained and believable: layered warm near-fire smoke should cool, widen, curl with
   the prevailing wind and fade gradually with height, without becoming an opaque column. Reuse the
   current campfire renderer/material path, impose a fixed geometry/particle ceiling, distance-cull
   or simplify the upper plume, and retain the current bounded draw budget where practical. Validate
   close, medium and elevated views plus a representative release-performance comparison; the change
-  must not cause a material FPS regression on the existing 59–60 FPS release baseline.
+  must not cause a material FPS regression on the existing 59–60 FPS release baseline. Twelve
+  camera-facing upper-smoke quads now extend the existing three near-fire sheets into a broken,
+  cooling plume that widens to about 4.6m, rises to about 15m and bends west with the trade wind.
+  They add only 24 triangles (the complete moving fire buffer rises from 42 to 66 triangles), retain
+  the existing single moving draw, share its shader/material and remain enclosed by a finite culling
+  bound. Inspected native close/wide evidence
+  `20261017T160648.389643Z-campfire` / `20261017T160612.920244Z-campfire-wide` and the inspected
+  Chrome/SwiftShader frame `20261017T160912.831387Z-chrome-campfire` show a readable translucent
+  plume rather than an opaque column; WebGL reports 60 positive intervals, a live context, GL error
+  zero and an empty kernel delta. Native focused tests, Web build/package and Android ARM64
+  assemble/lint pass. The 24,837,763-byte APK has SHA-256
+  `34a176ff1c19c8aed40e20f2250a496ee598485fd7e3b99a67df73b1535143a0` and contains a
+  19,795,192-byte `libmain.so`. A matched physical-GPU release FPS comparison remains before `[x]`;
+  the renderer-side budget cannot by itself establish the operator's 59--60 FPS observation.
 - [~] Fix the operator-observed absence of goat bleating. Reproduce the current build with a goat
   nearby, distinguish scheduler/playback from effective audible gain and ambient masking, and make
   the bleat clearly recognizable without becoming loud or repetitive. Revalidate mute/resume,
   positional attenuation, shared source budget and native/Web/Android packaging; automated PCM or
   Playing-state evidence alone does not replace the requested listening outcome. Scheduler priority,
   range, cadence and gain are strengthened; native disk-backend mute/resume evidence
-  `software-goat-audio/20261017T124359.797646Z` passes with 204,800 nonzero resumed bytes.
-  Speaker listening plus Web/Android validation remain.
+  `software-goat-audio/20261017T161258.499491Z` passes with three actual calls, five of six maximum
+  sources, exact-zero mute and 204,800 nonzero resumed bytes. A new direct full-mix audit of that
+  captured 44.1-kHz stereo stream measures the two main bleat windows about 8--10 dB above the
+  surrounding ambient bed, with 88--93% of their window energy in 80--500 Hz; this verifies effective
+  mix audibility rather than merely standalone PCM generation or a Playing state. The low falling
+  vowel synthesis also remains protected against the former narrow insect-like carrier. Human
+  speaker/headphone identity review and Web/Android runtime listening remain before `[x]`.
 - [~] Fix the operator-observed absence of audible boar grunting. Reproduce ordinary close approach,
   audit shared transient-voice priority, call cadence, attenuation and masking, and ensure a nearby
   boar produces an unmistakable restrained grunt often enough to be discovered during normal play.
   Preserve positional playback, mute/resume behavior and the bounded audio-source budget. Scheduler
   priority, range, cadence and gain are strengthened; native disk-backend mute/resume evidence
-  `software-boar-audio/20261017T124318.950530Z` passes with 221,184 nonzero resumed bytes.
-  Speaker listening plus Web/Android validation remain.
+  `software-boar-audio/20261017T161709.073086Z` passes with three actual calls, five of six maximum
+  sources, exact-zero mute and 221,184 nonzero resumed bytes. Direct analysis of the resulting
+  44.1-kHz stereo game mix measures the strongest grunt window 6.7 dB above the non-silent median
+  and a characteristic rise in 45--420 Hz energy, so the call is no longer hidden beneath the
+  ambient bed. The supervised validator was also corrected to accept all currently implemented
+  wildlife-call enum values; its earlier rejection of type 7 was a stale test assumption, not an
+  audio failure. Human speaker/headphone identity review and Web/Android runtime listening remain.
 - [~] Increase the population to exactly 1000 large, recognisable charcoal-black tropical ground
   spiders and make them genuinely discoverable in ordinary play. This 2026-10-17 instruction supersedes the former
   200-spider target and permits a believable large-jungle-spider leg span. Verify that habitat

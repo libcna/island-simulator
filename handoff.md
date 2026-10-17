@@ -1,5 +1,74 @@
 # island-simulator handoff
 
+## Current checkpoint — high campfire smoke and live animal-mix audit
+
+The narrow goal for this checkpoint is complete in source: finish the campfire smoke, verify goat
+bleats and boar grunts in the actual final game mix rather than only inspecting generated PCM,
+refresh this handoff, then commit/push and stop. Do not resume unrelated backlog work in the same
+turn after the push. The broader `PLAN.md` backlog remains active for a future agent; it is not
+finished and must not be represented as complete.
+
+The inland campfire now has twelve additional camera-facing upper-smoke quads arranged as six
+overlapping altitude bands. They widen from 1.65m to 4.55m, reach about 15m, cool from warm low
+smoke to neutral grey, curl slowly and bend west in world space with the established easterly trade
+wind. This reuses `CampfireRenderer`'s existing moving vertex buffer, shader, alpha blend state and
+single moving draw: the whole flame/smoke/spark pass changes from 42 to only 66 triangles, with no
+new texture, allocation, emitter, draw call or subsystem. The expanded finite bounds keep the high
+plume culled when the clearing is out of view. Keep the plume translucent; do not respond to future
+visibility feedback by turning it into an opaque dark column.
+
+Current inspected native evidence is
+`build-consumer/software-captures/20261017T160648.389643Z-campfire` (close) and
+`20261017T160612.920244Z-campfire-wide` (landmark distance). Both pass the strict 1280x720 capture
+gate and show a continuous readable plume above the flame. Current inspected WebGL evidence is
+`build/browser-software/20261017T160912.831387Z-chrome-campfire`; Chrome 155/SwiftShader passes 60
+positive intervals, two distinct frames, GL error zero, a live context and empty kernel delta. The
+Web package is 14,457,108 bytes uncompressed / 5,819,665 gzip. Android ARM64 assemble and lint pass
+without an emulator; `android/app/build/outputs/apk/debug/app-debug.apk` is 24,837,763 bytes,
+SHA-256 `34a176ff1c19c8aed40e20f2250a496ee598485fd7e3b99a67df73b1535143a0`, with a 19,795,192-byte
+`libmain.so`. A matched physical-GPU 59--60 FPS comparison remains for `[x]`; renderer cost is
+bounded to 24 extra triangles in an existing draw, but that fact is not a physical benchmark.
+
+The current goat and boar fixes were then exercised through the real `Soundscape` mix and SDL disk
+audio backend. Goat evidence
+`build-consumer/software-goat-audio/20261017T161258.499491Z` passes three actual calls, moving
+positional playback, five of six maximum sources, exact-zero mute and 204,800 nonzero bytes after
+resume. Direct 250ms-window analysis of the captured 44.1-kHz stereo `game-audio.raw` finds the two
+main bleats about 8--10dB above the ambient bed, with 88--93% energy in 80--500Hz. This is final-mix
+audibility evidence, not merely standalone clip generation or a `Playing` flag. The revised
+151/166Hz-to-118/132Hz falling low-harmonic synthesis remains recognisably separated from the
+high narrow-band fly buzz that the operator previously heard.
+
+Boar evidence `build-consumer/software-boar-audio/20261017T161709.073086Z` passes three calls,
+positional playback, five of six maximum sources, exact-zero mute and 221,184 nonzero resume bytes.
+The strongest 250ms grunt window is 6.7dB above the non-silent final-mix median and has a clear
+45--420Hz energy rise. The first attempted current run was rejected only because
+`validate_boar_audio_trace` still treated wildlife enum values above Boar as invalid; frogs can now
+legitimately occupy type 7. `run_fullscreen_software.py` now accepts the complete current
+`WildlifeCallType` range 0--9 for boar, snake and goat traces while retaining the source-count,
+mute, monotonic-counter and expected-species checks. The corrected run passes with no new kernel
+GPU fault. Human speaker/headphone identity/direction review and Web/Android runtime listening
+remain open in `PLAN.md`; do not claim those physical/perceptual checks from disk evidence.
+
+Validation/build constraints for the next agent:
+
+- Never use the host AMD GPU for automated work and do not touch Android emulator/KVM setup.
+- Compile with at most three CPU jobs (`--parallel 3` / `-j 3`); the Android wrapper already caps
+  Gradle/native work to two workers.
+- Native writable ccache currently needs `CCACHE_DIR=/tmp/island-simulator-native-ccache` because
+  its former default path is read-only in the current sandbox.
+- Android uses the pinned local runtime at
+  `build/dependencies/sharp-runtime-pinned` (`-PsharpRuntimeRoot=...`) and needs no network.
+- Two report-only CTests, `IslandGameStartupReportValidation` and
+  `IslandGameCaptureValidation`, depend on deliberately disabled producer tests; exclude them when
+  running the active standalone suite. They are not game regressions.
+- The final current native run passes all 72 enabled tests (108 registered, 36 display/benchmark
+  producers deliberately disabled) in 45.58 seconds with `ctest --test-dir build-consumer
+  --output-on-failure -j 3 -E '^(IslandGameStartupReportValidation|IslandGameCaptureValidation)$'`.
+- The immediate next broad-backlog work after this checkpoint should be chosen from current
+  `PLAN.md`, not from stale older sections below. High-value open reviews include physical audio
+  listening, shipwreck integration/polish, and remaining portable/ordinary-player audits.
+
 ## Current work — cave ceiling breakup inspected
 
 Goal remains active; continue the whole plan. Six small ceiling pendants now break the smooth cave

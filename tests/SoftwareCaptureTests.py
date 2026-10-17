@@ -67,11 +67,11 @@ class SoftwareCaptureTests(unittest.TestCase):
         for bad in ([],good[:5],[(1,0,1,0,2.4,.04,4)]*5+good[5:],good[:30]+[good[-1]]):
             with self.assertRaises(RuntimeError):validate_fire_audio_trace(bad)
     def test_campfire_animation_stages(self):
-        good="\n".join(f"campfire motion stage={i} updates={(i+1)*8} time={(i+1)*.8:.1f} draws=2 effect-triangles=42" for i in range(4))
+        good="\n".join(f"campfire motion stage={i} updates={(i+1)*8} time={(i+1)*.8:.1f} draws=2 effect-triangles=66" for i in range(4))
         self.assertEqual(len(validate_campfire_stages(good)),4)
         for bad in ("",good+"\n"+good,good.replace("stage=1","stage=0"),good.replace("time=0.8","time=nan"),
                     good.replace("updates=8 ","updates=9 "),good.replace("draws=2","draws=0"),
-                    good.replace("triangles=42","triangles=420")):
+                    good.replace("triangles=66","triangles=660")):
             with self.assertRaises(RuntimeError):validate_campfire_stages(bad)
     def test_stream_animation_stages(self):
         good="\n".join(f"stream motion stage={i} frames={(i+1)*8} time={(i+1)*.8:.1f} draws=1 triangles=6080" for i in range(4))
@@ -322,6 +322,7 @@ class SoftwareCaptureTests(unittest.TestCase):
         validate_boar_audio_trace(valid)
         for index, state in ((0, (0, 0, 2, 5, 3)), (5, (1, 1, 3, 4, 0)),
                              (5, (1, 1, 2, 5, 3)), (0, (1, 0, 2, 7, 3)),
+                             (0, (1, 0, 2, 5, 10)),
                              (-1, (1, 0, 2, 4, 0))):
             invalid = list(valid)
             invalid[index] = state
@@ -336,6 +337,7 @@ class SoftwareCaptureTests(unittest.TestCase):
         validate_snake_audio_trace(valid)
         for index,state in ((0,(0,0,0,5,4,1)),(4,(1,1,0,4,0,2)),
                             (4,(1,1,0,5,4,1)),(0,(1,0,0,7,4,1)),
+                            (0,(1,0,0,5,10,1)),
                             (-1,(1,0,0,4,0,1))):
             invalid=list(valid);invalid[index]=state
             with self.assertRaises(RuntimeError):validate_snake_audio_trace(invalid)
@@ -347,6 +349,7 @@ class SoftwareCaptureTests(unittest.TestCase):
         validate_goat_audio_trace(valid)
         for index,state in ((0,(0,0,0,5,6,0,2)),(4,(1,1,0,4,0,0,3)),
                             (4,(1,1,0,5,6,0,2)),(0,(1,0,0,7,6,0,2)),
+                            (0,(1,0,0,5,10,0,2)),
                             (-1,(1,0,0,4,0,0,2))):
             invalid=list(valid);invalid[index]=state
             with self.assertRaises(RuntimeError):validate_goat_audio_trace(invalid)

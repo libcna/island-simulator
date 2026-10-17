@@ -37,9 +37,19 @@ void main(){
             local.y+=age*.45;local.x+=sin(age*3.0+aColor.r*37.0)*.10-age*.035;
             life=1.0-smoothstep(2.6,4.35,age);
         }else if(aColor.a>.35){
-            local.x+=sin(uCampfire.w*.47+aColor.r*13.0)*.12-local.y*.09;
+            float altitude=1.0-aColor.g;
+            local.x+=sin(uCampfire.w*(.47-altitude*.16)+aColor.r*13.0+local.y*.31)
+                *(.12+altitude*.42)-local.y*.032;
+            local.z+=sin(uCampfire.w*.19+aColor.r*29.0+local.y*.17)*altitude*.26;
         }
         world=uCampfire.xyz-vec3(0,.45,0)+uRight*local.x+vec3(0,local.y,0)+uForward*local.z;
+        if(aColor.a>.35&&aColor.a<.6){
+            float altitude=1.0-aColor.g;
+            float rise=max(local.y-.35,0.0);
+            // The shared easterly trade wind bends the high, cool plume west in
+            // world space rather than in camera-facing billboard space.
+            world.x-=altitude*(rise*.34+sin(uCampfire.w*.11+aColor.r*19.0)*.38);
+        }
     }
     gl_Position=uViewProjection*vec4(world,1);
     gl_Position.z=2.0*gl_Position.z-gl_Position.w;
@@ -110,10 +120,15 @@ void main(){
         color=mix(color,vec3(.30,.48,1.0),blueBase*.46);
     }else if(pigment.a<.6){
         float cloud=fbm(vec2(p.x*2.6,p.y*5.0-t*.43)+pigment.r*8.0);
+        float altitude=1.0-pigment.g;
         alpha=(1.0-smoothstep(.12,1.0,length(vec2(p.x,p.y*2.0-1.0))))
-            *smoothstep(.25,.7,cloud)*.15;
-        alpha*=.65+.35*noise(vec2(p.x*8.0+t*.13,p.y*11.0-t*.31)+pigment.r*17.0);
-        color=mix(vec3(.24,.225,.20),vec3(.37,.35,.31),cloud);
+            *smoothstep(.08,.54,cloud)*.31*mix(1.0,.78,altitude);
+        // Keep a coherent, readable body at landmark distance while the second
+        // noise field tears soft holes through it.  The two sheets remain far
+        // below opaque even where they overlap.
+        alpha*=.74+.26*noise(vec2(p.x*8.0+t*.13,p.y*11.0-t*.31)+pigment.r*17.0);
+        color=mix(mix(vec3(.24,.225,.20),vec3(.37,.35,.31),cloud),
+            vec3(.25,.27,.27),altitude*.52);
     }else{alpha=(1.0-smoothstep(.05,.8,length(uv*2.0-1.0)))*life*.85;color=vec3(1,.45,.04);}
     fragColor=vec4(color*alpha,alpha);
 }
@@ -141,21 +156,33 @@ CampfireRenderer::CampfireRenderer(GraphicsDevice& device,const CampfireLayout& 
     solidCount_=static_cast<int>(vertices.size());
     solid_=std::make_unique<VertexBuffer>(device,VertexPositionColorTexture::getVertexDeclarationStatic(),solidCount_,BufferUsage::WriteOnly);
     solid_->SetData(vertices.data(),solidCount_);vertices.clear();
-    const auto quad=[&](float x,float y,float z,float width,float height,int type,int phase) {
+    const auto quad=[&](float x,float y,float z,float width,float height,int type,int phase,
+                        int density=255) {
         const std::array uv{Vector2(0,0),Vector2(1,0),Vector2(1,1),Vector2(0,0),Vector2(1,1),Vector2(0,1)};
-        for(const auto p:uv)vertices.emplace_back(Vector3(x+(p.X-.5f)*width,y+p.Y*height,z),Color(phase,255,255,type),p);
+        for(const auto p:uv)vertices.emplace_back(Vector3(x+(p.X-.5f)*width,y+p.Y*height,z),Color(phase,density,255,type),p);
     };
     // Farther planes first; horizontal billboard depth stays ordered for every viewing yaw.
+    // Twelve broad, low-alpha quads extend the same smoke material into a sparse
+    // 15m column. They stay in this one moving buffer/draw and cost only 24 triangles.
+    constexpr std::array<float,6> plumeY{{1.55f,3.65f,5.85f,8.15f,10.55f,12.95f}};
+    constexpr std::array<float,6> plumeWidth{{1.65f,2.10f,2.60f,3.20f,3.85f,4.55f}};
+    constexpr std::array<int,6> plumeDensity{{220,196,172,148,124,104}};
+    for(int band=5;band>=0;--band)for(int sheet=0;sheet<2;++sheet)
+        quad((sheet==0?-.18f:.21f)+band*.035f,plumeY[band],
+            (sheet==0?.18f:-.16f),plumeWidth[band],2.65f,128,
+            (band*47+sheet*113)%256,plumeDensity[band]);
     for(int i=0;i<3;++i)quad(-.12f*i,.40f+i*.37f,.45f-i*.03f,1.3f+i*.2f,1.6f,128,i*73);
     for(int i=0;i<6;++i)quad((i%3-1)*.20f,.15f,.30f-i*.12f,.68f,1.0f+.13f*(i%3),64,i*43);
     for(int i=0;i<12;++i)quad((i%4-1.5f)*.16f,.30f,-.45f,.028f,.065f,192,i*21);
     effectCount_=static_cast<int>(vertices.size());
     moving_=std::make_unique<VertexBuffer>(device,VertexPositionColorTexture::getVertexDeclarationStatic(),effectCount_,BufferUsage::WriteOnly);
     moving_->SetData(vertices.data(),effectCount_);
-    bounds_=BoundingBox(Vector3(centre_.x-3,centre_.y-.4f,centre_.z-4.5f),Vector3(centre_.x+8,centre_.y+5,centre_.z+3));
+    bounds_=BoundingBox(Vector3(centre_.x-11,centre_.y-.4f,centre_.z-6.5f),
+                        Vector3(centre_.x+6,centre_.y+16.2f,centre_.z+6.5f));
     std::cout<<"island-simulator: campfire "<<solidCount_/3<<" solid triangles, "<<effectCount_/3
         <<" flame/smoke/spark triangles in two culled draws; 11 stored logs six metres away\n";
     std::cout<<"island-simulator: campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke\n";
+    std::cout<<"island-simulator: campfire smoke uses 12 bounded upper quads in the existing moving draw, rising 15m and drifting west with the trade wind\n";
     std::cout<<"island-simulator: campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal\n";
     std::cout<<"island-simulator: campfire and stored firewood stand in the qualified east inland clearing\n";
 }

@@ -1095,8 +1095,9 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn('["campfire", ["--viewpoint", "campfire", "--debug-overlay"]]',
                       (ROOT / "tools/web_smoke.html.in").read_text())
         log = ("campfire QA camera near\n"
-               "campfire 1992 solid triangles, 42 flame/smoke/spark triangles in two culled draws\n"
+               "campfire 1992 solid triangles, 66 flame/smoke/spark triangles in two culled draws\n"
                "campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke\n"
+               "campfire smoke uses 12 bounded upper quads in the existing moving draw, rising 15m and drifting west with the trade wind\n"
                "campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal\n"
                "campfire and stored firewood stand in the qualified east inland clearing\n"
                "campfire first visible animated draw")

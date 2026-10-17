@@ -32,7 +32,7 @@ def validate_campfire_stages(log):
         raise RuntimeError("campfire requires four ordered animation stages")
     for stage,updates,seconds,draws,triangles in rows:
         if (int(updates)!=(int(stage)+1)*8 or not math.isclose(float(seconds),int(updates)*.1,abs_tol=1e-5)
-                or int(draws)!=2 or int(triangles)!=42):
+                or int(draws)!=2 or int(triangles)!=66):
             raise RuntimeError("invalid campfire animation clock or rendering budget")
     return rows
 
@@ -653,8 +653,9 @@ def main():
                 # Capture mode intentionally disables audio; real backend switching is
                 # exercised by IslandSoundscapeRuntimeTests, not a visual smoke run.
                 for marker in ("campfire first visible animated draw",
-                               "1992 solid triangles, 42 flame/smoke/spark triangles",
+                               "1992 solid triangles, 66 flame/smoke/spark triangles",
                                "campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke",
+                               "campfire smoke uses 12 bounded upper quads in the existing moving draw, rising 15m and drifting west with the trade wind",
                                "campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal",
                                "campfire and stored firewood stand in the qualified east inland clearing"):
                     if marker not in diagnostics:raise RuntimeError(f"campfire integration diagnostic missing: {marker}")
