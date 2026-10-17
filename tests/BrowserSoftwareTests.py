@@ -501,12 +501,14 @@ class BrowserSoftwareTests(unittest.TestCase):
             self.assertIn(f'["{mode}", ["--viewpoint", "{mode}", "--debug-overlay"]]', page)
         markers = (
             "cave rock first visible draw",
-            "cave rock 2875 triangles in one culled draw; 20m walkable interior",
-            "cave terrain shoulders use an irregular rock apron around the open corridor",
+            "cave rock 4110 triangles in one shared draw; 20m walkable interior",
+            "cave terrain shoulders confine the irregular rock apron to the eroded portal",
             "cave connected shell strips share smooth lighting normals while portal breaks stay sharp",
             "cave adds six high-clearance eroded ceiling pendants in the existing draw",
             "cave mouth is embedded in a rising inland mountain slope",
             "cave crown is concealed from above by blended earth and 375 irregular three-blade tufts in the existing draw",
+            "cave soil overburden carries 139 low tufts and 11 fern fans in the existing draw",
+            "cave ground batch adds a broad forest-soil overburden above the closed roof",
             "cave portal uses five offset partly buried rock outcrops outside the walkable opening",
             "cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling")
         def report():

@@ -81,7 +81,8 @@ vec2 mirrored(vec2 p){
 void main(){
     vec3 local=localMaterial.xyz;
     float grassBlade=step(1.5,localMaterial.w);
-    float exterior=min(localMaterial.w,1.0);
+    float backFace=1.0-step(-.5,localMaterial.w);
+    float exterior=clamp(localMaterial.w,0.0,1.0);
     float broad=noise(local*vec3(.43,.55,.31)+vec3(2.7,1.1,4.3));
     float grain=noise(world*11.0);
     float fracturePhase=local.y*2.15+local.x*.31+local.z*.14
@@ -123,15 +124,23 @@ void main(){
     float damp=(1.0-exterior)*smoothstep(5.0,18.0,local.z)
         *(.55+.45*noise(local*.37+vec3(1.0,8.0,3.0)));
     stone=mix(stone,vec3(.20,.225,.215),damp*.22);
+    vec3 backMineral=mix(vec3(.255,.245,.215),vec3(.38,.335,.255),
+        noise(local*vec3(.62,.47,.58)+vec3(8.0,2.0,5.0)));
+    stone=mix(stone,backMineral,backFace*.25);
     float daylight=.42+.58*max(dot(normalize(normal),normalize(uToSun)),0.0);
-    float mouthLight=.25+.67*exp(-max(local.z,0.0)*.18);
+    // Retain enough diffuse skylight to read the narrowing walls without inventing
+    // lamps inside the natural cave. The portal remains brightest, while the final
+    // crevice stays subdued rather than collapsing into featureless black.
+    float mouthLight=.35+.61*exp(-max(local.z,0.0)*.18);
     float illumination=mix(mouthLight*(.84+.16*max(normal.y,0.0)),daylight,exterior);
+    illumination+=backFace*.31*(.72+.28*broad);
     illumination=mix(illumination,.72+.28*daylight,grassBlade);
     fragColor=vec4(stone*illumination,1.0);
 }
 )";
 }
-CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device_(device) {
+CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave,
+                           const CaveGroundPatch& ground):device_(device) {
     constexpr int TextureSize=256;
     const auto levels=LoadOpaqueImageMips(device_,"Content/structures/cave-rock.png",TextureSize);
     const auto& mean=levels.back().pixels[0];
@@ -153,11 +162,13 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
     effect_=std::make_unique<ShaderEffect>(device,package);
     if(!effect_->IsEffectValid())throw std::runtime_error("Cave shader failed: "+effect_->GetCompileErrorEXT());
     std::vector<CaveGpuVertex> vertices;
-    // Share lighting normals across the connected arch strips while retaining the
-    // eroded entrance rim and back wall as intentionally hard geological breaks.
+    // Share lighting normals across the connected arch strips and the multi-ring
+    // termination. The entrance remains an intentionally hard geological break;
+    // smoothing the receding back rings keeps them from reading as fitted panels.
     std::map<std::array<float,4>,Vector3> normalSums;
     for(const auto& triangle:cave.Triangles()) {
-        if(triangle.surface!=CaveSurface::Exterior&&triangle.surface!=CaveSurface::Interior)continue;
+        if(triangle.surface!=CaveSurface::Exterior&&triangle.surface!=CaveSurface::Interior
+            &&triangle.surface!=CaveSurface::Back)continue;
         for(const auto p:triangle.points)
             normalSums[{static_cast<float>(triangle.surface),p.x,p.y,p.z}]
                 +=Vector3(triangle.normal.x,triangle.normal.y,triangle.normal.z);
@@ -168,9 +179,11 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
         for(const auto p:triangle.points) {
             const auto local=cave.Local(p);
             const float material=triangle.surface==CaveSurface::Exterior?1.0f:
-                triangle.surface==CaveSurface::Entrance?.62f:0.0f;
+                triangle.surface==CaveSurface::Entrance?.62f:
+                triangle.surface==CaveSurface::Back?-.8f:0.0f;
             Vector3 normal(triangle.normal.x,triangle.normal.y,triangle.normal.z);
-            if(triangle.surface==CaveSurface::Exterior||triangle.surface==CaveSurface::Interior)
+            if(triangle.surface==CaveSurface::Exterior||triangle.surface==CaveSurface::Interior
+                ||triangle.surface==CaveSurface::Back)
                 normal=Vector3::Normalize(normalSums.at(
                     {static_cast<float>(triangle.surface),p.x,p.y,p.z}));
             vertices.push_back({{p.x,p.y,p.z},
@@ -235,6 +248,73 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
             ++fernClusterCount;
         }
         ++grassTuftCount;
+    }
+    // The broader terrain-material overburden hides most shell-rooted tufts.  Seed a
+    // restrained, irregular second set directly on that visible surface so the new
+    // hillside does not become a conspicuously bare mound.  The blades and fern fans
+    // still share this cave vertex buffer, shader and draw call.
+    const auto cover=ground.CoverVertices();
+    int coverTuftCount=0,coverFernCount=0;
+    for(int row=1;row<CaveGroundPatch::CoverRows-1;++row) {
+        for(int column=1;column<CaveGroundPatch::CoverColumns-1;++column) {
+            if((row*37+column*17+row*column*3)%13!=4)continue;
+            const int index=row*CaveGroundPatch::CoverColumns+column;
+            const auto point=cover[static_cast<std::size_t>(index)];
+            const auto local=cave.Local(point);
+            if(local.z<1.7f||local.z>22.7f||std::abs(local.x)>11.4f)continue;
+            const auto toVector=[](CavePoint p){return Vector3(p.x,p.y,p.z);};
+            Vector3 surfaceNormal=Vector3::Cross(
+                toVector(cover[static_cast<std::size_t>(index+CaveGroundPatch::CoverColumns)])
+                    -toVector(cover[static_cast<std::size_t>(index-CaveGroundPatch::CoverColumns)]),
+                toVector(cover[static_cast<std::size_t>(index+1)])
+                    -toVector(cover[static_cast<std::size_t>(index-1)]));
+            if(surfaceNormal.Y<0)surfaceNormal*=-1.0f;
+            surfaceNormal.Normalize();
+            if(surfaceNormal.Y<.64f)continue;
+            const float phase=static_cast<float>(index);
+            const float angle=std::fmod(phase*1.618034f+local.z*.23f,
+                2.0f*std::numbers::pi_v<float>);
+            const float height=.17f+.12f*(.5f+.5f*std::sin(phase*.91f));
+            const float halfWidth=.052f+.019f*(.5f+.5f*std::sin(phase*1.37f));
+            const Vector3 c(point.x,point.y+.018f,point.z);
+            const Vector3 first(std::cos(angle)*halfWidth,0,std::sin(angle)*halfWidth);
+            const Vector3 second(-first.Z,0,first.X);
+            const auto blade=[&](const Vector3 side,float lean) {
+                const Vector3 a=c-side,b=c+side;
+                const Vector3 tip=c+Vector3(side.Z*lean,height,-side.X*lean);
+                Vector3 normal=Vector3::Cross(b-a,tip-a);normal.Normalize();
+                for(const auto& p:{a,b,tip}) {
+                    const auto l=cave.Local({p.X,p.Y,p.Z});
+                    vertices.push_back({{p.X,p.Y,p.Z},{normal.X,normal.Y,normal.Z},
+                        {l.x,l.y,l.z,2.0f}});
+                }
+            };
+            blade(first,.31f);blade(second,-.23f);
+            blade(Vector3::Normalize(first+second)*halfWidth,.16f);
+            ++coverTuftCount;
+            if((row*11+column*7)%9!=2)continue;
+            const Vector3 root=c+Vector3::Up*.022f;
+            const auto leafTriangle=[&](Vector3 a,Vector3 b,Vector3 d) {
+                Vector3 normal=Vector3::Cross(b-a,d-a);
+                if(normal.Y<0){std::swap(b,d);normal*=-1.0f;}normal.Normalize();
+                for(const auto& p:{a,b,d}) {
+                    const auto l=cave.Local({p.X,p.Y,p.Z});
+                    vertices.push_back({{p.X,p.Y,p.Z},{normal.X,normal.Y,normal.Z},
+                        {l.x,l.y,l.z,2.0f}});
+                }
+            };
+            for(int leaf=0;leaf<6;++leaf) {
+                const float a=angle+leaf*(2.0f*std::numbers::pi_v<float>/6.0f);
+                const Vector3 direction(std::cos(a),0,std::sin(a));
+                const Vector3 side(-direction.Z,0,direction.X);
+                const float length=.23f+.055f*(leaf%3);
+                const Vector3 middle=root+direction*(length*.57f)+Vector3::Up*(.075f+.012f*(leaf%2));
+                const Vector3 tip=root+direction*length+Vector3::Up*.025f;
+                leafTriangle(root,middle-side*.043f,tip);
+                leafTriangle(root,tip,middle+side*.043f);
+            }
+            ++coverFernCount;
+        }
     }
     // Shallow eroded ceiling pendants break the otherwise continuous tunnel arch.
     // Their tips remain above 2.3m local height, clear of the walking capsule, so
@@ -368,7 +448,7 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
     count_=static_cast<int>(vertices.size());
     vertices_=std::make_unique<VertexBuffer>(device,CaveDeclaration(),count_,BufferUsage::WriteOnly);
     vertices_->SetData(vertices.data(),count_);
-    std::cout<<"island-simulator: cave rock "<<count_/3<<" triangles in one culled draw; 20m walkable interior\n";
+    std::cout<<"island-simulator: cave rock "<<count_/3<<" triangles in one shared draw; 20m walkable interior\n";
     std::cout<<"island-simulator: cave compact asymmetric mouth uses normal-lit fractured stone and restrained moss\n";
     std::cout<<"island-simulator: cave narrow eroded lip grows into an irregular closed rock mantle\n";
     std::cout<<"island-simulator: cave connected shell strips share smooth lighting normals while portal breaks stay sharp\n";
@@ -378,7 +458,10 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
              <<grassTuftCount<<" irregular three-blade tufts in the existing draw\n";
     std::cout<<"island-simulator: cave crown adds "<<fernClusterCount
              <<" low fern fans to break its overhead outline in the existing draw\n";
+    std::cout<<"island-simulator: cave soil overburden carries "<<coverTuftCount
+             <<" low tufts and "<<coverFernCount<<" fern fans in the existing draw\n";
     std::cout<<"island-simulator: cave portal uses five offset partly buried rock outcrops outside the walkable opening\n";
+    std::cout<<"island-simulator: cave termination narrows through two irregular recessed rings into the mountain\n";
     const char* material="island-simulator: cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling";
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
 }

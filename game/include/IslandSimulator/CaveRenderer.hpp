@@ -1,5 +1,6 @@
 #pragma once
 #include "IslandSimulator/CaveLayout.hpp"
+#include "IslandSimulator/CaveGroundPatch.hpp"
 #include "Microsoft/Xna/Framework/Matrix.hpp"
 #include "Microsoft/Xna/Framework/BoundingBox.hpp"
 #include <memory>
@@ -9,7 +10,8 @@ class GraphicsDevice;class VertexBuffer;class ShaderEffect;class Texture2D;
 namespace island {
 class CaveRenderer final {
 public:
-    CaveRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,const CaveLayout& cave);
+    CaveRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
+                 const CaveLayout& cave,const CaveGroundPatch& ground);
     ~CaveRenderer();
     void Draw(const Microsoft::Xna::Framework::Matrix& view,const Microsoft::Xna::Framework::Matrix& projection);
     [[nodiscard]] int DrawCallCount() const noexcept {return draws_;}

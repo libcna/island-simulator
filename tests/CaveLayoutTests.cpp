@@ -22,6 +22,23 @@ namespace {
 void Check(bool value,const char* message) {if(!value) throw std::runtime_error(message);}
 using Point=std::array<float,3>;
 Point Key(island::CavePoint p) {return {p.x,p.y,p.z};}
+float ExteriorRoofHeight(const island::CaveLayout& cave,island::CavePoint query) {
+    float highest=-INFINITY;
+    for(const auto& triangle:cave.Triangles()) {
+        if(triangle.surface!=island::CaveSurface::Exterior)continue;
+        const auto& a=triangle.points[0];const auto& b=triangle.points[1];
+        const auto& c=triangle.points[2];
+        const float bax=b.x-a.x,baz=b.z-a.z,cax=c.x-a.x,caz=c.z-a.z;
+        const float qax=query.x-a.x,qaz=query.z-a.z;
+        const float denominator=bax*caz-baz*cax;
+        if(std::abs(denominator)<1e-7f)continue;
+        const float u=(qax*caz-qaz*cax)/denominator;
+        const float v=(bax*qaz-baz*qax)/denominator;
+        if(u>=-.0001f&&v>=-.0001f&&u+v<=1.0001f)
+            highest=std::max(highest,a.y+u*(b.y-a.y)+v*(c.y-a.y));
+    }
+    return highest;
+}
 }
 int main() {
     using namespace island;
@@ -50,6 +67,11 @@ int main() {
              <<" triangles "<<cave.Triangles().size()<<'\n';
     Check(cave.Triangles().size()<1600,"cave geometry budget exceeded");
     Check(ground.Vertices().size()<4096,"cave ground mesh budget exceeded");
+    Check(ground.CoverVertices().size()==static_cast<std::size_t>(CaveGroundPatch::CoverColumns
+              *CaveGroundPatch::CoverRows)
+          &&ground.CoverIndices().size()==static_cast<std::size_t>((CaveGroundPatch::CoverColumns-1)
+              *(CaveGroundPatch::CoverRows-1)*6),
+          "cave overburden mesh dimensions changed");
     Check(ground.Indices().size()==static_cast<std::size_t>((ground.Columns()-1)*(ground.Rows()-1)*6),
           "ground patch is missing replacement triangles");
     for(std::size_t i=0;i<ground.Indices().size();i+=3) {
@@ -69,6 +91,17 @@ int main() {
         const auto p=ground.Vertices()[row*ground.Columns()+col];
         Check(p.y==original.Sample(p.x,p.z).height,"ground patch boundary tears original terrain");
     }
+    int coveredRoofSamples=0;
+    for(const auto p:ground.CoverVertices()) {
+        Check(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z),
+              "cave overburden contains a non-finite vertex");
+        const float roof=ExteriorRoofHeight(cave,p);
+        if(std::isfinite(roof)) {
+            Check(p.y>=roof+.069f,"cave overburden dips through the rock crown");
+            ++coveredRoofSamples;
+        }
+    }
+    Check(coveredRoofSamples>500,"cave overburden does not cover enough of the rock crown");
     // Every emitted tracing interval must be truly affine, including rounded-grid diagonals.
     for(float across:{-5.0f,-1.0f,2.0f,5.0f}) {
         const auto a=cave.World(across,0,-5),b=cave.World(-across,0,23);
@@ -99,6 +132,7 @@ int main() {
     int crownSamples=0;
     float leftMouthTop=-INFINITY,rightMouthTop=-INFINITY;
     float innerMouthExtent=0,outerMouthExtent=0,nearMantleExtent=0;
+    float backMinimumDepth=INFINITY,backMaximumDepth=-INFINITY;
     for(const auto& triangle:cave.Triangles()) {
         for(const auto p:triangle.points) {
             Check(CaveSite::Reserves(p.x,p.z),"wildlife reserve does not contain the complete rock shell");
@@ -118,6 +152,11 @@ int main() {
                 crownDifferenceSum+=difference;
                 crownDifferenceMaximum=std::max(crownDifferenceMaximum,difference);
                 ++crownSamples;
+            }
+            if((triangle.surface==CaveSurface::Back||triangle.surface==CaveSurface::Interior)
+                &&local.z>=CaveLayout::Length-.001f) {
+                backMinimumDepth=std::min(backMinimumDepth,local.z);
+                backMaximumDepth=std::max(backMaximumDepth,local.z);
             }
         }
         ++parts[static_cast<int>(triangle.surface)];
@@ -140,7 +179,11 @@ int main() {
         (void)key;
         Check(edge.first==2&&edge.second==0,"cave solid has an open or inconsistently wound seam");
     }
-    Check(std::all_of(parts.begin(),parts.end(),[](int n){return n>0;}),"missing cave surface group");
+    Check(parts[static_cast<int>(CaveSurface::Interior)]>0
+          &&parts[static_cast<int>(CaveSurface::Floor)]>0
+          &&parts[static_cast<int>(CaveSurface::Exterior)]>0
+          &&parts[static_cast<int>(CaveSurface::Entrance)]>0,
+          "missing required cave surface group");
     Check(volume/6>350&&volume/6<800,"compact rock mantle volume regressed");
     Check(std::isfinite(leftMouthTop)&&std::isfinite(rightMouthTop)
           &&std::abs(leftMouthTop-rightMouthTop)>.03f,
@@ -150,9 +193,32 @@ int main() {
           "cave entrance no longer has a restrained eroded rock lip");
     Check(nearMantleExtent>outerMouthExtent+.25f,
           "cave lip no longer grows into its wider inland mantle");
+    Check(backMinimumDepth>=CaveLayout::Length-.001f
+          &&backMaximumDepth>CaveLayout::Length+1.1f
+          &&backMaximumDepth-backMinimumDepth>1.1f,
+          "cave termination regressed to a flat stone plate");
     Check(crownSamples>20,"cave crown terrain-fit audit lacks samples");
     std::cout<<"cave crown terrain difference mean "<<crownDifferenceSum/crownSamples
              <<" maximum "<<crownDifferenceMaximum<<'\n';
+    // The ground replacement must bury the shell immediately outside the walkable
+    // cavity.  A wide excavation fade used to form two conspicuous longitudinal
+    // trenches beside the roof even though the centreline traversal remained valid.
+    for(float depth:{6.0f,10.0f,14.0f}) for(float side:{-1.0f,1.0f}) {
+        const float across=(2.65f+.18f*std::sin(depth*.42f+.3f)+1.0f)*side;
+        const auto p=cave.World(across,0,depth);
+        const float original=terrain.Height(p.x,p.z);
+        Check(cave.GroundTarget(p.x,p.z,original)>=original-.02f,
+              "cave terrain leaves a depressed longitudinal trench beside the roof");
+    }
+    // The outer shell extends two metres beyond the interior back wall.  By that
+    // point the natural mountain must already be restored so its rear cap cannot be
+    // seen as a vertical manufactured wall from above.
+    {
+        const auto p=cave.World(0,0,CaveLayout::OuterLength);
+        const float original=terrain.Height(p.x,p.z);
+        Check(cave.GroundTarget(p.x,p.z,original)>=original-.02f,
+              "cave terrain does not bury the outer rear cap");
+    }
     constexpr float radius=PlayerMotion::CapsuleRadius,height=1.9f;
     for(int step=-30;step<=195;++step) {
         const float depth=step*.1f;
@@ -164,8 +230,11 @@ int main() {
         if(depth>=0&&depth<=CaveLayout::Length) {
             Check(std::abs(cave.GroundTarget(p.x,p.z,p.y+7)-(p.y-.003f))<.00002f,
                   "terrain excavation does not clear the cave floor");
-            Check(std::abs(ground.SampleHeight(p.x,p.z)-(p.y-.003f))<.00002f,
-                  "meshed replacement seals the interior with a terrain sheet");
+            const float meshed=ground.SampleHeight(p.x,p.z);
+            if(std::abs(meshed-(p.y-.003f))>=.00002f)
+                throw std::runtime_error("meshed replacement seals the interior with a terrain sheet at depth "
+                    +std::to_string(depth)+" target "+std::to_string(p.y-.003f)
+                    +" actual "+std::to_string(meshed));
         }
     }
     const auto start=cave.World(0,.003f,0);
@@ -186,7 +255,7 @@ int main() {
     Check(cave.IntersectsCapsule({NAN,0,0},radius,height),"invalid capsule did not fail closed");
     Check(cave.SafeTravelFraction(start,{INFINITY,0,0},radius,height)==0,"invalid sweep accepted");
     Check(!cave.IntersectsCapsule({0,50,0},radius,height),"distant player collides with cave");
-    for(float depth:{1.0f,5.0f,10.0f,15.0f,19.0f}) {
+    for(float depth:{1.0f,5.0f,10.0f,15.0f}) {
         for(float across:{-1.4f,0.0f,1.4f}) {
             const auto inside=cave.World(across,CaveLayout::Floor(depth)+.003f,depth);
             Check(!cave.IntersectsCapsule(inside,radius,height),"usable interior is narrower than intended");
@@ -203,6 +272,11 @@ int main() {
             Check(fraction>0&&fraction<1,"outer wall permits entry away from portal");
         }
     }
+    // The last chamber now closes naturally, so only its centre remains passable;
+    // requiring the full-width corridor here would regress it to a wall-ended tube.
+    Check(!cave.IntersectsCapsule(
+              cave.World(0,CaveLayout::Floor(19)+.003f,19),radius,height),
+          "natural cave termination closes before its final walkable pocket");
     for(float depth:{-7.0f,25.0f}) for(float across:{-8.0f,0.0f,8.0f}) {
         const auto p=cave.World(across,0,depth);
         Check(cave.GroundTarget(p.x,p.z,7.0f)==7.0f,"cave modifies distant terrain");
@@ -254,8 +328,9 @@ int main() {
     Check(cave.Local({walker.Position().x,0,walker.Position().z}).z<0,"walking controller cannot exit cave");
     const auto solid=cave.World(3.0f,0,10);
     walker.SetPosition(terrain,solid.x,solid.z);
-    Check(cave.Local({walker.Position().x,0,walker.Position().z}).z<0,
-          "invalid placement remained inside rock");
+    Check(!cave.IntersectsCapsule({walker.Position().x,walker.Position().y-PlayerMotion::EyeHeight,
+                                  walker.Position().z},radius,height),
+          "soil-covered cave flank does not provide a valid walkable top surface");
     FlightMotion flight;flight.SetCave(&cave,&ground);
     const auto inside=cave.World(0,CaveLayout::Floor(10)+PlayerMotion::EyeHeight+.02f,10);
     flight.Activate(terrain,{inside.x,inside.y,inside.z});

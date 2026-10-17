@@ -116,6 +116,7 @@ namespace island
             case FixedViewpoint::CaveExterior: return "cave";
             case FixedViewpoint::CaveOverhead: return "cave-top";
             case FixedViewpoint::CaveInterior: return "cave-inside";
+            case FixedViewpoint::CaveBack: return "cave-back";
             case FixedViewpoint::BunkerExterior: return "bunker";
             case FixedViewpoint::BunkerCorridor: return "bunker-corridor";
             case FixedViewpoint::BunkerComputerRoom: return "bunker-computers";
@@ -403,19 +404,23 @@ namespace island
                 <<(inside?"centre aisle across cockpit controls and accessible footwell":"grounded exterior and open doors")<<'\n';
         } else if (viewpoint_ == FixedViewpoint::CaveExterior
                    || viewpoint_ == FixedViewpoint::CaveOverhead
-                   || viewpoint_ == FixedViewpoint::CaveInterior) {
+                   || viewpoint_ == FixedViewpoint::CaveInterior
+                   || viewpoint_ == FixedViewpoint::CaveBack) {
             const CaveLayout cave(terrain_);
             const bool inside=viewpoint_==FixedViewpoint::CaveInterior;
             const bool overhead=viewpoint_==FixedViewpoint::CaveOverhead;
-            const auto p=inside?cave.World(.6f,CaveLayout::Floor(12)+PlayerMotion::EyeHeight,12)
+            const bool back=viewpoint_==FixedViewpoint::CaveBack;
+            const auto p=back?cave.World(.25f,CaveLayout::Floor(15)+PlayerMotion::EyeHeight,15)
+                :inside?cave.World(.6f,CaveLayout::Floor(12)+PlayerMotion::EyeHeight,12)
                 :overhead?cave.World(7.0f,18.0f,-6.0f):cave.World(12,8,-24);
-            const auto target=inside?cave.World(0,1.6f,-3)
+            const auto target=back?cave.World(.15f,CaveLayout::Floor(20)+1.08f,21.0f)
+                :inside?cave.World(0,1.6f,-3)
                 :overhead?cave.World(0,2.0f,8.0f):cave.World(0,2.1f,7);
             cameraPosition_=Vector3(p.x,p.y,p.z);
             yaw_=std::atan2(target.x-p.x,target.z-p.z);
             pitch_=std::atan2(target.y-p.y,std::hypot(target.x-p.x,target.z-p.z));
             std::cout<<"island-simulator: cave QA camera "
-                <<(inside?"inside":overhead?"overhead":"outside")<<'\n';
+                <<(back?"back":inside?"inside":overhead?"overhead":"outside")<<'\n';
         } else if(viewpoint_==FixedViewpoint::BunkerExterior
                   ||viewpoint_==FixedViewpoint::BunkerCorridor
                   ||viewpoint_==FixedViewpoint::BunkerComputerRoom
@@ -1893,7 +1898,8 @@ namespace island
         playerMotion_.SetCave(&terrainRenderer_->Cave(),&terrainRenderer_->CaveGround());
         playerMotion_.SetBunker(&bunkerLayout_);
         flightMotion_.SetCave(&terrainRenderer_->Cave(),&terrainRenderer_->CaveGround());
-        caveRenderer_=std::make_unique<CaveRenderer>(device,terrainRenderer_->Cave());
+        caveRenderer_=std::make_unique<CaveRenderer>(device,terrainRenderer_->Cave(),
+                                                      terrainRenderer_->CaveGround());
         bunkerRenderer_=std::make_unique<BunkerRenderer>(device,bunkerLayout_);
         campfireRenderer_=std::make_unique<CampfireRenderer>(device,campfireLayout_);
         streamWaterRenderer_=std::make_unique<StreamWaterRenderer>(device,terrain_,terrainRenderer_->StreamBed());

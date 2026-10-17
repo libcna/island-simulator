@@ -29,6 +29,7 @@ namespace
         case FixedViewpoint::CaveExterior: return "cave";
         case FixedViewpoint::CaveOverhead: return "cave-top";
         case FixedViewpoint::CaveInterior: return "cave-inside";
+        case FixedViewpoint::CaveBack: return "cave-back";
         case FixedViewpoint::BunkerExterior: return "bunker";
         case FixedViewpoint::BunkerCorridor: return "bunker-corridor";
         case FixedViewpoint::BunkerComputerRoom: return "bunker-computers";
@@ -171,7 +172,7 @@ int main(const int argc, char* argv[])
         } else if (argument == "--viewpoint") {
             if (++index >= argc) {
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, snags, sapling, "
-                             "east, headland, tide-pools, turtle-nest, cave, cave-top, cave-inside, bunker, bunker-corridor, bunker-computers, bunker-reactor, bunker-service, bunker-end, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, wetland, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, fallen-palm, broken-palm, water, "
+                             "east, headland, tide-pools, turtle-nest, cave, cave-top, cave-inside, cave-back, bunker, bunker-corridor, bunker-computers, bunker-reactor, bunker-service, bunker-end, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, wetland, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, fallen-palm, broken-palm, water, "
                              "wet-sand, current, distant, props, driftwood, reef, reef-habitat, fronds, birds, bats, bat-roost, fish, "
                              "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, helicopter, helicopter-inside, crabs, hermit-crabs, coconut-crabs, crocodiles, boars, goats, spiders, spiders-bright, spider-web, snakes, snake-head, tree-snakes, butterflies, geckos, skinks, dragonflies, frogs, mice, rats, flies, ants, cicadas, turtles, or traversal\n";
                 return 2;
@@ -193,6 +194,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::CaveOverhead;
             } else if (name == "cave-inside") {
                 viewpoint = island::FixedViewpoint::CaveInterior;
+            } else if (name == "cave-back") {
+                viewpoint = island::FixedViewpoint::CaveBack;
             } else if(name=="bunker") {
                 viewpoint=island::FixedViewpoint::BunkerExterior;
             } else if(name=="bunker-corridor") {

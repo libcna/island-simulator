@@ -19,13 +19,15 @@ MINIMUM_HEIGHT = 360
 MINIMUM_LUMINANCE_DEVIATION = 18.0
 MINIMUM_QUANTIZED_COLOR_BINS = 64
 MINIMUM_SPATIAL_CONTRAST = 30.0
-PROFILES = ("scene", "shaded-detail", "close-natural-detail")
+PROFILES = ("scene", "shaded-detail", "close-natural-detail", "dark-cave-detail")
 
 
 def profile_for_viewpoint(viewpoint: str) -> str:
     """Return only explicitly reviewed profiles; never infer an exception from failed pixels."""
     if viewpoint == "litter":
         return "shaded-detail"
+    if viewpoint == "cave-back":
+        return "dark-cave-detail"
     if viewpoint in ("cave-top", "spiders", "spiders-bright", "snakes", "snake-head", "tree-snakes", "ants", "cicadas", "beetles"):
         return "close-natural-detail"
     return "scene"
@@ -215,13 +217,16 @@ def validate_capture(image: PpmImage, expected_width: int | None = None,
     metrics = analyze_capture(image)
     # Shaded close-ups must retain at least 25% relative variation and a hard noise
     # floor. This is stricter for bright/washed-out pictures, not a blanket bypass.
-    minimum_deviation = (max(12.0, metrics["luminanceMean"] * 0.25)
+    minimum_deviation = (2.5 if profile == "dark-cave-detail"
+                         else max(12.0, metrics["luminanceMean"] * 0.25)
                          if profile == "shaded-detail"
                          else max(10.0, metrics["luminanceMean"] * 0.20)
                          if profile == "close-natural-detail"
                          else MINIMUM_LUMINANCE_DEVIATION)
-    minimum_color_bins = 40 if profile == "close-natural-detail" else MINIMUM_QUANTIZED_COLOR_BINS
-    minimum_spatial_contrast = 15.0 if profile == "close-natural-detail" else MINIMUM_SPATIAL_CONTRAST
+    minimum_color_bins = (6 if profile == "dark-cave-detail" else 40
+                          if profile == "close-natural-detail" else MINIMUM_QUANTIZED_COLOR_BINS)
+    minimum_spatial_contrast = (8.0 if profile == "dark-cave-detail" else 15.0
+                                if profile == "close-natural-detail" else MINIMUM_SPATIAL_CONTRAST)
     errors: list[str] = []
     if image.width < MINIMUM_WIDTH or image.height < MINIMUM_HEIGHT:
         errors.append(

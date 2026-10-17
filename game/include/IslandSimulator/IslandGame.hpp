@@ -129,6 +129,7 @@ namespace island
         CaveExterior,
         CaveOverhead,
         CaveInterior,
+        CaveBack,
         BunkerExterior,
         BunkerCorridor,
         BunkerComputerRoom,

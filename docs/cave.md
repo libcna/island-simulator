@@ -4,6 +4,38 @@ This is a project-owned procedural mesh, without imported assets or licence depe
 The native game now constructs and renders the cave and terrain replacement.
 Do not mark the PLAN entry complete: moving visual polish and Android runtime remain.
 
+## Broad soil overburden and corrected aerial silhouette — 2026-10-17
+
+The user's free-flight screenshot at 15:48:44 exposed a real gap in the earlier audit: earth colour
+and sparse blades had merely disguised a freestanding rock tube. Two depressed longitudinal strips
+still outlined it, and the outer rear cap rose as a green wall. The permanent `cave-top` camera
+reproduced the same defect, so the previous native pass was not treated as completion.
+
+The low replacement height field must remain the walkable cave floor and cannot simultaneously be
+the roof. `CaveGroundPatch` now therefore emits a separate render-only 57x49 overburden surface in
+the same terrain batch. It samples the actual top of the closed shell, maintains at least 6.9cm of
+cover at sampled intersections, uses an irregular 28m-wide shoulder, and eases into the original
+mountain beyond the rear cap and lateral flanks. Terrain shading now distinguishes the high cover
+from the low floor by world height: the cover keeps ordinary forest-soil material while only the
+floor receives the subdued cave-stone override. The terrain batch is 6,270 vertices / 12,096
+triangles in its existing one draw. The cave batch remains one draw and is 4,040 triangles after
+139 low grass tufts and 11 fern fans were grounded on the visible cover.
+
+The authoritative shell, entrance, 20m corridor, player collision and location are unchanged.
+The excavation transition is now only 70cm outside the usable cavity, and returns to the original
+rising mountain before the 22m outer rear cap. Tests explicitly reject the former side trench,
+rear-cap exposure, non-finite cover, insufficient crown coverage and cover/rock penetration. The
+full controller fixture still reaches depth 19.6592m, stops at the back, exits, blocks roof/floor
+penetration and supports the covered upper flank.
+
+Inspected accepted native captures are `20261017T140954.115032Z-cave-top` (167 colour bins, 11.47
+luminance deviation, 33.21 spatial contrast), `20261017T141021.371835Z-cave` (260 bins, 45.31,
+239.09), and `20261017T141048.917010Z-cave-inside` (164 bins, 25.76, 104.62). All pass the updated
+strict integration markers. The aerial image no longer exposes the tube, rear wall or two side
+channels; the exterior still preserves a readable irregular stone mouth and the interior retains
+its clear exit view. Portable rebuild/runtime evidence is intentionally not claimed by this native
+pass.
+
 ## High-clearance eroded ceiling detail — 2026-10-13
 
 The accepted rock material still left the twenty-metre interior as one visually continuous smooth
@@ -271,3 +303,19 @@ Final exterior `20261014T152840.308496Z-cave` passes at 263 colour bins, 44.11 l
 deviation and 236.00 spatial contrast. Interior `20261014T152904.642266Z-cave-inside` passes at
 168 / 26.37 / 113.45 and confirms that the cover does not intrude into the entrance or tunnel.
 The interior path/capsule contract and the 1,424 authoritative collision triangles are unchanged.
+
+## Soil-overburden approval and natural termination — 2026-10-17
+
+The later overhead repair separates the low walkable support surface from a 57x49 render-only soil
+mantle over the roof. The operator visually approved that broad dirt-and-vegetation hillside from
+above on 2026-10-17; the former exposed tube, side trenches and green rear wall are no longer part
+of the accepted design.
+
+The interior no longer ends at a single planar arch fan. Its last 5.8m narrows in both width and
+height, then continues through two smaller asymmetric rings into a short closed pocket. Every ring
+and the terminal fan use the ordinary interior rock material and shared lighting normals, so there
+is no separately lit stone plate. The authoritative collision shell uses the same 1,494 triangles,
+and the replacement terrain stays below the pocket until after it closes, preventing green terrain
+or intersecting shards from appearing inside. A dedicated `cave-back` camera and depth-spread
+regression guard this view; its validator uses an explicit dark-cave profile because natural
+daylight at the end is intentionally subdued rather than presentation-scene bright.

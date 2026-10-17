@@ -37,6 +37,71 @@ CaveGroundPatch::CaveGroundPatch(const CaveLayout& cave,const RenderedTerrainSur
         const auto br=static_cast<std::uint16_t>(bl+1);
         indices_.insert(indices_.end(),{tl,bl,tr,tr,bl,br});
     }
+
+    // The support height field above is necessarily the cave floor along the centre.
+    // It cannot also be the soil above the roof at the same X/Z, so provide a small
+    // render-only second surface for the existing terrain batch.  It follows the
+    // actual top of the closed rock shell, then eases asymmetrically into the original
+    // hillside.  Collision remains the authoritative shell plus support grid.
+    constexpr int acrossSegments=CoverColumns-1,depthSegments=CoverRows-1;
+    constexpr float acrossMin=-14.0f,acrossMax=14.0f;
+    constexpr float depthMin=1.25f,depthMax=24.25f;
+    const auto smooth=[](float value) {
+        value=std::clamp(value,0.0f,1.0f);return value*value*(3.0f-2.0f*value);
+    };
+    const auto roofAt=[&](float across,float depth) {
+        const auto query=cave.World(across,0,depth);
+        float highest=-INFINITY;
+        for(const auto& triangle:cave.Triangles()) {
+            if(triangle.surface!=CaveSurface::Exterior)continue;
+            const auto& a=triangle.points[0];const auto& b=triangle.points[1];
+            const auto& c=triangle.points[2];
+            const float bax=b.x-a.x,baz=b.z-a.z,cax=c.x-a.x,caz=c.z-a.z;
+            const float qax=query.x-a.x,qaz=query.z-a.z;
+            const float denominator=bax*caz-baz*cax;
+            if(std::abs(denominator)<1e-7f)continue;
+            const float u=(qax*caz-qaz*cax)/denominator;
+            const float v=(bax*qaz-baz*qax)/denominator;
+            if(u>=-.0001f&&v>=-.0001f&&u+v<=1.0001f)
+                highest=std::max(highest,a.y+u*(b.y-a.y)+v*(c.y-a.y));
+        }
+        return highest;
+    };
+    for(int row=0;row<=depthSegments;++row) {
+        const float depth=std::lerp(depthMin,depthMax,static_cast<float>(row)/depthSegments);
+        for(int column=0;column<=acrossSegments;++column) {
+            const float across=std::lerp(acrossMin,acrossMax,
+                static_cast<float>(column)/acrossSegments);
+            const float frontWeight=1.0f-smooth((depth-depthMin)/3.2f);
+            const float shapedDepth=depth+frontWeight*(.42f*std::sin(across*.53f+.4f)
+                +.20f*std::sin(across*1.17f+1.1f));
+            const float centreRoof=roofAt(0,std::min(shapedDepth,21.75f));
+            const auto world=cave.World(across,0,shapedDepth);
+            const float originalHeight=original.Sample(world.x,world.z).height;
+            const float actualRoof=roofAt(across,shapedDepth);
+            const float shiftedAcross=across-.34f*std::sin(shapedDepth*.31f+.7f);
+            const float outer=12.65f+.55f*std::sin(shapedDepth*.37f+1.1f)
+                +.22f*std::sin(shapedDepth*.83f+.2f);
+            const float shoulder=1.0f-smooth((std::abs(shiftedAcross)-3.7f)
+                                              /std::max(.5f,outer-3.7f));
+            const float rear=1.0f-smooth((shapedDepth-20.2f)/4.05f);
+            const float broadTarget=centreRoof+.09f-.018f*across*across
+                +.10f*std::sin(across*.73f+shapedDepth*.29f)
+                +.055f*std::sin(across*1.41f-shapedDepth*.47f);
+            float height=std::max(originalHeight+.018f,
+                std::lerp(originalHeight+.018f,broadTarget,
+                          std::clamp(shoulder*rear,0.0f,1.0f)));
+            if(std::isfinite(actualRoof))height=std::max(height,actualRoof+.18f);
+            coverVertices_.push_back({world.x,height,world.z});
+        }
+    }
+    for(int row=0;row<depthSegments;++row)for(int column=0;column<acrossSegments;++column) {
+        const auto tl=static_cast<std::uint16_t>(row*(acrossSegments+1)+column);
+        const auto tr=static_cast<std::uint16_t>(tl+1);
+        const auto bl=static_cast<std::uint16_t>(tl+acrossSegments+1);
+        const auto br=static_cast<std::uint16_t>(bl+1);
+        coverIndices_.insert(coverIndices_.end(),{tl,bl,tr,tr,bl,br});
+    }
 }
 bool CaveGroundPatch::Contains(float x,float z) const noexcept {
     return std::isfinite(x)&&std::isfinite(z)

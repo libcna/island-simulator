@@ -20,6 +20,52 @@ Status markers:
 - `[~]` in progress
 - `[!]` blocked or degraded, with the reason written next to the item
 
+## Latest cave termination repair — continuous narrowing instead of a stone plate
+
+The operator accepted the overhead soil repair, then correctly identified the remaining flat
+arch-shaped end wall inside the cave. The last 5.8m of the 20m passage now narrows in width and
+height and continues through two smaller asymmetric rings into a short closed rock pocket. All
+three stages are part of the authoritative collision shell and share the ordinary interior
+material and smoothed normals; there is no separately lit decorative wall in front of an invisible
+collider. The support terrain remains below the pocket until it has closed, then rejoins the
+mountain behind it, eliminating the green wall and intersecting shards found in rejected captures.
+
+The closed shell now has 1,494 triangles and the one-batch cave renderer has 4,110 triangles with
+the already approved roof vegetation. The player walks to 19.9199m, is stopped by matching rock,
+and can return outside. `IslandCaveLayoutTests` checks closed topology, more than 1.1m of real
+termination depth, whole-capsule clearance and traversal. The dedicated intentionally dark
+`cave-back` evidence `20261017T143804.710202Z-cave-back` passes its non-degenerate dark-cave gate;
+inspected guards `20261017T143846.915296Z-cave-top`, `20261017T143905.304317Z-cave` and
+`20261017T143922.854622Z-cave-inside` preserve the approved soil mantle, entrance and exit view.
+
+## Latest cave overhead repair — real soil overburden instead of a covered tube
+
+The operator's free-flight screenshot `Screenshot From 2026-10-17 15-48-44.png` correctly
+contradicted the earlier completion language: although the rock crown had an earth colour, the
+cave still read from above as a long freestanding tube in a trench, with two dark side channels
+and a tall green outer rear cap. The fixed overhead QA view reproduced the defect. The first
+attempt to narrow only the height-field excavation removed the rear cap but retained jagged side
+gaps; a cave floor and a roof cannot both be represented by one height at the same X/Z.
+
+`CaveGroundPatch` therefore now carries a second render-only, 57x49 terrain-material surface above
+the unchanged low support grid. It follows the measured top of the closed collision shell with at
+least 6.9cm clearance, spreads through an asymmetric 28m-wide soil shoulder, and rejoins the
+original hillside behind and beside the cave. The terrain shader restricts its stone override by
+height, so this upper layer receives ordinary forest-soil treatment while the lower traversable
+floor remains stone. The same terrain draw now contains 6,270 vertices / 12,096 triangles. The
+cave draw remains one batch; the five portal rocks and 20m interior are unchanged.
+
+New regression checks reject a depressed side trench, an uncovered outer rear cap, non-finite or
+undersized overburden, and any cover vertex dipping through the rock crown. The player still walks,
+stops at the back, exits, flies against the inner roof, lands, and can stand on the covered upper
+flank. `IslandCaveLayoutTests` plus all 55 capture/browser harness tests pass.
+Inspected native evidence `20261017T140954.115032Z-cave-top`,
+`20261017T141021.371835Z-cave`, and `20261017T141048.917010Z-cave-inside` passes the updated strict
+gate. From above the rear wall, side trenches and exposed tube are gone; the result is a broad
+vegetated hillside with an irregular rock opening. The operator visually approved this overhead
+soil/terrain result on 2026-10-17, so that specific item is complete. WebGL/Android rebuild and
+moving unscripted hardware review remain open, so the overall cave item remains in progress.
+
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
@@ -11822,6 +11868,10 @@ after the same experience remains available.
 - [~] `README.md`: concept, controls, quick start, and honest status exist. A current hash-gated
   native overview now provides the first actual release-facing screenshot and is packaged beside
   the README; a restrained first-person gallery and final release copy-edit remain.
+  - [ ] Capture, curate, version and embed a broad current gallery covering representative animals,
+    hut, stream, helicopter, campfire, beach, ocean, trees/jungle, cave and secret bunker. Generate
+    these only from the accepted current build, keep captions honest about platform/viewpoint, and
+    do not revive obsolete QA screenshots merely to increase image count.
 - [x] `PLAN.md`: this living ledger.
 - [x] `BUGS.md`: defect schema and current no-confirmed-defects record exist; update whenever
   evidence qualifies a dependency defect.

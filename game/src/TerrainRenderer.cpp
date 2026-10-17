@@ -909,13 +909,31 @@ void main()
     vec2 caveOffset=vWorld.xz-uCaveEntrance.xz;
     float caveDepth=dot(caveOffset,uCaveForward);
     float caveAcross=dot(caveOffset,vec2(uCaveForward.y,-uCaveForward.x));
-    float caveWidth=2.65+.18*sin(caveDepth*.42+.3);
+    float caveWidth=2.65+.18*sin(caveDepth*.42+.3)
+        +.72*smoothstep(14.0,19.5,caveDepth);
     float caveFloor=(1.0-smoothstep(caveWidth-.5,caveWidth+.3,
         abs(caveAcross-.22*sin(caveDepth*.31))))
         *smoothstep(-1.5,1.0,caveDepth)*(1.0-smoothstep(20.0,21.0,caveDepth));
+    // The cave terrain batch also carries a second, high soil surface above the
+    // closed roof.  Restrict the stone override to the low support floor so the
+    // overburden retains the ordinary forest-soil material at identical X/Z.
+    float caveFloorHeight=uCaveEntrance.y+.025*caveDepth;
+    caveFloor*=1.0-smoothstep(.55,1.25,vWorld.y-caveFloorHeight);
+    // The restored mountain rises into the final pocket and is intentionally part
+    // of the natural closure.  Treat that low, centre-axis surface as cave rock;
+    // leaving the ordinary biome material here produced a bright green wall behind
+    // the receding stone rings.  The height ceiling keeps the approved soil-covered
+    // roof and hillside above the cavity completely unchanged.
+    float caveClosure=smoothstep(18.1,20.0,caveDepth)
+        *(1.0-smoothstep(21.75,22.45,caveDepth))
+        *(1.0-smoothstep(caveWidth-.22,caveWidth+.42,
+            abs(caveAcross-.22*sin(caveDepth*.31))))
+        *(1.0-smoothstep(3.35,4.25,vWorld.y-caveFloorHeight));
     float caveGrain=valueNoise(vWorld.xz*4.0)*.65+valueNoise(vWorld.xz*17.0)*.35;
     vec3 caveStone=mix(vec3(.24,.25,.24),vec3(.34,.32,.28),caveGrain);
     caveStone*=mix(.85,.24,smoothstep(0.0,14.0,caveDepth));
+    vec3 closureStone=mix(vec3(.18,.185,.175),vec3(.31,.285,.235),caveGrain);
+    closureStone*=.48+.18*vGroundLight;
     // Weathered stone is confined to the eroded portal shoulders. Extending this apron
     // through the full tunnel length made the buried cave read as a grey excavated
     // trench from above instead of ordinary soil continuing over a hillside opening.
@@ -939,6 +957,7 @@ void main()
     color=mix(color,shoulderEarth,caveBuriedShoulder*.84);
     color=mix(color,apronStone,caveApron*.86);
     color=mix(color,caveStone,caveFloor);
+    color=mix(color,closureStone,caveClosure);
     color=applyCampfireLight(color,vWorld);
     float fog = smoothstep(260.0, 720.0, distanceToCamera);
     color = mix(color, islandAtmosphereFog, fog);
@@ -1257,7 +1276,37 @@ void main()
                 {sample.signedShoreDistance,sample.slopeRadians,light}});
             minimum=Vector3::Min(minimum,Vector3(p.x,p.y,p.z));maximum=Vector3::Max(maximum,Vector3(p.x,p.y,p.z));
         }
-        const auto caveIndices=caveGround_->Indices();
+        std::vector<std::uint16_t> caveIndices(caveGround_->Indices().begin(),
+                                               caveGround_->Indices().end());
+        const auto cover=caveGround_->CoverVertices();
+        const auto coverNormal=[&](int row,int column) {
+            const auto point=[&](int r,int c) {
+                const auto p=cover[static_cast<std::size_t>(r*CaveGroundPatch::CoverColumns+c)];
+                return Vector3(p.x,p.y,p.z);
+            };
+            const Vector3 left=point(row,std::max(column-1,0));
+            const Vector3 right=point(row,std::min(column+1,CaveGroundPatch::CoverColumns-1));
+            const Vector3 front=point(std::max(row-1,0),column);
+            const Vector3 back=point(std::min(row+1,CaveGroundPatch::CoverRows-1),column);
+            Vector3 normal=Vector3::Cross(back-front,right-left);
+            if(normal.Y<0)normal*=-1.0f;
+            normal.Normalize();return normal;
+        };
+        const auto coverBase=static_cast<std::uint16_t>(vertices.size());
+        for(int row=0;row<CaveGroundPatch::CoverRows;++row)
+            for(int column=0;column<CaveGroundPatch::CoverColumns;++column) {
+                const auto p=cover[static_cast<std::size_t>(row*CaveGroundPatch::CoverColumns+column)];
+                auto sample=terrain.Sample(p.x,p.z);sample.height=p.y;
+                const auto normal=coverNormal(row,column);
+                sample.normal=TerrainSurfaceFrame::Normalize({normal.X,normal.Y,normal.Z});
+                sample.slopeRadians=std::acos(std::clamp(sample.normal.y,-1.0f,1.0f));
+                const float light=TerrainDaylight(sample.normal);const auto color=TerrainColor(sample,light);
+                vertices.push_back({{p.x,p.y,p.z},
+                    {color.getRProperty(),color.getGProperty(),color.getBProperty(),255},
+                    {sample.signedShoreDistance,sample.slopeRadians,light}});
+            }
+        for(const auto index:caveGround_->CoverIndices())
+            caveIndices.push_back(static_cast<std::uint16_t>(coverBase+index));
         ValidateProceduralTriangleMeshOrThrow(vertices.size(),caveIndices,"cave ground");
         caveVertexCount_=static_cast<int>(vertices.size());cavePrimitiveCount_=static_cast<int>(caveIndices.size()/3);
         caveBounds_=BoundingBox(minimum-Vector3(.1f,.1f,.1f),maximum+Vector3(.1f,.1f,.1f));
@@ -1268,6 +1317,7 @@ void main()
         caveIndices_->SetData(caveIndices.data(),static_cast<int>(caveIndices.size()));
         std::cout<<"island-simulator: cave ground replacement "<<caveVertexCount_<<" vertices, "
             <<cavePrimitiveCount_<<" triangles; original covered terrain removed\n";
+        std::cout<<"island-simulator: cave ground batch adds a broad forest-soil overburden above the closed roof\n";
         const char* caveApron="island-simulator: cave terrain shoulders confine the irregular rock apron to the eroded portal";
         std::cout<<caveApron<<'\n';MirrorRuntimeDiagnosticToPlatformLog(caveApron);
         const char* caveSoil="island-simulator: cave replacement shoulders use excavated earth instead of bright biome rails";

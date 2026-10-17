@@ -105,12 +105,19 @@ CaveLayout::CaveLayout(const IslandTerrain& terrain) {
             const float arc=(slice==0||slice==ArchSegments)?0.0f:std::sin(theta);
             const float w=std::cos(theta);
             const float mouth=std::exp(-depth*.22f);
-            const float height=3.45f+.25f*std::sin(depth*.37f+theta*3)
+            float height=3.45f+.25f*std::sin(depth*.37f+theta*3)
                 +.12f*std::sin(depth*1.3f+theta*7)
                 +.62f*mouth*std::sin(theta*4.4f+.2f)*arc;
-            const float innerWidth=Width(depth)
+            float innerWidth=Width(depth)
                 *(1+(.07f*std::sin(depth*.9f+theta*5+.4f)
                     +.16f*mouth*std::sin(theta*3.1f+.9f))*arc);
+            // The final chamber pinches down over several metres instead of ending
+            // at a full-size arch closed by a wall.  This is deliberately visible
+            // from the walkable centreline: the cave should appear to peter out in
+            // solid rock, not to have a masonry bulkhead fitted across it.
+            const float endTaper=Smooth((depth-14.2f)/5.8f);
+            innerWidth*=1.0f-.34f*endTaper;
+            height*=1.0f-.31f*endTaper;
             inner[row][slice]=World(Centre(depth)+innerWidth*w,Floor(depth)+height*arc,depth);
             // A compact rock mantle reads as a cave eroded into an outcrop.  The former
             // ~8 m crown put almost five metres of rock over a 3.5 m opening and looked
@@ -191,10 +198,47 @@ CaveLayout::CaveLayout(const IslandTerrain& terrain) {
              inward*-1,CaveSurface::Entrance);
     quad(outer[0][ArchSegments],outer[0][0],inner[0][0],inner[0][ArchSegments],
          inward*-1,CaveSurface::Entrance);
-    for(int slice=1;slice<ArchSegments;++slice) {
-        add(inner.back()[0],inner.back()[slice],inner.back()[slice+1],inward*-1,CaveSurface::Back);
-        add(outer.back()[0],outer.back()[slice],outer.back()[slice+1],inward,CaveSurface::Exterior);
+    // Continue the cavity into two smaller, uneven rings before it closes.  A single
+    // inset ring still projected as one arch-shaped stone plate from inside.  These
+    // successive rings make the ceiling, side walls and rising floor converge over
+    // two metres into a shallow natural pocket.  They remain the authoritative
+    // collision surface rather than decorative rubble in front of an invisible wall.
+    std::array<CavePoint,ArchSegments+1> backMiddle{},backInner{};
+    const float backCentreAcross=Centre(Length)+.27f;
+    const float backCentreHeight=Floor(Length)+1.02f;
+    const CavePoint backCentre=World(backCentreAcross,backCentreHeight,Length+1.18f);
+    for(int slice=0;slice<=ArchSegments;++slice) {
+        const auto boundary=Local(inner.back()[slice]);
+        const float theta=std::numbers::pi_v<float>*static_cast<float>(slice)/ArchSegments;
+        const float arc=std::sin(theta);
+        const float middleAcross=std::lerp(backCentreAcross,boundary.x,.64f)
+            +(.13f*std::sin(theta*3.2f+.6f)+.05f*std::sin(theta*7.1f))*arc;
+        const float middleHeight=std::lerp(backCentreHeight-.20f,boundary.y,.66f)
+            +(.12f*std::sin(theta*4.7f+1.2f)+.04f*std::sin(theta*8.3f))*arc;
+        const float middleDepth=Length+.38f+.12f*std::sin(theta*2.7f+.8f)
+            +.04f*std::sin(theta*6.1f+.2f);
+        backMiddle[slice]=World(middleAcross,middleHeight,middleDepth);
+        const float innerAcross=std::lerp(backCentreAcross,boundary.x,.27f)
+            +.09f*std::sin(theta*3.8f+1.1f)*arc;
+        const float innerHeight=std::lerp(backCentreHeight,boundary.y,.25f)
+            +.08f*std::sin(theta*5.3f+.4f)*arc;
+        const float innerDepth=Length+.82f+.10f*std::sin(theta*3.4f+.5f)
+            +.04f*std::sin(theta*7.4f+1.3f);
+        backInner[slice]=World(innerAcross,innerHeight,innerDepth);
     }
+    for(int slice=0;slice<=ArchSegments;++slice) {
+        const int next=(slice+1)%(ArchSegments+1);
+        // These receding surfaces are continuations of the ordinary cave wall, so
+        // they share its normals and material. Marking the whole taper as a distinct
+        // back face made the first ring read as a freestanding stone arch.
+        quad(inner.back()[slice],inner.back()[next],backMiddle[next],backMiddle[slice],
+             inward*-1,CaveSurface::Interior);
+        quad(backMiddle[slice],backMiddle[next],backInner[next],backInner[slice],
+             inward*-1,CaveSurface::Interior);
+        add(backInner[slice],backInner[next],backCentre,inward*-1,CaveSurface::Interior);
+    }
+    for(int slice=1;slice<ArchSegments;++slice)
+        add(outer.back()[0],outer.back()[slice],outer.back()[slice+1],inward,CaveSurface::Exterior);
     bounds_={CavePoint{INFINITY,INFINITY,INFINITY},CavePoint{-INFINITY,-INFINITY,-INFINITY}};
     for(const auto& triangle:triangles_) for(const auto& p:triangle.points) {
         bounds_[0].x=std::min(bounds_[0].x,p.x);bounds_[1].x=std::max(bounds_[1].x,p.x);
@@ -211,11 +255,15 @@ float CaveLayout::GroundTarget(float x,float z,float original) const noexcept {
     // replacement-grid vertices.  On a real mountain slope, beginning the fade at
     // the exact portal/back planes lets steep original ground bleed through the
     // interpolated floor and can seal the otherwise valid walkable centreline.
-    // End the excavation inside the rock mantle. The former 2.5 m lateral fade
-    // reached its outer flank and exposed two long rails from above; a moderated
-    // 2.15 m transition preserves collision clearance without reaching the outer flank.
-    const float influence=(1-Smooth((across-Width(p.z))/2.15f))*Smooth((p.z+6)/4.5f)
-        *(1-Smooth((p.z-(Length+1.5f))/3));
+    // End the excavation immediately outside the usable cavity.  A former two-metre
+    // lateral fade pulled the replacement terrain down through the rock mantle and
+    // produced two long, dark trenches beside the soil-covered crown when seen from
+    // above.  The dense replacement mesh can make this transition in 70 cm while the
+    // complete player-width floor remains flat.  Behind the inner back wall, return
+    // to the unmodified rising mountain before the outer shell ends; otherwise the
+    // outer back cap is exposed as a tall green wall from flight height.
+    const float influence=(1-Smooth((across-Width(p.z))/.70f))*Smooth((p.z+6)/4.5f)
+        *(1-Smooth((p.z-(Length+1.28f))/.72f));
     // A modest buried shoulder ties the broad outcrop into the hill. The cavity stays
     // excavated, while all patch-border samples remain exactly the original terrain.
     // Carry the surrounding ground up both portal shoulders instead of exposing the
@@ -238,7 +286,7 @@ float CaveLayout::GroundTarget(float x,float z,float original) const noexcept {
     const float mantleRatio=std::clamp(across/bankOuter,0.0f,1.0f);
     const float soilMantle=entrance_.y+Floor(p.z)-.42f
         +5.15f*std::pow(std::max(0.0f,1.0f-mantleRatio*mantleRatio),.72f);
-    const float bankAcross=Smooth((across-Width(p.z))/1.1f)
+    const float bankAcross=Smooth((across-(Width(p.z)+.18f))/.58f)
         *(1-Smooth((across-(bankOuter-1.1f))/1.1f));
     const float bankTarget=std::max(original,std::max(shellSide-.06f,soilMantle));
     const float buried=std::lerp(original+1.15f*shoulder,bankTarget,
