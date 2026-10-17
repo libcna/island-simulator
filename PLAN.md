@@ -4657,7 +4657,7 @@ passed0.64s. Actual matched-stage070439.874400Z-boars passed/kernel[]; inspected
 enlarged image shows fur-covered, slightly rounder ears, but coarse body streaks
 and simplified elongated cheek remain. No full-suite/Web/Android claim.
 
-- [ ] Rework boar appearance and resolve the operator's report of no audible grunting.
+- [~] Rework boar appearance and resolve the operator's report of no audible grunting.
   Existing synthesized clips and earlier backend Playing-state tests are NOT evidence
   that the operator hears convincing boars. Reproduce nearby rest/forage/wander cases,
   inspect scheduling, attenuation and ambient masking, and verify audible results.
@@ -4749,6 +4749,19 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   60finite intervals/GL0/context intact/kernel[]. Core/herd/coat/pose/112 harness tests and ARM64
   assemble/lint pass without emulator execution.
   Broader joint/gait realism and subjective audio acceptance remain open.
+  Current resolution audit (2026-10-17): the later continuous body profile, lifted shoulder
+  mantle, fitted muscle-to-limb transitions, articulated cannon bones, split hooves, triangular
+  ears, warm nasal disc, mouth, inset eyes, curved adult tusks, rooted bristles and curly tail
+  supersede the early barrel/stick-leg captures above. Fresh eight-stage native evidence
+  `20261017T114007.951170Z-boars` was inspected and passes at 259 colour bins, 32.03 luminance
+  deviation and 135.79 spatial contrast. Earlier inspected Chrome/SwiftShader
+  `20261016T053707.895472Z-chrome-boars` passes two separated-time frames, GL0, a live context and
+  kernel `[]`; current Android assemble/lint includes the unchanged renderer. Current native SDL
+  disk playback `20261017T114306.629775Z` proves three scheduled calls including kind 3/grunt,
+  five of six shared sources at peak, 1,024,000 exact-zero muted bytes, 65,536 resumed nonzero
+  bytes and kernel `[]`. Visual implementation and functional playback are complete; only the
+  explicitly separate subjective speaker/headphone naturalness check remains, so the combined
+  historical item stays `[~]` rather than claiming human listening evidence.
 - [~] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
   tail. Rework head/body proportions and a fur-covered tail together, not just a colour
   change. Inspect actual island images and movement; previous fur/rig implementation
@@ -5762,7 +5775,7 @@ Player controls explicitly requested by the operator (2026-10-11):
 
 Visual rework explicitly requested by the operator (2026-10-11):
 
-- [ ] Give pigs/wild boars natural vocalizations (operator request, 2026-10-11): grunts,
+- [~] Give pigs/wild boars natural vocalizations (operator request, 2026-10-11): grunts,
   snuffles and breathing appropriate to resting, wandering and rooting/foraging. Use
   positional audio with distance attenuation, restrained volume, varied timing and
   cooldowns so the herd does not repeat one sound in unison or overwhelm island ambience.
@@ -5789,13 +5802,20 @@ Visual rework explicitly requested by the operator (2026-10-11):
   foliage, not appearance acceptance); mixed WAV retained. K with F1 cycles boars.
   34 supervisor/trace tests pass. Subjective/spatial listening and Web/Android runtime
   lifecycle remain open; this does not establish that synthesized clips sound natural.
-- [ ] Improve pigs/wild boars beyond their current procedural appearance: believable anatomy,
+  Current native SDL disk run `20261017T114306.629775Z` repeats the complete scheduler, positional
+  source-budget, mute and resume proof on the current binary. Implementation is complete; keep
+  `[~]` only for the requested human speaker/headphone naturalness and direction review.
+- [x] Improve pigs/wild boars beyond their current procedural appearance: believable anatomy,
   head and snout, shoulder/back silhouette, short articulated legs and cloven hooves. Give
   the coat convincing bristly fur detail and appropriate skin, snout and hoof textures;
   avoid uniformly brown geometric-looking bodies. Review walking, foot contact and material
   detail in close and distant actual game captures on native, Android and Web. Existing
   material-loading and ground-contact checks do not constitute visual acceptance.
-- [~] Make the shipwreck and scattered ship debris substantially more realistic. Refine the
+  Completed by the continuous-profile, anatomy, bristle-material, ground-contact and integrated
+  shoulder/haunch passes summarized under `Latest boar visual pass`. Fresh native eight-stage
+  evidence is `20261017T114007.951170Z-boars`; focused Chrome/SwiftShader and current Android
+  assemble/lint evidence are recorded above.
+- [x] Make the shipwreck and scattered ship debris substantially more realistic. Refine the
   large sailing ship's hull structure, ribs, plank thickness, broken edges and believable
   damage; integrate debris into sand and shallow water without floating or intersections.
   Add suitable weathered wood textures with grain aligned to individual boards, splintered
@@ -5860,8 +5880,13 @@ Visual rework explicitly requested by the operator (2026-10-11):
   Chrome/SwiftShader204536.386851Z-chrome-shipwreck PASS60intervals/two inspected frames/GL0/
   context intact/kernel[]. Release+Debug core/asset,33 browser-runner tests and ARM64
   assemble/lint pass without emulator/KVM.
-  Further transom/end-grain work, sand/water integration, a dedicated matched wide wreck
-  comparison and Android visual qualification remain open; diagnostics alone do not close it.
+  That 2026-10-13 follow-up list is superseded by the later settled-section pass summarized under
+  `Latest shipwreck visual pass`: separated deck lanes and true omissions, splintered break beams,
+  independently rolled/sunk hull sections and sand staining raise the one-draw wreck to 6,048
+  triangles. Inspected native `20261017T081439.676307Z-shipwreck`, inspected passing
+  Chrome/SwiftShader `20261017T081707.890858Z-chrome-shipwreck`, and Android ARM64 assemble/lint
+  close the requested implementation. Physical-device appearance remains part of the common final
+  platform qualification rather than an unfinished shipwreck subsystem.
 
 Wildlife backlog requested by the operator (all nonhostile ambient life; none may attack, block
 progress or require player interaction; dangerous species keep their distance like the shark):
