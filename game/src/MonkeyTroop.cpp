@@ -36,8 +36,28 @@ namespace island
         [[nodiscard]] float TurnToward(const float current, const float target,
                                        const float maximumStep) noexcept
         {
-            return WrapAngle(current + std::clamp(
-                WrapAngle(target - current), -maximumStep, maximumStep));
+            return WrapAngle(current+std::clamp(
+                WrapAngle(target-current),-maximumStep,maximumStep));
+        }
+
+        [[nodiscard]] float TurnTowardAccelerated(
+            const float current, const float target, const float deltaSeconds,
+            const float maximumRate, const float maximumAcceleration,
+            float& velocity) noexcept
+        {
+            const float error = WrapAngle(target-current);
+            const float brakingRate = std::sqrt(
+                2.0f*maximumAcceleration*std::fabs(error));
+            const float desiredVelocity = std::copysign(
+                std::min(maximumRate,brakingRate),error);
+            velocity += std::clamp(desiredVelocity-velocity,
+                -maximumAcceleration*deltaSeconds,maximumAcceleration*deltaSeconds);
+            if (std::fabs(error)<0.0001f
+                && std::fabs(velocity)<=maximumAcceleration*deltaSeconds) {
+                velocity=0.0f;
+                return target;
+            }
+            return WrapAngle(current+velocity*deltaSeconds);
         }
 
         [[nodiscard]] float UnitSequence(const std::uint32_t value) noexcept
@@ -290,6 +310,8 @@ namespace island
     void MonkeyTroop::EnterState(Agent& agent, const MonkeyBehavior behavior) noexcept
     {
         agent.state.behavior = behavior;
+        if (behavior!=MonkeyBehavior::RunAway)
+            agent.turnVelocityRadians=0.0f;
         agent.state.treeInspectionSeconds = 0;
         agent.state.treeInspectionRemaining = 0;
         agent.state.treeExcursion.reset();
@@ -570,12 +592,25 @@ namespace island
             if (targetDistance > (agent.state.behavior == MonkeyBehavior::ApproachTree ? .01f : .05f)) {
                 const float desiredHeading = std::atan2(toTargetZ, toTargetX);
                 const float turnRate = agent.state.behavior == MonkeyBehavior::RunAway
-                    ? 3.0f : 1.9f;
-                agent.state.headingRadians = TurnToward(
-                    agent.state.headingRadians, desiredHeading, turnRate * deltaSeconds);
+                    ? MaximumRetreatTurnRate : MaximumGroundTurnRate;
+                const bool acceleratedRetreat=
+                    agent.state.behavior==MonkeyBehavior::RunAway;
+                const float headingAtStart = agent.state.headingRadians;
+                const float turnVelocityAtStart=agent.turnVelocityRadians;
+                agent.state.headingRadians = acceleratedRetreat
+                    ? TurnTowardAccelerated(headingAtStart,desiredHeading,deltaSeconds,
+                        turnRate,MaximumGroundTurnAcceleration,agent.turnVelocityRadians)
+                    : TurnToward(headingAtStart,desiredHeading,turnRate*deltaSeconds);
                 float stepDistance = std::min(targetDistance,agent.state.speed * deltaSeconds);
-                if (agent.state.behavior == MonkeyBehavior::ApproachTree)
-                    stepDistance *= std::max(0.0f,std::cos(WrapAngle(desiredHeading-agent.state.headingRadians)));
+                if (agent.state.behavior == MonkeyBehavior::ApproachTree
+                    || agent.state.behavior == MonkeyBehavior::RunAway) {
+                    const float alignment = std::max(0.0f,
+                        std::cos(WrapAngle(desiredHeading-agent.state.headingRadians)));
+                    const float minimumForwardFraction =
+                        agent.state.behavior == MonkeyBehavior::RunAway ? .14f : 0.0f;
+                    stepDistance *= minimumForwardFraction
+                        + (1.0f-minimumForwardFraction)*alignment;
+                }
                 const float directX = agent.state.x
                     + std::cos(agent.state.headingRadians) * stepDistance;
                 const float directZ = agent.state.z
@@ -588,9 +623,19 @@ namespace island
                         0.48f, -0.48f, 0.92f, -0.92f};
                     bool moved = false;
                     for (const float deflection : DeflectionAngles) {
-                        const float candidateHeading = agent.state.headingRadians
-                            + deflection * preferredSide;
-                        if (TryMove(agent, candidateHeading, stepDistance)) {
+                        const float candidateTarget = WrapAngle(
+                            desiredHeading + deflection * preferredSide);
+                        float candidateTurnVelocity=turnVelocityAtStart;
+                        const float candidateHeading = acceleratedRetreat
+                            ? TurnTowardAccelerated(headingAtStart,candidateTarget,deltaSeconds,
+                                turnRate,MaximumGroundTurnAcceleration,candidateTurnVelocity)
+                            : TurnToward(headingAtStart,candidateTarget,turnRate*deltaSeconds);
+                        const float candidateAlignment = std::max(.12f,
+                            std::cos(WrapAngle(candidateTarget-candidateHeading)));
+                        if (TryMove(agent, candidateHeading,
+                                    stepDistance*candidateAlignment)) {
+                            if (acceleratedRetreat)
+                                agent.turnVelocityRadians=candidateTurnVelocity;
                             if (directObstacleBlocked) {
                                 ++obstacleDeflectionCount_;
                             }
@@ -625,7 +670,8 @@ namespace island
         if (agent.state.behavior == MonkeyBehavior::InspectTree && agent.state.treeIndex >= 0) {
             const auto& tree = trees_[static_cast<std::size_t>(agent.state.treeIndex)];
             agent.state.headingRadians = TurnToward(agent.state.headingRadians,
-                std::atan2(tree.z-agent.state.z,tree.x-agent.state.x),1.9f*deltaSeconds);
+                std::atan2(tree.z-agent.state.z,tree.x-agent.state.x),
+                MaximumGroundTurnRate*deltaSeconds);
         }
 
         const float travelled = std::hypot(agent.state.x - previousX, agent.state.z - previousZ);

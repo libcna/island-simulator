@@ -77,6 +77,9 @@ namespace island
         static constexpr float CollisionRadius = 0.32f;
         static constexpr float MaximumHomeDistance = 34.0f;
         static constexpr float MaximumHeadLookRadians = 0.34f;
+        static constexpr float MaximumGroundTurnRate = 1.9f;
+        static constexpr float MaximumRetreatTurnRate = 1.65f;
+        static constexpr float MaximumGroundTurnAcceleration = 4.2f;
 
         explicit MonkeyTroop(const IslandTerrain& terrain);
 
@@ -110,6 +113,7 @@ namespace island
             MonkeyState state;
             float stateSecondsRemaining = 0.0f;
             float accumulatedSeconds = 0.0f;
+            float turnVelocityRadians = 0.0f;
             std::uint32_t decisionCounter = 0U;
             bool treeClimbAttempted = false;
             std::shared_ptr<const MonkeyTreeExcursion::Plan> pendingExcursion;

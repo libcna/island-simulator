@@ -4424,6 +4424,40 @@ int main()
     Check(attentiveMonkeys.Monkeys().front().headLookRadians < -0.20f,
           "a calm monkey smoothly redirects attention toward the opposite side");
 
+    island::MonkeyTroop retreatingMonkeys(terrain);
+    retreatingMonkeys.SetObstacles(worldObstacles);
+    const auto retreatStart = retreatingMonkeys.Monkeys().front();
+    float retreatHeading = retreatStart.headingRadians;
+    float retreatAngularVelocity = 0.0f;
+    bool observedRetreatTurn = false;
+    for (int frame = 0; frame < 120; ++frame) {
+        const auto before = retreatingMonkeys.Monkeys().front();
+        retreatingMonkeys.Update(
+            1.0f / 30.0f,
+            before.x + std::cos(retreatStart.headingRadians) * 2.0f,
+            before.y + 1.2f,
+            before.z + std::sin(retreatStart.headingRadians) * 2.0f);
+        const auto after = retreatingMonkeys.Monkeys().front();
+        const float signedTurn = std::remainder(
+            after.headingRadians-retreatHeading,2.0f*std::numbers::pi_v<float>);
+        const float turn = std::fabs(signedTurn);
+        const float angularVelocity=signedTurn*30.0f;
+        Check(turn <= island::MonkeyTroop::MaximumRetreatTurnRate / 30.0f + 0.0001f,
+              "a close observer cannot make a ground monkey snap beyond its retreat turn rate");
+        const float angularAccelerationStep=std::fabs(
+            angularVelocity-retreatAngularVelocity);
+        Check(angularAccelerationStep
+                  <= island::MonkeyTroop::MaximumGroundTurnAcceleration/30.0f+.001f,
+              "a close observer cannot make a ground monkey exceed its angular acceleration bound");
+        observedRetreatTurn = observedRetreatTurn || turn > 0.01f;
+        retreatAngularVelocity=angularVelocity;
+        retreatHeading = after.headingRadians;
+    }
+    Check(observedRetreatTurn
+              && retreatingMonkeys.Monkeys().front().behavior
+                  == island::MonkeyBehavior::RunAway,
+          "a close observer exercises the monkey's bounded retreat turn");
+
     bool observedMonkeyIdle = false;
     bool observedMonkeyObserve = false;
     bool observedMonkeyWalk = false;

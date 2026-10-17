@@ -626,15 +626,24 @@ existing two-worker limit remains suitable.
   approaching player. Audit at least goats, boars, deer, bear, crocodiles, monkeys and snakes in
   actual close approach, and guard against body/foot sliding introduced by slower heading changes.
   The code audit found bounded target-heading turns already active for goats (1.8 rad/s), boars
-  (2.1 rad/s), bear (0.78 rad/s), crocodiles (1.15 rad/s retreat), monkeys (3.0 rad/s agile retreat)
+  (2.1 rad/s), bear (0.78 rad/s), crocodiles (1.15 rad/s retreat), monkeys (formerly 3.0 rad/s)
   and snakes (1.8 rad/s articulated retreat), but deer directly replaced their body heading both
   on observer avoidance and failed ground moves. Deer now retain a target heading, turn at a
   species-appropriate 1.45 rad/s retreat / 0.92 rad/s ordinary limit, and reduce forward speed
   while badly misaligned so the slower turn does not create lateral foot sliding. The deterministic
   close-observer regression measures every frame and rejects any heading jump beyond that bound;
   deer plus goat/boar/bear/crocodile/snake motion suites pass. Inspected native capture
-  `20261017T124807.997479Z-deer` preserves the planted, readable silhouette. An ordinary interactive
-  approach audit, monkey close-turn observation and portable runtime coverage remain before closure.
+  `20261017T124807.997479Z-deer` preserves the planted, readable silhouette. Monkey retreat now uses
+  a 1.65 rad/s ceiling and 4.2 rad/s² angular acceleration, slows forward travel while the torso is
+  misaligned, and applies the same bounded steering while deflecting around obstacles. Its dedicated
+  120-frame close-observer regression rejects both rate and acceleration spikes; the full core suite
+  and inspected native `20261017T154609.228381Z-monkeys` capture pass. Chrome/SwiftShader evidence
+  `20261017T154744.677485Z-chrome-monkeys` passes 60 positive intervals, GL error zero, a live
+  context and clean kernel monitoring. Current ARM64 assemble/lint also pass without an emulator;
+  the 24,836,211-byte APK has SHA-256
+  `28ff528686b7dfbfc1a3c7ba2f8765cf48183f50119421f4025ea8eadeadff55` and contains a
+  19,793,640-byte `libmain.so`. An ordinary interactive multi-species approach audit and physical
+  Android-device observation remain before closure.
 - [~] Relocate the campfire and its stored firewood from the beach to a plausible inland clearing.
   This 2026-10-17 instruction supersedes the earlier corrected request that explicitly placed it on
   the beach. Preserve the fire, woodpile, collision, audio/light behavior and safe player access;
@@ -643,6 +652,14 @@ existing two-worker limit remains suitable.
   placement/collision/resident-route tests, WorldReport and inspected native close/wide captures
   `20261017T123726.385229Z-campfire` / `20261017T123801.490843Z-campfire-wide` pass.
   Web/Android runtime validation remains.
+- [ ] Extend the existing campfire smoke into a clearly visible, naturally rising plume that can
+  be read high above the inland clearing instead of disappearing immediately over the flames.
+  Keep it restrained and believable: layered warm near-fire smoke should cool, widen, curl with
+  the prevailing wind and fade gradually with height, without becoming an opaque column. Reuse the
+  current campfire renderer/material path, impose a fixed geometry/particle ceiling, distance-cull
+  or simplify the upper plume, and retain the current bounded draw budget where practical. Validate
+  close, medium and elevated views plus a representative release-performance comparison; the change
+  must not cause a material FPS regression on the existing 59–60 FPS release baseline.
 - [~] Fix the operator-observed absence of goat bleating. Reproduce the current build with a goat
   nearby, distinguish scheduler/playback from effective audible gain and ambient masking, and make
   the bleat clearly recognizable without becoming loud or repetitive. Revalidate mute/resume,

@@ -44,7 +44,7 @@ def validate(report):
         position, home = point(spider["position"]), point(spider["home"])
         assert position == home and position[1] >= 2
         assert abs(position[0]) <= 220 and abs(position[2]) <= 220
-        assert all(math.hypot(position[0]-p[0], position[2]-p[2]) >= 4.499 for p in seen)
+        assert all(math.hypot(position[0]-p[0], position[2]-p[2]) >= 1.449 for p in seen)
         seen.append(position)
         assert isinstance(spider["canopyIndex"], int) and 0 <= spider["canopyIndex"] < report["placements"]["canopyTrees"]
         assert math.isfinite(spider["headingRadians"])
@@ -65,12 +65,14 @@ def validate(report):
             assert len(joints) == 4
             for joint in joints:
                 point(joint)
-            for index, length in enumerate((.018, .050, .065)):
+            # The current large-jungle-spider silhouette scales the original
+            # 18/50/65 mm chain by SpiderPose::VisualScale (1.30).
+            for index, length in enumerate((.0234, .065, .0845)):
                 assert abs(distance(joints[index], joints[index+1])-length) < 2e-6
             local = joints[-1]
             reconstructed = [position[i]+sum(basis[j][i]*local[j] for j in range(3)) for i in range(3)]
             assert distance(reconstructed, anchor) < .00004
-            assert math.hypot(anchor[0]-position[0], anchor[2]-position[2]) <= .14
+            assert math.hypot(anchor[0]-position[0], anchor[2]-position[2]) <= .182
         assert len({tuple(foot["position"]) for foot in feet}) == 8
 
 
@@ -109,4 +111,4 @@ if __name__ == "__main__":
         except AssertionError:
             continue
         raise AssertionError(f"validator accepted {fault}")
-    print("World spider JSON: two hundred ground spiders, six canopy webs and eleven negative cases passed")
+    print("World spider JSON: one thousand ground spiders, six canopy webs and eleven negative cases passed")
