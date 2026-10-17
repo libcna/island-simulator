@@ -62,6 +62,7 @@ namespace island
         agent.state.z = agent.home.z;
         agent.state.y = terrain_.Height(agent.state.x, agent.state.z);
         agent.state.headingRadians = Wrap(.4f + static_cast<float>(index) * 1.45f);
+        agent.targetHeadingRadians = agent.state.headingRadians;
         agent.state.scale = index == 3U ? .84f : .94f + .035f * static_cast<float>(index);
         agent.state.coatVariant = static_cast<std::uint8_t>(index % 3U);
         agent.state.antlered = index == 0U;
@@ -124,7 +125,7 @@ namespace island
         if (observerDistance < 9.0f) {
             agent.state.behavior = DeerBehavior::Retreat;
             agent.behaviorSeconds = 1.8f;
-            agent.state.headingRadians = std::atan2(
+            agent.targetHeadingRadians = std::atan2(
                 agent.state.z - observerZ, agent.state.x - observerX);
         } else if ((agent.behaviorSeconds -= deltaSeconds) <= 0.0f) {
             ++agent.transitions;
@@ -135,10 +136,18 @@ namespace island
                 + static_cast<std::uint32_t>(index) * 5U) % 45U) * .12f;
             const float turn = -.85f + static_cast<float>((agent.transitions * 37U
                 + static_cast<std::uint32_t>(index) * 19U) % 171U) * .01f;
-            agent.state.headingRadians = Wrap(agent.state.headingRadians + turn);
+            agent.targetHeadingRadians = Wrap(agent.state.headingRadians + turn);
         }
-        const float targetSpeed = agent.state.behavior == DeerBehavior::Retreat ? 3.1f
-            : agent.state.behavior == DeerBehavior::Walk ? .78f : 0.0f;
+        const float turnRate = agent.state.behavior == DeerBehavior::Retreat ? 1.45f : .92f;
+        agent.state.headingRadians = Turn(agent.state.headingRadians,
+            agent.targetHeadingRadians, turnRate * deltaSeconds);
+        const float headingError = std::abs(Wrap(
+            agent.targetHeadingRadians - agent.state.headingRadians));
+        const float turnAlignment = std::clamp(
+            (std::cos(headingError) + .18f) / 1.18f, 0.0f, 1.0f);
+        const float targetSpeed = (agent.state.behavior == DeerBehavior::Retreat ? 3.1f
+            : agent.state.behavior == DeerBehavior::Walk ? .78f : 0.0f)
+            * (.12f + .88f * turnAlignment);
         agent.state.speed += std::clamp(targetSpeed - agent.state.speed,
             -2.8f * deltaSeconds, 3.8f * deltaSeconds);
         const float targetGraze = agent.state.behavior == DeerBehavior::Graze ? 1.0f : 0.0f;
@@ -147,9 +156,10 @@ namespace island
         const float homeDistance = std::hypot(agent.state.x - agent.home.x,
                                                agent.state.z - agent.home.z);
         if (homeDistance > agent.home.radius * .68f) {
+            agent.targetHeadingRadians = std::atan2(
+                agent.home.z - agent.state.z, agent.home.x - agent.state.x);
             agent.state.headingRadians = Turn(agent.state.headingRadians,
-                std::atan2(agent.home.z - agent.state.z, agent.home.x - agent.state.x),
-                2.0f * deltaSeconds);
+                agent.targetHeadingRadians, turnRate * deltaSeconds);
         }
         const float nextX = agent.state.x
             + std::cos(agent.state.headingRadians) * agent.state.speed * deltaSeconds;
@@ -159,7 +169,7 @@ namespace island
             agent.state.x = nextX;
             agent.state.z = nextZ;
         } else {
-            agent.state.headingRadians = std::atan2(
+            agent.targetHeadingRadians = std::atan2(
                 agent.home.z - agent.state.z, agent.home.x - agent.state.x);
             agent.state.speed = std::min(agent.state.speed, .45f);
             agent.behaviorSeconds = std::min(agent.behaviorSeconds, .8f);

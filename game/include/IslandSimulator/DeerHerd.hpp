@@ -47,6 +47,7 @@ namespace island
         {
             DeerState state;
             DeerHome home;
+            float targetHeadingRadians = 0.0f;
             float behaviorSeconds = 0.0f;
             float accumulatedSeconds = 0.0f;
             std::uint32_t transitions = 0U;

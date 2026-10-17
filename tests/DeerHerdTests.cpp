@@ -1,7 +1,9 @@
 #include "IslandSimulator/DeerHerd.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <numbers>
 #include <stdexcept>
 #include <vector>
 
@@ -46,10 +48,19 @@ int main()
             }
         }
         Check(walked && grazed, "deer did not exercise walking and grazing");
+        float previousHeading = herd.Deer().front().headingRadians;
+        float worstCloseTurn = 0.0f;
         for (int step = 0; step < 180; ++step) {
             const auto& deer = herd.Deer().front();
             herd.Update(1.0f / 60.0f, deer.x + .3f, deer.y + 1.0f, deer.z);
+            const float heading = herd.Deer().front().headingRadians;
+            worstCloseTurn = std::max(worstCloseTurn,
+                std::abs(std::remainder(heading - previousHeading,
+                    2.0f * std::numbers::pi_v<float>)));
+            previousHeading = heading;
         }
+        Check(worstCloseTurn <= 1.45f / 60.0f + .00001f,
+              "nearby player caused an abrupt deer heading snap");
         Check(herd.Deer().front().behavior == island::DeerBehavior::Retreat
                   && std::hypot(herd.Deer().front().x - initial.x,
                                 herd.Deer().front().z - initial.z) > .15f,

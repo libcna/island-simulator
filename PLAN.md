@@ -543,6 +543,16 @@ existing two-worker limit remains suitable.
   angular acceleration and turn-rate limits instead of rapidly snapping toward or away from the
   approaching player. Audit at least goats, boars, deer, bear, crocodiles, monkeys and snakes in
   actual close approach, and guard against body/foot sliding introduced by slower heading changes.
+  The code audit found bounded target-heading turns already active for goats (1.8 rad/s), boars
+  (2.1 rad/s), bear (0.78 rad/s), crocodiles (1.15 rad/s retreat), monkeys (3.0 rad/s agile retreat)
+  and snakes (1.8 rad/s articulated retreat), but deer directly replaced their body heading both
+  on observer avoidance and failed ground moves. Deer now retain a target heading, turn at a
+  species-appropriate 1.45 rad/s retreat / 0.92 rad/s ordinary limit, and reduce forward speed
+  while badly misaligned so the slower turn does not create lateral foot sliding. The deterministic
+  close-observer regression measures every frame and rejects any heading jump beyond that bound;
+  deer plus goat/boar/bear/crocodile/snake motion suites pass. Inspected native capture
+  `20261017T124807.997479Z-deer` preserves the planted, readable silhouette. An ordinary interactive
+  approach audit, monkey close-turn observation and portable runtime coverage remain before closure.
 - [~] Relocate the campfire and its stored firewood from the beach to a plausible inland clearing.
   This 2026-10-17 instruction supersedes the earlier corrected request that explicitly placed it on
   the beach. Preserve the fire, woodpile, collision, audio/light behavior and safe player access;
