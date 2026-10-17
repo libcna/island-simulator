@@ -549,3 +549,17 @@ guard `20261016T064338.573674Z-helicopter-inside` passes at 183/21.05/64.31 and 
 controls, seats and exits. Inspected Chrome 155/SwiftShader
 `build/browser-software/20261016T064457.307779Z-chrome-helicopter` passes exterior and interior,
 each with 60 finite positive intervals, GL error zero, a live context and kernel `[]`.
+
+## Restrained windshield framing — 2026-10-17
+
+The gallery review found that the canopy's broad cyan reflection quads and thick sunlit mullions
+looked like white cracks across the glass. Reflection marks are now narrow, neutral and low-alpha;
+the centre divider, A-pillars and upper/lower rails retain their structural layout with smaller
+sections and a darker finish. The transparent batch now culls its hidden reverse winding, reducing
+closed-canopy overdraw without changing the two-draw renderer or opaque geometry.
+
+Native exterior `20261017T151140.327090Z-helicopter` was inspected and passes at 311 colour bins,
+53.91 luminance deviation and 235.08 spatial contrast. Interior
+`20261017T150909.348348Z-helicopter-inside` keeps the dashboard, cyclics, collectives, pedals and
+open exits visible. Placement, collisions, entry corridors, non-flying role and rotor state are
+unchanged.

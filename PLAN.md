@@ -20,6 +20,22 @@ Status markers:
 - `[~]` in progress
 - `[!]` blocked or degraded, with the reason written next to the item
 
+## Latest helicopter glazing pass — restrained frames and one-sided canopy surface
+
+The current README-gallery audit selected the canopy treatment rather than adding more aircraft
+geometry. Broad translucent cyan ribbons and thick sunlit frame tubes crossed several facets and
+read as white windshield cracks at the ordinary three-quarter player view. Each pane now carries
+only one narrow low-alpha neutral glint; the centre mullion, A-pillars, crown rail and lower rail
+are slimmer and use a darker structural finish. The glass batch culls its hidden reverse winding,
+avoiding needless closed-canopy overdraw while leaving the opaque aircraft unchanged.
+
+Geometry, buffers, two-draw budget, placement, collision, four open entries, controls and stationary
+rotors are unchanged. `IslandHelicopterLayoutTests` passes. Inspected native exterior
+`20261017T151140.327090Z-helicopter` passes at 311 colour bins, 53.91 luminance deviation and
+235.08 spatial contrast; interior guard `20261017T150909.348348Z-helicopter-inside` retains the
+instrument panel, controls and open-door sightlines. The accepted exterior also replaces the
+helicopter frame in the hash-gated README gallery.
+
 ## Latest README gallery pass — current world, landmarks and wildlife
 
 The release-facing README now uses a current 2026-10-17 overview and two compact galleries rather

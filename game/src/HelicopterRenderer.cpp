@@ -385,16 +385,18 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
                        loftNormal(Fuselage,Fuselage.size()-1,b),color,
                        std::sin(mid)>-.08f?Surface::Glass:Surface::Paint);
     }
-    // A narrow centre mullion makes the faceted windshield read as glazing rather
-    // than an open hole when the player stands in the rear cabin.
-    beam({0,1.11f,2.67f},{0,2.12f,1.70f},.075f,oliveDark);
+    // Slim dark structural frames divide the canopy without turning it into a pale
+    // cage. The previous thick sunlit tubes dominated the glass and resembled white
+    // cracks from the ordinary three-quarter player view.
+    const Color windscreenFrame(38,43,36);
+    beam({0,1.11f,2.67f},{0,2.12f,1.70f},.048f,windscreenFrame);
     for(const float side:{-1.0f,1.0f})
-        beam({side*.57f,1.08f,2.45f},{side*.30f,2.08f,2.06f},.052f,oliveDark);
-    beam({-.31f,2.08f,2.06f},{.31f,2.08f,2.06f},.050f,oliveDark);
+        beam({side*.57f,1.08f,2.45f},{side*.30f,2.08f,2.06f},.035f,windscreenFrame);
+    beam({-.31f,2.08f,2.06f},{.31f,2.08f,2.06f},.034f,windscreenFrame);
     // A rounded chin fairing and slim lower windscreen rail keep the otherwise
     // transparent nose from collapsing into a pointed glass bubble at eye level.
     ellipsoid({0,.87f,2.36f},{.57f,.23f,.36f},4,16,olive);
-    beam({-.59f,1.03f,2.47f},{.59f,1.03f,2.47f},.055f,oliveDark);
+    beam({-.59f,1.03f,2.47f},{.59f,1.03f,2.47f},.045f,windscreenFrame);
 
     // Parked paired wipers give the broad canopy a familiar mechanical scale cue.
     // Their articulated arms sit just ahead of the generated glass instead of being
@@ -410,9 +412,12 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         beam(tip-Vector3(.12f*side,.055f,-.018f),
              tip+Vector3(.12f*side,.055f,-.018f),.014f,rubber,Surface::Rubber);
 
-        const Color reflection(151,196,204,38);
-        quad({side*.11f,1.77f,2.194f},{side*.22f,1.80f,2.205f},
-             {side*.47f,1.55f,2.326f},{side*.39f,1.50f,2.350f},
+        // A former broad cyan quadrilateral crossed several canopy facets and read
+        // as a white crack in the windshield. Keep one narrow, low-alpha sky glint
+        // per pane; the curved glass and frame now carry the main surface read.
+        const Color reflection(128,151,148,18);
+        quad({side*.18f,1.755f,2.198f},{side*.225f,1.765f,2.205f},
+             {side*.395f,1.585f,2.314f},{side*.360f,1.565f,2.326f},
              reflection,Surface::Glass);
     }
 
@@ -1032,6 +1037,7 @@ void HelicopterRenderer::Draw(const Matrix& view,const Matrix& projection,const 
     device_.DrawPrimitives(PrimitiveType::TriangleList,0,triangles_-glassTriangles_);
     device_.setBlendStateProperty(BlendState::AlphaBlend);
     device_.setDepthStencilStateProperty(DepthStencilState::DepthRead);
+    device_.setRasterizerStateProperty(RasterizerState::CullCounterClockwise);
     device_.SetVertexBuffer(glassVertices_.get());effect_->Apply();
     device_.DrawPrimitives(PrimitiveType::TriangleList,0,glassTriangles_);drawCalls_=2;
 }
