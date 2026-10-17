@@ -58,7 +58,7 @@ Color BaseColor(Material material) {
     switch(material) {
     case Material::Fur:return Color(245,245,245);
     case Material::DarkFur:return Color(176,166,154);
-    case Material::Muzzle:return Color(222,211,198);
+    case Material::Muzzle:return Color(235,222,205);
     case Material::Nose:return Color(39,34,30);
     case Material::Bare:return Color(15,13,12);
     case Material::Claw:return Color(82,68,49);
@@ -240,7 +240,7 @@ void BuildBear(std::vector<VertexPositionColorTexture>& vertices,const BearState
         {.12f+breath*.2f,.14f+breath*.2f},{.36f+breath*.5f,.38f+breath*.5f},
         {.50f+breath,.48f+breath},{.57f+breath,.53f+breath},
         {.59f+breath,.55f+breath},{.60f+breath,.54f+breath},
-        {.60f,.50f},{.57f,.45f},{.51f,.43f},{.45f,.41f},
+        {.625f,.525f},{.595f,.475f},{.525f,.445f},{.45f,.41f},
         {.405f,.37f},{.28f,.27f},{.14f,.14f}}};
     mesh.BodyLoft(bodyCentres,bodyRadii,Material::Fur,lon);
     // Keep the crown broad but take some height out of the old near-spherical head.
@@ -309,12 +309,12 @@ void BuildBear(std::vector<VertexPositionColorTexture>& vertices,const BearState
             // A broad brow and recessed dark socket surround a smaller visible eye.
             // Moving the pair inward also gives the face the forward-looking, deep-set
             // expression of a brown bear instead of two dots on the sides of a sphere.
-            const Vector3 brow=head+right*(side*.202f)+up*.118f+forward*.292f;
+            const Vector3 brow=head+right*(side*.202f)+up*.132f+forward*.292f;
             mesh.Ellipsoid(brow,right,up,forward,.132f,.066f,.102f,Material::Fur,12,7);
-            const Vector3 socket=head+right*(side*.205f)+up*.045f+forward*.365f;
-            mesh.Ellipsoid(socket,right,up,forward,.052f,.036f,.017f,Material::DarkFur,10,6);
+            const Vector3 socket=head+right*(side*.205f)+up*.068f+forward*.374f;
+            mesh.Ellipsoid(socket,right,up,forward,.058f,.040f,.017f,Material::DarkFur,10,6);
             const Vector3 eye=socket+forward*.014f;
-            mesh.Ellipsoid(eye,right,up,forward,.021f,.017f,.009f,Material::Bare,9,6);
+            mesh.Ellipsoid(eye,right,up,forward,.026f,.020f,.009f,Material::Bare,9,6);
             mesh.Ellipsoid(eye-right*(side*.004f)+up*.006f+forward*.008f,right,up,forward,
                 .006f,.0045f,.0025f,Material::EyeHighlight,7,5);
         }
@@ -327,8 +327,9 @@ void BuildBear(std::vector<VertexPositionColorTexture>& vertices,const BearState
         const Vector3 pawUp=SafeUnit(Point(p.soleNormal));
         const Vector3 pawRight=SafeUnit(Vector3::Cross(pawUp,forward));
         const Vector3 pawForward=SafeUnit(Vector3::Cross(pawRight,pawUp));
-        const Vector3 paw=sole+pawUp*.075f+pawForward*.055f;
-        mesh.Ellipsoid(paw,pawRight,pawUp,pawForward,.145f,.082f,.225f,Material::Fur,near?14:8,near?7:5);
+        const Vector3 paw=sole+pawUp*.080f+pawForward*.065f;
+        mesh.Ellipsoid(paw,pawRight,pawUp,pawForward,.170f,.090f,.250f,
+            Material::DarkFur,near?14:8,near?7:5);
         if(near)for(int claw=-2;claw<=2;++claw) {
             // Bury a broad horn-coloured root in the toe and bend the short tip
             // down. The previous single black needle read as a detached spike.

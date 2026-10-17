@@ -187,6 +187,13 @@ GL error zero, an intact context and an empty kernel-fault delta. The second fra
 partly occluded by foreground vegetation; this proves portable rendering and camera tracking, not
 all-angle visual acceptance or physical-device performance.
 
+The 2026-10-17 native follow-up keeps the current 6,382-triangle near mesh and changes only existing
+proportions/material assignments: slightly fuller forequarters, higher/forward eye sockets with a
+larger visible eye, warmer muzzle contrast, and wider, longer dark-fur paws. The eight-stage capture
+`build-consumer/software-captures/20261017T134325.015830Z-bear` was inspected and passes at 206
+colour bins, 35.53 luminance deviation and 168.01 spatial contrast. The deterministic 600-second
+motion test remains unchanged at 219.719 m travelled and a 0.16559 m maximum step.
+
 WorldReport exports count one, finite home/position and grounded limb state; current fingerprint
 is `d0edd20a977a3eaf`. Texture accounting includes the complete 87,380-byte bear texture mip chain,
 for 9,305,216 audited runtime RGBA8 bytes inside a 9,325,432-byte profile limit.

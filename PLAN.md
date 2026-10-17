@@ -1332,6 +1332,21 @@ spatial contrast and kernel `[]`. Inspected Chrome/SwiftShader
 GL0, a live context and kernel `[]`. WebAssembly rebuilt; Android ARM64 assemble/lint passed
 against the locked dependency copy without emulator/KVM. Details are in `docs/bear.md`.
 
+## Latest bear visual pass — grounded paws and readable face
+
+The renewed current-build close audit accepted the continuous torso, skull, muzzle and directional
+coat, but the small light paws still reduced the animal's apparent weight and the eyes disappeared
+under the broad brows. Without adding geometry, the forequarter rings are now subtly fuller, both
+eye sockets sit slightly higher and farther forward with a modestly larger visible eye, the muzzle
+has restrained warm contrast, and all four paws are wider, longer and darker. The existing claws,
+authoritative sole normals, IK roots, gait, behavior, texture, 6,382-triangle near mesh and two-draw
+submission remain unchanged.
+
+The deterministic 600-second motion regression still travels 219.719 m with a 0.16559 m maximum
+step. Inspected eight-stage native evidence `20261017T134325.015830Z-bear` passes at 206 colour bins,
+35.53 luminance deviation and 168.01 spatial contrast; the heavier paws remain planted and the eye
+is legible in the normal three-quarter view. Portable visual/audio lifecycle review remains open.
+
 ## Latest beach-crab visual pass — rounded palms and solid forearms
 
 The current beach-colony audit accepted the low broad closed shell and planted three-segment legs
