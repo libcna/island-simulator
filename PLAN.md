@@ -23,6 +23,30 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest fish facial pass — fitted bilateral mouth creases
+
+The renewed close aquatic audit retained the four established fish body families, rounded heads,
+layered eyes, gill creases, family pigment, swept fins and shallow forked tails, but selected the
+otherwise featureless lower snout. Every near fish now carries a narrow fitted mouth crease on
+both flanks. Its four points follow the tapering body surface from the convex nose toward the cheek
+and sit just proud of the skin to avoid coplanar flicker. The line uses a restrained dark derivative
+of each underwater-adjusted family palette rather than a universal black decal.
+
+The two fitted quads add 12 vertices per near fish, raising its exact budget from 1,422 to 1,434
+vertices (576 vertices only in the theoretical all-near 48-fish case). Population, body mesh,
+simulation, palettes, far LOD, buffer count and one shared draw are unchanged. Inspected native
+baseline `20261017T100300.017607Z-fish` and accepted `20261017T104215.631720Z-fish` show the
+mouth line on multiple profiles; the accepted frame passes at 144 colour bins, 19.74 luminance
+deviation and 131.96 spatial contrast. Core, capture-validator, software-preflight and all 48
+browser-software tests pass with at most three workers. The WebGL2 package builds, and inspected
+Chrome/SwiftShader evidence `20261017T104449.713755Z-chrome-fish` passes two distinct school
+frames, 60 finite positive intervals, GL0, a live context and an empty kernel delta. Android ARM64
+assemble/lint pass through the two-worker wrapper without emulator/KVM. The 24,793,203-byte APK
+has SHA-256 `a08ec465716916f58f5f9b38c89bff00c0db7e97b1c361a9f15a87aab2a9b675`
+and contains the 19,750,632-byte stripped `libmain.so` (SHA-256
+`bc85a78edb4558b62dcc3f869523dee8f273e93b2c6668c042ff13a758c76537`). Physical Android and
+hardware-GPU appearance remain unqualified.
+
 ## Latest helicopter interior pass — tapered centre pedestal and switch console
 
 The renewed exterior/interior audit kept the established rounded canopy, open doors, connected

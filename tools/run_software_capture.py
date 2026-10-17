@@ -1043,6 +1043,8 @@ def main():
                     raise RuntimeError("current fish surface pigment is missing; check for a stale executable")
                 if "near fish eyes use palette-tinted oval irises, inset dark pupils, and raised highlights" not in diagnostics:
                     raise RuntimeError("current layered fish eyes are missing; check for a stale executable")
+                if "near fish use fitted bilateral mouth creases beneath their rounded snouts" not in diagnostics:
+                    raise RuntimeError("current fitted fish mouth profile is missing; check for a stale executable")
                 if "four fish families use slender fusilier, deep sergeant, disk-bodied reef, and long snapper silhouettes" not in diagnostics:
                     raise RuntimeError("current fish family silhouettes are missing; check for a stale executable")
                 if not re.search(r"fish [1-9][0-9]*/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):

@@ -377,6 +377,7 @@ def validate_fish_report(report):
         or "near fish use blunt convex foreheads and rounded snouts instead of needle-point wedges" not in log
         or "near fish use restrained upper-flank iridescence and palette-matched gill creases" not in log
         or "near fish eyes use palette-tinted oval irises, inset dark pupils, and raised highlights" not in log
+        or "near fish use fitted bilateral mouth creases beneath their rounded snouts" not in log
         or "four fish families use slender fusilier, deep sergeant, disk-bodied reef, and long snapper silhouettes" not in log
         or not re.search(r"fish [1-9][0-9]*/48 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", log)
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):

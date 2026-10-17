@@ -100,6 +100,8 @@ namespace island
             "island-simulator: near fish use restrained upper-flank iridescence and palette-matched gill creases";
         constexpr std::string_view FishEyeDiagnostic =
             "island-simulator: near fish eyes use palette-tinted oval irises, inset dark pupils, and raised highlights";
+        constexpr std::string_view FishMouthDiagnostic =
+            "island-simulator: near fish use fitted bilateral mouth creases beneath their rounded snouts";
         constexpr std::string_view FishSpeciesDiagnostic =
             "island-simulator: four fish families use slender fusilier, deep sergeant, disk-bodied reef, and long snapper silhouettes";
 
@@ -476,6 +478,32 @@ namespace island
                             LocalPoint(centre,axes,side*.040f*widthScale,-.045f*heightScale,.465f*lengthScale,scale),
                             gill);
             }
+            // A narrow fitted crease gives the otherwise rounded snout an intentional
+            // jaw line in broadside views.  Follow the tapering body surface at both
+            // ends and offset it outward enough to avoid coplanar flicker.
+            const Color mouthCrease = wildlife_render::ScaleColor(
+                Color::Lerp(palette.back, palette.body, .46f), .52f);
+            for (const float side : {-1.0f, 1.0f}) {
+                const Vector3 frontUpper = LocalPoint(
+                    centre,axes,side*.071f*widthScale,-.018f*heightScale,
+                    .500f*lengthScale,scale);
+                const Vector3 rearUpper = LocalPoint(
+                    centre,axes,side*.130f*widthScale,-.038f*heightScale,
+                    .392f*lengthScale,scale);
+                const Vector3 rearLower = LocalPoint(
+                    centre,axes,side*.129f*widthScale,-.049f*heightScale,
+                    .397f*lengthScale,scale);
+                const Vector3 frontLower = LocalPoint(
+                    centre,axes,side*.070f*widthScale,-.027f*heightScale,
+                    .503f*lengthScale,scale);
+                if (side > 0.0f) {
+                    AddTriangle(vertices,frontUpper,rearUpper,rearLower,mouthCrease);
+                    AddTriangle(vertices,frontUpper,rearLower,frontLower,mouthCrease);
+                } else {
+                    AddTriangle(vertices,frontUpper,rearLower,rearUpper,mouthCrease);
+                    AddTriangle(vertices,frontUpper,frontLower,rearLower,mouthCrease);
+                }
+            }
             if (vertices.size() - startingVertexCount != FishRenderer::NearVertexCount) {
                 throw std::runtime_error("Fish near mesh does not match its fixed vertex budget");
             }
@@ -548,6 +576,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(FishSurfaceDiagnostic);
         std::cout << FishEyeDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(FishEyeDiagnostic);
+        std::cout << FishMouthDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(FishMouthDiagnostic);
         std::cout << FishSpeciesDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(FishSpeciesDiagnostic);
     }

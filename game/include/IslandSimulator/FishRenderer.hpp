@@ -22,7 +22,7 @@ namespace island
     class FishRenderer final
     {
     public:
-        static constexpr int NearVertexCount = 1422;
+        static constexpr int NearVertexCount = 1434;
         static constexpr int FarVertexCount = 12;
 
         explicit FishRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
