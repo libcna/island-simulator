@@ -23,6 +23,33 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest helicopter mechanical pass — bounded open-door hinges
+
+The post-cave helicopter audit retained the established rounded canopy, continuous fuselage,
+stationary rotor mechanics, tapered tail, grounded skids, four open framed doors and detailed
+walkable cabin, but selected a small close-range construction gap: the door panels met their jambs
+without visible pivots and could still appear placed beside the aircraft. Every door now has two
+compact brushed-metal hinge barrels tight to its existing jamb. They make the mechanical attachment
+legible without entering the authoritative doorway corridor or altering the door shape, location,
+collision or interaction.
+
+An initial three-hinge-plus-bracket study was immediately rejected because its 1,008 added vertices
+exceeded the existing bounded 18,000-vertex allocation. The accepted two-barrel design adds only
+384 vertices / 128 triangles across all four doors, moving the one opaque plus one glass batch from
+5,832 to 5,960 triangles while keeping the original buffer limit and two draws. Inspected native
+exterior `20261017T112826.441635Z-helicopter` and interior
+`20261017T112859.731934Z-helicopter-inside` preserve silhouette and entry clearance; they pass at
+322/187 colour bins, 54.02/21.40 luminance deviation and 231.86/66.38 spatial contrast. Core,
+helicopter-layout, capture-validator, software-preflight and all 48 browser-software tests pass with
+at most three workers. The WebGL2 package builds, and inspected Chrome/SwiftShader evidence
+`20261017T113228.157832Z-chrome-helicopter` passes exterior and interior views, 60 finite positive
+intervals per view, GL0, live contexts and an empty kernel delta. Android ARM64 assemble/lint pass
+through the two-worker wrapper without emulator/KVM. The 24,803,467-byte APK has SHA-256
+`13099cf94726ccb425599aa84e9f80aba145989cb75ecb818c0189442793f01e` and contains the
+19,760,896-byte stripped `libmain.so` (SHA-256
+`11d2e661576b49ad00bdd78a50b7bcb245f5410d0736d0ab18065fdebfc37297`). Physical Android and
+hardware-GPU appearance remain unqualified.
+
 ## Latest cave-entrance pass — eroded rim and offset rock outcrops
 
 The renewed shipwreck/crocodile/hut/cave comparison retained the cave's correct inland mountain

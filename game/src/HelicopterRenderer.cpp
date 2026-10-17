@@ -455,6 +455,13 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         beam(point(0,.49f),point(1,.49f),.065f,oliveDark);
         beam(point(.10f,1.01f),point(.90f,.98f),.052f,oliveDark);
         beam(point(.70f,1.12f),point(.87f,1.12f),.034f,metal,Surface::Metal);
+        // Two compact barrels make the open panel's load path explicit. They remain
+        // tight against the existing jamb and door edge, outside the authoritative
+        // entry corridor, and fit the established bounded static mesh allocation.
+        for(const float y:{.80f,1.68f}) {
+            tube({side*.985f,y-.075f,hingeZ},{side*.985f,y+.075f,hingeZ},
+                 .028f,metal,Surface::Metal);
+        }
     };
     for(const float side:{-1.0f,1.0f}) {
         openDoor(side,1.46f,2.35f);
@@ -921,6 +928,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
     const std::string doors="island-simulator: helicopter carries four outward-open framed door panels with glazing and handles";
     std::cout<<doors<<'\n';MirrorRuntimeDiagnosticToPlatformLog(doors);
+    const std::string doorHinges="island-simulator: helicopter open doors use two visible hinge barrels at every jamb";
+    std::cout<<doorHinges<<'\n';MirrorRuntimeDiagnosticToPlatformLog(doorHinges);
     const std::string doorwayShell="island-simulator: helicopter doorway shell uses rounded jambs and low-profile oval roof shoulders around all four open entries";
     std::cout<<doorwayShell<<'\n';MirrorRuntimeDiagnosticToPlatformLog(doorwayShell);
     const std::string rotor="island-simulator: helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges";

@@ -840,6 +840,7 @@ try {
               && log.includes("helicopter raised tapered engine cowling feeds two rear exhaust outlets behind the rotor mast")
               && log.includes("helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber")
               && log.includes("helicopter carries four outward-open framed door panels with glazing and handles")
+              && log.includes("helicopter open doors use two visible hinge barrels at every jamb")
               && log.includes("helicopter doorway shell uses rounded jambs and low-profile oval roof shoulders around all four open entries")
               && log.includes("helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals")
               && log.includes("helicopter instruments use recessed ticked dials, one artificial horizon, needle hubs, and framed multi-line radio displays")

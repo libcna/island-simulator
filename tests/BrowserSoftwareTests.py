@@ -190,6 +190,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             "helicopter raised tapered engine cowling feeds two rear exhaust outlets behind the rotor mast",
             "helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber",
             "helicopter carries four outward-open framed door panels with glazing and handles",
+            "helicopter open doors use two visible hinge barrels at every jamb",
             "helicopter doorway shell uses rounded jambs and low-profile oval roof shoulders around all four open entries",
             "helicopter cockpit uses four round gauges, paired articulated cyclic and collective controls, and four pedals",
             "helicopter instruments use recessed ticked dials, one artificial horizon, needle hubs, and framed multi-line radio displays",
