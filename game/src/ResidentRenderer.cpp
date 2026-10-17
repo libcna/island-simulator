@@ -270,14 +270,20 @@ void BuildHuman(std::vector<VertexPositionColorTexture>& vertices,const Resident
 
     // The neck grows out of a broad, buried trapezius base and narrows under the
     // jaw.  Multiple unequal oval rings avoid the former freestanding cylinder.
-    const std::array neckCentres{root+up*.486f-forward*.002f,
-        root+up*.508f,root+up*.535f+forward*.002f,
-        root+up*.559f+forward*.004f,root+up*.574f+forward*.005f};
-    const std::array neckRx{.091f,.079f,.069f,.063f,.061f};
-    const std::array neckRz{.073f,.068f,.063f,.059f,.057f};
+    const std::array neckCentres{root+up*.484f-forward*.004f,
+        root+up*.507f-forward*.001f,root+up*.533f+forward*.002f,
+        root+up*.558f+forward*.005f,root+up*.574f+forward*.007f};
+    // Keep a broad oval base buried inside the collar and retain more width beneath
+    // the jaw.  The earlier rapid taper was anatomically valid in isolation but made
+    // the head look perched on a dark cylinder at ordinary player distance.
+    const std::array neckRx{.101f,.089f,.078f,.070f,.066f};
+    const std::array neckRz{.078f,.073f,.068f,.063f,.060f};
     mesh.Loft(neckCentres,neckRx,neckRz,right,forward,Material::Skin,16);
-    const Vector3 head=root+up*.705f+forward*.009f;
-    mesh.Ellipsoid(head,right,up,forward,.105f,.145f,.098f,Material::Skin,16,11);
+    // Preserve the chin/neck overlap while trimming the high rounded cranium that made
+    // the close view read as a large doll head.  Facial features remain in the same
+    // local construction and therefore continue to follow every walking pose.
+    const Vector3 head=root+up*.696f+forward*.009f;
+    mesh.Ellipsoid(head,right,up,forward,.102f,.136f,.096f,Material::Skin,16,11);
     // Recessed close-cropped hair preserves the forehead and jaw instead of reading as a helmet.
     const Vector3 hairCentre=head+up*.061f-forward*.037f;
     mesh.Ellipsoid(hairCentre,right,up,forward,.109f,.108f,.083f,Material::Hair,16,9);
@@ -338,8 +344,8 @@ void BuildHuman(std::vector<VertexPositionColorTexture>& vertices,const Resident
         const Vector3 sleeveForward=SafeUnit(Vector3::Cross(sleeveAxis,right));
         const Vector3 sleeveSide=SafeUnit(Vector3::Cross(sleeveForward,sleeveAxis));
         mesh.Ellipsoid(sleeveCentre,sleeveSide,sleeveAxis,sleeveForward,
-            .060f,.094f,.066f,Material::Cloth,14,8);
-        mesh.Tube(armRoot,sleeveEnd,.056f,.052f,Material::Cloth,12);
+            .053f,.087f,.060f,Material::Cloth,14,8);
+        mesh.Tube(armRoot,sleeveEnd,.052f,.049f,Material::Cloth,12);
         mesh.Ellipsoid(sleeveEnd,right,up,forward,.053f,.055f,.052f,Material::Skin,12,7);
         mesh.Tube(sleeveEnd,upperMid,.052f,.059f,Material::Skin,12);
         mesh.Tube(upperMid,elbow,.059f,.043f,Material::Skin,12);

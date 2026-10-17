@@ -23,6 +23,31 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest resident proportion pass — joined neck and restrained head mass
+
+The current vegetation/boar/resident comparison selected the resident again: foliage and the boar
+already retained convincing close silhouettes, while the resident's high rounded cranium still
+looked perched above a rapidly narrowing neck and inflated cap sleeves. The five-ring neck now
+keeps a broader oval trapezius base buried inside the collar and retains more width beneath the
+jaw. The cranium is slightly lower and less vertically oversized while preserving the existing
+chin overlap and all layered facial features. The cap-sleeve ellipsoids and cloth tubes are also
+narrower, so the animated arms leave the sloping torso without square shoulder pads.
+
+No new primitive, texture, buffer, draw, resident, path, collision or animation state is added.
+Inspected native baseline `20261017T101430.155073Z-resident` and accepted
+`20261017T101715.029052Z-resident` show the same walking pose with a more continuous shoulder,
+neck and head silhouette; the accepted frame passes at 304 colour bins, 42.62 luminance deviation
+and 158.62 spatial contrast. Core, resident, capture-validator, software-preflight and all 48
+browser-software tests pass with at most three workers. The WebGL2 package builds, and inspected
+Chrome/SwiftShader evidence `20261017T102103.943063Z-chrome-resident` passes both separated-time
+resident frames, 60 finite positive intervals, GL0, a live context and an empty kernel delta.
+Android ARM64 assemble/lint pass through the two-worker wrapper without emulator/KVM. The
+24,790,387-byte APK has SHA-256
+`6bf2e421c4b6202590f45d0c797907bdfdbaed1b8a38f9b5f73bd7836e37d1dd` and contains the
+19,747,816-byte stripped `libmain.so` (SHA-256
+`fa614c170a18005bb29cb4b5f4dfbf6cc25148ddb2798bdb1549a75dc5efda02`). Physical Android and
+hardware-GPU appearance remain unqualified.
+
 ## Latest dolphin visual pass — compact rostrum and fitted lower jaw
 
 The fish/shark/dolphin comparison selected the dolphin face: its long broad single-volume beak
