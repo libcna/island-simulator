@@ -319,3 +319,8 @@ and the replacement terrain stays below the pocket until after it closes, preven
 or intersecting shards from appearing inside. A dedicated `cave-back` camera and depth-spread
 regression guard this view; its validator uses an explicit dark-cave profile because natural
 daylight at the end is intentionally subdued rather than presentation-scene bright.
+
+The low support shoulders immediately outside the nominal walkable half-width also use the cave
+floor's stone treatment. This removes two green biome-coloured triangle bands from the inside-out
+view without moving collision geometry or recolouring the high soil mantle; the material mask is
+still explicitly limited to surfaces near the authored cave-floor height.

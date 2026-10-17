@@ -53,6 +53,10 @@ termination depth, whole-capsule clearance and traversal. The dedicated intentio
 `cave-back` evidence `20261017T143804.710202Z-cave-back` passes its non-degenerate dark-cave gate;
 inspected guards `20261017T143846.915296Z-cave-top`, `20261017T143905.304317Z-cave` and
 `20261017T143922.854622Z-cave-inside` preserve the approved soil mantle, entrance and exit view.
+A follow-up widens only the height-gated interior stone mask across the low excavation shoulders,
+removing the bright green biome triangles formerly visible along both floor edges. Inspected
+`20261017T145851.344431Z-cave-inside` confirms the stone seam, while
+`20261017T150004.172103Z-cave-top` confirms that the approved soil mantle is unchanged.
 
 ## Latest cave overhead repair — real soil overburden instead of a covered tube
 

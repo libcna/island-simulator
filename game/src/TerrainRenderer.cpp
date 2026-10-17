@@ -911,7 +911,11 @@ void main()
     float caveAcross=dot(caveOffset,vec2(uCaveForward.y,-uCaveForward.x));
     float caveWidth=2.65+.18*sin(caveDepth*.42+.3)
         +.72*smoothstep(14.0,19.5,caveDepth);
-    float caveFloor=(1.0-smoothstep(caveWidth-.5,caveWidth+.3,
+    // Include the low excavation shoulders in the interior stone treatment.  Their
+    // support triangles sit just beyond the nominal walkable half-width and used to
+    // retain bright jungle-green biome colour when seen from inside the cave.
+    float caveStoneWidth=caveWidth+.92*(1.0-smoothstep(18.0,21.0,caveDepth));
+    float caveFloor=(1.0-smoothstep(caveStoneWidth-.5,caveStoneWidth+.3,
         abs(caveAcross-.22*sin(caveDepth*.31))))
         *smoothstep(-1.5,1.0,caveDepth)*(1.0-smoothstep(20.0,21.0,caveDepth));
     // The cave terrain batch also carries a second, high soil surface above the
