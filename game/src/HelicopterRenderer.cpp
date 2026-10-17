@@ -303,8 +303,10 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
             }
         }
     };
-    const Color olive(108,121,82),oliveLight(149,155,105),oliveDark(56,67,49);
-    const Color glass(60,105,120,148),metal(91,96,92);
+    const Color olive(105,118,78),oliveLight(142,149,98),oliveDark(54,64,47);
+    // Muted grey-green glazing reads as thick aircraft glass in the sunny island
+    // palette. The previous saturated blue made the whole cockpit resemble plastic.
+    const Color glass(82,101,99,128),metal(91,96,92);
     const Color interior(73,80,71),seat(68,73,61),rubber(30,32,30);
     const auto loftNormal=[](const auto& stations,const std::size_t index,
                              const float angle) {
@@ -322,6 +324,15 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         normal.Normalize();
         return normal;
     };
+    const auto fuselagePaint=[&](const float z,const float angle) {
+        // Broad continuous value variation describes sun-faded painted sheet metal
+        // without alternating colours per polygon or introducing another material.
+        const float upper=std::max(0.0f,std::sin(angle));
+        const float side=1.0f-std::abs(std::cos(angle));
+        const float longitudinal=.040f*std::sin(z*2.15f+.35f)
+            +.022f*std::sin(z*5.1f+1.2f);
+        return ScaleColor(olive,.935f+.080f*upper+.025f*side+longitudinal);
+    };
 
     // Multi-ring fuselage with actual side openings for separate cockpit and rear doors.
     for(std::size_t band=0;band+1<Fuselage.size();++band) {
@@ -335,7 +346,7 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
                 return Vector3(std::cos(angle)*station.radiusX,
                     station.centreY+std::sin(angle)*station.radiusY,station.z);
             };
-            Color color=olive;
+            Color color=fuselagePaint(midZ,mid);
             Surface surface=Surface::Paint;
             // The windshield wraps progressively below the belt toward the rounded
             // nose. A constant horizontal cutoff made the otherwise smooth loft read
@@ -455,6 +466,12 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         beam(point(0,.49f),point(1,.49f),.065f,oliveDark);
         beam(point(.10f,1.01f),point(.90f,.98f),.052f,oliveDark);
         beam(point(.70f,1.12f),point(.87f,1.12f),.034f,metal,Surface::Metal);
+        // A shallow inset lower skin panel breaks up the former featureless slab
+        // while keeping the complete door in the shared mesh.
+        const Vector3 skinOffset(side*.009f,0,0);
+        quad(point(.14f,.58f)+skinOffset,point(.86f,.58f)+skinOffset,
+             point(.86f,.90f)+skinOffset,point(.14f,.92f)+skinOffset,
+             ScaleColor(olive,.82f));
         // Two compact barrels make the open panel's load path explicit. They remain
         // tight against the existing jamb and door edge, outside the authoritative
         // entry corridor, and fit the established bounded static mesh allocation.
@@ -671,8 +688,24 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
                        loftNormal(engineCowling,band+1,a),
                        loftNormal(engineCowling,band+1,b),
                        loftNormal(engineCowling,band,b),
-                       slice%3==0?oliveLight:olive);
+                       ScaleColor(olive,.985f+.025f*std::sin(
+                           (a+b)*.5f)+.012f*static_cast<float>(band)));
         }
+    // Framed side access panels give the cowling a believable
+    // removable skin rather than a single smooth olive lump.
+    for(const float side:{-1.0f,1.0f}) {
+        constexpr float panelX=.552f;
+        const std::array<Vector3,4> panel{{{side*panelX,2.13f,-1.49f},
+            {side*panelX,2.13f,-.64f},{side*panelX,2.43f,-.70f},
+            {side*panelX,2.45f,-1.40f}}};
+        for(std::size_t edge=0;edge<panel.size();++edge) {
+            const Vector3 a=panel[edge],b=panel[(edge+1U)%panel.size()];
+            Vector3 perpendicular(0,-(b.Z-a.Z),b.Y-a.Y);perpendicular.Normalize();
+            perpendicular*=.010f;
+            quad(a-perpendicular,b-perpendicular,b+perpendicular,a+perpendicular,
+                 oliveDark);
+        }
+    }
 
     // Tail boom, empennage and clearly horizontal tail-rotor disc.
     constexpr int tailSides=12;
@@ -688,7 +721,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         smoothQuad(point(tail[band],a),point(tail[band+1],a),point(tail[band+1],b),
                    point(tail[band],b),loftNormal(tail,band,a),
                    loftNormal(tail,band+1,a),loftNormal(tail,band+1,b),
-                   loftNormal(tail,band,b),(slice%3==0)?oliveLight:olive);
+                   loftNormal(tail,band,b),ScaleColor(olive,
+                       .96f+.025f*std::sin((a+b)*.5f)+.012f*static_cast<float>(band)));
     }
     // Raised dorsal and ventral seams make the boom a manufactured tapered shell,
     // while a buried fairing blends it into the cabin instead of meeting it as a bar.
@@ -898,8 +932,10 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     box({ 1.04f,1.50f,-.20f},{ 1.10f,1.61f,-.08f},Color(55,162,91),Surface::Emissive);
     box({-.08f,.30f,.92f},{.08f,.39f,1.08f},Color(221,211,161),Surface::Emissive);
 
-    if(mesh.empty()||glassMesh.empty()||mesh.size()+glassMesh.size()>18000)
-        throw std::runtime_error("Helicopter mesh exceeds budget");
+    const auto totalVertices=mesh.size()+glassMesh.size();
+    if(mesh.empty()||glassMesh.empty()||totalVertices>18000)
+        throw std::runtime_error("Helicopter mesh exceeds budget: "
+            +std::to_string(totalVertices)+" vertices");
     Vector3 low(std::numeric_limits<float>::max()),high(std::numeric_limits<float>::lowest());
     for(const auto& vertex:mesh){low=Vector3::Min(low,vertex.Position);high=Vector3::Max(high,vertex.Position);}
     for(const auto& vertex:glassMesh){low=Vector3::Min(low,vertex.Position);high=Vector3::Max(high,vertex.Position);}

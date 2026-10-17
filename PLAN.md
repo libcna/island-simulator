@@ -577,7 +577,12 @@ existing two-worker limit remains suitable.
   and enterable, but broad surfaces still read as flat prototype geometry. Improve fuselage surface
   shaping, normals and restrained painted-metal/glass/panel value variation within the current
   procedural renderer; CNA capability is not the blocker. Validate ordinary player-side views as
-  well as the focused QA camera.
+  well as the focused QA camera. A first corrective pass replaces polygon-alternating cowling/tail
+  colours with continuous weathered-paint variation, neutralises the plastic-blue glazing, and adds
+  inset door skins plus cowling access seams at 5,984 triangles/two draws. Native exterior/interior
+  captures `20261017T123304.256833Z-helicopter` and
+  `20261017T123336.098433Z-helicopter-inside` pass; broader silhouette refinement and portable
+  validation remain open.
 
 - [x] Clean obsolete generated screenshots and image captures from all project `build*`
   directories. Preserve source assets, every artifact still cited by `PLAN.md`/documentation,
