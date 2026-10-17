@@ -125,9 +125,11 @@ CaveLayout::CaveLayout(const IslandTerrain& terrain) {
             // metres inland.  Starting at full mantle width made the front read as a
             // cut-off concrete tunnel even though the rest of the shell was irregular.
             const float mouthWidth=innerWidth+1.38f
-                +.10f*std::sin(theta*3.2f+.4f)*arc;
+                +(.24f*std::sin(theta*3.2f+.4f)
+                  +.13f*std::sin(theta*6.4f+1.1f))*arc;
             const float mouthHeight=height+1.42f
-                +.13f*std::sin(theta*2.7f+.2f)*arc;
+                +(.30f*std::sin(theta*2.7f+.2f)
+                  +.18f*std::sin(theta*5.8f+.8f))*arc;
             const float outerWidth=std::lerp(broadOuterWidth,mouthWidth,mouth);
             const float outerHeight=std::lerp(broadOuterHeight,mouthHeight,mouth);
             // Broken projecting lip instead of a planar, manufactured arch face.

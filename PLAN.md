@@ -23,6 +23,37 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest cave-entrance pass — eroded rim and offset rock outcrops
+
+The renewed shipwreck/crocodile/hut/cave comparison retained the cave's correct inland mountain
+site, earth-and-turf-covered crown and open 20 m interior, but selected the entrance: its continuous
+grey arch still read as a prefabricated tunnel portal. The outer mouth width and height now use two
+stronger non-repeating erosion bands, so the exposed rim has unequal thickness and an asymmetric
+negative-space silhouette. Five deliberately offset, partly buried low-poly rock outcrops break the
+remaining smooth boundary without tracing a complete masonry ring. Their upward facets receive the
+same thin earth/moss accumulation as the surrounding mantle, while front faces remain fractured
+stone. All additions reuse the existing cave shader, texture, static vertex buffer and single draw.
+
+Two initial nine/seven-rock studies were visually rejected because similarly spaced lobes still
+formed a constructed stone arch. The accepted sparse arrangement adds 240 triangles, while the
+changed outer slope qualifies two fewer crown-turf sites; the final renderer is 2,857 triangles
+versus 2,623 before. Every outcrop lies outside the 2.65 m walkable half-width and centre clearance;
+the authoritative cave shell, terrain replacement, player collision and location remain unchanged.
+Inspected native baseline `20261017T104748.728892Z-cave`, rejected studies
+`20261017T110104.758480Z-cave`, `20261017T110245.626693Z-cave` and
+`20261017T110422.063450Z-cave`, accepted exterior `20261017T110717.260784Z-cave`, and accepted
+interior guard `20261017T110810.906962Z-cave-inside` document the progression. The exterior passes
+at 256 colour bins, 45.33 luminance deviation and 239.02 spatial contrast; the interior retains its
+clear exit sightline. Core, cave-layout, capture-validator, software-preflight and all 48
+browser-software tests pass with at most three workers. The WebGL2 package builds, and inspected
+Chrome/SwiftShader evidence `20261017T111648.265753Z-chrome-cave` passes exterior and interior
+views, 60 finite positive intervals per view, GL0, live contexts and an empty kernel delta. Android
+ARM64 assemble/lint pass through the two-worker wrapper without emulator/KVM. The 24,802,891-byte
+APK has SHA-256 `9e6ad25f632c063b631ccd4c0855069ea18d2bb39b86badbe93f8a3215dacbb7` and contains the
+19,760,320-byte stripped `libmain.so` (SHA-256
+`0a5b52aded77aeea60b8e3a3c06bc3e1d15ff18fb5ac382ea4a7aeccf6f68f77`). Physical Android and
+hardware-GPU appearance remain unqualified.
+
 ## Latest bear facial-anatomy pass — continuous skull-to-muzzle wedge
 
 The renewed bear/cave audit retained the bear's heavy continuous torso, shoulder mass, rounded

@@ -863,13 +863,14 @@ def main():
                 side = "inside" if args.viewpoint == "cave-inside" else "outside"
                 for marker in (f"cave QA camera {side}", "cave ground replacement",
                                "cave rock first visible draw",
-                               "cave rock 2623 triangles in one culled draw; 20m walkable interior",
+                               "cave rock 2857 triangles in one culled draw; 20m walkable interior",
                                "cave compact asymmetric mouth uses normal-lit fractured stone and restrained moss",
                                "cave narrow eroded lip grows into an irregular closed rock mantle",
                                "cave connected shell strips share smooth lighting normals while portal breaks stay sharp",
                                "cave adds six high-clearance eroded ceiling pendants in the existing draw",
                                "cave mouth is embedded in a rising inland mountain slope",
-                               "cave crown is concealed from above by blended earth and 371 irregular three-blade tufts in the existing draw",
+                               "cave crown is concealed from above by blended earth and 369 irregular three-blade tufts in the existing draw",
+                               "cave portal uses five offset partly buried rock outcrops outside the walkable opening",
                                "cave terrain shoulders use an irregular rock apron around the open corridor",
                                "cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling"):
                     if marker not in diagnostics:

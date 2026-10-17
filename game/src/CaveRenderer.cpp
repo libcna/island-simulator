@@ -262,6 +262,72 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
             appendPendantTriangle(middleFirst,tip,middleSecond,middleCentre);
         }
     }
+
+    // Irregular low-poly rock lobes interrupt the remaining regular cut-stone read of
+    // the portal.  They sit over the existing solid shell and terrain shoulders, never
+    // inside the 2.65 m walkable half-width or below the 3.45 m centre clearance, so
+    // the established collision surface remains authoritative.
+    struct PortalRock {float across,height,depth,rx,ry,rz;};
+    constexpr std::array<PortalRock,5> portalRocks{{
+        {-3.30f,.62f,-.36f,1.02f,.76f,.78f},
+        {-3.08f,1.88f,-.54f,.82f,1.10f,.70f},
+        {-1.92f,3.48f,-.30f,1.10f,.76f,.76f},
+        { 2.30f,3.04f,-.74f,.72f,.88f,.66f},
+        { 3.30f,.72f,-.33f,.96f,.82f,.78f},
+    }};
+    constexpr int portalSides=8;
+    const auto appendPortalTriangle=[&](Vector3 a,Vector3 b,Vector3 c,Vector3 centre) {
+        const auto worldPoint=[&](Vector3 local) {
+            const auto p=cave.World(local.X,local.Y,local.Z);
+            return Vector3(p.x,p.y,p.z);
+        };
+        Vector3 pa=worldPoint(a),pb=worldPoint(b),pc=worldPoint(c);
+        Vector3 normal=Vector3::Cross(pb-pa,pc-pa);
+        const Vector3 radial=(pa+pb+pc)/3.0f-worldPoint(centre);
+        if(Vector3::Dot(normal,radial)<0) {
+            std::swap(b,c);std::swap(pb,pc);normal*=-1.0f;
+        }
+        normal.Normalize();
+        for(const auto& vertex:std::array<std::pair<Vector3,Vector3>,3>{{
+                {a,pa},{b,pb},{c,pc}}}) {
+            vertices.push_back({{vertex.second.X,vertex.second.Y,vertex.second.Z},
+                {normal.X,normal.Y,normal.Z},
+                // Bias only the material-space depth toward the hill so upward facets
+                // collect the same thin earth/moss cap as the surrounding mantle;
+                // actual positions, lighting and clearance remain unchanged.
+                {vertex.first.X,vertex.first.Y,vertex.first.Z+.90f,.92f}});
+        }
+    };
+    for(std::size_t rockIndex=0;rockIndex<portalRocks.size();++rockIndex) {
+        const auto& rock=portalRocks[rockIndex];
+        const Vector3 centre(rock.across,rock.height,rock.depth);
+        const auto ringPoint=[&](int ring,int side) {
+            const float latitude=-std::numbers::pi_v<float>*.25f
+                +std::numbers::pi_v<float>*.25f*static_cast<float>(ring);
+            const float angle=tau*static_cast<float>(side)/portalSides;
+            const float irregular=1.0f+.14f*std::sin(angle*3.0f
+                +static_cast<float>(rockIndex)*1.37f)
+                +.06f*std::sin(angle*5.0f+static_cast<float>(rockIndex)*.71f);
+            const float horizontal=std::cos(latitude);
+            return centre+Vector3(rock.rx*horizontal*std::cos(angle)*irregular,
+                rock.ry*std::sin(latitude)*(1.0f+.04f*std::sin(angle*2.0f)),
+                rock.rz*horizontal*std::sin(angle)*irregular);
+        };
+        const Vector3 bottom=centre-Vector3::Up*rock.ry;
+        const Vector3 top=centre+Vector3::Up*rock.ry;
+        for(int side=0;side<portalSides;++side) {
+            const int next=(side+1)%portalSides;
+            const Vector3 lower=ringPoint(0,side),lowerNext=ringPoint(0,next);
+            const Vector3 middle=ringPoint(1,side),middleNext=ringPoint(1,next);
+            const Vector3 upper=ringPoint(2,side),upperNext=ringPoint(2,next);
+            appendPortalTriangle(bottom,lowerNext,lower,centre);
+            appendPortalTriangle(lower,lowerNext,middleNext,centre);
+            appendPortalTriangle(lower,middleNext,middle,centre);
+            appendPortalTriangle(middle,middleNext,upperNext,centre);
+            appendPortalTriangle(middle,upperNext,upper,centre);
+            appendPortalTriangle(upper,upperNext,top,centre);
+        }
+    }
     const auto bounds=cave.Bounds();
     bounds_=BoundingBox(Vector3(bounds[0].x,bounds[0].y,bounds[0].z),Vector3(bounds[1].x,bounds[1].y,bounds[1].z));
     count_=static_cast<int>(vertices.size());
@@ -275,6 +341,7 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
     std::cout<<"island-simulator: cave mouth is embedded in a rising inland mountain slope\n";
     std::cout<<"island-simulator: cave crown is concealed from above by blended earth and "
              <<grassTuftCount<<" irregular three-blade tufts in the existing draw\n";
+    std::cout<<"island-simulator: cave portal uses five offset partly buried rock outcrops outside the walkable opening\n";
     const char* material="island-simulator: cave rock loaded Content/structures/cave-rock.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored triplanar sampling";
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
 }
